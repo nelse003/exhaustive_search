@@ -1,7 +1,8 @@
 import giant.xray.edstats as ed
 import matplotlib.pyplot as plt
 
-# Looping over multiple files
+# TODO Write looping over multiple files
+
 
 # Running Edstats
 edstats, summary = ed.score_file_with_edstats("refine_1.mtz","refine_1.pdb")
@@ -14,6 +15,10 @@ RSR = edstats.scores.loc['Ra']
 RSR_chain = edstats.scores.loc['Ra',(slice(None),'A',slice(None),slice(None))]
 ordered_chain  = RSR_chain.sort_index(level=2)
 
+
+# TODO Make plotting into function.
+# TODO Generalise for residue and mean mode.
+# TODO Generalise for other residue metrics
 # Plotting of RSR vs residue for one chain
 fig = plt.figure()
 plt.plot(ordered_chain.index.get_level_values(2).values,ordered_chain.values)

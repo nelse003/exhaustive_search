@@ -16,6 +16,8 @@ import numpy
 import os
 
 import csv
+
+import giant.xray.edstats as ed
 ########################################################################
 
 def compute_maps(fmodel, crystal_gridding, map_type):
@@ -78,6 +80,67 @@ def loop_over_atoms(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding):
                         writer.writerow(row)
                         sys.stdout.flush()
 
+# TODO Turn the loop statements into generator, reduce repeating code
+def loop_over_residues(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding):
+
+
+    # TODO get residue identifier?
+    with open('LIG.csv'.format(),'w') as f1:
+        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+        # currently loop over rough occupancy range for initial testing
+        for occupancy in numpy.arange(0, 1.01, 0.05):
+            for u_iso in numpy.arange(0.25, 1.2, 0.05):
+                xrs_dc = xrs.deep_copy_scatterers()
+
+                # TODO Set residue group
+                # Change Occupancy and B factor for all atoms in selected ligand at the same time
+                for i, site_frac in enumerate(sites_frac):
+                    if (sel_lig[i]):
+                        xrs_dc.scatterers()[i].occupancy = occupancy
+                        xrs_dc.scatterers()[i].u_iso = u_iso
+                        print(xrs_dc.scatterers()[i].u_iso, xrs_dc.scatterers()[i].occupancy)
+
+                fmodel.update_xray_structure(
+                    xray_structure=xrs_dc,
+                    update_f_calc=True)
+                fofc_map, fofc = compute_maps(
+                    fmodel=fmodel,
+                    crystal_gridding=crystal_gridding,
+                    map_type="2mFo-DFc")
+                name = atoms[i].format_atom_record()[:28]
+                fofc_value = fofc_map.eight_point_interpolation(site_frac)
+                print(occupancy, name, "%8.3f" % (fofc_value))
+
+                # TODO Generate 2fofc maps for Edstats?
+
+                two_fofc_map, two_fofc = compute_maps(
+                    fmodel=fmodel,
+                    crystal_gridding=crystal_gridding,
+                    map_type="mFo-DFc")
+
+                # TODO use edstats directely on outputted map
+                # TODO Or replace edstats with just RSR generation function/ program?
+
+                mtz_dataset = two_fo_fc".as_mtz_dataset(column_root_label="2FOFCWT")
+                mtz_object = mtz_dataset.mtz_object()
+                mtz_object.write(file_name = "LIG_{}.mtz".format(occupancy))
+
+                # TODO Generalise map loaded in?
+                # Calclulate RSR value?
+                edstats, summary = ed.score_file_with_edstats("LIG_{}.mtz".format(occupancy), "refine_1.pdb")
+
+                # TODO Utilise edstat function to select residue group for ligand (Check the way nick uses this)
+                RSR = edstats.scores.loc['Ra']
+                # Splitting RSR score into required chain
+                RSR_chain = edstats.scores.loc['Ra', (slice(None), 'A', slice(None), slice(None))]
+                ordered_chain = RSR_chain.sort_index(level=2)
+
+                row = [xrs_dc.scatterers()[i].occupancy, xrs_dc.scatterers()[i].u_iso, fofc_value]
+                writer.writerow(row)
+                sys.stdout.flush()
+
+
+
 def loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding):
 
     #TODO Select a range of sites to loop over to sample the map calculated for each position
@@ -107,6 +170,12 @@ def loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms,
                 all_sites_fofc.append(fofc_value)
                 writer.writerow(all_sites_fofc)
             sys.stdout.flush()
+
+# TODO Get mean B factor of crystal: Use as input to loop over occupancy with fixed B-Factor
+# Use edstats?
+
+# TODO Get B factor of surrounding residues: Use as input to loop over occupancy with fixed B-Factor
+# Use iotbx heirarchy?
 
 def cmd_run(args, out=sys.stdout):
 
@@ -165,8 +234,8 @@ def cmd_run(args, out=sys.stdout):
     # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
-    loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
-
+    #loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
+    loop_over_residues(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
     #loop_over_atoms(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
 
 if(__name__ == "__main__"):

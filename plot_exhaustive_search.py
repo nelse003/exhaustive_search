@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+
 def scatter_plot(atom_name):
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(atom_name), delimiter=',', skip_header=0)
@@ -70,6 +71,8 @@ def colourbar_2d_scatter(atom_name):
 
 ###########################################################
 
+# Per atom plots
+"""
 for i in range(71,79):
     atom_name = "HETATM_3{}".format((3 - len(str(i))) * '0' + str(i))
 #    scatter_plot(atom_name)
@@ -79,3 +82,9 @@ for i in range(71,79):
 #bounded_2d_scatter("HETATM_3077",-0.3,0.3)
 #bounded_2d_scatter("HETATM_3071",-0.3,0.3)
 #bounded_2d_scatter("HETATM_3072",-0.3,0.3)
+
+"""
+
+# Per residue plot
+scatter_plot("LIG")
+bounded_2d_scatter("LIG",-0.1,0.1)
