@@ -13,8 +13,11 @@ RSR = edstats.scores.loc['Ra']
 
 # Splitting RSR score into required chain
 RSR_chain = edstats.scores.loc['Ra',(slice(None),'A',slice(None),slice(None))]
+print RSR_chain
+print type(RSR_chain)
 ordered_chain  = RSR_chain.sort_index(level=2)
-
+print ordered_chain
+print type(ordered_chain)
 
 # TODO Make plotting into function.
 # TODO Generalise for residue and mean mode.
