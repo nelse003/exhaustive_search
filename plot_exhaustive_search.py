@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import os
 
-
-def scatter_plot(atom_name):
+def scatter_plot(csv_name):
     # Load data from CSV
-    data = np.genfromtxt('{}.csv'.format(atom_name), delimiter=',', skip_header=0)
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
     x = data[:,0]
     y = data[:,1]
@@ -22,7 +22,9 @@ def scatter_plot(atom_name):
     plt.ylabel("B_iso")
     ax.set_zlabel("FoFc")
 
-    plt.savefig(atom_name)
+    plt.show()
+
+    plt.savefig(csv_name)
     plt.close()
 
 def bounded_2d_scatter(atom_name,lower_bound,upper_bound):
@@ -86,5 +88,7 @@ for i in range(71,79):
 """
 
 # Per residue plot
-scatter_plot("LIG")
-bounded_2d_scatter("LIG",-0.1,0.1)
+print os.getcwd()
+os.chdir("../output")
+scatter_plot("mean_point_near_lig_fofc")
+#bounded_2d_scatter("LIG",-0.1,0.1)

@@ -17,7 +17,10 @@ import os
 
 import csv
 
+from scitbx.array_family import flex
+
 import giant.xray.edstats as ed
+import giant.grid as grid
 ########################################################################
 
 def compute_maps(fmodel, crystal_gridding, map_type):
@@ -146,9 +149,64 @@ def loop_over_residues_edstats(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_
                 writer.writerow(row)
                 sys.stdout.flush()
 
+# TODO Turn the loop statements into generator, reduce repeating code
+def loop_over_residues_sum_fofc(sites_frac, sel_lig, xrs, xrs_lig, atoms, fmodel, crystal_gridding):
 
+    sites_cart_lig = xrs_lig.sites_cart()
 
-def loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding):
+    # Calculate the extent of the grid
+    buffer =  5
+    grid_min = flex.double([s-buffer for s in sites_cart_lig.min()])
+    grid_max = flex.double([s+buffer for s in sites_cart_lig.max()])
+
+    grid_near_lig = grid.Grid(grid_spacing = 0.25,
+                              origin = tuple(grid_min),
+                              approx_max = tuple(grid_max))
+
+    sites_cart_near_lig = grid_near_lig.cart_points()
+    print(len(list(sites_cart_lig)))
+    print(len(list(sites_cart_near_lig)))
+
+    # TODO get residue identifier?
+    with open('mean_point_near_lig_fofc.csv'.format(),'w') as f1:
+        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+        # currently loop over rough occupancy range for initial testing
+        for occupancy in numpy.arange(0, 1.01, 0.05):
+            for u_iso in numpy.arange(0.25, 1.2, 0.05):
+                xrs_dc = xrs.deep_copy_scatterers()
+
+                # TODO Set occupancy using whole residue group rather than for loop
+                # Change Occupancy and B factor for all atoms in selected ligand at the same time
+                for i, site_frac in enumerate(sites_frac):
+                    if (sel_lig[i]):
+                        xrs_dc.scatterers()[i].occupancy = occupancy
+                        xrs_dc.scatterers()[i].u_iso = u_iso
+                        #print(xrs_dc.scatterers()[i].u_iso, xrs_dc.scatterers()[i].occupancy)
+
+                fmodel.update_xray_structure(
+                    xray_structure=xrs_dc,
+                    update_f_calc=True)
+                fofc_map, fofc = compute_maps(
+                    fmodel=fmodel,
+                    crystal_gridding=crystal_gridding,
+                    map_type="mFo-DFc")
+                name = atoms[i].format_atom_record()[:28]
+
+                sum_abs_fofc_value = 0
+                # TODO Change to loop over atoms near the
+                for i, site_cart_near_lig in enumerate(sites_cart_near_lig):
+                        fofc_value = fofc_map.eight_point_interpolation(site_frac)
+                        sum_abs_fofc_value += abs(fofc_value)
+
+                print(occupancy, "%8.3f" % (sum_abs_fofc_value))
+
+                mean_abs_fofc_value = sum_abs_fofc_value/len(list(sites_cart_near_lig))
+
+                row = [occupancy, u_iso, mean_abs_fofc_value]
+                writer.writerow(row)
+                sys.stdout.flush()
+
+def loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, xrs_lig, atoms, fmodel, crystal_gridding):
 
     #TODO Select a range of sites to loop over to sample the map calculated for each position
 
@@ -228,11 +286,14 @@ def cmd_run(args, out=sys.stdout):
     # Show map values at ligand atom centers
     sites_frac = xrs.sites_frac()
     atoms = list(ph.atoms())
-    sel = xrs.hd_selection()
+
+
+    lig_heir = ph.select(sel_lig)
+    xrs_lig = lig_heir.extract_xray_structure(crystal_symmetry = inputs.crystal_symmetry)
 
     # Generate results in an output directory
 
-    output_folder = "output_a"
+    output_folder = "output"
     output_path = os.path.join(os.getcwd(),output_folder)
     print(output_path)
 
@@ -242,8 +303,10 @@ def cmd_run(args, out=sys.stdout):
     os.chdir(output_folder)
 
     #loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
-    loop_over_residues_edstats(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
+    #loop_over_residues_edstats(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
     #loop_over_atoms(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
+
+    loop_over_residues_sum_fofc(sites_frac, sel_lig, xrs, xrs_lig, atoms, fmodel, crystal_gridding)
 
 if(__name__ == "__main__"):
     cmd_run(args = sys.argv[1:])
