@@ -22,7 +22,49 @@ def scatter_plot(csv_name):
     plt.ylabel("B_iso")
     ax.set_zlabel("FoFc")
 
-    plt.show()
+    #plt.show()
+
+    plt.savefig(csv_name)
+    plt.close()
+
+def scatter_plot_2d(csv_name):
+    # Load data from CSV
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+
+    x = data[:,1]
+    y = data[:,2]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.scatter(x,y)
+
+    plt.xlabel("Occupancy")
+    plt.ylabel("Fo-Fc")
+
+    plt.savefig(csv_name)
+    plt.close()
+
+def scatter_plot_4col(csv_name):
+    # Load data from CSV
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+
+    x = data[:,0]
+    y = data[:,2]
+    z = data[:,3]
+
+    y = (8*np.pi**2)*y**2
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111,projection='3d')
+
+    ax.scatter(x,y,z)
+
+    plt.xlabel("Lig Occupancy")
+    plt.ylabel("B iso")
+    ax.set_zlabel("Fo - Fc")
+
+    #plt.show()
 
     plt.savefig(csv_name)
     plt.close()
@@ -89,6 +131,10 @@ for i in range(71,79):
 
 # Per residue plot
 print os.getcwd()
-os.chdir("../output")
-scatter_plot("mean_point_near_lig_fofc")
+os.chdir("../output_5A_bound_ground")
+#scatter_plot_4col("mean_ground_bound_5A_buffer")
+#scatter_plot_2d("fixed_B_5A_covary")
+print os.getcwd()
+#os.chdir("../output_4kjt")
+scatter_plot_4col("5A_bound_ground_covary_positive_fofc")
 #bounded_2d_scatter("LIG",-0.1,0.1)
