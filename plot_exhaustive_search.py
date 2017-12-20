@@ -62,7 +62,37 @@ def scatter_plot_4col(csv_name):
 
     plt.xlabel("Lig Occupancy")
     plt.ylabel("B iso")
-    ax.set_zlabel("Fo - Fc")
+    ax.set_zlabel("|Fo - Fc|")
+
+    #plt.show()
+
+    plt.savefig(csv_name)
+    plt.close()
+
+def scatter_plot_8col(csv_name):
+    # Load data from CSV
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+
+    lig_occ = data[:,0]
+    bound_occ = data[:,1]
+    u_iso = data[:,2]
+    mean_local_abs_fofc = data[:,3]
+    mean_abs_fofc_value = data[:,4]
+    mean_fofc = data[:,5]
+    mean_grid_fofc = data[:,6]
+    mean_grid_abs_fofc = data[:,7]
+
+
+    B_iso = (8*np.pi**2)*u_iso**2
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111,projection='3d')
+
+    ax.scatter(lig_occ, B_iso, mean_local_abs_fofc - mean_grid_fofc)
+
+    plt.xlabel("Lig Occupancy")
+    plt.ylabel("B iso")
+    ax.set_zlabel("mean Fo - Fc")
 
     #plt.show()
 
@@ -114,6 +144,19 @@ def colourbar_2d_scatter(atom_name):
     plt.close()
 
 ###########################################################
+# TODO make work
+def get_steps(csv_name):
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+
+    occ = data[:, 0]
+    u_iso = data[:, 2]
+    fo_fc = data[:, 3]
+
+    print occ
+
+    smallest_occ_step =[x-occ[i-1] for i, x in enumerate(occ)][1:]
+    print smallest_occ_step
+
 
 # Per atom plots
 """
@@ -129,12 +172,15 @@ for i in range(71,79):
 
 """
 
+os.chdir("../output_0A_frac_fix")
+
 # Per residue plot
 print os.getcwd()
-os.chdir("../output_5A_bound_ground")
+
 #scatter_plot_4col("mean_ground_bound_5A_buffer")
 #scatter_plot_2d("fixed_B_5A_covary")
 print os.getcwd()
 #os.chdir("../output_4kjt")
-scatter_plot_4col("5A_bound_ground_covary_positive_fofc")
+scatter_plot_4col("0A_bound_ground_covary_frac_fix")
 #bounded_2d_scatter("LIG",-0.1,0.1)
+
