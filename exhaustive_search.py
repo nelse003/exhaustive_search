@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 from cctbx import uctbx
 # for parameter phil file test
 import libtbx.phil
-########################################################################
 
 def compute_maps(fmodel, crystal_gridding, map_type):
     map_coefficients = map_tools.electron_density_map(
@@ -538,11 +537,14 @@ def get_minimum_fofc(csv_name):
     min_index = np.argmin(fo_fc)
     return occ[min_index], u_iso[min_index]
 
+def cmd_run(args):
 
-def cmd_run(args, out=sys.stdout):
+    print("I will run")
+    sys.exit()
 
     # Read input PDB and reflection files
     inputs = mmtbx.utils.process_command_line_args(args = args)
+
     reflection_files = inputs.reflection_files
     rfs = reflection_file_utils.reflection_file_server(
         crystal_symmetry = inputs.crystal_symmetry,
@@ -598,14 +600,7 @@ def cmd_run(args, out=sys.stdout):
     # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
-    #loop_over_atoms_find_fofc_at_multiple_sites(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
-    #loop_over_residues_edstats(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
-    #loop_over_atoms(sites_frac, sel_lig, xrs, atoms, fmodel, crystal_gridding)
-
-    #loop_over_residues_sum_fofc(sites_frac, sel_lig, xrs, xrs_lig, atoms, fmodel, crystal_gridding)
-    #loop_residues_altlocs_mean_fofc(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding)
     loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding)
-    #loop_over_residues_sum_fofc(sites_frac, sel_lig, xrs, xrs_lig, atoms, fmodel, crystal_gridding)
 
     fofc_map, fofc = compute_maps(
         fmodel=fmodel,
