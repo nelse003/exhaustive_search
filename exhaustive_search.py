@@ -20,9 +20,36 @@ import giant.xray.edstats as ed
 import giant.grid as grid
 import numpy as np
 import matplotlib.pyplot as plt
-from cctbx import uctbx
+
+
+# TODO change to a params style running of file
 # for parameter phil file test
 import libtbx.phil
+# ##############################################################
+#
+# PROGRAM = 'Exhaustive Search'
+# DESCRIPTION = """
+#     Take in pdb and mtz, or csv of pdb and mtz locations,
+#     run a exhaustive search of B factor and occupancy to determine unique minima.
+# """
+# blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
+#
+# ##############################################################
+# master_phil = libtbx.phil.parse("""
+# input{
+#     pdb = None
+#         .type = path
+#     mtz = None
+#         .type = path
+# }
+# output{
+#     out_dir = "/hdlocal/home/enelson/Dropbox/DPhil/exhaustive_search/output/"
+#         .type = str
+# }
+# options{
+#
+# }
+# """, process_includes=True)
 
 def compute_maps(fmodel, crystal_gridding, map_type):
     map_coefficients = map_tools.electron_density_map(
@@ -216,7 +243,6 @@ def loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmo
 
     sel_lig = asc.selection("resseq 117")
 
-
     lig_heir = protein_heir.select(sel_lig)
     xrs_lig = lig_heir.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
     xrs = protein_heir.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
@@ -225,7 +251,7 @@ def loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmo
 
     # Calculate the extent of the grid
     # TODO Test differnt grid expansion sizes
-    buffer =  2
+    buffer =  0
     grid_min = flex.double([s-buffer for s in sites_cart_lig.min()])
     grid_max = flex.double([s+buffer for s in sites_cart_lig.max()])
 
@@ -237,7 +263,7 @@ def loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmo
     sites_cart_near_lig = grid_near_lig.cart_points()
 
     # TODO get residue identifier?
-    with open('mean_covary_5A_buffer.csv'.format(),'w') as f1:
+    with open('mean_covary_0A_buffer.csv'.format(),'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
         # currently loop over rough occupancy range for initial testing
         # TODO Loop over b factor seperately for both ligands
@@ -254,12 +280,6 @@ def loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmo
                         name = atoms[i].format_atom_record()[:28]
                         print(name)
                         print(xrs_dc.scatterers()[i].u_iso, xrs_dc.scatterers()[i].occupancy)
-                    #elif(sel_ground[i]):
-                    #    xrs_dc.scatterers()[i].occupancy = (1 - occupancy * 2)/2
-                    #    xrs_dc.scatterers()[i].u_iso = u_iso
-                    #    #bound_occ = xrs_dc.scatterers()[i].occupancy
-                    #    #name = atoms[i].format_atom_record()[:28]
-                    #    #print(name, bound_occ)
 
                 fmodel.update_xray_structure(
                     xray_structure=xrs_dc,
@@ -339,7 +359,7 @@ def get_mean_fofc(xrs, sites_frac, fmodel, crystal_gridding):
 
 
 
-def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, inputs, atoms, fmodel, crystal_gridding):
+def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, inputs, atoms, fmodel, crystal_gridding,xtal_name):
 
     asc = protein_heir.atom_selection_cache()
 
@@ -356,7 +376,7 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
     #sites_frac_bound_ground = xrs_bound_ground.sites_frac()
     sites_cart_bound_ground = xrs_bound_ground.sites_cart()
 
-    print(sites_cart_bound_ground)
+    print("A")
 
     # Calculate the extent of the grid
     # TODO Test differnt grid expansion sizes
@@ -373,14 +393,15 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
 
     print (len(list(sites_cart_bound_ground)))
 
-    csv_name = '0A_bound_ground_covary_frac_fix.csv'
+    csv_name = '{}_0A_bound_ground_covary_frac_fix.csv'.format(xtal_name)
+    print(csv_name)
     # TODO implement an iteratively smaller step size based on minima
     #if os.path.exists('0A_bound_ground_covary_frac_fix.csv'):
     #    min_occ, min_u_iso = get_minimum_fofc(csv_name)
 
     lower_occ = 0.0
     upper_occ = 1.01
-    step =0.02
+    step =0.05
     lower_u_iso = 0.2
     upper_u_iso = 1.21
 
@@ -388,6 +409,9 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
         # currently loop over rough occupancy range for initial testing
         # TODO Loop over b factor seperately for both ligands
+
+        print("B")
+
         for occupancy in numpy.arange(lower_occ, upper_occ, step):
             for u_iso in numpy.arange(lower_u_iso, upper_u_iso, step):
 
@@ -537,10 +561,7 @@ def get_minimum_fofc(csv_name):
     min_index = np.argmin(fo_fc)
     return occ[min_index], u_iso[min_index]
 
-def cmd_run(args):
-
-    print("I will run")
-    sys.exit()
+def cmd_run(args, xtal_name):
 
     # Read input PDB and reflection files
     inputs = mmtbx.utils.process_command_line_args(args = args)
@@ -591,33 +612,42 @@ def cmd_run(args):
 
     # Generate results in an output directory
 
-    output_folder = "output_0A_frac_fix"
+    output_folder = "output_resseq_117"
     output_path = os.path.join(os.getcwd(),output_folder)
-    print(output_path)
+    #print("cat:{}".format(output_path))
+
+    # output_path_base = os.path.join(os.getcwd(),"output_repeat_soak")
+    #
+    # if not os.path.exists(output_path_base):
+    #     os.mkdir(output_path_base)
 
     if not os.path.exists(output_path):
         os.mkdir(output_path)
     # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
-    loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding)
+    #loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding,xtal_name)
+    loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmodel, crystal_gridding)
 
-    fofc_map, fofc = compute_maps(
-        fmodel=fmodel,
-        crystal_gridding=crystal_gridding,
-        map_type="mFo-DFc")
-"""
-    lig_cart = xrs_lig.sites_cart()
-    lig_frac = xrs_lig.sites_frac()
+    #os.chdir("../../")
+    print (os.getcwd())
 
-    print(type(lig_cart[0]))
-    print(fofc_map.eight_point_interpolation(lig_cart[0]), fofc_map.eight_point_interpolation(lig_frac[0]))
-    print(fofc_map.eight_point_interpolation(inputs.crystal_symmetry.unit_cell().fractionalize(lig_cart[0])))
+    # fofc_map, fofc = compute_maps(
+    #     fmodel=fmodel,
+    #     crystal_gridding=crystal_gridding,
+    #     map_type="mFo-DFc")
+    #
+    # lig_cart = xrs_lig.sites_cart()
+    # lig_frac = xrs_lig.sites_frac()
+    #
+    # print(type(lig_cart[0]))
+    # print(fofc_map.eight_point_interpolation(lig_cart[0]), fofc_map.eight_point_interpolation(lig_frac[0]))
+    # print(fofc_map.eight_point_interpolation(inputs.crystal_symmetry.unit_cell().fractionalize(lig_cart[0])))
+    #
+    # for i in range(1,len(lig_cart)):
+    #     line_coords, all_fofc = fofc_between_two_atoms(lig_cart[i-1], lig_cart[i], fmodel, crystal_gridding, inputs, buffer=2)
+    #     plot_name = "Atom_{}_to_{}".format(i-1,i)
+    #     fofc_line_plot(line_coords, all_fofc, plot_name, buffer=2)
 
-    for i in range(1,len(lig_cart)):
-        line_coords, all_fofc = fofc_between_two_atoms(lig_cart[i-1], lig_cart[i], fmodel, crystal_gridding, inputs, buffer=2)
-        plot_name = "Atom_{}_to_{}".format(i-1,i)
-        fofc_line_plot(line_coords, all_fofc, plot_name, buffer=2)
-"""
 if(__name__ == "__main__"):
-    cmd_run(args = sys.argv[1:])
+    cmd_run(args = sys.argv[1:], xtal_name = None)

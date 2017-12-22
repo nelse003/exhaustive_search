@@ -172,15 +172,15 @@ for i in range(71,79):
 
 """
 
-os.chdir("../output_0A_frac_fix")
+#os.chdir("../output_0A_frac_fix")
 
 # Per residue plot
-print os.getcwd()
+#print os.getcwd()
 
 #scatter_plot_4col("mean_ground_bound_5A_buffer")
 #scatter_plot_2d("fixed_B_5A_covary")
-print os.getcwd()
+#print os.getcwd()
 #os.chdir("../output_4kjt")
-scatter_plot_4col("0A_bound_ground_covary_frac_fix")
+#scatter_plot_4col("0A_bound_ground_covary_frac_fix")
 #bounded_2d_scatter("LIG",-0.1,0.1)
 
