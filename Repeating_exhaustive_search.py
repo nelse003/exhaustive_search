@@ -5,7 +5,7 @@ import libtbx.phil
 import pandas as pd
 import csv
 from exhaustive_search import cmd_run as exhaustive_search, get_minimum_fofc
-from plot_exhaustive_search import scatter_plot_4col
+from plot_exhaustive_search import scatter_plot_4col, scatter_plot
 import sqlite3
 
 ##############################################################
@@ -115,28 +115,51 @@ def run(params):
     #                 continue
 
     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+
+
         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
-        # For Exhaustive search run
+        #### For Exhaustive search run ####
+
         # args = [pdb, mtz]
         # exhaustive_search(args, xtal_name)
 
-        # For Plotting
-        output_folder = "output_DCP2_refinements/{}".format(xtal_name)
-        output_path = os.path.join(os.getcwd(), output_folder)
-        output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
+        #### For Plotting ####
 
-        if not os.path.exists(output_path_base):
-            os.mkdir(output_path_base)
+        # output_folder = "output_DCP2_refinements/{}".format(xtal_name)
+        # output_path = os.path.join(os.getcwd(), output_folder)
+        # output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
+        #
+        # if not os.path.exists(output_path_base):
+        #     os.mkdir(output_path_base)
+        #
+        # if not os.path.exists(output_path):
+        #     os.mkdir(output_path)
+        # os.chdir(output_folder)
+        # csv_name = '{}_0A_bound_ground_covary_frac_fix'.format(xtal_name)
+        # scatter_plot_4col(csv_name)
+        # os.chdir("../../")
 
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-        os.chdir(output_folder)
-        csv_name = '{}_0A_bound_ground_covary_frac_fix'.format(xtal_name)
-        scatter_plot_4col(csv_name)
-        os.chdir("../../")
+        #### For getting single plot #####
+        if xtal_name == "DCP2B-x0020":
+            #args = [pdb, mtz]
+            #exhaustive_search(args, xtal_name)
+            csv_name = 'mean_covary_0A_buffer'
+            output_folder = "output_DCP2_refinements/{}".format(xtal_name)
+            output_path = os.path.join(os.getcwd(), output_folder)
+            output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
 
+            if not os.path.exists(output_path_base):
+                os.mkdir(output_path_base)
+
+            if not os.path.exists(output_path):
+                os.mkdir(output_path)
+            print("AAAAAAAAAAA")
+            os.chdir(output_folder)
+            print(os.getcwd())
+            scatter_plot(csv_name)
+            sys.exit()
 
 
 

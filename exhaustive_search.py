@@ -241,7 +241,7 @@ def loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmo
 
     asc = protein_heir.atom_selection_cache()
 
-    sel_lig = asc.selection("resseq 117")
+    sel_lig = asc.selection("resname LIG")
 
     lig_heir = protein_heir.select(sel_lig)
     xrs_lig = lig_heir.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
@@ -357,7 +357,7 @@ def get_mean_fofc(xrs, sites_frac, fmodel, crystal_gridding):
            sum_grid_fofc/len(grid_sites), \
            sum_grid_abs_fofc/len(grid_sites)
 
-
+#################################################
 
 def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, inputs, atoms, fmodel, crystal_gridding,xtal_name):
 
@@ -408,7 +408,7 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
     with open(csv_name,'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
         # currently loop over rough occupancy range for initial testing
-        # TODO Loop over b factor seperately for both ligands
+        # TODO Loop over b factor separately for both ligands: Is this needed?
 
         print("B")
 
@@ -628,6 +628,7 @@ def cmd_run(args, xtal_name):
     os.chdir(output_folder)
 
     loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding,xtal_name)
+    #loop_residues_altlocs_mean_fofc(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding)
 
     os.chdir("../../")
 
