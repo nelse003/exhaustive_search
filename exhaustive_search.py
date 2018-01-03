@@ -363,6 +363,7 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
 
     asc = protein_heir.atom_selection_cache()
 
+    # TODO Provide a better way to specify the ground and bound state and the molecules involved
     sel_lig = asc.selection("resname LIG")
     sel_bound = asc.selection("chain E")
     sel_ground_bound = asc.selection("resname LIG or chain E")
@@ -375,8 +376,6 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
 
     #sites_frac_bound_ground = xrs_bound_ground.sites_frac()
     sites_cart_bound_ground = xrs_bound_ground.sites_cart()
-
-    print("A")
 
     # Calculate the extent of the grid
     # TODO Test differnt grid expansion sizes
@@ -399,6 +398,7 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
     #if os.path.exists('0A_bound_ground_covary_frac_fix.csv'):
     #    min_occ, min_u_iso = get_minimum_fofc(csv_name)
 
+    # TODO Move to input/ phil file implementation
     lower_occ = 0.0
     upper_occ = 1.01
     step =0.05
@@ -447,6 +447,8 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
                     crystal_gridding=crystal_gridding,
                     map_type="mFo-DFc")
 
+                # TODO add optional argument (phil file) to allow mtz data creation
+
                 #mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
                 #mtz_object = mtz_dataset.mtz_object()
                 #mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
@@ -465,6 +467,7 @@ def loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, protein_heir, input
 
                 lig_occ = occupancy / 2
 
+                # TODO Add an option to get mean fofc over whole molecule (phil file)/ or remove this to legacy code
                 #mean_fofc, mean_abs_fofc_value, mean_grid_fofc, mean_grid_abs_fofc = get_mean_fofc(xrs_dc, sites_frac, fmodel, crystal_gridding)
 
                 row = [lig_occ, bound_occ, u_iso, mean_abs_local_fofc_value]#, mean_abs_fofc_value, mean_fofc,mean_grid_fofc, mean_grid_abs_fofc]
@@ -612,25 +615,23 @@ def cmd_run(args, xtal_name):
 
     # Generate results in an output directory
 
-    output_folder = "output_resseq_117"
+    output_folder = "output_DCP2_refinements/{}".format(xtal_name)
     output_path = os.path.join(os.getcwd(),output_folder)
-    #print("cat:{}".format(output_path))
+    output_path_base = os.path.join(os.getcwd(),"output_DCP2_refinements")
 
-    # output_path_base = os.path.join(os.getcwd(),"output_repeat_soak")
-    #
-    # if not os.path.exists(output_path_base):
-    #     os.mkdir(output_path_base)
+    if not os.path.exists(output_path_base):
+         os.mkdir(output_path_base)
 
     if not os.path.exists(output_path):
         os.mkdir(output_path)
     # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
-    #loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding,xtal_name)
-    loop_residues_altlocs_mean_fofc(sites_frac, protein_heir, inputs, atoms, fmodel, crystal_gridding)
+    loop_residues_altlocs_mean_fofc_ground_bound(sites_frac, ph, inputs, atoms, fmodel, crystal_gridding,xtal_name)
 
-    #os.chdir("../../")
-    print (os.getcwd())
+    os.chdir("../../")
+
+    ## Fo-Fc Line plotting
 
     # fofc_map, fofc = compute_maps(
     #     fmodel=fmodel,
