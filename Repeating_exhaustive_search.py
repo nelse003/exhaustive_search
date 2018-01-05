@@ -8,6 +8,8 @@ from exhaustive_search import cmd_run as exhaustive_search, get_minimum_fofc
 from plot_exhaustive_search import scatter_plot_4col, scatter_plot
 import sqlite3
 
+from select_hierarchies import select_chains_to_vary
+
 ##############################################################
 
 PROGRAM = 'Repeat Exhaustive Search'
@@ -68,6 +70,7 @@ def get_in_refinement_or_better(params):
         xtal_name = xtal_name.encode('ascii')
         yield xtal_name, pdb, mtz
 
+
 def run(params):
 
     # TODO Move repat soaks to function
@@ -116,14 +119,12 @@ def run(params):
 
     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
 
-
         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
         #### For Exhaustive search run ####
-
-        # args = [pdb, mtz]
-        # exhaustive_search(args, xtal_name)
+        args = [pdb, mtz]
+        exhaustive_search(args, xtal_name)
 
         #### For Plotting ####
 
@@ -141,25 +142,25 @@ def run(params):
         # scatter_plot_4col(csv_name)
         # os.chdir("../../")
 
-        #### For getting single plot #####
-        if xtal_name == "DCP2B-x0020":
-            #args = [pdb, mtz]
-            #exhaustive_search(args, xtal_name)
-            csv_name = 'mean_covary_0A_buffer'
-            output_folder = "output_DCP2_refinements/{}".format(xtal_name)
-            output_path = os.path.join(os.getcwd(), output_folder)
-            output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
-
-            if not os.path.exists(output_path_base):
-                os.mkdir(output_path_base)
-
-            if not os.path.exists(output_path):
-                os.mkdir(output_path)
-            print("AAAAAAAAAAA")
-            os.chdir(output_folder)
-            print(os.getcwd())
-            scatter_plot(csv_name)
-            sys.exit()
+        # #### For getting single plot #####
+        # if xtal_name == "DCP2B-x0020":
+        #     #args = [pdb, mtz]
+        #     #exhaustive_search(args, xtal_name)
+        #     csv_name = 'mean_covary_0A_buffer'
+        #     output_folder = "output_DCP2_refinements/{}".format(xtal_name)
+        #     output_path = os.path.join(os.getcwd(), output_folder)
+        #     output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
+        #
+        #     if not os.path.exists(output_path_base):
+        #         os.mkdir(output_path_base)
+        #
+        #     if not os.path.exists(output_path):
+        #         os.mkdir(output_path)
+        #     print("AAAAAAAAAAA")
+        #     os.chdir(output_folder)
+        #     print(os.getcwd())
+        #     scatter_plot(csv_name)
+        #     sys.exit()
 
 
 
