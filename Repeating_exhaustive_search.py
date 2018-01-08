@@ -4,11 +4,10 @@ import sys
 import libtbx.phil
 import pandas as pd
 import csv
-from exhaustive_search import cmd_run as exhaustive_search, get_minimum_fofc
+from exhaustive_search import run as exhaustive_search
+from exhaustive_search import get_minimum_fofc
 from plot_exhaustive_search import scatter_plot_4col, scatter_plot
 import sqlite3
-
-from select_hierarchies import select_chains_to_vary
 
 ##############################################################
 
@@ -101,30 +100,38 @@ def run(params):
     # TODO Move saving all minima to function
     # Saving all minima
 
-    # with open("min_occ_u_iso",'w') as f1:
-    #     writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-    #     for xtal_name, pdb, mtz in parse_repeat_soak_csv(params):
-    #         if pdb and mtz is not None:
-    #             try:
-    #                 assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-    #                 assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-    #                 os.chdir("output_repeat_soak/{}".format(xtal_name))
-    #                 occ, u_iso = get_minimum_fofc("{}_0A_bound_ground_covary_frac_fix".format(xtal_name))
-    #                 row = [xtal_name, occ, u_iso]
-    #                 writer.writerow(row)
-    #                 sys.stdout.flush()
-    #                 os.chdir("../..")
-    #             except:
-    #                 continue
+    # os.chdir("output_DCP2_refinements/DCP2B-x0020")
+    # print(os.getcwd())
+    # occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
+    # print(occ, u_iso)
 
-    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    with open("min_occ_u_iso_all_dcp2",'w') as f1:
+        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+        for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+            if pdb and mtz is not None:
+                try:
+                    assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+                    assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+                    os.chdir("output_DCP2_refinements/{}".format(xtal_name))
+                    occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
+                    row = [xtal_name, occ, u_iso]
+                    writer.writerow(row)
+                    sys.stdout.flush()
+                    os.chdir("../..")
+                except:
+                    print("Minima processing failed on xtal: {}".format(xtal_name))
+                    continue
+            else:
+                print("Path to PDB & MTZ file is likely incorrect")
 
-        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-
-        #### For Exhaustive search run ####
-        args = [pdb, mtz]
-        exhaustive_search(args, xtal_name)
+    # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    #
+    #     assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+    #     assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #
+    #     #### For Exhaustive search run ####
+    #     args = [pdb, mtz]
+    #     exhaustive_search(args, xtal_name)
 
         #### For Plotting ####
 
