@@ -3,71 +3,40 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import os
 
-def scatter_plot(csv_name):
+def scatter_plot(csv_name, three_dim_plot=True):
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
-    x = data[:,0]
-    y = data[:,1]
-    z = data[:,2]
+    if len(data[0]) == 3:
+        occ = data[:,0]
+        u_iso = data[:,1]
+        fo_fc = data[:,2]
 
-    y = (8*np.pi**2)*y**2
+    if len(data[0]) == 4:
+        occ = data[:, 0]
+        u_iso = data[:, 2]
+        fo_fc = data[:, 3]
+
+    b_iso = (8*np.pi**2)*u_iso**2
 
     fig = plt.figure()
-    ax = fig.add_subplot(111,projection='3d')
 
-    ax.scatter(x,y,z)
+    if three_dim_plot:
+        ax = fig.add_subplot(111,projection='3d')
+        ax.scatter(occ, b_iso, fo_fc)
+        plt.xlabel("Occupancy")
+        plt.ylabel("B_iso")
+        ax.set_zlabel("Fo-Fc")
+    else:
+        ax = fig.add_subplot(111)
+        ax.scatter(occ, fo_fc)
 
-    plt.xlabel("Occupancy")
-    plt.ylabel("B_iso")
-    ax.set_zlabel("FoFc")
-
-    #plt.show()
+        plt.xlabel("Occupancy")
+        plt.ylabel("Fo-Fc")
 
     plt.savefig(csv_name)
     plt.close()
 
-def scatter_plot_2d(csv_name):
-    # Load data from CSV
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
-
-    x = data[:,1]
-    y = data[:,2]
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    ax.scatter(x,y)
-
-    plt.xlabel("Occupancy")
-    plt.ylabel("Fo-Fc")
-
-    plt.savefig(csv_name)
-    plt.close()
-
-def scatter_plot_4col(csv_name):
-    # Load data from CSV
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
-
-    x = data[:,0]
-    y = data[:,2]
-    z = data[:,3]
-
-    y = (8*np.pi**2)*y**2
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111,projection='3d')
-
-    ax.scatter(x,y,z)
-
-    plt.xlabel("Lig Occupancy")
-    plt.ylabel("B iso")
-    ax.set_zlabel("|Fo - Fc|")
-
-    #plt.show()
-
-    plt.savefig(csv_name)
-    plt.close()
 
 def scatter_plot_8col(csv_name):
     # Load data from CSV

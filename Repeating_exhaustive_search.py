@@ -6,7 +6,7 @@ import pandas as pd
 import csv
 from exhaustive_search import run as exhaustive_search
 from exhaustive_search import get_minimum_fofc
-from plot_exhaustive_search import scatter_plot_4col, scatter_plot
+from plot_exhaustive_search import scatter_plot
 import sqlite3
 
 ##############################################################
@@ -105,26 +105,26 @@ def run(params):
     # occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
     # print(occ, u_iso)
 
-    with open("min_occ_u_iso_all_dcp2",'w') as f1:
-        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
-            if pdb and mtz is not None:
-                try:
-                    assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-                    assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-                    os.chdir("output_DCP2_refinements/{}".format(xtal_name))
-                    occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
-                    row = [xtal_name, occ, u_iso]
-                    writer.writerow(row)
-                    sys.stdout.flush()
-                    os.chdir("../..")
-                except:
-                    print("Minima processing failed on xtal: {}".format(xtal_name))
-                    continue
-            else:
-                print("Path to PDB & MTZ file is likely incorrect")
+    # with open("min_occ_u_iso_all_dcp2",'w') as f1:
+    #     writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+    #     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    #         if pdb and mtz is not None:
+    #             try:
+    #                 assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+    #                 assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #                 os.chdir("output_DCP2_refinements/{}".format(xtal_name))
+    #                 occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
+    #                 row = [xtal_name, occ, u_iso]
+    #                 writer.writerow(row)
+    #                 sys.stdout.flush()
+    #                 os.chdir("../..")
+    #             except:
+    #                 print("Minima processing failed on xtal: {}".format(xtal_name))
+    #                 continue
+    #         else:
+    #             print("Path to PDB & MTZ file is likely incorrect")
 
-    # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
     #
     #     assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
     #     assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
@@ -135,19 +135,19 @@ def run(params):
 
         #### For Plotting ####
 
-        # output_folder = "output_DCP2_refinements/{}".format(xtal_name)
-        # output_path = os.path.join(os.getcwd(), output_folder)
-        # output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
-        #
-        # if not os.path.exists(output_path_base):
-        #     os.mkdir(output_path_base)
-        #
-        # if not os.path.exists(output_path):
-        #     os.mkdir(output_path)
-        # os.chdir(output_folder)
-        # csv_name = '{}_0A_bound_ground_covary_frac_fix'.format(xtal_name)
-        # scatter_plot_4col(csv_name)
-        # os.chdir("../../")
+        output_folder = "output_DCP2_refinements/{}".format(xtal_name)
+        output_path = os.path.join(os.getcwd(), output_folder)
+        output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
+
+        if not os.path.exists(output_path_base):
+            os.mkdir(output_path_base)
+
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
+        os.chdir(output_folder)
+        csv_name = 'mean_covary_0A_buffer'.format(xtal_name)
+        scatter_plot(csv_name)
+        os.chdir("../../")
 
         # #### For getting single plot #####
         # if xtal_name == "DCP2B-x0020":
