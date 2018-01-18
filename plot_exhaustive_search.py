@@ -34,6 +34,7 @@ def scatter_plot(csv_name, three_dim_plot=True):
         plt.xlabel("Occupancy")
         plt.ylabel("Fo-Fc")
 
+    #plt.show()
     plt.savefig(csv_name)
     plt.close()
 

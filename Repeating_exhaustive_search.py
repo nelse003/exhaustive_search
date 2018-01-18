@@ -29,9 +29,13 @@ input{
         .type = path
     database_path = None
         .type = path
+    csv_name = 'u_iso_occupancy_vary'
+        .type = str
 }
 output{
-    out_dir = "/hdlocal/home/enelson/Dropbox/DPhil/exhaustive_search/output/"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/test_runs"
+        .type = str
+    minima_csv_name = "min_occ_u_iso_all_dcp2"
         .type = str
 }
 options{
@@ -69,8 +73,31 @@ def get_in_refinement_or_better(params):
         xtal_name = xtal_name.encode('ascii')
         yield xtal_name, pdb, mtz
 
+def get_all_minima(params):
+
+    with open(params.output.minima_csv_name,'w') as f1:
+        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+        for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+            print("Getting u_iso and occupancy @ sum(|fo-fc|) minima, for {}".format(xtal_name))
+            if pdb and mtz is not None:
+                try:
+                    assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+                    assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+                    os.chdir(os.path.join(params.output.out_dir,xtal_name))
+                    occ, u_iso = get_minimum_fofc(params.input.csv_name)
+                    row = [xtal_name, occ, u_iso]
+                    writer.writerow(row)
+                    sys.stdout.flush()
+                    os.chdir("../..")
+                except:
+                    print("Minima processing failed on xtal: {}".format(xtal_name))
+                    continue
+            else:
+                print("Path to PDB & MTZ file is likely incorrect")
 
 def run(params):
+
+    #get_all_minima(params)
 
     # TODO Move repat soaks to function
     # Repeat soaks of DCP2B; run over all
@@ -97,77 +124,39 @@ def run(params):
     # else:
     #     print ("Please supply a pdb and mtz, or a csv file")
 
-    # TODO Move saving all minima to function
-    # Saving all minima
-
-    # os.chdir("output_DCP2_refinements/DCP2B-x0020")
-    # print(os.getcwd())
-    # occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
-    # print(occ, u_iso)
-
-    # with open("min_occ_u_iso_all_dcp2",'w') as f1:
-    #     writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-    #     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
-    #         if pdb and mtz is not None:
-    #             try:
-    #                 assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-    #                 assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-    #                 os.chdir("output_DCP2_refinements/{}".format(xtal_name))
-    #                 occ, u_iso = get_minimum_fofc("mean_covary_0A_buffer")
-    #                 row = [xtal_name, occ, u_iso]
-    #                 writer.writerow(row)
-    #                 sys.stdout.flush()
-    #                 os.chdir("../..")
-    #             except:
-    #                 print("Minima processing failed on xtal: {}".format(xtal_name))
-    #                 continue
-    #         else:
-    #             print("Path to PDB & MTZ file is likely incorrect")
 
     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+
+        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+
+        #### For Exhaustive search run ####
+        # args = [pdb, mtz]
+        # print(xtal_name)
+        if xtal_name == "DCP2B-x1181":
+        #     exhaustive_search(args, xtal_name)
+            os.chdir(os.path.join(params.output.out_dir,"DCP2B-x1181"))
+            print(os.getcwd())
+            scatter_plot(params.input.csv_name)
     #
-    #     assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-    #     assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #     #### For Plotting ####
     #
-    #     #### For Exhaustive search run ####
-    #     args = [pdb, mtz]
-    #     exhaustive_search(args, xtal_name)
+    #     output_folder = "test_runs/{}".format(xtal_name)
+    #     output_path = os.path.join(os.getcwd(), output_folder)
+    #     output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
+    #
+    #     if not os.path.exists(output_path_base):
+    #         os.mkdir(output_path_base)
+    #
+    #     if not os.path.exists(output_path):
+    #         os.mkdir(output_path)
+    #     os.chdir(output_folder)
+    #     csv_name = 'u_iso_occupancy_vary'
+    #     print(os.getcwd())
+    #     os.rename(csv_name, csv_name + ".csv")
+    #     scatter_plot(csv_name)
+    #     os.chdir("../../")
 
-        #### For Plotting ####
-
-        output_folder = "output_DCP2_refinements/{}".format(xtal_name)
-        output_path = os.path.join(os.getcwd(), output_folder)
-        output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
-
-        if not os.path.exists(output_path_base):
-            os.mkdir(output_path_base)
-
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-        os.chdir(output_folder)
-        csv_name = 'mean_covary_0A_buffer'.format(xtal_name)
-        scatter_plot(csv_name)
-        os.chdir("../../")
-
-        # #### For getting single plot #####
-        # if xtal_name == "DCP2B-x0020":
-        #     #args = [pdb, mtz]
-        #     #exhaustive_search(args, xtal_name)
-        #     csv_name = 'mean_covary_0A_buffer'
-        #     output_folder = "output_DCP2_refinements/{}".format(xtal_name)
-        #     output_path = os.path.join(os.getcwd(), output_folder)
-        #     output_path_base = os.path.join(os.getcwd(), "output_DCP2_refinements")
-        #
-        #     if not os.path.exists(output_path_base):
-        #         os.mkdir(output_path_base)
-        #
-        #     if not os.path.exists(output_path):
-        #         os.mkdir(output_path)
-        #     print("AAAAAAAAAAA")
-        #     os.chdir(output_folder)
-        #     print(os.getcwd())
-        #     scatter_plot(csv_name)
-        #     sys.exit()
 
 
 

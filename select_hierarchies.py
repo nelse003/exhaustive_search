@@ -29,11 +29,27 @@ def select_chains_to_vary(bound_pdb_path, ground_pdb_path):
     bound_not_in_ground_hier, sel_bound_not_in_ground_hier = chains_select_hier(bound_not_in_ground_chains, bound_ph)
     ground_not_in_bound_hier, sel_ground_not_in_bound_hier = chains_select_hier(bound_not_in_ground_chains, ground_ph)
 
-    ## Are the differences between the bound and ground state within a rmsd cutoff
+    # Are the differences between the bound and ground state within a rmsd cutoff
     if hierarchy_overlap(bound_not_in_ground_hier,  ground_not_in_bound_hier, rmsd_distance=5):
-        ground_bound_chains = list(set(chain_ids_b + chain_ids_g))
+        ground_bound_chains = list(set(bound_not_in_ground_chains + ground_not_in_bound_chains))
     else:
         ground_bound_chains = []
+
+    # If there are common chains between bound not in ground and ground not in bound, check whether the common
+    # chains lie within a rmsd cutoff of the chains found uniquely in the bound not in ground?
+
+    #Is bound_ph appropriate here?
+
+    common_chains = set(bound_not_in_ground_chains).intersection(ground_not_in_bound_chains)
+    unique_bound_chains = set(bound_not_in_ground_chains).symmetric_difference(ground_not_in_bound_chains)
+
+    common_chains_hier, common_chains_sel = chains_select_hier(common_chains, bound_ph)
+    unique_bound_chains_hier, unique_bound_chains_sel = chains_select_hier(unique_bound_chains, bound_ph)
+
+    if not hierarchy_overlap(common_chains_hier,unique_bound_chains_hier, rmsd_distance= 5):
+        bound_not_in_ground_chains = list(set(bound_not_in_ground_chains).symmetric_difference(common_chains))
+        ground_not_in_bound_chains = list(set(ground_not_in_bound_chains).symmetric_difference(common_chains))
+        ground_bound_chains = list(set(bound_not_in_ground_chains + ground_not_in_bound_chains))
 
     return ground_bound_chains, bound_not_in_ground_chains, ground_not_in_bound_chains
 
@@ -90,7 +106,7 @@ def compare_hier(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_cutoff = 0
                 print("Chain {} is different by {} A RMSD".format(chain_id, distance))
                 chains_with_distant_atoms.append(chain_id)
         else:
-            print ("Chain {} is a different length in ground and bound states. "
+            print ("Chain {} is a different length in ground and bound states.".format(chain_id) +
                    "Something has been removed?. Assuming chain is different")
             chains_with_distant_atoms.append(chain_id)
 
@@ -111,7 +127,7 @@ def chains_select_hier(chain_list, hier, cache = None, copy = True):
     for chain in chain_list:
         chains_sel.append("chain {}".format(chain))
 
-    chains_selection_str = ' and '.join(chains_sel)
+    chains_selection_str = ' or '.join(chains_sel)
     sel = cache.selection(chains_selection_str)
 
     return hier.select(sel, copy_atoms=copy), sel
