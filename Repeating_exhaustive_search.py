@@ -33,9 +33,9 @@ input{
         .type = str
 }
 output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/test_runs"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/FALZA"
         .type = str
-    minima_csv_name = "min_occ_u_iso_all_dcp2"
+    minima_csv_name = "min_occ_u_iso_all_FALZA"
         .type = str
 }
 options{

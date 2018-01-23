@@ -48,7 +48,7 @@ options{
         .type = float
     upper_occ = 1.01
         .type = float
-    step = 0.01
+    step = 0.05
         .type = float
     lower_u_iso = 0.2
         .type = float
@@ -171,6 +171,8 @@ def loop_residues_altlocs_mean_fofc(params, protein_hier, inputs, fmodel, crysta
                 row = [occupancy, u_iso, mean_abs_fofc_value]
                 writer.writerow(row)
                 sys.stdout.flush()
+
+
 
 # TODO Turn the loop statements into generator, reduce repeating code
 def loop_residues_altlocs_mean_fofc_ground_bound(params, protein_hier, inputs, fmodel, crystal_gridding,
