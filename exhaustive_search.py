@@ -17,6 +17,9 @@ import csv
 from scitbx.array_family import flex
 import giant.grid as grid
 import numpy as np
+from libtbx import easy_mp
+from functools import partial
+
 
 from select_hierarchies import select_chains_to_vary, chains_select_hier
 
@@ -40,7 +43,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "test_runs"
+    out_dir = "parallel_test"
         .type = str
 }
 options{
@@ -62,6 +65,7 @@ options{
         .type = float
     generate_mtz = False
         .type = bool
+    processes = 11
 }
 """, process_includes=True)
 
@@ -203,51 +207,94 @@ def loop_residues_altlocs_mean_fofc_ground_bound(params, protein_hier, inputs, f
 
     # TODO Swap to only generate fraction sites related to selected ligand (i.e remove if statement)
     # TODO Profile the speed of the loop
+    # currently loop over rough occupancy range for initial testing
+    # TODO Loop over b factor separately for both ligands: Is this needed?
+
+    u_iso_occ = []
+    for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
+        for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
+            u_iso_occ.append((occupancy,u_iso))
+
+    occ_b_loop = occ_b_loop_caller(xrs,sites_frac, fmodel, crystal_gridding, sel_bound, sel_ground,
+                                   sites_cart_near_bound_ground, inputs, params)
+
+    sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.options.processes)
+
+    print(os.getcwd())
+
     with open(params.options.csv_name + ".csv", 'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        # currently loop over rough occupancy range for initial testing
-        # TODO Loop over b factor separately for both ligands: Is this needed?
+        writer.writerows(sum_fofc_results)
+        sys.stdout.flush()
 
-        for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
-            for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
+class occ_b_loop_caller(object):
+    def __init__(self, xrs, sites_frac, fmodel, crystal_gridding, sel_bound, sel_ground,
+                 sites_cart_near_bound_ground, inputs, params):
+        self.xrs = xrs
+        self.sites_frac = sites_frac
+        self.fmodel = fmodel
+        self.crystal_gridding = crystal_gridding
+        self.sites_cart_near_bound_ground = sites_cart_near_bound_ground
+        self.inputs = inputs
+        self.params = params
+        self.sel_bound = sel_bound
+        self.sel_ground = sel_ground
+    def __call__(self, u_iso_occ):
+        return calculate_fofc_occupancy_b_factor(u_iso_occ,
+                                                 xrs = self.xrs,
+                                                 sites_frac = self.sites_frac,
+                                                 fmodel = self.fmodel,
+                                                 crystal_gridding = self.crystal_gridding,
+                                                 sites_cart_near_bound_ground = self.sites_cart_near_bound_ground,
+                                                 inputs = self.inputs,
+                                                 params = self.params,
+                                                 sel_bound = self.sel_bound,
+                                                 sel_ground = self.sel_ground)
 
-                xrs_dc = xrs.deep_copy_scatterers()
+def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,xrs,sites_frac, fmodel, crystal_gridding, sel_bound, sel_ground,
+                                      sites_cart_near_bound_ground,inputs, params):
 
-                # TODO Set occupancy using whole residue group rather than for loop
-                # Change Occupancy and B factor for all atoms in selected ligand at the same time
+    occupancy = iter_u_iso_occ[0]
+    u_iso = iter_u_iso_occ[1]
 
-                # TODO Link number of copies of ligand/ bound state to divisor in the occupancy?
-                for i, site_frac in enumerate(sites_frac):
-                    #print(sel_ground[i])
-                    if(sel_bound[i]):
-                        xrs_dc.scatterers()[i].occupancy = occupancy / 2
-                        xrs_dc.scatterers()[i].u_iso = u_iso
-                    if(sel_ground[i]):
-                        xrs_dc.scatterers()[i].occupancy = (1 - occupancy)/2
-                        xrs_dc.scatterers()[i].u_iso = u_iso
-                        bound_occ = xrs_dc.scatterers()[i].occupancy
+    print (occupancy, type(occupancy), u_iso, type(u_iso))
 
-                fmodel.update_xray_structure(
-                    xray_structure=xrs_dc,
-                    update_f_calc=True)
-                fofc_map, fofc = compute_maps(
-                    fmodel=fmodel,
-                    crystal_gridding=crystal_gridding,
-                    map_type="mFo-DFc")
+    xrs_dc = xrs.deep_copy_scatterers()
 
-                if params.options.generate_mtz:
-                    mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
-                    mtz_object = mtz_dataset.mtz_object()
-                    mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
+    # TODO Set occupancy using whole residue group rather than for loop
+    # Change Occupancy and B factor for all atoms in selected ligand at the same time
 
-                mean_abs_fofc_value = get_mean_fofc_over_cart_sites(sites_cart_near_bound_ground, fofc_map, inputs)
+    # TODO Link number of copies of ligand/ bound state to divisor in the occupancy?
+    for i, site_frac in enumerate(sites_frac):
+        # print(sel_ground[i])
+        if (sel_bound[i]):
+            xrs_dc.scatterers()[i].occupancy = occupancy / 2
+            xrs_dc.scatterers()[i].u_iso = u_iso
+        if (sel_ground[i]):
+            xrs_dc.scatterers()[i].occupancy = (1 - occupancy) / 2
+            xrs_dc.scatterers()[i].u_iso = u_iso
+            bound_occ = xrs_dc.scatterers()[i].occupancy
 
-                # TODO Link this ligand occupancy to the number of copies of the ligand in the bound state
-                lig_occ = occupancy / 2
+    fmodel.update_xray_structure(
+        xray_structure=xrs_dc,
+        update_f_calc=True)
+    fofc_map, fofc = compute_maps(
+        fmodel=fmodel,
+        crystal_gridding=crystal_gridding,
+        map_type="mFo-DFc")
 
-                row = [lig_occ, bound_occ, u_iso, mean_abs_fofc_value]
-                writer.writerow(row)
-                sys.stdout.flush()
+    if params.options.generate_mtz:
+        mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
+        mtz_object = mtz_dataset.mtz_object()
+        mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
+
+    mean_abs_fofc_value = get_mean_fofc_over_cart_sites(sites_cart_near_bound_ground, fofc_map, inputs)
+
+    # TODO Link this ligand occupancy to the number of copies of the ligand in the bound state
+    lig_occ = occupancy / 2
+
+    row = [lig_occ, bound_occ, u_iso, mean_abs_fofc_value]
+    return row
 
 def get_bound_ground_pdb(refinement_pdb):
 
