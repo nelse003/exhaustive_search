@@ -33,7 +33,7 @@ input{
         .type = str
 }
 output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/parallel_test"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT22A"
         .type = str
     minima_csv_name = "min_occ_u_iso_all"
         .type = str
@@ -133,18 +133,20 @@ def run(params):
         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
+        os.chdir(os.path.join(params.output.out_dir))
+
         #### For Exhaustive search run ####
         args = [pdb, mtz]
-        # print(xtal_name)
-        if xtal_name == "DCP2B-x0146":
-            #exhaustive_search(args, xtal_name)
-            if not os.path.exists(os.path.join(params.output.out_dir,"DCP2B-x0146")):
-                os.mkdir(os.path.join(params.output.out_dir, "DCP2B-x0146"))
-                os.chdir(os.path.join(params.output.out_dir, "DCP2B-x0146"))
-            else:
-                os.chdir(os.path.join(params.output.out_dir, "DCP2B-x0146"))
-            print(os.getcwd())
-            scatter_plot(params.input.csv_name)
+        print(xtal_name)
+        print(os.getcwd())
+        exhaustive_search(args, xtal_name)
+        if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
+            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        else:
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        print(os.getcwd())
+        #scatter_plot(params.input.csv_name)
     #
     #     #### For Plotting ####
     #
