@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 import iotbx.pdb
 from scitbx.array_family import flex
+from giant.structure import calculate_paired_atom_rmsd
 
 # Comparing bound & ground states
 # TODO Add unit tests
@@ -30,7 +31,7 @@ def select_chains_to_vary(bound_pdb_path, ground_pdb_path):
     ground_not_in_bound_hier, sel_ground_not_in_bound_hier = chains_select_hier(bound_not_in_ground_chains, ground_ph)
 
     # Are the differences between the bound and ground state within a rmsd cutoff
-    if hierarchy_overlap(bound_not_in_ground_hier,  ground_not_in_bound_hier, rmsd_distance=5):
+    if hierarchy_any_overlap(bound_not_in_ground_hier, ground_not_in_bound_hier, rmsd_distance=5):
         ground_bound_chains = list(set(bound_not_in_ground_chains + ground_not_in_bound_chains))
     else:
         ground_bound_chains = []
@@ -46,7 +47,7 @@ def select_chains_to_vary(bound_pdb_path, ground_pdb_path):
     common_chains_hier, common_chains_sel = chains_select_hier(common_chains, bound_ph)
     unique_bound_chains_hier, unique_bound_chains_sel = chains_select_hier(unique_bound_chains, bound_ph)
 
-    if not hierarchy_overlap(common_chains_hier,unique_bound_chains_hier, rmsd_distance= 5):
+    if not hierarchy_any_overlap(common_chains_hier, unique_bound_chains_hier, rmsd_distance= 5):
         bound_not_in_ground_chains = list(set(bound_not_in_ground_chains).symmetric_difference(common_chains))
         ground_not_in_bound_chains = list(set(ground_not_in_bound_chains).symmetric_difference(common_chains))
         ground_bound_chains = list(set(bound_not_in_ground_chains + ground_not_in_bound_chains))
@@ -133,24 +134,53 @@ def chains_select_hier(chain_list, hier, cache = None, copy = True):
     return hier.select(sel, copy_atoms=copy), sel
 
 
-def hierarchy_overlap(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_distance=5):
+def hierarchy_any_overlap(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_distance=5):
 
-    """ Returns True if any atom in two heirarchies are within given rmsd distance"""
+    """ Returns True if any atom in two hierarchies are within given rmsd distance"""
+
+    all_distances = get_distance_between_hierarchies(hier_1, hier_2, cache_1, cache_2)
+
+    overlap = False
+    for distance in all_distances:
+        if distance < rmsd_distance:
+            overlap = True
+            return overlap
+
+    return overlap
+
+def hierarchy_all_overlap(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_distance=5):
+
+    """ Returns True if all atom in two heirarchies are within given rmsd distance"""
 
     if not cache_1: cache_1 = hier_1.atom_selection_cache()
     if not cache_2: cache_2 = hier_2.atom_selection_cache()
 
-    overlap = False
+    rmsd = calculate_paired_atom_rmsd(hier_1.atoms(),hier_2.atoms(),sort=True, truncate_to_common_set=False, remove_H=True)
+
+    if rmsd < rmsd_distance:
+        return True
+    else:
+        return False
+
+
+def get_distance_between_hierarchies(hier_1, hier_2, cache_1 = None, cache_2 = None):
+
+    """ Finds all distances between two hierarchies"""
+
+    if not cache_1: cache_1 = hier_1.atom_selection_cache()
+    if not cache_2: cache_2 = hier_2.atom_selection_cache()
+
+    all_distances = []
+
     for atom_hier_1 in hier_1.atoms():
         for atom_hier_2 in hier_2.atoms():
 
             distance = atom_hier_1.distance(atom_hier_2)
+            all_distances.append(distance)
 
-            if distance < rmsd_distance:
-                overlap = True
-                return overlap
+    return all_distances
 
-    return overlap
+
 
 
 def cmd_run(args, xtal_name):

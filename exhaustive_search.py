@@ -18,7 +18,7 @@ from scitbx.array_family import flex
 import giant.grid as grid
 import numpy as np
 from libtbx import easy_mp
-from functools import partial
+from select_occupancy_groups import run as get_coincident_altloc_groups
 
 
 from select_hierarchies import select_chains_to_vary, chains_select_hier
@@ -124,6 +124,18 @@ def get_cartesian_grid_points_near_chains(params, inputs, hier):
                               approx_max = tuple(grid_max))
 
     return grid_near_lig.cart_points()
+
+def get_occupancy_group_grid_points(pdb, inputs):
+
+    coincident_altloc_groups =get_coincident_altloc_groups(pdb)
+
+    for altloc_group in coincident_altloc_groups:
+        altloc_residue_dict = get_altloc_residue_dict(altloc_group[0], occupancy_groups)
+        altloc_hier = generate_altloc_hiearchy(altloc_residue_dict, pdb)
+
+        for chain in altloc_hier.only_model().chains():
+            for residue_group in chain.residue_groups():
+                xrs_residue = altloc_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
@@ -364,6 +376,11 @@ def run(args, xtal_name):
 
     # Choose between looping over 1 ligand structure or 2
     pdb = args[0]
+    get_occupancy_group_grid_points(pdb, inputs)
+
+    sys.exit()
+    ##############
+
     bound_ground_flag, bound_ground_chains, bound_chains, ground_chains = pick_atoms_to_loop_over(pdb)
 
     # Run main calculation of |Fo-Fc| at grid points near ligand
