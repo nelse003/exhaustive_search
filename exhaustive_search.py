@@ -18,7 +18,7 @@ from scitbx.array_family import flex
 import giant.grid as grid
 import numpy as np
 from libtbx import easy_mp
-from select_occupancy_groups import run as get_coincident_altloc_groups
+from select_occupancy_groups import get_altloc_hier
 
 
 from select_hierarchies import select_chains_to_vary, chains_select_hier
@@ -43,7 +43,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "NUDT22A"
+    out_dir = "DCP2BA"
         .type = str
 }
 options{
@@ -125,17 +125,37 @@ def get_cartesian_grid_points_near_chains(params, inputs, hier):
 
     return grid_near_lig.cart_points()
 
-def get_occupancy_group_grid_points(pdb, inputs):
+def get_occupancy_group_grid_points(pdb, params):
 
-    coincident_altloc_groups =get_coincident_altloc_groups(pdb)
+    """Return grid points for each occupancy group in a list"""
 
-    for altloc_group in coincident_altloc_groups:
-        altloc_residue_dict = get_altloc_residue_dict(altloc_group[0], occupancy_groups)
-        altloc_hier = generate_altloc_hiearchy(altloc_residue_dict, pdb)
+    all_occupancy_group_cart_points = []
+    # Get grid points per residue basis, as residues could be seperated in space
+    for altloc_hier in get_altloc_hier(pdb):
+
+        print(pdb)
+
+        occupancy_group_cart_points = flex.vec3_double()
 
         for chain in altloc_hier.only_model().chains():
             for residue_group in chain.residue_groups():
-                xrs_residue = altloc_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
+
+                # TODO Check: Using extract xyz instead of xrs (will this be sufficent?)
+                sites_residue_cart = residue_group.atoms().extract_xyz()
+
+                grid_min = flex.double([s - params.options.buffer for s in sites_residue_cart.min()])
+                grid_max = flex.double([s + params.options.buffer for s in sites_residue_cart.max()])
+
+                grid_residue = grid.Grid(grid_spacing = params.options.grid_spacing,
+                              origin = tuple(grid_min),
+                              approx_max = tuple(grid_max))
+
+                occupancy_group_cart_points.concatenate(grid_residue.cart_points())
+
+        all_occupancy_group_cart_points.append(occupancy_group_cart_points)
+        print("BB")
+
+    return all_occupancy_group_cart_points
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
@@ -376,9 +396,11 @@ def run(args, xtal_name):
 
     # Choose between looping over 1 ligand structure or 2
     pdb = args[0]
-    get_occupancy_group_grid_points(pdb, inputs)
-
+    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, params)
+    print ("AAAAAAAAAA")
+    print (occupancy_group_cart_points)
     sys.exit()
+
     ##############
 
     bound_ground_flag, bound_ground_chains, bound_chains, ground_chains = pick_atoms_to_loop_over(pdb)

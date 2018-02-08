@@ -183,9 +183,10 @@ def get_coincident_altloc_groups(altloc_groups_with_shared_residues, occupancy_g
 
     return coincident_altloc_groups
 
-def run(pdb,params):
 
-    occupancy_groups = get_occupancy_groups(params)
+def get_coincident_altlocs(pdb, params):
+
+    occupancy_groups = get_occupancy_groups(pdb, params)
     altlocs = get_altlocs_from_occupancy_groups(occupancy_groups)
     altloc_groups_with_shared_residues = find_altlocs_with_shared_residues(altlocs, occupancy_groups)
 
@@ -195,6 +196,20 @@ def run(pdb,params):
     coincident_altloc_groups = get_coincident_altloc_groups(altloc_groups_with_shared_residues,
                                                             occupancy_groups, pdb)
     return coincident_altloc_groups
+
+# TODO Clean up how this sources the params
+def get_altloc_hier(pdb, params=master_phil.extract()):
+    coincident_altloc_groups =get_coincident_altlocs(pdb, params)
+    occupancy_groups = get_occupancy_groups(pdb, params)
+
+    for altloc_group in coincident_altloc_groups:
+        altloc_residue_dict = get_altloc_residue_dict(altloc_group[0], occupancy_groups)
+        altloc_hier = generate_altloc_hiearchy(altloc_residue_dict, pdb)
+
+        yield altloc_hier
+
+def run(pdb,params):
+    pass
 
 
 # def get_cartesian_grid_points_near_chains(params, inputs, hier):
