@@ -17,6 +17,9 @@ import csv
 from scitbx.array_family import flex
 import giant.grid as grid
 import numpy as np
+from libtbx import easy_mp
+from select_occupancy_groups import get_altloc_hier
+
 
 from select_hierarchies import select_chains_to_vary, chains_select_hier
 
@@ -40,7 +43,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "test_runs"
+    out_dir = "DCP2BA"
         .type = str
 }
 options{
@@ -62,6 +65,7 @@ options{
         .type = float
     generate_mtz = False
         .type = bool
+    processes = 8
 }
 """, process_includes=True)
 
@@ -77,7 +81,7 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded(), map_coefficients
 
-def pick_atoms_to_loop_over(pdb, protein_hier, inputs, fmodel, crystal_gridding, params):
+def pick_atoms_to_loop_over(pdb):
 
     bound_pdb_path, ground_pdb_path = get_bound_ground_pdb(pdb)
 
@@ -92,12 +96,13 @@ def pick_atoms_to_loop_over(pdb, protein_hier, inputs, fmodel, crystal_gridding,
     print(ground_bound_chains, bound_chains, ground_chains)
 
     if not ground_bound_chains:
-        loop_residues_altlocs_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, bound_chains)
+        bound_ground_flag = False
     elif not ground_chains:
-        loop_residues_altlocs_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, bound_chains)
+        bound_ground_flag = False
     else:
-        loop_residues_altlocs_mean_fofc_ground_bound(params, protein_hier, inputs, fmodel, crystal_gridding,
-                                                     bound_chains, ground_chains, ground_bound_chains)
+        bound_ground_flag = True
+
+    return bound_ground_flag, ground_bound_chains, bound_chains, ground_chains
 
 def get_cartesian_grid_points_near_chains(params, inputs, hier):
 
@@ -120,6 +125,38 @@ def get_cartesian_grid_points_near_chains(params, inputs, hier):
 
     return grid_near_lig.cart_points()
 
+def get_occupancy_group_grid_points(pdb, params):
+
+    """Return grid points for each occupancy group in a list"""
+
+    all_occupancy_group_cart_points = []
+    # Get grid points per residue basis, as residues could be seperated in space
+    for altloc_hier in get_altloc_hier(pdb):
+
+        print(pdb)
+
+        occupancy_group_cart_points = flex.vec3_double()
+
+        for chain in altloc_hier.only_model().chains():
+            for residue_group in chain.residue_groups():
+
+                # TODO Check: Using extract xyz instead of xrs (will this be sufficent?)
+                sites_residue_cart = residue_group.atoms().extract_xyz()
+
+                grid_min = flex.double([s - params.options.buffer for s in sites_residue_cart.min()])
+                grid_max = flex.double([s + params.options.buffer for s in sites_residue_cart.max()])
+
+                grid_residue = grid.Grid(grid_spacing = params.options.grid_spacing,
+                              origin = tuple(grid_min),
+                              approx_max = tuple(grid_max))
+
+                occupancy_group_cart_points.concatenate(grid_residue.cart_points())
+
+        all_occupancy_group_cart_points.append(occupancy_group_cart_points)
+        print("BB")
+
+    return all_occupancy_group_cart_points
+
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     sum_abs_fofc_value = 0
@@ -133,121 +170,130 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
-def loop_residues_altlocs_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, bound_chains):
-
-    xrs = protein_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
-    sites_frac = xrs.sites_frac()
-
-    bound_hier, sel_bound = chains_select_hier(bound_chains, protein_hier)
-    sites_cart_near_lig = get_cartesian_grid_points_near_chains(params, inputs, bound_hier)
-
-    # TODO get residue identifier?
-    # TODO remove CSV name to phil file
-    with open(os.path.join(params.options.csv_name, ".csv"), 'w') as f1:
-        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        # currently loop over rough occupancy range for initial testing
-        # TODO Loop over b factor seperately for both ligands
-        for occupancy in numpy.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
-            for u_iso in numpy.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
-                xrs_dc = xrs.deep_copy_scatterers()
-
-                # TODO Set occupancy using whole residue group rather than for loop
-                # Change Occupancy and B factor for all atoms in selected ligand at the same time
-                for i, site_frac in enumerate(sites_frac):
-                    if(sel_bound[i]):
-                        xrs_dc.scatterers()[i].occupancy = occupancy
-                        xrs_dc.scatterers()[i].u_iso = u_iso
-
-                fmodel.update_xray_structure(
-                    xray_structure=xrs_dc,
-                    update_f_calc=True)
-                fofc_map, fofc = compute_maps(
-                    fmodel=fmodel,
-                    crystal_gridding=crystal_gridding,
-                    map_type="mFo-DFc")
-
-                mean_abs_fofc_value = get_mean_fofc_over_cart_sites(sites_cart_near_lig, fofc_map, inputs)
-
-                row = [occupancy, u_iso, mean_abs_fofc_value]
-                writer.writerow(row)
-                sys.stdout.flush()
-
-
 
 # TODO Turn the loop statements into generator, reduce repeating code
-def loop_residues_altlocs_mean_fofc_ground_bound(params, protein_hier, inputs, fmodel, crystal_gridding,
-                                                 bound_chains, ground_chains, bound_ground_chains):
+def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding,
+                        bound_chains, ground_chains, bound_ground_chains, bound_ground_flag):
 
     xrs = protein_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
     sites_frac = xrs.sites_frac()
 
     bound_hier, sel_bound = chains_select_hier(bound_chains, protein_hier)
     ground_hier, sel_ground = chains_select_hier(ground_chains, protein_hier)
-    bound_ground_hier, sel_bound_ground = chains_select_hier(bound_ground_chains, protein_hier)
-    xrs_bound_ground = bound_ground_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
-    sites_cart_bound_ground = xrs_bound_ground.sites_cart()
 
-    # Calculate the extent of the grid
-    # TODO Test different grid expansion sizes
-    grid_min = flex.double([s-params.options.buffer for s in sites_cart_bound_ground.min()])
-    grid_max = flex.double([s+params.options.buffer for s in sites_cart_bound_ground.max()])
+    if bound_ground_flag:
+        bound_ground_hier, sel_bound_ground = chains_select_hier(bound_ground_chains, protein_hier)
+        sites_interest_cart = get_cartesian_grid_points_near_chains(params, inputs, bound_ground_hier)
+    else:
+        sites_interest_cart = get_cartesian_grid_points_near_chains(params, inputs, bound_hier)
 
-    # TODO Remove dependence on giant.grid
-    grid_near_lig = grid.Grid(grid_spacing = params.options.grid_spacing,
-                              origin = tuple(grid_min),
-                              approx_max = tuple(grid_max))
-
-    sites_cart_near_bound_ground = grid_near_lig.cart_points()
-
+    # TODO Loop over b factor separately for both ligands: Is this needed?
     # TODO implement an iteratively smaller step size based on minima
+    u_iso_occ = []
+    for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
+        for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
+            u_iso_occ.append((occupancy,u_iso))
 
-    # TODO Swap to only generate fraction sites related to selected ligand (i.e remove if statement)
-    # TODO Profile the speed of the loop
+    occ_b_loop = occ_b_loop_caller(xrs =xrs,
+                                   sites_frac = sites_frac,
+                                   fmodel = fmodel,
+                                   crystal_gridding = crystal_gridding,
+                                   sel_bound = sel_bound,
+                                   sel_ground = sel_ground,
+                                   sites_interest_cart = sites_interest_cart,
+                                   inputs = inputs,
+                                   params = params ,
+                                   bound_ground_flag = bound_ground_flag)
+
+    sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.options.processes)
+
     with open(params.options.csv_name + ".csv", 'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        # currently loop over rough occupancy range for initial testing
-        # TODO Loop over b factor separately for both ligands: Is this needed?
+        writer.writerows(sum_fofc_results)
+        sys.stdout.flush()
 
-        for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
-            for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
+class occ_b_loop_caller(object):
+    """This class handles the calling of main loop, such that only the iterable (occupancy and b factor) changes.
+    Needed as some parameters are unpickable. These parameters must stay the same between iterations of the loop.
+    """
+    def __init__(self, xrs, sites_frac, fmodel, crystal_gridding, sel_bound, sel_ground,
+                 sites_interest_cart, inputs, params, bound_ground_flag):
+        self.xrs = xrs
+        self.sites_frac = sites_frac
+        self.fmodel = fmodel
+        self.crystal_gridding = crystal_gridding
+        self.sites_interest_cart = sites_interest_cart
+        self.inputs = inputs
+        self.params = params
+        self.sel_bound = sel_bound
+        self.sel_ground = sel_ground
+        self.bound_ground_flag = bound_ground_flag
+    def __call__(self, u_iso_occ):
+        return calculate_fofc_occupancy_b_factor(u_iso_occ,
+                                                 xrs = self.xrs,
+                                                 sites_frac = self.sites_frac,
+                                                 fmodel = self.fmodel,
+                                                 crystal_gridding = self.crystal_gridding,
+                                                 sites_interest_cart = self.sites_interest_cart,
+                                                 inputs = self.inputs,
+                                                 params = self.params,
+                                                 sel_bound = self.sel_bound,
+                                                 sel_ground = self.sel_ground,
+                                                 bound_ground_flag = self.bound_ground_flag)
 
-                xrs_dc = xrs.deep_copy_scatterers()
+def calculate_fofc_occupancy_b_factor(iter_u_iso_occ, xrs, sites_frac, fmodel, crystal_gridding, sel_bound, sel_ground,
+                                      sites_interest_cart,inputs, params, bound_ground_flag = True ):
 
-                # TODO Set occupancy using whole residue group rather than for loop
-                # Change Occupancy and B factor for all atoms in selected ligand at the same time
+    """ Main loop over which mean fofc is calculated, given occupancy and B factor """
 
+    occupancy = iter_u_iso_occ[0]
+    u_iso = iter_u_iso_occ[1]
+
+    xrs_dc = xrs.deep_copy_scatterers()
+
+    # TODO Set occupancy using whole residue group rather than for loop
+    # Change Occupancy and B factor for all atoms in selected ligand at the same time
+
+    # TODO Swap to only generate fractional sites related to selected ligand (i.e remove if statement)
+    for i, site_frac in enumerate(sites_frac):
+        if bound_ground_flag:
+            if (sel_bound[i]):
                 # TODO Link number of copies of ligand/ bound state to divisor in the occupancy?
-                for i, site_frac in enumerate(sites_frac):
-                    #print(sel_ground[i])
-                    if(sel_bound[i]):
-                        xrs_dc.scatterers()[i].occupancy = occupancy / 2
-                        xrs_dc.scatterers()[i].u_iso = u_iso
-                    if(sel_ground[i]):
-                        xrs_dc.scatterers()[i].occupancy = (1 - occupancy)/2
-                        xrs_dc.scatterers()[i].u_iso = u_iso
-                        bound_occ = xrs_dc.scatterers()[i].occupancy
+                xrs_dc.scatterers()[i].occupancy = occupancy / 2
+                xrs_dc.scatterers()[i].u_iso = u_iso
+            if (sel_ground[i]):
+                xrs_dc.scatterers()[i].occupancy = (1 - occupancy) / 2
+                xrs_dc.scatterers()[i].u_iso = u_iso
+                bound_occ = xrs_dc.scatterers()[i].occupancy
+        else:
+            if (sel_bound[i]):
+                xrs_dc.scatterers()[i].occupancy = occupancy
+                xrs_dc.scatterers()[i].u_iso = u_iso
 
-                fmodel.update_xray_structure(
-                    xray_structure=xrs_dc,
-                    update_f_calc=True)
-                fofc_map, fofc = compute_maps(
-                    fmodel=fmodel,
-                    crystal_gridding=crystal_gridding,
-                    map_type="mFo-DFc")
 
-                if params.options.generate_mtz:
-                    mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
-                    mtz_object = mtz_dataset.mtz_object()
-                    mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
+    fmodel.update_xray_structure(
+        xray_structure=xrs_dc,
+        update_f_calc=True)
+    fofc_map, fofc = compute_maps(
+        fmodel=fmodel,
+        crystal_gridding=crystal_gridding,
+        map_type="mFo-DFc")
 
-                mean_abs_fofc_value = get_mean_fofc_over_cart_sites(sites_cart_near_bound_ground, fofc_map, inputs)
+    if params.options.generate_mtz:
+        mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
+        mtz_object = mtz_dataset.mtz_object()
+        mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
 
-                # TODO Link this ligand occupancy to the number of copies of the ligand in the bound state
-                lig_occ = occupancy / 2
+    mean_abs_fofc_value = get_mean_fofc_over_cart_sites(sites_interest_cart, fofc_map, inputs)
 
-                row = [lig_occ, bound_occ, u_iso, mean_abs_fofc_value]
-                writer.writerow(row)
-                sys.stdout.flush()
+    if bound_ground_flag:
+        # TODO Link this ligand occupancy to the number of copies of the ligand in the bound state
+        lig_occ = occupancy / 2
+        row = [lig_occ, bound_occ, u_iso, mean_abs_fofc_value]
+    else:
+        row = [occupancy, u_iso, mean_abs_fofc_value]
+
+    return row
 
 def get_bound_ground_pdb(refinement_pdb):
 
@@ -281,10 +327,15 @@ def get_minimum_fofc(csv_name):
 
 def run(args, xtal_name):
 
+    """ Main Function, Setup for protien model and run mean |Fo-Fc| calculation. 
+    
+    Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb"""
+
     # TODO Check how this works with giant.run_default and pick correct method for loading function and holing as command scrript
     params = master_phil.extract()
 
-    # Read input PDB and reflection files
+    ####################################################
+    # Read input PDB and reflection files. Parse into fmodel and hierarchies
     inputs = mmtbx.utils.process_command_line_args(args = args)
 
     reflection_files = inputs.reflection_files
@@ -321,23 +372,49 @@ def run(args, xtal_name):
     fmodel.update_all_scales()
     print("r_work: {0} r_free: {1}".format(fmodel.r_work(), fmodel.r_free()))
 
+    print(os.getcwd())
 
-    # Generate results in an output directory
-
-    output_folder = "{}/{}".format(params.output.out_dir, xtal_name)
+    #####################################################
+    # Organise output directory
+    output_folder = "{}".format(xtal_name)
     output_path = os.path.join(os.getcwd(),output_folder)
-    output_path_base = os.path.join(os.getcwd(),"test_runs")
+    #output_path_base = os.path.join(os.getcwd(),"NUDT22A")
 
-    if not os.path.exists(output_path_base):
-         os.mkdir(output_path_base)
-
+    # print(output_path_base)
+    #
+    # if not os.path.exists(output_path_base):
+    #      os.mkdir(output_path_base)
+    #
     if not os.path.exists(output_path):
-        os.mkdir(output_path)
-    # TODO Swap out the change directory to write out for each function writing out.
+         os.mkdir(output_path)
+    # # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
+    print(os.getcwd())
+
+    ####################################################
+
+    # Choose between looping over 1 ligand structure or 2
     pdb = args[0]
-    pick_atoms_to_loop_over(pdb, ph, inputs, fmodel, crystal_gridding, params)
+    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, params)
+    print ("AAAAAAAAAA")
+    print (occupancy_group_cart_points)
+    sys.exit()
+
+    ##############
+
+    bound_ground_flag, bound_ground_chains, bound_chains, ground_chains = pick_atoms_to_loop_over(pdb)
+
+    # Run main calculation of |Fo-Fc| at grid points near ligand
+    calculate_mean_fofc(params = params,
+                        protein_hier = ph,
+                        inputs = inputs,
+                        fmodel = fmodel,
+                        crystal_gridding = crystal_gridding,
+                        bound_chains = bound_chains,
+                        ground_chains = ground_chains,
+                        bound_ground_chains = bound_ground_chains,
+                        bound_ground_flag = bound_ground_flag)
     os.chdir("../../")
 
 if(__name__ == "__main__"):
