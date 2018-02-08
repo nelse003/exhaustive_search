@@ -396,11 +396,6 @@ def run(args, xtal_name):
 
     # Choose between looping over 1 ligand structure or 2
     pdb = args[0]
-    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, params)
-    print ("AAAAAAAAAA")
-    print (occupancy_group_cart_points)
-    sys.exit()
-
     ##############
 
     bound_ground_flag, bound_ground_chains, bound_chains, ground_chains = pick_atoms_to_loop_over(pdb)
