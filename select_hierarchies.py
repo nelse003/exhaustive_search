@@ -182,7 +182,6 @@ def get_distance_between_hierarchies(hier_1, hier_2, cache_1 = None, cache_2 = N
 
 
 
-
 def cmd_run(args, xtal_name):
     ground_pdb_path = "/dls/labxchem/data/2016/lb13385-64/processing/analysis_xce2_june_17/initial_model/DCP2B-x0146/Refine_0008/refine_8.split.ground-state.pdb"
     bound_pdb_path = "/dls/labxchem/data/2016/lb13385-64/processing/analysis_xce2_june_17/initial_model/DCP2B-x0146/Refine_0008/refine_8.split.bound-state.pdb"

@@ -55,7 +55,7 @@ settings{
 
 
 # Process pdb file to provide occupancy groups
-def get_occupancy_groups(pdb, params):
+def get_occupancy_groups(pdb, params=master_phil.extract()):
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.occupancy.resnames.split(',')
@@ -145,6 +145,14 @@ def find_altlocs_with_shared_residues(altlocs, occupancy_groups):
 def generate_altloc_hiearchy(altloc_residue_dict, pdb):
 
     pdb_in = hierarchy.input(pdb)
+    altloc_selection = generate_altloc_selection(altloc_residue_dict, pdb)
+    altloc_hierarchy = pdb_in.hierarchy.select(altloc_selection)
+
+    return altloc_hierarchy
+
+def generate_altloc_selection(altloc_residue_dict, pdb):
+
+    pdb_in = hierarchy.input(pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     selection_list = []
@@ -157,9 +165,15 @@ def generate_altloc_hiearchy(altloc_residue_dict, pdb):
     selection_string = "altloc {} and ({})".format(str(altloc_residue_dict.keys()[0]), selection_string)
 
     altloc_selection = sel_cache.selection(selection_string)
-    altloc_hierarchy = pdb_in.hierarchy.select(altloc_selection)
 
-    return altloc_hierarchy
+    return altloc_selection
+
+def from_altloc_generate_altloc_selection(pdb, altloc, occupancy_groups, params=master_phil.extract()):
+
+    altloc_residue_dict = get_altloc_residue_dict(altloc, occupancy_groups)
+    altloc_selection = generate_altloc_selection(altloc_residue_dict, pdb)
+
+    return altloc_selection
 
 def get_coincident_altloc_groups(altloc_groups_with_shared_residues, occupancy_groups, pdb):
 
@@ -183,8 +197,8 @@ def get_coincident_altloc_groups(altloc_groups_with_shared_residues, occupancy_g
 
     return coincident_altloc_groups
 
-
-def get_coincident_altlocs(pdb, params):
+# TODO Clean up how this sources the params
+def get_coincident_altlocs(pdb, params=master_phil.extract()):
 
     occupancy_groups = get_occupancy_groups(pdb, params)
     altlocs = get_altlocs_from_occupancy_groups(occupancy_groups)
@@ -210,58 +224,6 @@ def get_altloc_hier(pdb, params=master_phil.extract()):
 
 def run(pdb,params):
     pass
-
-
-# def get_cartesian_grid_points_near_chains(params, inputs, hier):
-#     # TODO try replacement with extract xyz
-#     xrs_chains = hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
-#     # print(hier.overall_counts().as_str())
-#     sites_cart_chains = xrs_chains.sites_cart()
-#
-#     # print(params)
-#
-#     # Calculate the extent of the grid
-#     # TODO Test different grid expansion sizes
-#     grid_min = flex.double([s - params.options.buffer for s in sites_cart_chains.min()])
-#     grid_max = flex.double([s + params.options.buffer for s in sites_cart_chains.max()])
-#
-#     # TODO Remove dependence on giant.grid
-#     grid_near_lig = grid.Grid(grid_spacing=params.options.grid_spacing,
-#                               origin=tuple(grid_min),
-#                               approx_max=tuple(grid_max))
-#
-#     return grid_near_lig.cart_points()
-
-        # Genereate hierarcy given altloc and residues
-
-
-    # for a,b in itertools.combinations(altloc_residue_sets,max_number_altlocs):
-    #     if not a.symmetric_difference(b):
-    #         print(a, b)
-
-
-
-
-
-        # For each residue get altlocs of that residue
-            # TODO Check whether each group of altlocs are within x RMSD, for all residues in that group
-            # TODO Return coinicdent groups of altlocs
-
-    # TODO Count number of altlocs in coincident group (feed to occupancy setting code)
-
-    # Loop over coindident groups
-        # Loop over residues in coincident group
-            # TODO Get grid cartesian points within buffer of residues
-                # TODO Append to overall grid point list for that group
-                # TODO Return grids and boolean selections on hiearchies to be used in exhaustive_search.
-
-
-    # Compare RMSD of altlocs of occupancy groups
-
-    # return ground overlapping altlocs
-    # Use length to determine how to dived occupancy
-
-    # return bound overlapping altlocs
 
 
 if __name__ == '__main__':
