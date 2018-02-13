@@ -1,13 +1,16 @@
 from __future__ import print_function
+
+import csv
 import os
+import sqlite3
 import sys
+
 import libtbx.phil
 import pandas as pd
-import csv
-from exhaustive_search import run as exhaustive_search
+
 from exhaustive_search import get_minimum_fofc
+from exhaustive_search import run as exhaustive_search
 from plot_exhaustive_search import scatter_plot
-import sqlite3
 
 ##############################################################
 
@@ -140,14 +143,15 @@ def run(params):
         print(xtal_name)
         print(os.getcwd())
 
-        exhaustive_search(args, xtal_name)
-        if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
-            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        else:
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        print(os.getcwd())
-        scatter_plot(params.input.csv_name)
+        if xtal_name=="DCP2B-x0146":
+            exhaustive_search(args, xtal_name)
+            if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
+                os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            else:
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            print(os.getcwd())
+            scatter_plot(params.input.csv_name)
     #
     #     #### For Plotting ####
     #

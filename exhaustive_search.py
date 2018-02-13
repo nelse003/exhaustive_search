@@ -1,30 +1,31 @@
 #########################################################################
 #  Imports
-from __future__ import print_function
 from __future__ import division
-import sys
-from cStringIO import StringIO
-import mmtbx.f_model
-import mmtbx.utils
-from mmtbx import map_tools
-from iotbx import reflection_file_utils
-import iotbx.pdb
-from cctbx import maptbx
-import cctbx.miller
-import mmtbx.masks
-import os
+from __future__ import print_function
+
 import csv
-from scitbx.array_family import flex
+import os
+import sys
+
+import cctbx.miller
 import giant.grid as grid
-import numpy as np
-from libtbx import easy_mp
-from select_occupancy_groups import get_altloc_hier, get_coincident_altlocs, get_occupancy_groups, \
-                                    process_refined_pdb_bound_ground_states,  get_ligand_coincident_altloc_group
-
-
+import iotbx.pdb
 # TODO change to a params style running of file
 # for parameter phil file test
 import libtbx.phil
+import mmtbx.f_model
+import mmtbx.masks
+import mmtbx.utils
+import numpy as np
+from cStringIO import StringIO
+from cctbx import maptbx
+from iotbx import reflection_file_utils
+from libtbx import easy_mp
+from mmtbx import map_tools
+from scitbx.array_family import flex
+
+from select_occupancy_groups import process_refined_pdb_bound_ground_states
+
 ##############################################################
 PROGRAM = 'Exhaustive Search'
 DESCRIPTION = """
@@ -78,47 +79,6 @@ def compute_maps(fmodel, crystal_gridding, map_type):
         fourier_coefficients = map_coefficients)
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded(), map_coefficients
-
-# def get_occupancy_group_grid_points(pdb, params):
-#
-#     all_occupancy_group_cart_points = get_list_occupancy_group_grid_points(pdb, params)
-#
-#     occupancy_group_cart_points = flex.vec3_double()
-#     for occupancy_group_points in all_occupancy_group_cart_points:
-#         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(occupancy_group_points)
-#
-#     return occupancy_group_cart_points
-
-# def get_list_occupancy_group_grid_points(pdb, params):
-#
-#     """Return grid points for each occupancy group in a list"""
-#
-#     all_occupancy_group_cart_points_list = []
-#     # Get grid points per residue basis, as residues could be seperated in space
-#     for altloc_hier in get_altloc_hier(pdb):
-#
-#         print(pdb)
-#
-#         occupancy_group_cart_points = flex.vec3_double()
-#
-#         for chain in altloc_hier.only_model().chains():
-#             for residue_group in chain.residue_groups():
-#
-#                 # TODO Check: Using extract xyz instead of xrs (will this be sufficent?)
-#                 sites_residue_cart = residue_group.atoms().extract_xyz()
-#                 grid_min = flex.double([s - params.options.buffer for s in sites_residue_cart.min()])
-#                 grid_max = flex.double([s + params.options.buffer for s in sites_residue_cart.max()])
-#
-#                 grid_residue = grid.Grid(grid_spacing = params.options.grid_spacing,
-#                               origin = tuple(grid_min),
-#                               approx_max = tuple(grid_max))
-#
-#                 occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_residue.cart_points())
-#
-#         print(len(occupancy_group_cart_points))
-#         all_occupancy_group_cart_points_list.append(occupancy_group_cart_points)
-#
-#     return all_occupancy_group_cart_points_list
 
 def get_occupancy_group_grid_points(pdb, params):
 
