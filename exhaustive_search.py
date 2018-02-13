@@ -10,8 +10,6 @@ import sys
 import cctbx.miller
 import giant.grid as grid
 import iotbx.pdb
-# TODO change to a params style running of file
-# for parameter phil file test
 import libtbx.phil
 import mmtbx.f_model
 import mmtbx.masks
@@ -69,6 +67,21 @@ options{
 """, process_includes=True)
 
 def compute_maps(fmodel, crystal_gridding, map_type):
+
+    """ 
+    Compute electron density maps for a given model
+    
+    :param fmodel: Model 
+    :type fmodel: ??????????????
+    :param crystal_gridding: Seperation of crystal grid
+    :type crystal_gridding: ????????????
+    :param map_type: Specify the type of map to be generate i.e mFo-DFc
+    :type map_type: str
+    :return: fft_map.real_map_unpadded(): 
+    :type
+    
+    """
+
     map_coefficients = map_tools.electron_density_map(
         fmodel = fmodel).map_coefficients(
         map_type         = map_type,
@@ -116,8 +129,6 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
-
-# TODO Turn the loop statements into generator, reduce repeating code
 def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, pdb):
 
     xrs = protein_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
@@ -153,7 +164,9 @@ def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, 
 
 class occ_b_loop_caller(object):
     """This class handles the calling of main loop, such that only the iterable (occupancy and b factor) changes.
-    Needed as some parameters are unpickable. These parameters must stay the same between iterations of the loop.
+    
+    This handling class is needed as some parameters are unpickable. 
+    These parameters must stay the same between iterations of the loop.
     """
     def __init__(self, xrs, sites_frac, fmodel, crystal_gridding, inputs, params, bound_states, ground_states,
                  occupancy_group_cart_points):
@@ -267,7 +280,6 @@ def run(args, xtal_name):
     
     Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb"""
 
-    # TODO Check how this works with giant.run_default and pick correct method for loading function and holing as command scrript
     params = master_phil.extract()
 
     ####################################################
