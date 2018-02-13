@@ -18,8 +18,8 @@ from scitbx.array_family import flex
 import giant.grid as grid
 import numpy as np
 from libtbx import easy_mp
-from select_occupancy_groups import get_altloc_hier, from_altloc_generate_altloc_selection, \
-                                    get_coincident_altlocs, get_occupancy_groups
+from select_occupancy_groups import get_altloc_hier, get_coincident_altlocs, get_occupancy_groups, \
+                                    process_refined_pdb_bound_ground_states,  get_ligand_coincident_altloc_group
 
 
 # TODO change to a params style running of file
@@ -79,46 +79,69 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded(), map_coefficients
 
+# def get_occupancy_group_grid_points(pdb, params):
+#
+#     all_occupancy_group_cart_points = get_list_occupancy_group_grid_points(pdb, params)
+#
+#     occupancy_group_cart_points = flex.vec3_double()
+#     for occupancy_group_points in all_occupancy_group_cart_points:
+#         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(occupancy_group_points)
+#
+#     return occupancy_group_cart_points
+
+# def get_list_occupancy_group_grid_points(pdb, params):
+#
+#     """Return grid points for each occupancy group in a list"""
+#
+#     all_occupancy_group_cart_points_list = []
+#     # Get grid points per residue basis, as residues could be seperated in space
+#     for altloc_hier in get_altloc_hier(pdb):
+#
+#         print(pdb)
+#
+#         occupancy_group_cart_points = flex.vec3_double()
+#
+#         for chain in altloc_hier.only_model().chains():
+#             for residue_group in chain.residue_groups():
+#
+#                 # TODO Check: Using extract xyz instead of xrs (will this be sufficent?)
+#                 sites_residue_cart = residue_group.atoms().extract_xyz()
+#                 grid_min = flex.double([s - params.options.buffer for s in sites_residue_cart.min()])
+#                 grid_max = flex.double([s + params.options.buffer for s in sites_residue_cart.max()])
+#
+#                 grid_residue = grid.Grid(grid_spacing = params.options.grid_spacing,
+#                               origin = tuple(grid_min),
+#                               approx_max = tuple(grid_max))
+#
+#                 occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_residue.cart_points())
+#
+#         print(len(occupancy_group_cart_points))
+#         all_occupancy_group_cart_points_list.append(occupancy_group_cart_points)
+#
+#     return all_occupancy_group_cart_points_list
+
 def get_occupancy_group_grid_points(pdb, params):
 
-    all_occupancy_group_cart_points = get_list_occupancy_group_grid_points(pdb, params)
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+    states = bound_states + ground_states
+
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms  = pdb_in.hierarchy.atoms()
 
     occupancy_group_cart_points = flex.vec3_double()
-    for occupancy_group_points in all_occupancy_group_cart_points:
-        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(occupancy_group_points)
+    for state in states:
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        sites_cart = selected_atoms.extract_xyz()
+        grid_min = flex.double([s - params.options.buffer for s in sites_cart.min()])
+        grid_max = flex.double([s + params.options.buffer for s in sites_cart.max()])
+        grid_from_selection = grid.Grid(grid_spacing = params.options.grid_spacing,
+                               origin = tuple(grid_min),
+                               approx_max = tuple(grid_max))
+
+        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_from_selection.cart_points())
 
     return occupancy_group_cart_points
-
-def get_list_occupancy_group_grid_points(pdb, params):
-
-    """Return grid points for each occupancy group in a list"""
-
-    all_occupancy_group_cart_points_list = []
-    # Get grid points per residue basis, as residues could be seperated in space
-    for altloc_hier in get_altloc_hier(pdb):
-
-        print(pdb)
-
-        occupancy_group_cart_points = flex.vec3_double()
-
-        for chain in altloc_hier.only_model().chains():
-            for residue_group in chain.residue_groups():
-
-                # TODO Check: Using extract xyz instead of xrs (will this be sufficent?)
-                sites_residue_cart = residue_group.atoms().extract_xyz()
-                grid_min = flex.double([s - params.options.buffer for s in sites_residue_cart.min()])
-                grid_max = flex.double([s + params.options.buffer for s in sites_residue_cart.max()])
-
-                grid_residue = grid.Grid(grid_spacing = params.options.grid_spacing,
-                              origin = tuple(grid_min),
-                              approx_max = tuple(grid_max))
-
-                occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_residue.cart_points())
-
-        print(len(occupancy_group_cart_points))
-        all_occupancy_group_cart_points_list.append(occupancy_group_cart_points)
-
-    return all_occupancy_group_cart_points_list
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
@@ -148,19 +171,18 @@ def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, 
             u_iso_occ.append((occupancy,u_iso))
 
     occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, params)
-    coincident_altlocs = get_coincident_altlocs(pdb)
-    occupancy_groups = get_occupancy_groups(pdb)
+
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
 
     occ_b_loop = occ_b_loop_caller(xrs =xrs,
                                    sites_frac = sites_frac,
                                    fmodel = fmodel,
                                    crystal_gridding = crystal_gridding,
                                    inputs = inputs,
-                                   params = params ,
-                                   coincident_altlocs = coincident_altlocs,
-                                   occupancy_group_cart_points = occupancy_group_cart_points,
-                                   occupancy_groups= occupancy_groups,
-                                   pdb = pdb)
+                                   params = params,
+                                   bound_states = bound_states,
+                                   ground_states = ground_states,
+                                   occupancy_group_cart_points = occupancy_group_cart_points)
 
     sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.options.processes)
 
@@ -173,18 +195,17 @@ class occ_b_loop_caller(object):
     """This class handles the calling of main loop, such that only the iterable (occupancy and b factor) changes.
     Needed as some parameters are unpickable. These parameters must stay the same between iterations of the loop.
     """
-    def __init__(self, xrs, sites_frac, fmodel, crystal_gridding, inputs, params,coincident_altlocs,
-                                    occupancy_group_cart_points, occupancy_groups, pdb):
+    def __init__(self, xrs, sites_frac, fmodel, crystal_gridding, inputs, params, bound_states, ground_states,
+                 occupancy_group_cart_points):
         self.xrs = xrs
         self.sites_frac = sites_frac
         self.fmodel = fmodel
         self.crystal_gridding = crystal_gridding
         self.inputs = inputs
         self.params = params
-        self.coincident_altlocs = coincident_altlocs
-        self.occupancy_groups = occupancy_groups
+        self.bound_states = bound_states
+        self.ground_states = ground_states
         self.occupancy_group_cart_points = occupancy_group_cart_points
-        self.pdb = pdb
 
     def __call__(self, u_iso_occ):
         return calculate_fofc_occupancy_b_factor(u_iso_occ,
@@ -194,10 +215,9 @@ class occ_b_loop_caller(object):
                                                  crystal_gridding=self.crystal_gridding,
                                                  inputs=self.inputs,
                                                  params=self.params,
-                                                 coincident_altlocs=self.coincident_altlocs,
-                                                 occupancy_groups = self.occupancy_groups,
-                                                 occupancy_group_cart_points=self.occupancy_group_cart_points,
-                                                 pdb=self.pdb)
+                                                 bound_states = self.bound_states,
+                                                 ground_states = self.ground_states,
+                                                 occupancy_group_cart_points=self.occupancy_group_cart_points)
 
 def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                                       xrs,
@@ -206,33 +226,33 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                                       crystal_gridding,
                                       inputs,
                                       params,
-                                      coincident_altlocs,
-                                      occupancy_groups,
-                                      occupancy_group_cart_points,
-                                      pdb):
+                                      bound_states,
+                                      ground_states,
+                                      occupancy_group_cart_points):
 
     """ Main loop over which mean fofc is calculated, given occupancy and B factor """
 
-    occupancy = iter_u_iso_occ[0]
+    bound_occupancy = iter_u_iso_occ[0]
+    ground_occupancy = 1- iter_u_iso_occ[0]
     u_iso = iter_u_iso_occ[1]
 
     xrs_dc = xrs.deep_copy_scatterers()
 
-    for altloc_group in coincident_altlocs:
-        for altloc in altloc_group:
-            occupancy_to_set = occupancy / len(altloc_group)
-            altloc_selection = from_altloc_generate_altloc_selection(pdb, altloc, occupancy_groups)
+    for bound_state in bound_states:
+        for i, site_frac in enumerate(sites_frac):
+            num_altlocs = bound_state[1]
+            set_bound_occupancy = bound_occupancy / num_altlocs
+            if (bound_state[0][i]):
+                xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
+                xrs_dc.scatterers()[i].u_iso = u_iso
 
-            # TODO Check if altloc selection here will work on protein hier,
-            # TODO if not redo selection based on generated selection string
-
-            for i, site_frac in enumerate(sites_frac):
-                if (altloc_selection[i]):
-                    xrs_dc.scatterers()[i].occupancy = occupancy_to_set
-                    xrs_dc.scatterers()[i].u_iso = u_iso
-
-        # Alter occupancy between altloc groups
-        occupancy = 1 - occupancy
+    for ground_state in ground_states:
+        for i, site_frac in enumerate(sites_frac):
+            num_altlocs = ground_state[1]
+            set_ground_occupancy = ground_occupancy / num_altlocs
+            if (bound_state[0][i]):
+                xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
+                xrs_dc.scatterers()[i].u_iso = u_iso
 
     fmodel.update_xray_structure(
         xray_structure=xrs_dc,
@@ -245,12 +265,11 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     if params.options.generate_mtz:
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
-        mtz_object.write(file_name="testing_{}_{}.mtz".format(occupancy, u_iso))
+        mtz_object.write(file_name="testing_{}_{}.mtz".format(bound_occupancy, u_iso))
 
     mean_abs_fofc_value = get_mean_fofc_over_cart_sites(occupancy_group_cart_points, fofc_map, inputs)
 
-    row = [occupancy, u_iso, mean_abs_fofc_value]
-    return row
+    return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
 def get_bound_ground_pdb(refinement_pdb):
 

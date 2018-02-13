@@ -2,7 +2,7 @@ from __future__ import print_function
 import sys
 import iotbx.pdb
 from scitbx.array_family import flex
-from giant.structure import calculate_paired_atom_rmsd
+from giant.structure import calculate_paired_conformer_rmsds
 
 # Comparing bound & ground states
 # TODO Add unit tests
@@ -155,13 +155,20 @@ def hierarchy_all_overlap(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_d
     if not cache_1: cache_1 = hier_1.atom_selection_cache()
     if not cache_2: cache_2 = hier_2.atom_selection_cache()
 
-    rmsd = calculate_paired_atom_rmsd(hier_1.atoms(),hier_2.atoms(),sort=True, truncate_to_common_set=False, remove_H=True)
+    for chain_1, chain_2 in zip(hier_1.only_model().chains(),hier_2.only_model().chains()):
+        print(type(chain_1), type(chain_2))
+        for residue_group_1, residue_group_2 in zip(chain_1.residue_groups(), chain_2.residue_groups()):
+            conformers_1 = residue_group_1.conformers()
+            conformers_2 = residue_group_2.conformers()
+            ret_list = calculate_paired_conformer_rmsds(conformers_1, conformers_2)
+            rmsd_residue = ret_list[0][2]
 
-    if rmsd < rmsd_distance:
-        return True
-    else:
-        return False
-
+            if rmsd_residue > rmsd_distance:
+                print("RMSD {} > cutoff {} between chain {} resseq {} "
+                      "and chain {} resseq {}".format(rmsd_residue, rmsd_distance,chain_1.id,residue_group_1.resseq,
+                                                      chain_2.id,residue_group_1.resseq ))
+                return False
+    return True
 
 def get_distance_between_hierarchies(hier_1, hier_2, cache_1 = None, cache_2 = None):
 

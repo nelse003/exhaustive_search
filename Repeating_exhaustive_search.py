@@ -139,15 +139,15 @@ def run(params):
         args = [pdb, mtz]
         print(xtal_name)
         print(os.getcwd())
-        if xtal_name == "DCP2B-x0020":
-            exhaustive_search(args, xtal_name)
-            if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
-                os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-                os.chdir(os.path.join(params.output.out_dir, xtal_name))
-            else:
-                os.chdir(os.path.join(params.output.out_dir, xtal_name))
-            print(os.getcwd())
-            scatter_plot(params.input.csv_name)
+
+        exhaustive_search(args, xtal_name)
+        if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
+            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        else:
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        print(os.getcwd())
+        scatter_plot(params.input.csv_name)
     #
     #     #### For Plotting ####
     #
