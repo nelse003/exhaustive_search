@@ -244,36 +244,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
-def get_bound_ground_pdb(refinement_pdb):
-
-    split_bound_name = os.path.basename(refinement_pdb).rstrip('.pdb') + ".split.bound-state.pdb"
-    split_ground_name = os.path.basename(refinement_pdb).rstrip('.pdb') + ".split.ground-state.pdb"
-    bound_pdb_path = os.path.join(os.path.dirname(refinement_pdb),split_bound_name)
-    ground_pdb_path = os.path.join(os.path.dirname(refinement_pdb), split_ground_name)
-
-    return bound_pdb_path, ground_pdb_path
-
-def get_minimum_fofc(csv_name):
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
-
-    # If four column data from multiple ligand
-    if len(data[0]) == 4:
-        occ = data[:, 0]
-        u_iso = data[:, 2]
-        fo_fc = data[:, 3]
-    elif len(data[0]) == 3:
-        occ = data[:, 0]
-        u_iso = data[:, 1]
-        fo_fc = data[:, 2]
-    else:
-        print("Data is not in correct format")
-    #b_iso = (8 * np.pi ** 2) * u_iso ** 2
-
-    # if three column data
-
-    min_index = np.argmin(fo_fc)
-    return occ[min_index], u_iso[min_index]
-
 def run(args, xtal_name):
 
     """ Main Function, Setup for protien model and run mean |Fo-Fc| calculation. 

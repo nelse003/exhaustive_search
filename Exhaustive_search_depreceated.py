@@ -309,6 +309,15 @@ def get_list_occupancy_group_grid_points(pdb, params):
 
     return all_occupancy_group_cart_points_list
 
+
+def get_bound_ground_pdb(refinement_pdb):
+    split_bound_name = os.path.basename(refinement_pdb).rstrip('.pdb') + ".split.bound-state.pdb"
+    split_ground_name = os.path.basename(refinement_pdb).rstrip('.pdb') + ".split.ground-state.pdb"
+    bound_pdb_path = os.path.join(os.path.dirname(refinement_pdb), split_bound_name)
+    ground_pdb_path = os.path.join(os.path.dirname(refinement_pdb), split_ground_name)
+
+    return bound_pdb_path, ground_pdb_path
+
 ##############################################
 #From exhaustive_search run()
 ##############################################
