@@ -94,6 +94,15 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     return fft_map.real_map_unpadded(), map_coefficients
 
 def get_occupancy_group_grid_points(pdb, params):
+    """
+    Get cartesian points that correspond to atoms involved in the occupancy groups (as in multi-state.restraints.params)
+    
+    :param pdb:
+    :type path
+    :param params:
+    :type 
+    :return: occupancy_group_cart_points 
+    """
 
     bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
     states = bound_states + ground_states
@@ -117,6 +126,14 @@ def get_occupancy_group_grid_points(pdb, params):
     return occupancy_group_cart_points
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
+    """
+    Given cartesian sites and an |Fo-Fc| map, find the mean value of |Fo-Fc| over the cartesian points.
+    
+    :param sites_cart: 
+    :param fofc_map: 
+    :param inputs: 
+    :return: 
+    """
 
     sum_abs_fofc_value = 0
 
@@ -130,6 +147,17 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     return mean_abs_fofc_value
 
 def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, pdb):
+    """ 
+    Wrapper to prepare for main loop. Outputs a csv with ground_occupancy, bound_occupancy, u_iso and mean(|Fo-Fc|). 
+    
+    :param params: 
+    :param protein_hier: 
+    :param inputs: 
+    :param fmodel: 
+    :param crystal_gridding: 
+    :param pdb: 
+    :return: 
+    """
 
     xrs = protein_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
     sites_frac = xrs.sites_frac()
@@ -202,8 +230,21 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                                       bound_states,
                                       ground_states,
                                       occupancy_group_cart_points):
-
-    """ Main loop over which mean fofc is calculated, given occupancy and B factor """
+    """
+    Iteration of main loop over which mean(|Fo-Fc|) is calculated, given occupancy and B factor.
+    
+    :param iter_u_iso_occ: 
+    :param xrs: 
+    :param sites_frac: 
+    :param fmodel: 
+    :param crystal_gridding: 
+    :param inputs: 
+    :param params: 
+    :param bound_states: 
+    :param ground_states: 
+    :param occupancy_group_cart_points: 
+    :return: 
+    """
 
     bound_occupancy = iter_u_iso_occ[0]
     ground_occupancy = 1- iter_u_iso_occ[0]
@@ -245,10 +286,15 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
 def run(args, xtal_name):
-
-    """ Main Function, Setup for protien model and run mean |Fo-Fc| calculation. 
+    """
+    Main Function, Setup for protien model and run mean |Fo-Fc| calculation. 
     
-    Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb"""
+    Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb
+    
+    :param args: 
+    :param xtal_name: 
+    :return: 
+    """
 
     params = master_phil.extract()
 

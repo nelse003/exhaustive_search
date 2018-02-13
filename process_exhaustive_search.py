@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def get_minimum_fofc(csv_name):
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 

@@ -1,6 +1,5 @@
 import unittest
 
-
 # TODO Write TestComputeMaps
 class TestComputeMaps(unittest.TestCase):
     """
@@ -23,6 +22,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.assertEqual(True, False)
 
 
+# TODO Write TestOccupancyCartPoints
 class TestOccupancyCartPoints(unittest.TestCase):
     """
     Test the generation of cartesian points to loop over
@@ -34,6 +34,7 @@ class TestOccupancyCartPoints(unittest.TestCase):
         self.assertEqual(True, False)
 
 
+# TODO Write TestCalculateMeanFofcCartSites
 class TestCalculateMeanFofcCartSites(unittest.TestCase):
     """
     Test the calculation of |Fo-Fc| given cartesian sitess
