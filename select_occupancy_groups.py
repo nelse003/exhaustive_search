@@ -55,8 +55,10 @@ settings{
 }
 
 """, process_includes=True)
+##############################################################
+import logging
 
-
+logger = logging.getLogger(__name__)
 ##############################################################
 # Shared Functions
 ##############################################################
@@ -75,7 +77,7 @@ def get_occupancy_groups(pdb, params=master_phil.extract()):
     :return: 
     """
 
-    print("PDB",pdb)
+    logger.info("Gathering occupancy group information from PDB", pdb)
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.occupancy.resnames.split(',')
@@ -134,6 +136,8 @@ def get_residue_altloc_dict(occupancy_groups):
                     if residue_chain[0] == residue_altloc.get("resseq") and residue_chain[1] == residue_altloc.get("chain"):
                         residue_altloc_set.add(residue_altloc.get("altloc"))
                         residue_altloc_dict.update({residue_chain: residue_altloc_set})
+
+    logger.info("The residues defined in the occupancy group have atlocs:\n {}".format(residue_altloc_dict))
 
     return residue_altloc_dict
 
@@ -257,29 +261,34 @@ def get_state_selection(hier, coincident, occupancy_groups, params):
     coincident_loop = deepcopy(coincident)
     all_altlocs = set(get_parameter_from_occupancy_groups(occupancy_groups, "altloc"))
 
+    logger.info("Given coincident altloc groups return a split between ground and bound state \n" \
+                "For altloc groups that follow the ligand i.e LIG altloc C and LIG altloc D \n" \
+                " are coincident, then if RES 121 [(A,B) ,(C,D)], set (C,D) as bound state and \n" \
+                "(A,B) as ground state \n")
+
     bound_states = []
     ground_states = []
     for coincident_altloc_group in coincident_loop:
         if coincident_altloc_group[0] == lig_altloc_group:
             coincident.remove(coincident_altloc_group)
-            print("Bound State", coincident_altloc_group)
+            logger.info("Bound State: {}".format(coincident_altloc_group))
             bound_states.append(get_bound_ground_selection(sel_cache,coincident_altloc_group))
             continue
         if list(all_altlocs.difference(lig_altloc_group)) == list(coincident_altloc_group[0]):
             coincident.remove(coincident_altloc_group)
-            print("Ground State", coincident_altloc_group)
+            logger.info("Ground State: {}".format(coincident_altloc_group))
             ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
             continue
     if coincident:
-        print("\nThese altlocs do not follow the ground bound split")
-        print(coincident)
-        print("Using ligand altloc {} we presume these states to be bound\n".format(lig_altloc_group[0]))
+        logger.info("These altlocs do not follow the ground bound split: \n {}\n".format(coincident) + \
+                    "Using ligand altloc {} we presume these states to be bound\n".format(lig_altloc_group[0]))
+
         for coincident_altloc_group in coincident:
             if lig_altloc_group[0] in coincident_altloc_group[0]:
-                print("Bound State", coincident_altloc_group)
+                logger.info("Bound State: {}".format(coincident_altloc_group))
                 bound_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
             else:
-                print("Ground State", coincident_altloc_group)
+                logger.info("Ground State: {}".format(coincident_altloc_group))
                 ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
 
     return bound_states, ground_states
@@ -319,6 +328,9 @@ def get_coincident_group(hier, residue_altloc_dict, params):
     :param params: 
     :return: 
     """
+
+    logger.info("Get altlocs groups that are coincident, in format" \
+                "[(altloc_group,residue,chain),(altloc_group,residue,chain)...] ")
 
     coincident = []
     for residue_powerset in get_coincident_residue_powersets(hier, residue_altloc_dict, params):
@@ -387,6 +399,8 @@ def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
     :param params: 
     :return: 
     """
+
+    logger.info("Process pdb file to get bound and ground states.")
 
     occupancy_groups = get_occupancy_groups(pdb, params)
     pdb_inp = iotbx.pdb.input(pdb)

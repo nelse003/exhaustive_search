@@ -40,7 +40,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "DCP2BA"
+    out_dir = "NUDT22A"
         .type = str
 }
 options{
@@ -65,7 +65,13 @@ options{
     processes = 8
 }
 """, process_includes=True)
+#########################################################################
+import logging
 
+logger = logging.getLogger(__name__)
+
+
+#########################################################################
 def compute_maps(fmodel, crystal_gridding, map_type):
 
     """ 
@@ -93,7 +99,8 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     fft_map.apply_sigma_scaling()
     return fft_map.real_map_unpadded(), map_coefficients
 
-def get_occupancy_group_grid_points(pdb, params):
+
+def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
     """
     Get cartesian points that correspond to atoms involved in the occupancy groups (as in multi-state.restraints.params)
     
@@ -104,7 +111,11 @@ def get_occupancy_group_grid_points(pdb, params):
     :return: occupancy_group_cart_points 
     """
 
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+    logger.info("For all bound and ground states, select cartesian grid points for each altloc/residue \n" \
+                "involved in occupancy groups. A buffer of {} Angstrom \n".format(params.options.buffer) + \
+                "is applied to minimal and maximal grid points, with a grid seperation of {}.\n".format(
+                    params.options.grid_spacing))
+
     states = bound_states + ground_states
 
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
@@ -146,12 +157,14 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
-def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, pdb):
-    """ 
+
+def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridding, pdb):
+    """
     Wrapper to prepare for main loop. Outputs a csv with ground_occupancy, bound_occupancy, u_iso and mean(|Fo-Fc|). 
     
     :param params: 
     :param protein_hier: 
+    :param xrs: 
     :param inputs: 
     :param fmodel: 
     :param crystal_gridding: 
@@ -159,19 +172,26 @@ def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, 
     :return: 
     """
 
-    xrs = protein_hier.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
     sites_frac = xrs.sites_frac()
 
     # TODO Loop over b factor separately for multiple ligands: Is this needed?
     # TODO implement an iteratively smaller step size based on minima
+
     u_iso_occ = []
     for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
         for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
             u_iso_occ.append((occupancy,u_iso))
 
-    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, params)
-
     bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, bound_states, ground_states, params)
+
+    logger.info("Looping over occupancy, u_iso with" \
+                "occupancy betweeen {} and {} in steps of {}.".format(params.options.lower_occ,
+                                                                      params.options.upper_occ,
+                                                                      params.options.step) + \
+                "and u_iso between {} and {} in steps of {}.".format(params.options.lower_u_iso,
+                                                                     params.options.upper_u_iso,
+                                                                     params.options.step))
 
     occ_b_loop = occ_b_loop_caller(xrs =xrs,
                                    sites_frac = sites_frac,
@@ -184,6 +204,10 @@ def calculate_mean_fofc(params, protein_hier, inputs, fmodel, crystal_gridding, 
                                    occupancy_group_cart_points = occupancy_group_cart_points)
 
     sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.options.processes)
+
+    logger.info("Loop finished.\n" \
+                "Writing bound occupancy, ground_occupancy, u_iso, meann |Fo-Fc| to CSV: {}".format(
+        params.options.csv_name))
 
     with open(params.options.csv_name + ".csv", 'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
@@ -299,9 +323,12 @@ def run(args, xtal_name):
     params = master_phil.extract()
 
     ####################################################
-    # Read input PDB and reflection files. Parse into fmodel and hierarchies
-    inputs = mmtbx.utils.process_command_line_args(args = args)
+    header = " ############################################# "
+    logger.info("\n {} \n #".format(header) + xtal_name + ": running exhaustive search \n {}".format(header))
 
+    logger.info("Processing input PDB and reflection files. Parse into xray structure, fmodel and hierarchies")
+
+    inputs = mmtbx.utils.process_command_line_args(args = args)
     reflection_files = inputs.reflection_files
     rfs = reflection_file_utils.reflection_file_server(
         crystal_symmetry = inputs.crystal_symmetry,
@@ -316,15 +343,21 @@ def run(args, xtal_name):
     ph = pdb_inp.construct_hierarchy()
     xrs = ph.extract_xray_structure(
         crystal_symmetry = inputs.crystal_symmetry)
-    # Extract Fobs and free-r flags
+
+    logger.info("Extract Fobs and free-r flags")
+
     f_obs = determined_data_and_flags.f_obs
     r_free_flags = determined_data_and_flags.r_free_flags
-    # Define map grididng
+
+    logger.info("Define map grididng")
+
     crystal_gridding = f_obs.crystal_gridding(
         d_min             = f_obs.d_min(),
         symmetry_flags    = maptbx.use_space_group_symmetry,
         resolution_factor = 1./4)
-    # Define fmodel
+
+    logger.info("Define fmodel")
+
     mask_params = mmtbx.masks.mask_master_params.extract()
     mask_params.ignore_hydrogens=False
     mask_params.ignore_zero_occupancy_atoms=False
@@ -334,12 +367,10 @@ def run(args, xtal_name):
         mask_params    = mask_params,
         xray_structure = xrs)
     fmodel.update_all_scales()
-    print("r_work: {0} r_free: {1}".format(fmodel.r_work(), fmodel.r_free()))
+    logger.info("r_work: {0} r_free: {1}".format(fmodel.r_work(), fmodel.r_free()))
 
-    print(os.getcwd())
+    logger.info("Organising output directory")
 
-    #####################################################
-    # Organise output directory
     output_folder = "{}".format(xtal_name)
     output_path = os.path.join(os.getcwd(),output_folder)
     #output_path_base = os.path.join(os.getcwd(),"NUDT22A")
@@ -351,19 +382,13 @@ def run(args, xtal_name):
     #
     if not os.path.exists(output_path):
          os.mkdir(output_path)
-    # # TODO Swap out the change directory to write out for each function writing out.
     os.chdir(output_folder)
 
-    print(os.getcwd())
-
-    ####################################################
-
-    # Choose between looping over 1 ligand structure or 2
     pdb = args[0]
-
     # Run main calculation of |Fo-Fc| at grid points near ligand
     calculate_mean_fofc(params = params,
                         protein_hier = ph,
+                        xrs=xrs,
                         inputs = inputs,
                         fmodel = fmodel,
                         crystal_gridding = crystal_gridding,
