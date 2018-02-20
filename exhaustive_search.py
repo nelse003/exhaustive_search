@@ -56,7 +56,7 @@ options{
         .type = float
     buffer = 0
         .type = float
-    csv_name = 'u_iso_occupancy_vary'
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
         .type = str
     grid_spacing = 0.25
         .type = float
@@ -340,6 +340,9 @@ def run(args, xtal_name):
         keep_going             = True,
         log                    = StringIO())
     pdb_inp = iotbx.pdb.input(file_name = inputs.pdb_file_names[0])
+
+    logger.info("PDB name" + inputs.pdb_file_names[0])
+
     ph = pdb_inp.construct_hierarchy()
     xrs = ph.extract_xray_structure(
         crystal_symmetry = inputs.crystal_symmetry)
@@ -373,6 +376,7 @@ def run(args, xtal_name):
 
     output_folder = "{}".format(xtal_name)
     output_path = os.path.join(os.getcwd(),output_folder)
+    print("OUT:{}".format(output_path))
     #output_path_base = os.path.join(os.getcwd(),"NUDT22A")
 
     # print(output_path_base)

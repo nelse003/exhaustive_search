@@ -42,3 +42,28 @@ def get_all_minima(params):
                     continue
             else:
                 print("Path to PDB & MTZ file is likely incorrect")
+
+def minima_flatness(csv_path):
+    """ Estiamte the flatness of a minima"""
+    data = np.genfromtxt('{}.csv'.format(csv_path), delimiter=',', skip_header=0)
+    occ = data[:, 0]
+    u_iso = data[:, 2]
+    mean_fo_fc = data[:, 3]
+
+    idx = np.argpartition(mean_fo_fc,10)
+    print(u_iso[idx[:10]],occ[idx[:10]],mean_fo_fc[idx[:10]])
+    u_iso_mean = np.mean(u_iso[idx[:10]])
+    u_iso_std = np.std(u_iso[idx[:10]])
+    occ_mean = np.mean(occ[idx[:10]])
+    occ_std = np.std(occ[idx[:10]])
+    mean_fofc_mean = np.mean(mean_fo_fc[idx[:10]])
+    mean_fofc_std = np.std(mean_fo_fc[idx[:10]])
+
+    print(u_iso_mean,u_iso_std, occ_mean, occ_std, mean_fofc_mean, mean_fofc_std)
+
+def check_whether_ground_and_bound_states_exist():
+    """ Check whetehr both ground and bound states exist"""
+    pass
+
+minima_flatness('NUDT22A-x1058/NUDT22A-x1058/u_iso_occupancy_vary')
+minima_flatness('occupancy_group_test/NUDT22A-x1058/u_iso_occupancy_vary')

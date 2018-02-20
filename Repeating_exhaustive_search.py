@@ -29,7 +29,7 @@ input{
         .type = path
     database_path = None
         .type = path
-    csv_name = 'u_iso_occupancy_vary'
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
         .type = str
 }
 output{
@@ -119,30 +119,78 @@ def run(params):
     #     print ("Please supply a pdb and mtz, or a csv file")
 
 
-    if not os.path.exists(params.output.out_dir):
-        logger.info('Creating output directory {}'.format(params.output.out_dir))
-        os.mkdir(params.output.out_dir)
-    else:
-        logger.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+    # if not os.path.exists(params.output.out_dir):
+    #     logger.info('Creating output directory {}'.format(params.output.out_dir))
+    #     os.mkdir(params.output.out_dir)
+    # else:
+    #     logger.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+    #
+    # logger.info('Looping over all files that are \'in refinement\' '
+    #             'or better in the supplied datafile: \n {}'.format(params.input.database_path))
+    #
+    # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    #
+    #     xtals_rerun =['NUDT22A-x0243']
+    #     for num in range(977, 1008+1):
+    #         xtal_name_rerun= 'NUDT22A-x' + "{0:0>4}".format(num)
+    #         xtals_rerun.append(xtal_name_rerun)
+    #
+    #     if xtal_name in xtals_rerun:
+    #
+    #         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+    #         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #
+    #         os.chdir(os.path.join(params.output.out_dir))
+    #
+    #         #### For Exhaustive search run ####
+    #         args = [pdb, mtz]
+    #         #exhaustive_search(args, xtal_name)
+    #         if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+    #             os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+    #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
+    #         else:
+    #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
+    #         scatter_plot(params.input.csv_name)
 
-    logger.info('Looping over all files that are \'in refinement\' '
-                'or better in the supplied datafile: \n {}'.format(params.input.database_path))
-    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    start_xtal_num = 900
+    end_xtal_num = 1058
+    prefix = "NUDT22A-x"
+    for num in range(start_xtal_num, end_xtal_num+1):
+        xtal_name= prefix + "{0:0>4}".format(num)
+        pdb = os.path.join(params.output.out_dir,xtal_name,"multi-state-model.pdb")
 
-        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+        conn = sqlite3.connect(params.input.database_path)
+        cur = conn.cursor()
 
-        os.chdir(os.path.join(params.output.out_dir))
+        print(xtal_name)
 
-        #### For Exhaustive search run ####
-        args = [pdb, mtz]
-        exhaustive_search(args, xtal_name)
-        if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
-            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        else:
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        cur.execute("SELECT RefinementMTZ_latest "
+                    "FROM mainTable WHERE CrystalName=?",(xtal_name,) )
+
+        refinement_xtals = cur.fetchall()
+
+        # Close connection to the database
+        cur.close()
+
+        if refinement_xtals[0][0] is not None:
+            mtz = refinement_xtals[0][0].encode('ascii')
+
+            os.chdir(os.path.join(params.output.out_dir))
+
+            print(pdb,mtz)
+
+            args =[pdb,mtz]
+            exhaustive_search(args,xtal_name)
+
+            #     if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+            # if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+            #     os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+            #     os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            # else:
+            #     os.chdir(os.path.join(params.output.out_dir, xtal_name))
             # scatter_plot(params.input.csv_name)
+
+
     #
     #     #### For Plotting ####
     #

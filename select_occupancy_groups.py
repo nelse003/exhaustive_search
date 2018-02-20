@@ -244,9 +244,55 @@ def get_coincident_residue_powersets(hier, residue_altloc_dict, params):
         yield residue_powerset
 
 
+def get_largest_coincident(coincident,occupancy_groups):
+
+    """ Take a powerset of coincident altlocs with residue and chain. Return the largest set(s) of altlocs.
+     
+     Will return single set if contains all altlocs for that resiude, or multiple if there are multiple groups.
+    
+    :param coincident: 
+    :param occupancy_groups: 
+    :return: 
+    """
+
+    residues = get_parameter_from_occupancy_groups(occupancy_groups, "resseq")
+    chains = get_parameter_from_occupancy_groups(occupancy_groups, "chain")
+
+    residue_chains = set()
+    for residue_chain in zip(residues, chains):
+        residue_chains.add(residue_chain)
+
+    largest_coincident = []
+    for residue_chain in residue_chains:
+
+        list_all_coincident_altlocs = []
+        all_altocs_res_chain = set()
+        for coincident_altlocs in coincident:
+            if coincident_altlocs[1] == residue_chain[0] and coincident_altlocs[2] == residue_chain[1]:
+                list_all_coincident_altlocs.append(set(coincident_altlocs[0]))
+                for altloc in coincident_altlocs[0]:
+                    all_altocs_res_chain.add(altloc)
+
+        list_all_coincident_altlocs.sort(key = len, reverse =True)
+        for altloc_set in list_all_coincident_altlocs:
+            difference_set = altloc_set.symmetric_difference(all_altocs_res_chain)
+            if difference_set == set():
+                largest_coincident.append((tuple(altloc_set),residue_chain[0], residue_chain[1]))
+                break
+            elif difference_set in list_all_coincident_altlocs:
+                largest_coincident.append((tuple(altloc_set),residue_chain[0], residue_chain[1]))
+                largest_coincident.append((tuple(difference_set), residue_chain[0], residue_chain[1]))
+                break
+            else:
+                logger.info("The set of altlocs do not correspond to a two state system. Trying a shorter set of altlocs")
+
+    return largest_coincident
+
+
+
 def get_state_selection(hier, coincident, occupancy_groups, params):
     """
-    Determine a split between ground and bound states, given list of coincident altloc groups
+    Determine a split between ground and bound states, given list of largest coincident altloc groups
     
     :param hier: 
     :param coincident: 
@@ -268,7 +314,13 @@ def get_state_selection(hier, coincident, occupancy_groups, params):
 
     bound_states = []
     ground_states = []
+
+    print("lig_alt:",lig_altloc_group)
+
     for coincident_altloc_group in coincident_loop:
+
+        print(coincident_altloc_group)
+
         if coincident_altloc_group[0] == lig_altloc_group:
             coincident.remove(coincident_altloc_group)
             logger.info("Bound State: {}".format(coincident_altloc_group))
@@ -407,10 +459,10 @@ def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
     hier = pdb_inp.construct_hierarchy()
     residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
     coincident = get_coincident_group(hier, residue_altloc_dict, params)
-    bound_states, ground_states = get_state_selection(hier, coincident, occupancy_groups, params)
+    largest_coincident = get_largest_coincident(coincident,occupancy_groups)
+    bound_states, ground_states = get_state_selection(hier, largest_coincident, occupancy_groups, params)
 
     return bound_states, ground_states
-
 
 
 #######################################################################
