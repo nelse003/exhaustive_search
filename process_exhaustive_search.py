@@ -1,4 +1,29 @@
+import csv
+
+import libtbx.phil
 import numpy as np
+
+from Repeating_exhaustive_search import get_in_refinement_or_better
+
+#################################################
+master_phil = libtbx.phil.parse("""
+input{
+    database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"
+        .type = path
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
+        .type = str
+}
+output{
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_test"
+        .type = str
+    minima_csv_name = "min_occ_u_iso_all"
+        .type = str
+}
+options{
+
+}
+""", process_includes=True)
+###################################################
 
 def get_minimum_fofc(csv_name):
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
@@ -65,5 +90,7 @@ def check_whether_ground_and_bound_states_exist():
     """ Check whetehr both ground and bound states exist"""
     pass
 
-minima_flatness('NUDT22A-x1058/NUDT22A-x1058/u_iso_occupancy_vary')
-minima_flatness('occupancy_group_test/NUDT22A-x1058/u_iso_occupancy_vary')
+# minima_flatness('NUDT22A-x1058/NUDT22A-x1058/u_iso_occupancy_vary')
+# minima_flatness('occupancy_group_test/NUDT22A-x1058/u_iso_occupancy_vary')
+
+get_all_minima(params = master_phil.extract())

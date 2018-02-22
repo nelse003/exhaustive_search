@@ -81,9 +81,8 @@ def get_occupancy_groups(pdb, params=master_phil.extract()):
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.occupancy.resnames.split(',')
-    # TODO Change to log, not print statements
-    if params.settings.verbose:
-        print('Looking for ligands with resname {!s}'.format(' or '.join(resnames)))
+
+    logger.info('Looking for ligands with resname {!s}'.format(' or '.join(resnames)))
 
     occupancy_groups = overlapping_occupancy_groups(hierarchy=pdb_in.hierarchy,
                                                     resnames=resnames,
@@ -114,6 +113,7 @@ def powerset(iterable, min_len=0):
 ######################################################################
 # Selection by residue  with conicident altlocs
 ######################################################################
+
 
 def get_residue_altloc_dict(occupancy_groups):
     """
@@ -160,7 +160,7 @@ def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
                 else:
                     raise Warning("Multiple models are present in pdb file. "
                                   "This is not processable with occupancy group selection")
-    if parameters == []:
+    if not parameters:
         raise Warning("Parameter may not be recognised,as output list is empty")
 
     return parameters
@@ -273,7 +273,7 @@ def get_largest_coincident(coincident,occupancy_groups):
                 for altloc in coincident_altlocs[0]:
                     all_altocs_res_chain.add(altloc)
 
-        list_all_coincident_altlocs.sort(key = len, reverse =True)
+        list_all_coincident_altlocs.sort(key=len, reverse=True)
         for altloc_set in list_all_coincident_altlocs:
             difference_set = altloc_set.symmetric_difference(all_altocs_res_chain)
             if difference_set == set():
@@ -287,7 +287,6 @@ def get_largest_coincident(coincident,occupancy_groups):
                 logger.info("The set of altlocs do not correspond to a two state system. Trying a shorter set of altlocs")
 
     return largest_coincident
-
 
 
 def get_state_selection(hier, coincident, occupancy_groups, params):
@@ -307,51 +306,58 @@ def get_state_selection(hier, coincident, occupancy_groups, params):
     coincident_loop = deepcopy(coincident)
     all_altlocs = set(get_parameter_from_occupancy_groups(occupancy_groups, "altloc"))
 
-    logger.info("Given coincident altloc groups return a split between ground and bound state \n" \
-                "For altloc groups that follow the ligand i.e LIG altloc C and LIG altloc D \n" \
-                " are coincident, then if RES 121 [(A,B) ,(C,D)], set (C,D) as bound state and \n" \
+    logger.info("Given coincident altloc groups return a split between ground and bound state \n" 
+                "For altloc groups that follow the ligand i.e LIG altloc C and LIG altloc D \n" 
+                " are coincident, then if RES 121 [(A,B) ,(C,D)], set (C,D) as bound state and \n" 
                 "(A,B) as ground state \n")
 
     bound_states = []
     ground_states = []
 
-    print("lig_alt:",lig_altloc_group)
+    logger.debug("Lig altloc group: {}".format(lig_altloc_group))
 
-    for coincident_altloc_group in coincident_loop:
-
-        print(coincident_altloc_group)
-
-        if coincident_altloc_group[0] == lig_altloc_group:
-            coincident.remove(coincident_altloc_group)
-            logger.info("Bound State: {}".format(coincident_altloc_group))
-            bound_states.append(get_bound_ground_selection(sel_cache,coincident_altloc_group))
-            continue
-        if list(all_altlocs.difference(lig_altloc_group)) == list(coincident_altloc_group[0]):
-            coincident.remove(coincident_altloc_group)
-            logger.info("Ground State: {}".format(coincident_altloc_group))
-            ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
-            continue
     if coincident:
-        logger.info("These altlocs do not follow the ground bound split: \n {}\n".format(coincident) + \
-                    "Using ligand altloc {} we presume these states to be bound\n".format(lig_altloc_group[0]))
+        for coincident_altloc_group in coincident_loop:
 
-        for coincident_altloc_group in coincident:
-            if lig_altloc_group[0] in coincident_altloc_group[0]:
+            logger.debug(coincident_altloc_group)
+
+            if coincident_altloc_group[0] == lig_altloc_group:
+                coincident.remove(coincident_altloc_group)
                 logger.info("Bound State: {}".format(coincident_altloc_group))
                 bound_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
-            else:
+                continue
+            if list(all_altlocs.difference(lig_altloc_group)) == list(coincident_altloc_group[0]):
+                coincident.remove(coincident_altloc_group)
                 logger.info("Ground State: {}".format(coincident_altloc_group))
                 ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
+                continue
+        if coincident:
+            logger.info("These altlocs do not follow the ground bound split: \n {}\n".format(coincident) + \
+                        "Using ligand altloc {} we presume these states to be bound\n".format(lig_altloc_group[0]))
+
+            for coincident_altloc_group in coincident:
+                if lig_altloc_group[0] in coincident_altloc_group[0]:
+                    logger.info("Bound State: {}".format(coincident_altloc_group))
+                    bound_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
+                else:
+                    logger.info("Ground State: {}".format(coincident_altloc_group))
+                    ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
+
+    if not ground_states:
+        logger.warning("No Ground State detected")
+    if not bound_states:
+        logger.warning("No Bound State detected")
 
     return bound_states, ground_states
 
-def get_bound_ground_selection(sel_cache,coincident_altloc_group):
+
+def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     """
     Get iotbx boolean selection of altlocs for a residue
     
     Given a coincident altloc group in format (('C', 'D'), ' 121', 'A') return a selection, 
     using a supplied selection cache.
-    Also returns number of altlocs in that selection.
+    Also returns number of altlocs in that selection. In the format: [altloc_selection, num_altlocs]
     
     :param sel_cache: 
     :param coincident_altloc_group: 
@@ -363,8 +369,14 @@ def get_bound_ground_selection(sel_cache,coincident_altloc_group):
     for altloc in coincident_altloc_group[0]:
         selection_string += "altloc {} or ".format(altloc)
     selection_string = selection_string.rstrip(" or ")
-    selection_string = "({}) and chain {} and resseq {}".format(selection_string, coincident_altloc_group[2],
-                                                                coincident_altloc_group[1])
+
+    if num_altlocs > 1:
+        selection_string = "({}) and chain {} and resseq {}".format(selection_string, coincident_altloc_group[2],
+                                                            coincident_altloc_group[1])
+    else:
+        selection_string = "{} and chain {} and resseq {}".format(selection_string, coincident_altloc_group[2], coincident_altloc_group[1])
+
+    print(selection_string)
     altloc_selection = sel_cache.selection(selection_string)
 
     return [altloc_selection, num_altlocs]
@@ -381,7 +393,7 @@ def get_coincident_group(hier, residue_altloc_dict, params):
     :return: 
     """
 
-    logger.info("Get altlocs groups that are coincident, in format" \
+    logger.info("Get altlocs groups that are coincident, in format" 
                 "[(altloc_group,residue,chain),(altloc_group,residue,chain)...] ")
 
     coincident = []
@@ -392,7 +404,7 @@ def get_coincident_group(hier, residue_altloc_dict, params):
             chain = altloc_groups_coincident[2]
             coincident_flag = altloc_groups_coincident[3]
             if coincident_flag:
-                coincident.append((altloc_group,residue,chain))
+                coincident.append((altloc_group, residue, chain))
     return coincident
 
 
@@ -423,6 +435,8 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
     sel_cache = hier.atom_selection_cache()
     pdb_atoms = hier.atoms()
 
+    logger.debug("Resnames: {}".format(resnames))
+
     lig_altlocs = set()
     lig_chain = set()
     for resname in resnames:
@@ -433,7 +447,14 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
             lig_altlocs.add(atom.parent().altloc)
             lig_chain.add(atom.parent().parent().parent().id)
 
+    logger.debug("Lig altlocs: {}".format(lig_altlocs))
+    logger.debug("Lig chain: {}".format(lig_chain))
+
+    logger.debug("coincident: {}".format(coincident))
+
     for coincident_altloc_group in coincident:
+
+        logger.debug("Coinicident altloc group: {}".format(coincident_altloc_group))
 
         if coincident_altloc_group[2] == list(lig_chain)[0] and list(lig_altlocs)[0] in coincident_altloc_group[0]:
             return coincident_altloc_group[0]
@@ -457,12 +478,50 @@ def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
     occupancy_groups = get_occupancy_groups(pdb, params)
     pdb_inp = iotbx.pdb.input(pdb)
     hier = pdb_inp.construct_hierarchy()
-    residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
-    coincident = get_coincident_group(hier, residue_altloc_dict, params)
-    largest_coincident = get_largest_coincident(coincident,occupancy_groups)
-    bound_states, ground_states = get_state_selection(hier, largest_coincident, occupancy_groups, params)
+    sel_cache = hier.atom_selection_cache()
 
-    return bound_states, ground_states
+    if len(occupancy_groups) == 1 and len(occupancy_groups[0]) == 2:
+        # There are no coincident residues therefore use the occupancy id instead.
+        # This may need doing earlier, i.e the selection by altlocs is possibly really stupid.
+        # Only the case for if a single complete group (i.e first part of the if statement)
+
+        # (altloc_group, residue, chain)
+        # (('C', 'D'), ' 121', 'A')
+        #[altloc_selection, num_altlocs]
+        #{'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
+
+        for occupancy_group in occupancy_groups[0]:
+            bound_state_flag = False
+            state = []
+            for residue_altloc in occupancy_group:
+                if residue_altloc.get('resname') in params.occupancy.resnames:
+                    bound_state_flag = True
+                    state_string = "Bound"
+                else:
+                    state_string = "Ground"
+
+            for residue_altloc in occupancy_group:
+                altloc = residue_altloc.get('altloc')
+                chain = residue_altloc.get('chain')
+                resseq = residue_altloc.get('resseq')
+                logger.info("{} State: {}".format(state_string, (((altloc,), resseq, chain))))
+                state.append(get_bound_ground_selection(sel_cache, (((altloc,), resseq, chain))))
+
+            if bound_state_flag:
+                bound_states = state
+            else:
+                ground_states = state
+
+        return bound_states, ground_states
+
+    #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states)
+    else:
+        residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
+        coincident = get_coincident_group(hier, residue_altloc_dict, params)
+        logger.debug("Coincident: {}".format(coincident))
+        largest_coincident = get_largest_coincident(coincident,occupancy_groups)
+        bound_states, ground_states = get_state_selection(hier, largest_coincident, occupancy_groups, params)
+        return bound_states, ground_states
 
 
 #######################################################################
@@ -477,17 +536,20 @@ def print_hier_atoms(hierarchy):
     :return: 
     """
 
-    for chain in hierarchy.only_model().chains():
-        print("Chain: {}".format(chain.id))
+    for model in hierarchy.models():
+        print("Model: {}".format(model.id))
 
-        for residue_group in chain.residue_groups():
-            print("Residue: {}".format(residue_group.resseq))
+        for chain in model.chains():
+            print("Chain: {}".format(chain.id))
 
-            for atom_group in residue_group.atom_groups():
-                print("Altloc: {}".format(atom_group.altloc))
+            for residue_group in chain.residue_groups():
+                print("Residue: {}".format(residue_group.resseq))
 
-                for atom in atom_group.atoms():
-                    print("Atom Name: {}".format(atom.name))
+                for atom_group in residue_group.atom_groups():
+                    print("Altloc: {}".format(atom_group.altloc))
+
+                    for atom in atom_group.atoms():
+                        print("Atom Name: {}".format(atom.name))
 
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 

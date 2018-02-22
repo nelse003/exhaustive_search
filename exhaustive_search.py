@@ -40,7 +40,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "NUDT22A"
+    out_dir = "NUDT7A"
         .type = str
 }
 options{
@@ -56,7 +56,7 @@ options{
         .type = float
     buffer = 0
         .type = float
-    csv_name = 'u_iso_occupancy_vary_new_atoms'
+    csv_name = 'u_iso_occupancy_vary'
         .type = str
     grid_spacing = 0.25
         .type = float
@@ -119,10 +119,12 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
     states = bound_states + ground_states
 
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
-    pdb_atoms  = pdb_in.hierarchy.atoms()
+    pdb_atoms = pdb_in.hierarchy.atoms()
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     occupancy_group_cart_points = flex.vec3_double()
     for state in states:
+
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
         sites_cart = selected_atoms.extract_xyz()
@@ -134,6 +136,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
 
         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_from_selection.cart_points())
 
+    logger.info("Number of cartesian points to calculate |Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
     return occupancy_group_cart_points
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
@@ -184,6 +187,8 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
 
     bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
     occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, bound_states, ground_states, params)
+
+    logger.debug(occupancy_group_cart_points)
 
     logger.info("Looping over occupancy, u_iso with" \
                 "occupancy betweeen {} and {} in steps of {}.".format(params.options.lower_occ,
