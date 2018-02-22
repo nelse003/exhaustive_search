@@ -456,10 +456,17 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
 
         logger.debug("Coinicident altloc group: {}".format(coincident_altloc_group))
 
+        print(coincident_altloc_group[2])
+        print(list(lig_chain)[0])
+        print(list(lig_altlocs)[0])
+        print(coincident_altloc_group[0])
+
         if coincident_altloc_group[2] == list(lig_chain)[0] and list(lig_altlocs)[0] in coincident_altloc_group[0]:
             return coincident_altloc_group[0]
         else:
             continue
+    # If no matching coinicdent cases have been made return just the ligand altlocs
+    return tuple(lig_altlocs)
 
 def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
     """

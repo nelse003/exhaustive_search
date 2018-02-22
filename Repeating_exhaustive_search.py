@@ -131,25 +131,27 @@ def run(params):
 
     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
 
-        logger.info(xtal_name)
+        if xtal_name == "NUDT7A-x1746":
 
-        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+            logger.info(xtal_name)
 
-        os.chdir(os.path.join(params.output.out_dir))
+            assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+            assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
-        #### For Exhaustive search run ####
-        args = [pdb, mtz]
-        exhaustive_search(args, xtal_name)
-        if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
-            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        else:
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        scatter_plot(params.input.csv_name)
+            os.chdir(os.path.join(params.output.out_dir))
 
-        logger.info('Completed: {}'.format(xtal_name))
-    #
+            #### For Exhaustive search run ####
+            args = [pdb, mtz]
+            exhaustive_search(args, xtal_name)
+            if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+                os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            else:
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            scatter_plot(params.input.csv_name)
+
+            logger.info('Completed: {}'.format(xtal_name))
+        #
     # start_xtal_num = 421
     # end_xtal_num = 421
     # prefix = "NUDT22A-x"

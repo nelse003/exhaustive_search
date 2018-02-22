@@ -1,7 +1,8 @@
-import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 def scatter_plot(csv_name, three_dim_plot=True):
