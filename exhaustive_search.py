@@ -40,7 +40,7 @@ input{
         .type = path
 }
 output{
-    out_dir = "NUDT7A"
+    out_dir = "NUDT22A"
         .type = str
 }
 options{
@@ -56,7 +56,7 @@ options{
         .type = float
     buffer = 0
         .type = float
-    csv_name = 'u_iso_occupancy_vary'
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
         .type = str
     grid_spacing = 0.25
         .type = float

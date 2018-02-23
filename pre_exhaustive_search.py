@@ -54,8 +54,8 @@ def copy_atoms(path, prefix,start_xtal_num, end_xtal_num, new_ground_structure_p
 
 copy_atoms(path = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model",
            prefix = "NUDT22A-x",
-           start_xtal_num=421,
-           end_xtal_num=421,
+           start_xtal_num=391,
+           end_xtal_num=391,
            new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/"\
                                      "NUDT22A_new_ground_state_x1058/ground_state_refine_2_more_waters.pdb",
            atoms_new=[['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],
