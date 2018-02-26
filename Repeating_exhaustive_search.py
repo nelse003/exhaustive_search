@@ -153,10 +153,11 @@ def run(params):
     #
     #         logger.info('Completed: {}'.format(xtal_name))
         #
-    start_xtal_num = 910
-    end_xtal_num = 1058
+    start_xtal_num = 999
+    end_xtal_num = 999
     prefix = "NUDT22A-x"
-    xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    #xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    xtals =[]
     for num in range(start_xtal_num, end_xtal_num + 1):
         xtal_name = prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
