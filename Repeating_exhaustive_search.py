@@ -8,7 +8,6 @@ import libtbx.phil
 import pandas as pd
 
 from exhaustive_search import run as exhaustive_search
-from plot_exhaustive_search import scatter_plot
 
 ##############################################################
 
@@ -34,7 +33,7 @@ input{
         .type = str
 }
 output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_test"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement"
         .type = str
     minima_csv_name = "min_occ_u_iso_all"
         .type = str
@@ -129,13 +128,7 @@ def run(params):
     logger.info('Looping over all files that are \'in refinement\' '
                 'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
-    start_xtal_num = 1739
-    end_xtal_num = 1810
-    prefix = "NUDT22A-x"
-    xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
-    # for num in range(start_xtal_num, end_xtal_num + 1):
-    #     xtal_name = prefix + "{0:0>4}".format(num)
-    #     xtals.append(xtal_name)
+
 
     # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
     #
@@ -160,12 +153,16 @@ def run(params):
     #
     #         logger.info('Completed: {}'.format(xtal_name))
         #
-    start_xtal_num = 391
-    end_xtal_num = 391
+    start_xtal_num = 910
+    end_xtal_num = 1058
     prefix = "NUDT22A-x"
-    for num in range(start_xtal_num, end_xtal_num+1):
-        xtal_name= prefix + "{0:0>4}".format(num)
-        pdb = os.path.join(params.output.out_dir,xtal_name,"multi-state-model.pdb")
+    xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    for num in range(start_xtal_num, end_xtal_num + 1):
+        xtal_name = prefix + "{0:0>4}".format(num)
+        xtals.append(xtal_name)
+
+    for xtal_name in xtals:
+        pdb = os.path.join(params.output.out_dir,xtal_name,"refine.pdb")
 
         conn = sqlite3.connect(params.input.database_path)
         cur = conn.cursor()
@@ -195,7 +192,8 @@ def run(params):
                 os.chdir(os.path.join(params.output.out_dir, xtal_name))
             else:
                 os.chdir(os.path.join(params.output.out_dir, xtal_name))
-            scatter_plot(params.input.csv_name)
+            #scatter_plot(params.input.csv_name)
+
 
 
     #

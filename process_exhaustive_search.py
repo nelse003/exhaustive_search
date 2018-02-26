@@ -12,13 +12,13 @@ master_phil = libtbx.phil.parse("""
 input{
     database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"
         .type = path
-    csv_name = 'u_iso_occupancy_vary'
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
         .type = str
 }
 output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_test"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement"
         .type = str
-    minima_csv_name = "min_occ_u_iso_NUDT22"
+    minima_csv_name = "min_occ_u_iso_NUDT22_with_refinement"
         .type = str
 }
 options{
@@ -56,7 +56,7 @@ def get_all_minima(params):
     start_xtal_num = 910
     end_xtal_num = 1058
     prefix = "NUDT22A-x"
-    xtals = ['NUDT22A-x0243','NUDT22A-x0421','NUDT22-x0391']
+    xtals = ['NUDT22A-x0243','NUDT22A-x0421','NUDT22A-x0391']
     for num in range(start_xtal_num, end_xtal_num + 1):
         xtal_name = prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
