@@ -20,7 +20,8 @@ def copy_atoms(path, prefix,start_xtal_num, end_xtal_num, new_ground_structure_p
     new_atoms_sel = sel_cache.selection(selection_string)
     new_atoms_hier = pdb_in.hierarchy.select(new_atoms_sel)
 
-    xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    #xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    xtals =[]
     for num in range(start_xtal_num, end_xtal_num + 1):
         xtal_name = prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
@@ -69,10 +70,6 @@ def copy_atoms(path, prefix,start_xtal_num, end_xtal_num, new_ground_structure_p
 
             os.system(cmds)
 
-
-
-
-
         else:
             print("pdb does not exist: {}".format(os.path.join(path,xtal_name,"refine.split.ground-state.pdb")))
 
@@ -83,5 +80,5 @@ copy_atoms(path = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initia
            end_xtal_num=1058,
            new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/"\
                                      "NUDT22A_new_ground_state_x1058/ground_state_refine_2_more_waters.pdb",
-           atoms_new=[['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],
+           atoms_new=[['W','11'],['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],
            out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement")
