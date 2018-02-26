@@ -1,7 +1,9 @@
+import matplotlib
 import numpy as np
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import os
+
 
 def scatter_plot(csv_name, three_dim_plot=True):
     # Load data from CSV

@@ -1,13 +1,13 @@
 from __future__ import print_function
+
 import os
+import sqlite3
 import sys
+
 import libtbx.phil
 import pandas as pd
-import csv
+
 from exhaustive_search import run as exhaustive_search
-from exhaustive_search import get_minimum_fofc
-from plot_exhaustive_search import scatter_plot
-import sqlite3
 
 ##############################################################
 
@@ -29,11 +29,11 @@ input{
         .type = path
     database_path = None
         .type = path
-    csv_name = 'u_iso_occupancy_vary'
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
         .type = str
 }
 output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/DCP2BA"
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement"
         .type = str
     minima_csv_name = "min_occ_u_iso_all"
         .type = str
@@ -42,6 +42,20 @@ options{
 
 }
 """, process_includes=True)
+########################################################################
+import logging
+import datetime
+
+logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
+                                                              'exhaustive_search/logs/exhaustive_search_%H_%M_%d_%m_%Y.log'),
+                    level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+
+# # This is used to allow any excpetion, such as a failed assert statement to be logged, doesn't also go to sysout.
+# def excepthook(*args):
+#   logging.getLogger().error('Uncaught exception:', exc_info=args)
+# sys.excepthook = excepthook
 
 ########################################################################
 def parse_repeat_soak_csv(params):
@@ -50,8 +64,9 @@ def parse_repeat_soak_csv(params):
     for index, row in input_df.iterrows():
         yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
 
-
 def get_in_refinement_or_better(params):
+    assert os.path.isfile(params.input.database_path), \
+        "The database file: \n {} \n does not exist".format(params.input.database_path)
 
     # Open connection to sqlite database
     conn = sqlite3.connect(params.input.database_path)
@@ -73,27 +88,6 @@ def get_in_refinement_or_better(params):
         xtal_name = xtal_name.encode('ascii')
         yield xtal_name, pdb, mtz
 
-def get_all_minima(params):
-
-    with open(params.output.minima_csv_name,'w') as f1:
-        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
-            print("Getting u_iso and occupancy @ sum(|fo-fc|) minima, for {}".format(xtal_name))
-            if pdb and mtz is not None:
-                try:
-                    assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-                    assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-                    os.chdir(os.path.join(params.output.out_dir,xtal_name))
-                    occ, u_iso = get_minimum_fofc(params.input.csv_name)
-                    row = [xtal_name, occ, u_iso]
-                    writer.writerow(row)
-                    sys.stdout.flush()
-                    os.chdir("../..")
-                except:
-                    print("Minima processing failed on xtal: {}".format(xtal_name))
-                    continue
-            else:
-                print("Path to PDB & MTZ file is likely incorrect")
 
 def run(params):
 
@@ -124,29 +118,85 @@ def run(params):
     # else:
     #     print ("Please supply a pdb and mtz, or a csv file")
 
+
     if not os.path.exists(params.output.out_dir):
+        logger.info('Creating output directory {}'.format(params.output.out_dir))
         os.mkdir(params.output.out_dir)
+    else:
+        logger.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+
+    logger.info('Looping over all files that are \'in refinement\' '
+                'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
 
-    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
 
-        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    #
+    #     logger.info(xtal_name)
+    #
+    #     if xtal_name in xtals:
+    #
+    #         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+    #         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #
+    #         os.chdir(os.path.join(params.output.out_dir))
+    #
+    #         #### For Exhaustive search run ####
+    #         args = [pdb, mtz]
+    #         exhaustive_search(args, xtal_name)
+    #         if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+    #             os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+    #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
+    #         else:
+    #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
+    #         scatter_plot(params.input.csv_name)
+    #
+    #         logger.info('Completed: {}'.format(xtal_name))
+        #
+    start_xtal_num = 999
+    end_xtal_num = 999
+    prefix = "NUDT22A-x"
+    #xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    xtals =[]
+    for num in range(start_xtal_num, end_xtal_num + 1):
+        xtal_name = prefix + "{0:0>4}".format(num)
+        xtals.append(xtal_name)
 
-        os.chdir(os.path.join(params.output.out_dir))
+    for xtal_name in xtals:
+        pdb = os.path.join(params.output.out_dir,xtal_name,"refine.pdb")
 
-        #### For Exhaustive search run ####
-        args = [pdb, mtz]
+        conn = sqlite3.connect(params.input.database_path)
+        cur = conn.cursor()
+
         print(xtal_name)
-        print(os.getcwd())
-        exhaustive_search(args, xtal_name)
-        if not os.path.exists(os.path.join(params.output.out_dir,xtal_name)):
-            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        else:
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        print(os.getcwd())
-        scatter_plot(params.input.csv_name)
+
+        cur.execute("SELECT RefinementMTZ_latest "
+                    "FROM mainTable WHERE CrystalName=?",(xtal_name,) )
+
+        refinement_xtals = cur.fetchall()
+
+        # Close connection to the database
+        cur.close()
+
+        if refinement_xtals[0][0] is not None:
+            mtz = refinement_xtals[0][0].encode('ascii')
+
+            os.chdir(os.path.join(params.output.out_dir))
+
+            print(pdb,mtz)
+
+            args =[pdb,mtz]
+            exhaustive_search(args,xtal_name)
+
+            if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+                os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            else:
+                os.chdir(os.path.join(params.output.out_dir, xtal_name))
+            #scatter_plot(params.input.csv_name)
+
+
+
     #
     #     #### For Plotting ####
     #
@@ -164,13 +214,7 @@ def run(params):
     #     print(os.getcwd())
     #     os.rename(csv_name, csv_name + ".csv")
     #     scatter_plot(csv_name)
-    #     os.chdir("../../")
-
-
-
-
-
-
+            #     os.chdir("../../"
 
 
 if __name__ == '__main__':
