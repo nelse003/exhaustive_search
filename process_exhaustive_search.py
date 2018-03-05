@@ -53,10 +53,10 @@ def get_minimum_fofc(csv_name):
 
 def get_all_minima(params):
 
-    start_xtal_num = 910
-    end_xtal_num = 1058
-    prefix = "NUDT22A-x"
-    xtals = ['NUDT22A-x0243','NUDT22A-x0421','NUDT22A-x0391']
+    start_xtal_num = 0
+    end_xtal_num = 2000
+    prefix = "DCP2B-x"
+    xtals = []
     for num in range(start_xtal_num, end_xtal_num + 1):
         xtal_name = prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
@@ -74,7 +74,11 @@ def get_all_minima(params):
                     assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
                     os.chdir(os.path.join(params.output.out_dir, xtal_name))
-                    occ, u_iso = get_minimum_fofc(params.input.csv_name)
+                    try:
+                        occ, u_iso = get_minimum_fofc(params.input.csv_name)
+                    except IOError:
+                        print("Skipping crystal {}".format(xtal_name))
+                        continue
                     row = [xtal_name, occ, u_iso]
                     writer.writerow(row)
                     sys.stdout.flush()
@@ -108,4 +112,12 @@ def check_whether_ground_and_bound_states_exist():
 # minima_flatness('NUDT22A-x1058/NUDT22A-x1058/u_iso_occupancy_vary')
 # minima_flatness('occupancy_group_test/NUDT22A-x1058/u_iso_occupancy_vary')
 
-get_all_minima(params = master_phil.extract())
+def run(params):
+
+    print(params.input.database_path)
+    get_all_minima(params)
+
+if __name__ == '__main__':
+    from giant.jiffies import run_default
+
+    run_default(run=run, master_phil=master_phil, args=sys.argv[1:])
