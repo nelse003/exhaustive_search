@@ -130,70 +130,74 @@ def run(params):
 
 
 
-    # for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+
+        logger.info(xtal_name)
+
+        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+
+        os.chdir(os.path.join(params.output.out_dir))
+
+        #### For Exhaustive search run ####
+        args = [pdb, mtz]
+
+        try:
+            exhaustive_search(args, xtal_name)
+        except UnboundLocalError:
+            logger.info("Skipping onto the next crystal")
+            continue
+
+        if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        else:
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        #scatter_plot(params.input.csv_name)
+
+        logger.info('Completed: {}'.format(xtal_name))
+        #
+    # start_xtal_num = 1000
+    # end_xtal_num = 1058
+    # prefix = "NUDT22A-x"
+    # #xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
+    # xtals =[]
+    # for num in range(start_xtal_num, end_xtal_num + 1):
+    #     xtal_name = prefix + "{0:0>4}".format(num)
+    #     xtals.append(xtal_name)
     #
-    #     logger.info(xtal_name)
+    # for xtal_name in xtals:
+    #     pdb = os.path.join(params.output.out_dir,xtal_name,"refine.pdb")
     #
-    #     if xtal_name in xtals:
+    #     conn = sqlite3.connect(params.input.database_path)
+    #     cur = conn.cursor()
     #
-    #         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-    #         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
+    #     print(xtal_name)
+    #
+    #     cur.execute("SELECT RefinementMTZ_latest "
+    #                 "FROM mainTable WHERE CrystalName=?",(xtal_name,) )
+    #
+    #     refinement_xtals = cur.fetchall()
+    #
+    #     # Close connection to the database
+    #     cur.close()
+    #
+    #     if refinement_xtals[0][0] is not None:
+    #         mtz = refinement_xtals[0][0].encode('ascii')
     #
     #         os.chdir(os.path.join(params.output.out_dir))
     #
-    #         #### For Exhaustive search run ####
-    #         args = [pdb, mtz]
-    #         exhaustive_search(args, xtal_name)
+    #         print(pdb,mtz)
+    #
+    #         args =[pdb,mtz]
+    #         exhaustive_search(args,xtal_name)
+    #
     #         if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
     #             os.mkdir(os.path.join(params.output.out_dir, xtal_name))
     #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
     #         else:
     #             os.chdir(os.path.join(params.output.out_dir, xtal_name))
-    #         scatter_plot(params.input.csv_name)
-    #
-    #         logger.info('Completed: {}'.format(xtal_name))
-        #
-    start_xtal_num = 1000
-    end_xtal_num = 1058
-    prefix = "NUDT22A-x"
-    #xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
-    xtals =[]
-    for num in range(start_xtal_num, end_xtal_num + 1):
-        xtal_name = prefix + "{0:0>4}".format(num)
-        xtals.append(xtal_name)
-
-    for xtal_name in xtals:
-        pdb = os.path.join(params.output.out_dir,xtal_name,"refine.pdb")
-
-        conn = sqlite3.connect(params.input.database_path)
-        cur = conn.cursor()
-
-        print(xtal_name)
-
-        cur.execute("SELECT RefinementMTZ_latest "
-                    "FROM mainTable WHERE CrystalName=?",(xtal_name,) )
-
-        refinement_xtals = cur.fetchall()
-
-        # Close connection to the database
-        cur.close()
-
-        if refinement_xtals[0][0] is not None:
-            mtz = refinement_xtals[0][0].encode('ascii')
-
-            os.chdir(os.path.join(params.output.out_dir))
-
-            print(pdb,mtz)
-
-            args =[pdb,mtz]
-            exhaustive_search(args,xtal_name)
-
-            if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
-                os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-                os.chdir(os.path.join(params.output.out_dir, xtal_name))
-            else:
-                os.chdir(os.path.join(params.output.out_dir, xtal_name))
-            #scatter_plot(params.input.csv_name)
+    #         #scatter_plot(params.input.csv_name)
 
 
 

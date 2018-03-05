@@ -185,7 +185,12 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
         for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
             u_iso_occ.append((occupancy,u_iso))
 
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+    try:
+        bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+    except UnboundLocalError:
+        logger.info("Insufficient state information")
+        raise
+
     occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, bound_states, ground_states, params)
 
     logger.debug(occupancy_group_cart_points)
@@ -395,13 +400,17 @@ def run(args, xtal_name):
 
     pdb = args[0]
     # Run main calculation of |Fo-Fc| at grid points near ligand
-    calculate_mean_fofc(params = params,
+    try:
+        calculate_mean_fofc(params = params,
                         protein_hier = ph,
                         xrs=xrs,
                         inputs = inputs,
                         fmodel = fmodel,
                         crystal_gridding = crystal_gridding,
                         pdb = pdb)
+    except UnboundLocalError:
+        raise
+
     os.chdir("../../")
 
 if(__name__ == "__main__"):

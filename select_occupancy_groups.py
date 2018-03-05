@@ -519,6 +519,15 @@ def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
             else:
                 ground_states = state
 
+        try:
+            ground_states
+        except NameError:
+            logger.info("There is no ground state. Try remodelling ground state")
+        try:
+            bound_states
+        except NameError:
+            logger.info("There is no bound state.")
+
         return bound_states, ground_states
 
     #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states)
