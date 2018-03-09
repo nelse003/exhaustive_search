@@ -387,7 +387,6 @@ def run(params):
     mask_params.ignore_hydrogens=False
     mask_params.ignore_zero_occupancy_atoms=False
     fmodel = mmtbx.f_model.manager(
-        f_obs          = f_obs,
         r_free_flags   = r_free_flags,
         mask_params    = mask_params,
         xray_structure = xrs)
