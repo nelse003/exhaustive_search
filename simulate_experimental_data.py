@@ -32,11 +32,20 @@ class error_swap(object):
                n_e_bins = 20,
                thres=3.0):
     self.miller_obs = miller_obs
+    print(self.miller_obs)
+    print(type(self.miller_obs))
+    print(self.miller_obs.info())
+    print(len(list(self.miller_obs.indices())))
     self.miller_calc = miller_calc
+    print(self.miller_calc)
+    print(type(self.miller_calc))
+    print(self.miller_calc.info())
+    print(len(list(self.miller_calc.indices())))
     self.miller_mock = miller_mock
 
     # take a common set to avoid possible problems
     self.miller_calc = self.miller_calc.common_set( self.miller_obs )
+    print("common",len(list(miller_calc.indices())))
     self.miller_mock = self.miller_mock.common_set( self.miller_obs )
 
 
@@ -44,8 +53,10 @@ class error_swap(object):
     norma_obs_obj = absolute_scaling.kernel_normalisation( self.miller_obs,auto_kernel=True )
     norma_calc_obj = absolute_scaling.kernel_normalisation( self.miller_calc,auto_kernel=True )
     norma_mock_obj = absolute_scaling.kernel_normalisation( self.miller_mock,auto_kernel=True )
-    self.norma_obs  = norma_obs_obj.normalised_miller_dev_eps.f_sq_as_f()           # normalized data (dived by eps)
+    self.norma_obs  = norma_obs_obj.normalised_miller_dev_eps.f_sq_as_f()# normalized data (dived by eps)
+    print("norma_obs", len(list(self.norma_obs.indices())))
     self.norma_calc = norma_calc_obj.normalised_miller_dev_eps.f_sq_as_f()          # as above, for calculated data
+    print("norma_calc",len(list(self.norma_calc.indices())))
     self.norma_mock = norma_mock_obj.normalised_miller_dev_eps.f_sq_as_f()          # as above, for mock data
     self.norma_obs_const =  norma_obs_obj.normalizer_for_miller_array   # the divisor (no eps)
     self.norma_calc_const = norma_calc_obj.normalizer_for_miller_array  # as above
@@ -452,7 +463,10 @@ def simul_utils(args):
         f_obs = miller_array,
         r_free_flags = free_flags,
         xray_structure = model )
-    f_model_object.update_all_scales(log=log)
+    # Removing this allows the code to run, this is because the scaling step means that the number of indices in the
+    # mock model are not equivalent to those in the new model.
+
+    f_model_object.update_all_scales(log=log, remove_outliers=False)
     fmodel = abs( f_model_object.f_model() ).set_observation_type( miller_array )
 
     mockfmodel = None

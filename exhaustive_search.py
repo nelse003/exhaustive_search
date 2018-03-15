@@ -127,7 +127,6 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
 
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
-    sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     occupancy_group_cart_points = flex.vec3_double()
     for state in states:
@@ -369,6 +368,8 @@ def run(params):
     xrs = ph.extract_xray_structure(
         crystal_symmetry = inputs.crystal_symmetry)
 
+    xrs.show_summary()
+
     logger.info("Extract Fobs and free-r flags")
 
     f_obs = determined_data_and_flags.f_obs
@@ -387,6 +388,7 @@ def run(params):
     mask_params.ignore_hydrogens=False
     mask_params.ignore_zero_occupancy_atoms=False
     fmodel = mmtbx.f_model.manager(
+        f_obs = f_obs,
         r_free_flags   = r_free_flags,
         mask_params    = mask_params,
         xray_structure = xrs)
