@@ -39,7 +39,7 @@ def buffer_validation():
         scatter_plot(os.path.join(out_dir,"u_iso_occupancy_vary"))
 
 input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb"
-#input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/NUDT7A-x1237.free.mtz"
+input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/NUDT7A-x1237.mtz"
 xtal_name = "NUDT7A-x1237"
 
 os.chdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation")
@@ -54,40 +54,41 @@ for occupancy in np.arange(0,1.01,0.05):
     #                 for atom in atom_group.atoms() :
     #                     atom.set_occ(occupancy)
     #
-    # occ_pdb = "NUDT7A-x1237-occ_{}.pdb".format(str(occupancy).replace(".","_"))
+    occ_pdb = "NUDT7A-x1237-occ_{}.pdb".format(str(occupancy).replace(".","_"))
     # f = open(occ_pdb, "w")
     # f.write(pdb_in.hierarchy.as_pdb_string(
     #     crystal_symmetry=pdb_in.input.crystal_symmetry()))
     # f.close()
     #
-    # log_file = "simul_log_{}".format(str(occupancy).replace(".","_"))
-    # mtz_out = "simul_{}.mtz".format(str(occupancy).replace(".","_"))
+    log_file = "simul_from_refine_log_{}".format(str(occupancy).replace(".","_"))
+    mtz_out = "simul_occ_{}.mtz".format(str(occupancy).replace(".","_"))
 
-    # os.system("ccp4-python ../simulate_experimental_data.py input.xray_data.file_name={} "
-    #           "model.file_name={} input.xray_data.label=\"I(+),SIGI(+),I(-),SIGI(-),merged\" "
-    #           "output.logfile={} output.hklout={}".format(input_mtz, occ_pdb, log_file,mtz_out))
+    os.system("ccp4-python ../simulate_experimental_data.py input.xray_data.file_name={} "
+              "model.file_name={} input.xray_data.label=\"I(+),SIGI(+),I(-),SIGI(-),merged\" "
+              "output.logfile={} output.hklout={}".format(input_mtz, occ_pdb, log_file,mtz_out))
 
-    input_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_{}.mtz".format(str(occupancy).replace(".","_"))
-
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/"
-    csv_name = "occ_u_iso_{}".format(str(occupancy).replace(".","_"))
-
-    sh_file = "{}_{}.sh".format(xtal_name, occupancy)
-
-    file = open(os.path.join(out_dir, sh_file),'w')
-
-    file.write("#!/bin/bash\n")
-    file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-    file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-
-    file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
-               " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
-               "options.csv_name={}".format(input_pdb,input_mtz,out_dir,xtal_name,csv_name))
-    file.close()
-
-    os.system("qsub -o {} -e {} {}".format(os.path.join(out_dir,"output_{}.txt".format(str(occupancy).replace(".","_"))),
-                                           os.path.join(out_dir,"error_{}.txt".format(str(occupancy).replace(".","_"))),
-                                           os.path.join(out_dir, sh_file)))
+    exit()
+    # input_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_{}.mtz".format(str(occupancy).replace(".","_"))
+    #
+    # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/"
+    # csv_name = "occ_u_iso_{}".format(str(occupancy).replace(".","_"))
+    #
+    # sh_file = "{}_{}.sh".format(xtal_name, occupancy)
+    #
+    # file = open(os.path.join(out_dir, sh_file),'w')
+    #
+    # file.write("#!/bin/bash\n")
+    # file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+    # file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+    #
+    # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
+    #            " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
+    #            "options.csv_name={}".format(input_pdb,input_mtz,out_dir,xtal_name,csv_name))
+    # file.close()
+    #
+    # os.system("qsub -o {} -e {} {}".format(os.path.join(out_dir,"output_{}.txt".format(str(occupancy).replace(".","_"))),
+    #                                        os.path.join(out_dir,"error_{}.txt".format(str(occupancy).replace(".","_"))),
+    #                                        os.path.join(out_dir, sh_file)))
 
 # args = [input_pdb, input_mtz]
 #

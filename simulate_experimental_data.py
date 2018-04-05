@@ -171,11 +171,6 @@ class error_swap(object):
     new_sobs = sorted_sobs.select(inverse_sort_order)
     return new_fobs, new_sobs
 
-
-
-
-
-
 def select_crystal_symmetry(
       from_command_line,
       from_parameter_file,

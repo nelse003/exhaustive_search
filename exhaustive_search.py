@@ -192,6 +192,7 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
             u_iso_occ.append((occupancy,u_iso))
 
     try:
+	print("\n\n\n"+ pdb + "\n\n\n")
         bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
     except UnboundLocalError:
         logger.info("Insufficient state information")
@@ -304,7 +305,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         for i, site_frac in enumerate(sites_frac):
             num_altlocs = ground_state[1]
             set_ground_occupancy = ground_occupancy / num_altlocs
-            if (bound_state[0][i]):
+            if (ground_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 

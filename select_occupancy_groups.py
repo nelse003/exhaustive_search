@@ -78,6 +78,7 @@ def get_occupancy_groups(pdb, params=master_phil.extract()):
     """
 
     logger.info("Gathering occupancy group information from PDB", pdb)
+    print("Gathering occupancy group information from PDB", pdb)
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.occupancy.resnames.split(',')
