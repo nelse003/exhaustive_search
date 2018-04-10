@@ -48,7 +48,7 @@ def get_minimum_fofc(csv_name):
 
     min_index = np.argmin(fo_fc)
 
-    return occ[min_index], u_iso[min_index]
+    return occ[min_index], u_iso[min_index], fo_fc[min_index]
 
 
 def get_all_minima(params):
@@ -75,7 +75,7 @@ def get_all_minima(params):
 
                     os.chdir(os.path.join(params.output.out_dir, xtal_name))
                     try:
-                        occ, u_iso = get_minimum_fofc(params.input.csv_name)
+                        occ, u_iso, _ = get_minimum_fofc(params.input.csv_name)
                     except IOError:
                         print("Skipping crystal {}".format(xtal_name))
                         continue
