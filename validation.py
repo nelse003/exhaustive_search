@@ -1,4 +1,5 @@
 import os
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -415,18 +416,323 @@ def plot_fofc_occ(start_occ, end_occ, step, set_b):
     plt.title("Delta mean|Fo-Fc| and Delta Occupancy", fontsize=10)
     plt.savefig("NUDT7A-x1740-set-b-delta_fofc_occ.png")
 
+def occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
+                                             ground_state_pdb_path,
+                                             input_mtz,
+                                             dataset_prefix,
+                                             out_path,
+                                             input_cif,
+                                             set_b = None):
+
+    for lig_occupancy in np.arange(0.05, 0.96, 0.05):
+
+
+        out_path = os.path.join(out_path, "{}_refine_occ_{}".format(dataset_prefix,
+                                                                    str(lig_occupancy).replace(".", "_")))
+        if not os.path.exists(out_path):
+            os.mkdir(out_path)
+        os.chdir(out_path)
+
+        merged_pdb = os.path.join(out_path,
+                                  "{}_refine_occ_{}.pdb".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+
+        os.system("giant.merge_conformations input.major={} input.minor={} "
+                  "major_occupancy={} minor_occupancy={} output.pdb={}".format(
+            ground_state_pdb_path, bound_state_pdb_path, str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
+
+        simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+        simulate_mtz = os.path.join(out_path,"{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+
+        if set_b is not None:
+            merged_file_name, _ = os.path.splitext(merged_pdb)
+
+            set_u_iso_all_occupancy_groups(input_pdb = merged_pdb,
+                                           output_pdb = merged_file_name + "_set_b_{}.pdb".format(
+                                               str(set_b).replace(".", "_")),
+                                           b_fac = set_b)
+
+            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(
+                                               str(set_b).replace(".", "_"))
+
+        os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
+                  "input.xray_data.file_name={} "
+                  "model.file_name={} input.xray_data.label=\"F,SIGF\" "
+                  "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb, simulate_log, simulate_mtz))
+
+
+        num_random_starts = 0
+        while num_random_starts < 30:
+
+            num_random_starts += 1
+            # Make a pdb file with the occupancy of the ligand set to the random value
+
+            refinement_starting_occ = random.random()
+
+            out_path = os.path.join(out_path,"{}_expected_occ_{}_b_{}_supplied_occ_{}".format(dataset_prefix,
+                                                                      str(lig_occupancy).replace(".", "_"),
+                                                                      str(set_b).replace(".", "_"),
+                                                                      str(refinement_starting_occ).replace(".", "_")))
+            if not os.path.exists(out_path):
+                os.mkdir(out_path)
+            os.chdir(out_path)
+
+            refinement_random_occ_pdb = os.path.join(out_path,"{}_random_refine_occ_{}.pdb".format(
+                                                                    dataset_prefix,
+                                                                    str(refinement_starting_occ).replace(".", "_")))
+
+            os.system("giant.merge_conformations input.major={} input.minor={} "
+                      "major_occupancy={} minor_occupancy={} output.pdb={}".format(
+                        ground_state_pdb_path,
+                        bound_state_pdb_path,
+                        str(1 - refinement_starting_occ),
+                        str(refinement_starting_occ),
+                        refinement_random_occ_pdb))
+
+            out_prefix = "expected_occ_{}_supplied_occ_{}".format(str(lig_occupancy).replace(".", "_"),
+                                                                 str(refinement_starting_occ).replace(".", "_"))
+            dir_prefix = "refine_" + out_prefix +"_"
+            params = "multi-state-restraints.refmac.params"
+
+            sh_file = "{}_expected_occ_{}_b_{}_supplied_occ_{}.sh".format(dataset_prefix,
+                                                 str(lig_occupancy).replace(".", "_"),
+                                                 str(set_b).replace(".", "_"),
+                                                 str(refinement_starting_occ).replace(".", "_"))
+
+            with open(os.path.join(out_path, sh_file),'w') as file:
+
+                file.write("#!/bin/bash\n")
+                file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+                file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+                file.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
+                           "input.params={} output.out_prefix={} output.dir_prefix={}".format(
+                            refinement_random_occ_pdb, simulate_mtz, input_cif,params, out_prefix, dir_prefix))
+
+            os.system("qsub -o {} -e {} {}".format(os.path.join(out_path,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(out_path,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(out_path, sh_file)))
+
+            out_path = os.path.dirname(out_path)
+
+        #Refmac 0 cycles
+        output_pdb = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix,
+                                                                           str(lig_occupancy).replace(".","_"),
+                                                                           str(set_b).replace(".", "_")))
+        output_mtz = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix,
+                                                                           str(lig_occupancy).replace(".","_"),
+                                                                           str(set_b).replace(".", "_")))
+        refmac_0_cyc(input_mtz = simulate_mtz, input_pdb = merged_pdb,
+                     output_pdb = output_pdb , output_mtz = output_mtz,
+                     occupancy= lig_occupancy)
+
+        out_path = os.path.dirname(out_path)
+        print(out_path)
+
+def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_path, input_cif):
+
+    params = "multi-state-restraints.refmac.params"
+
+    for simul_occ in np.arange(start_occ, end_occ + step / 5, step):
+        for starting_rand_occ in get_starting_occ(simul_occ, out_path, dataset_prefix):
+
+            simulate_mtz = os.path.join(out_path,"{}_refine_occ_{}".format(dataset_prefix,str(simul_occ).replace(".", "_")),
+                                        "{}_simul_{}.mtz".format(dataset_prefix, str(simul_occ).replace(".", "_")))
+
+            out_path = os.path.join(out_path,"{}_refine_occ_{}".format(dataset_prefix,str(simul_occ).replace(".", "_")),
+                                    "{}_expected_occ_{}_b_{}_supplied_occ_{}".format(dataset_prefix,
+                                                                                     str(simul_occ).replace(".", "_"),
+                                                                                     str(set_b).replace(".","_"),
+                                                                                     str(starting_rand_occ).replace(".", "_")))
+            if not os.path.exists(out_path):
+                os.mkdir(out_path)
+            os.chdir(out_path)
+
+            refinement_random_occ_pdb = os.path.join(out_path,"{}_random_refine_occ_{}.pdb".format(
+                                                                    dataset_prefix,
+                                                                    str(starting_rand_occ).replace(".", "_")))
+
+            sh_file = "{}_expected_occ_{}_b_{}_supplied_occ_{}.sh".format(dataset_prefix,
+                                                                          str(simul_occ).replace(".", "_"),
+                                                                          str(set_b).replace(".", "_"),
+                                                                          str(starting_rand_occ).replace(".", "_"))
+
+            out_prefix = "expected_occ_{}_supplied_occ_{}".format(str(simul_occ).replace(".", "_"),
+                                                                  str(starting_rand_occ).replace(".", "_"))
+            dir_prefix = "refine_" + out_prefix + "_cyc_20"
+
+            print(out_path)
+
+            os.system("cp multi-state-restraints.refmac.params multi-state-restraints-tmp.refmac.params")
+            with open("multi-state-restraints-tmp.refmac.params",'a') as file:
+                file.write('ncyc 20')
+
+            with open(os.path.join(out_path, sh_file), 'w') as file:
+                file.write("#!/bin/bash\n")
+                file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+                file.write(
+                    "source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+                file.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
+                           "input.params={} output.out_prefix={} output.dir_prefix={} ".format(
+                    refinement_random_occ_pdb, simulate_mtz, input_cif, "multi-state-restraints-tmp.refmac.params",
+                    out_prefix, dir_prefix,))
+
+            os.system("qsub -o {} -e {} {}".format(
+                os.path.join(out_path, "output_{}.txt".format(str(simul_occ).replace(".", "_"))),
+                os.path.join(out_path, "error_{}.txt".format(str(simul_occ).replace(".", "_"))),
+                os.path.join(out_path, sh_file)))
+
+            out_path = os.path.dirname(os.path.dirname(out_path))
+
+def plot_random_refinement_starts(start_occ, end_occ,step, dataset_prefix, set_b,out_path):
+
+    for simul_occ in np.arange(start_occ,end_occ+step/5,step):
+
+        refine_5_cyc_occs = []
+        refine_20_cyc_occs = []
+        rand_occs = []
+
+        # Loop over starting occupancy, got from folder name
+        # Get refined occupancy from pdb file
+        for starting_rand_occ in get_starting_occ(simul_occ,out_path,dataset_prefix):
+            cur_dir = os.path.join(out_path,
+                                    dataset_prefix + "_refine_occ_" + str(simul_occ).replace(".", "_"),
+                                    dataset_prefix + "_expected_occ_"
+                                    + str(simul_occ).replace(".", "_") + "_b_" + str(set_b) + "_supplied_occ_" +
+                                    str(starting_rand_occ).replace(".", "_"))
+
+            rand_occs.append(starting_rand_occ)
+            #refine_pdb = os.path.join(cur_dir,"refine.pdb")
+
+
+
+            # get folders for each refinement cycle
+            out_prefix = "refine_expected_occ_{}_supplied_occ_{}".format(str(simul_occ).replace(".", "_"),
+                                                                  str(starting_rand_occ).replace(".", "_"))
+
+            folders = [name for name in os.listdir(cur_dir) if os.path.isdir(os.path.join(cur_dir, name))]
+
+            cyc_20 = []
+            cyc_5 = []
+            for folder in folders:
+                if folder.find('cyc_20') != -1:
+                    cyc_20.append(int(folder[-4:]))
+                elif folder.find('cyc') == -1:
+                    cyc_5.append(int(folder[-4:]))
+
+            cur_folder_5_cyc = os.path.join(cur_dir, out_prefix + "_" + str(max(cyc_5)).rjust(4,'0'))
+            cur_folder_20_cyc = os.path.join(cur_dir, out_prefix + "_cyc_20" + str(max(cyc_20)).rjust(4,'0'))
+
+            for file in os.listdir(cur_folder_5_cyc):
+                if file.find('expected') != -1 & file.find('pdb')!=-1:
+                    cyc_5_refine_pdb = os.path.join(cur_folder_5_cyc, file)
+            for file in os.listdir(cur_folder_20_cyc):
+                if file.find('expected') != -1 & file.find('pdb')!=-1:
+                    cyc_20_refine_pdb = os.path.join(cur_folder_20_cyc, file)
+
+            refine_occ_cyc5 = get_end_occ(cyc_5_refine_pdb)
+            refine_5_cyc_occs.append(refine_occ_cyc5)
+
+            refine_occ_cyc20 = get_end_occ(cyc_20_refine_pdb)
+            refine_20_cyc_occs.append(refine_occ_cyc5)
+
+        # Plot the random starting occupancy, refined occupancy and simulated occupancy (target)
+        fig, ax = plt.subplots()
+        rand_occ_plot, = ax.plot(rand_occs,'ko')
+        refine_5_cyc_plot, = ax.plot(refine_5_cyc_occs, 'ro')
+        refine_20_cyc_plot, = ax.plot(refine_5_cyc_occs, 'k+')
+        simul_occ_plot, = ax.plot(np.arange(0, len(rand_occs)),[simul_occ]*len(rand_occs), 'bo')
+
+        # Lines to connect random starting occupancy and refined occupancy
+        for i in np.arange(0, len(rand_occs)):
+             connectpoints(np.arange(0, len(rand_occs)),rand_occs, np.arange(0, len(rand_occs)),refine_5_cyc_occs, i)
+
+        # Lines to connect refined occupancy to simualted occupancy
+        for i in np.arange(0, len(rand_occs)):
+             connectpoints(np.arange(0, len(rand_occs)),refine_5_cyc_occs,
+                           np.arange(0, len(rand_occs)),[simul_occ]*len(rand_occs), i)
+
+        # Lines to connect refined occupancy to simualted occupancy
+        for i in np.arange(0, len(rand_occs)):
+             connectpoints(np.arange(0, len(rand_occs)),refine_20_cyc_occs,
+                           np.arange(0, len(rand_occs)),[simul_occ]*len(rand_occs), i)
+
+        ax.legend((rand_occ_plot, refine_5_cyc_plot, refine_20_cyc_plot, simul_occ_plot),
+                  ('Starting occupancy (random)', 'Refined occupancy (5 cycles)',
+                   'Refined Occupancy (20 cycles)','Simulated Occupancy (target)'),
+                  prop={"size": 8},
+                  numpoints=1,
+                  bbox_to_anchor=(1, 1),
+                  bbox_transform=plt.gcf().transFigure)
+
+        ax.set_ylabel("Occupancy")
+
+        plt.tick_params(
+            axis='x',  # changes apply to the x-axis
+            which='both',  # both major and minor ticks are affected
+            bottom='off',  # ticks along the bottom edge are off
+            top='off',  # ticks along the top edge are off
+            labelbottom='off')  # labels along the bottom edge are off
+
+        ax.set_xlabel("Random refinement start points")
+
+        plt.xlim(-1, len(rand_occs) +1)
+
+        plt.savefig(os.path.join(cur_dir,"random_occ_start_refine_simul_{}_20_cyc.png".format(
+            str(simul_occ).replace('.','_'))), dpi=300)
+
+def get_starting_occ(occupancy,out_path, dataset_prefix):
+
+    folders = [name for name in os.listdir(
+        os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".","_"))) if
+        os.path.isdir(os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".","_"),name))]
+
+    for folder in folders:
+       yield float("0." + folder.split('_')[-1])
+
+def get_end_occ(refine_pdb):
+
+    pdb_in = hierarchy.input(refine_pdb)
+
+    lig_atoms =[]
+
+    for chain in pdb_in.hierarchy.only_model().chains() :
+        for residue_group in chain.residue_groups() :
+            for atom_group in residue_group.atom_groups() :
+                if atom_group.resname == "LIG":
+                    for atom in atom_group.atoms() :
+                        lig_atoms.append((atom_group.altloc, atom.occ))
+    if len(list(set(lig_atoms))) == 2:
+        end_occ = list(set(lig_atoms))[0][1]+list(set(lig_atoms))[1][1]
+        return end_occ
+    else:
+        "Ligand occupancy is not defined"
+        exit()
 
 in_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
 bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
 ground_state_pdb_path = os.path.join(in_path,"refine.output.ground-state.pdb")
 input_mtz = os.path.join(in_path,"NUDT7A-x1740.free.mtz")
+input_cif = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif"
 dataset_prefix = "NUDT7A-x1740"
 out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
 
 #delta_fofc_array = get_delta_fofc_over_occupancies(40,0.05, 0.95, step = 0.05)
 #print(delta_fofc_array)
 
-plot_fofc_occ(0.05, 0.95, step = 0.05, set_b = 40)
+#plot_fofc_occ(0.05, 0.95, step = 0.05, set_b = 40)
+
+plot_random_refinement_starts(start_occ = 0.05,end_occ = 0.95,step = 0.05,
+                              dataset_prefix = dataset_prefix, set_b=40, out_path = out_path)
+
+# quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
+#                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
+
+# occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
+#                                              ground_state_pdb_path,
+#                                              input_mtz,
+#                                              dataset_prefix,
+#                                              out_path,
+#                                              input_cif,
+#                                              set_b = 40)
 
 # occ_loop_merge_confs_simulate(bound_state_pdb_path,
 #                                          ground_state_pdb_path,
