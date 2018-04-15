@@ -582,6 +582,34 @@ def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_pat
 
             out_path = os.path.dirname(os.path.dirname(out_path))
 
+def refine_after_exhasutive_search(input_pdb, input_mtz, input_cif, refine_params, dataset_prefix, working_dir = None):
+
+    os.chdir(working_dir)
+    sh_file = "{}_quick_refine_exhaustive_search_minima.sh".format(dataset_prefix)
+    out_prefix = "{}_refine_after_exhasutive_search".format(dataset_prefix)
+    dir_prefix = out_prefix
+    quick_refine_qsub(input_pdb=input_pdb, input_mtz=input_mtz, input_cif=input_cif, refine_params=refine_params,
+                      sh_file=sh_file, out_prefix=out_prefix, dir_prefix=dir_prefix)
+
+
+def quick_refine_qsub(input_pdb, input_mtz, input_cif, refine_params,
+                      sh_file, out_prefix=None, dir_prefix=None):
+
+    with open(os.path.join(out_path, sh_file), 'w') as file:
+        file.write("#!/bin/bash\n")
+        file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+        file.write(
+            "source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+        file.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
+                   "input.params={} output.out_prefix={} output.dir_prefix={} ".format(input_pdb, input_mtz,
+                                                                                       input_cif, refine_params,
+                                                                                       out_prefix, dir_prefix))
+
+    os.system("qsub -o {} -e {} {}".format(
+            os.path.join(out_path, "output_{}.txt".format(str(out_prefix))),
+            os.path.join(out_path, "error_{}.txt".format(str(out_prefix))),
+            os.path.join(out_path, sh_file)))
+
 def plot_random_refinement_starts(start_occ, end_occ,step, dataset_prefix, set_b,out_path):
 
     for simul_occ in np.arange(start_occ,end_occ+step/5,step):
@@ -715,16 +743,20 @@ input_cif = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_mode
 dataset_prefix = "NUDT7A-x1740"
 out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
 
+
+
+
 #delta_fofc_array = get_delta_fofc_over_occupancies(40,0.05, 0.95, step = 0.05)
 #print(delta_fofc_array)
 
 #plot_fofc_occ(0.05, 0.95, step = 0.05, set_b = 40)
 
-plot_random_refinement_starts(start_occ = 0.05,end_occ = 0.95,step = 0.05,
-                              dataset_prefix = dataset_prefix, set_b=40, out_path = out_path)
+# plot_random_refinement_starts(start_occ=0.05, end_occ=0.95, step=0.05,
+#                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
 
 # quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
 #                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
+
 
 # occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
 #                                              ground_state_pdb_path,

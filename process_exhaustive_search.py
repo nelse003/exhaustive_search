@@ -2,10 +2,13 @@ import csv
 import os
 import sys
 
+import iotbx
 import libtbx.phil
 import numpy as np
+from iotbx.pdb import hierarchy
 
 from Repeating_exhaustive_search import get_in_refinement_or_better
+from select_occupancy_groups import process_refined_pdb_bound_ground_states
 
 #################################################
 master_phil = libtbx.phil.parse("""
@@ -22,7 +25,8 @@ output{
         .type = str
 }
 options{
-
+    cat = "cat"
+        .type = str
 }
 """, process_includes=True)
 ###################################################
@@ -49,6 +53,41 @@ def get_minimum_fofc(csv_name):
     min_index = np.argmin(fo_fc)
 
     return occ[min_index], u_iso[min_index], fo_fc[min_index]
+
+# TODO Remove this second copy, by sorting out circular references
+def u_iso_to_b_fac(u_iso):
+
+    b_iso = (8 * np.pi ** 2) * u_iso ** 2
+    return b_iso
+
+def write_minima_pdb(input_pdb,output_pdb,csv_name):
+
+    min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
+
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(input_pdb)
+    pdb_inp = iotbx.pdb.input(input_pdb)
+    hier = pdb_inp.construct_hierarchy()
+
+    for chain in hier.only_model().chains():
+        for residue_group in chain.residue_groups():
+            for atom_group in residue_group.atom_groups():
+                for atom in atom_group.atoms():
+
+                    for ground_state in ground_states:
+                        num_altlocs = ground_state[1]
+                        if ground_state[0][atom.i_seq]:
+                            atom.occ = (1 - min_occ) / num_altlocs
+                            atom.b = u_iso_to_b_fac(min_u_iso)
+
+                    for bound_state in bound_states:
+                        num_altlocs = bound_state[1]
+                        if bound_state[0][atom.i_seq]:
+                            atom.set_occ(min_occ/num_altlocs)
+                            atom.set_b(u_iso_to_b_fac(min_u_iso))
+
+
+    with open(output_pdb,"w") as file:
+        file.write(hier.as_pdb_string(crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
 
 def get_all_minima(params):
@@ -114,8 +153,13 @@ def check_whether_ground_and_bound_states_exist():
 
 def run(params):
 
-    print(params.input.database_path)
-    get_all_minima(params)
+    # print(params.input.database_path)
+    # get_all_minima(params)
+    print("AAAAAAAAAAAAA")
+    input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1787/refine.pdb"
+    csv_name = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT7_Copied_atoms/NUDT7A-x1787/u_iso_occupancy_vary_new_atoms"
+    write_minima_pdb(input_pdb, csv_name)
+
 
 if __name__ == '__main__':
     from giant.jiffies import run_default
