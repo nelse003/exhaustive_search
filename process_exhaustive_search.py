@@ -9,6 +9,7 @@ from iotbx.pdb import hierarchy
 
 from Repeating_exhaustive_search import get_in_refinement_or_better
 from select_occupancy_groups import process_refined_pdb_bound_ground_states
+from utils import b_to_u_iso, u_iso_to_b_fac, round_step
 
 #################################################
 master_phil = libtbx.phil.parse("""
@@ -31,7 +32,17 @@ options{
 """, process_includes=True)
 ###################################################
 
-def get_minimum_fofc(csv_name):
+def get_minimum_fofc(csv_name, b_fac=None):
+
+    """
+    Get minima in fofc, and return minima and where it occurs
+    
+    B factor can be supplied to look at the minima across a single b factor value
+    
+    :param csv_name: 
+    :param b_fac: 
+    :return: 
+    """
 
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
@@ -46,19 +57,23 @@ def get_minimum_fofc(csv_name):
         fo_fc = data[:, 2]
     else:
         print("Data is not in correct format")
-    # b_iso = (8 * np.pi ** 2) * u_iso ** 2
+        exit()
 
-    # if three column data
+    if b_fac is not None:
+        set_u_iso = b_to_u_iso(b_fac)
+        step = np.unique(occ)[1]-np.unique(occ)[0]
+        check_u_iso = round_step(set_u_iso,base=step)
+        data_array = np.stack((occ,u_iso,fo_fc))
+        occ = data_array[0][(data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)]
+        u_iso = data_array[1][(data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)]
+        fo_fc = data_array[2][(data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)]
 
     min_index = np.argmin(fo_fc)
 
     return occ[min_index], u_iso[min_index], fo_fc[min_index]
 
 # TODO Remove this second copy, by sorting out circular references
-def u_iso_to_b_fac(u_iso):
 
-    b_iso = (8 * np.pi ** 2) * u_iso ** 2
-    return b_iso
 
 def write_minima_pdb(input_pdb,output_pdb,csv_name):
 
@@ -153,12 +168,14 @@ def check_whether_ground_and_bound_states_exist():
 
 def run(params):
 
+    pass
+
     # print(params.input.database_path)
     # get_all_minima(params)
-    print("AAAAAAAAAAAAA")
-    input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1787/refine.pdb"
-    csv_name = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT7_Copied_atoms/NUDT7A-x1787/u_iso_occupancy_vary_new_atoms"
-    write_minima_pdb(input_pdb, csv_name)
+    # print("AAAAAAAAAAAAA")
+    # input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1787/refine.pdb"
+    # csv_name = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT7_Copied_atoms/NUDT7A-x1787/u_iso_occupancy_vary_new_atoms"
+    # write_minima_pdb(input_pdb, csv_name)
 
 
 if __name__ == '__main__':

@@ -139,6 +139,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
         grid_from_selection = grid.Grid(grid_spacing = params.options.grid_spacing,
                                origin = tuple(grid_min),
                                approx_max = tuple(grid_max))
+        print(grid_from_selection.summary())
 
         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_from_selection.cart_points())
 
