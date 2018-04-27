@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def scatter_plot(csv_name, three_dim_plot=True):
+def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
@@ -35,6 +35,9 @@ def scatter_plot(csv_name, three_dim_plot=True):
 
         plt.xlabel("Occupancy")
         plt.ylabel("Fo-Fc")
+
+    if title_text is not None:
+        plt.title(title_text)
 
     #plt.show()
     plt.savefig(csv_name)
@@ -115,19 +118,6 @@ def colourbar_2d_scatter(atom_name):
     plt.savefig("{}_colorbar".format(atom_name))
     plt.close()
 
-###########################################################
-# TODO make work
-def get_steps(csv_name):
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
-
-    occ = data[:, 0]
-    u_iso = data[:, 2]
-    fo_fc = data[:, 3]
-
-    print occ
-
-    smallest_occ_step =[x-occ[i-1] for i, x in enumerate(occ)][1:]
-    print smallest_occ_step
 
 
 # Per atom plots

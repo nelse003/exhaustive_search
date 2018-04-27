@@ -1,212 +1,30 @@
 import os
 import random
+import time
 
+import iotbx.mtz
 import matplotlib.pyplot as plt
 import numpy as np
 from iotbx.pdb import hierarchy
 
 from plot_exhaustive_search import scatter_plot
 from process_exhaustive_search import get_minimum_fofc
+from refinement import refmac_0_cyc
 from select_occupancy_groups import get_occupancy_groups
 from utils import b_to_u_iso, round_step
 
 
-def buffer_validation():
-
-    """ VAry the number of points included in the selection for exhaustive search
-    
-    Currently code overutilises memory. Needs assessment before submission of any jobs to cluster.
-    
-    """
-
-    input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb"
-    input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.mtz"
-    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/buffer_vary/"
-    xtal_name = "NUDT7A-x1237"
-
-    for buffer in np.arange(0.0,0.76,0.25):
-
-        out_dir = os.path.join(out_path, "{}_{}".format(xtal_name, buffer))
-        if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
-
-        buffer_txt = str(buffer).replace(".","_")
-        sh_file = "{}_{}.sh".format(xtal_name,buffer_txt)
-        #
-        # file = open(os.path.join(out_dir, sh_file),'w')
-        #
-        # file.write("#!/bin/bash\n")
-        # file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-        # file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py "\
-        #            "input.pdb={} input.mtz={} options.buffer={} "\
-        #            "xtal_name={} output.out_dir={} \n".format(input_pdb, input_mtz, buffer,xtal_name, out_dir))
-        #
-        # file.close()
-
-        # os.system("qsub -o {} -e {} {}".format(os.path.join(out_dir,"output.txt"),
-        #                                      os.path.join(out_dir,"error.txt")
-        #                                     ,os.path.join(out_dir, sh_file)))
-        scatter_plot(os.path.join(out_dir,"u_iso_occupancy_vary"))
-
-
-def occ_loop_simulate_exp_data():
-
-    input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb"
-    input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/NUDT7A-x1237.mtz"
-    xtal_name = "NUDT7A-x1237"
-
-    os.chdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation")
-
-    for occupancy in np.arange(0,1.01,0.05):
-        # pdb_in = hierarchy.input(input_pdb)
-        #
-        # for chain in pdb_in.hierarchy.only_model().chains() :
-        #     for residue_group in chain.residue_groups() :
-        #         for atom_group in residue_group.atom_groups() :
-        #             if atom_group.resname == "LIG":
-        #                 for atom in atom_group.atoms() :
-        #                     atom.set_occ(occupancy)
-        #
-        occ_pdb = "NUDT7A-x1237-occ_{}.pdb".format(str(occupancy).replace(".","_"))
-        # f = open(occ_pdb, "w")
-        # f.write(pdb_in.hierarchy.as_pdb_string(
-        #     crystal_symmetry=pdb_in.input.crystal_symmetry()))
-        # f.close()
-        #
-        log_file = "simul_from_refine_log_{}".format(str(occupancy).replace(".","_"))
-        mtz_out = "simul_occ_{}.mtz".format(str(occupancy).replace(".","_"))
-
-        os.system("ccp4-python ../simulate_experimental_data.py input.xray_data.file_name={} "
-                  "model.file_name={} input.xray_data.label=\"I(+),SIGI(+),I(-),SIGI(-),merged\" "
-                  "output.logfile={} output.hklout={}".format(input_mtz, occ_pdb, log_file,mtz_out))
-
-        # input_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_{}.mtz".format(str(occupancy).replace(".","_"))
-        #
-        # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/"
-        # csv_name = "occ_u_iso_{}".format(str(occupancy).replace(".","_"))
-        #
-        # sh_file = "{}_{}.sh".format(xtal_name, occupancy)
-        #
-        # file = open(os.path.join(out_dir, sh_file),'w')
-        #
-        # file.write("#!/bin/bash\n")
-        # file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-        # file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-        #
-        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
-        #            " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
-        #            "options.csv_name={}".format(input_pdb,input_mtz,out_dir,xtal_name,csv_name))
-        # file.close()
-        #
-        # os.system("qsub -o {} -e {} {}".format(os.path.join(out_dir,"output_{}.txt".format(str(occupancy).replace(".","_"))),
-        #                                        os.path.join(out_dir,"error_{}.txt".format(str(occupancy).replace(".","_"))),
-        #                                        os.path.join(out_dir, sh_file)))
-
-    # args = [input_pdb, input_mtz]
-    #
-    # pdb_inp = iotbx.pdb.input(input_pdb)
-    #
-    # inputs = mmtbx.utils.process_command_line_args(args = args)
-    # ph = pdb_inp.construct_hierarchy()
-    # xrs = ph.extract_xray_structure(
-    #     crystal_symmetry = inputs.crystal_symmetry)
-    # reflection_files = inputs.reflection_files
-    # rfs = reflection_file_utils.reflection_file_server(
-    #     crystal_symmetry=inputs.crystal_symmetry,
-    #     force_symmetry=True,
-    #     reflection_files=reflection_files,
-    #     err=StringIO())
-    # determined_data_and_flags = mmtbx.utils.determine_data_and_flags(
-    #     reflection_file_server=rfs,
-    #     keep_going=True,
-    #     log=StringIO())
-    # r_free_flags = determined_data_and_flags.r_free_flags
-    # f_obs = determined_data_and_flags.f_obs
-    # crystal_gridding = f_obs.crystal_gridding(
-    #     d_min             = f_obs.d_min(),
-    #     symmetry_flags    = maptbx.use_space_group_symmetry,
-    #     resolution_factor = 1./4)
-    #
-    # mask_params = mmtbx.masks.mask_master_params.extract()
-    # mask_params.ignore_hydrogens=False
-    # mask_params.ignore_zero_occupancy_atoms=False
-    # fmodel = mmtbx.f_model.manager(
-    #     r_free_flags   = r_free_flags
-    #     mask_params    = mask_params,
-    #     xray_structure = xrs)
-    # fmodel.update_all_scales()
-    #
-    # fcfc_map, fcfc  = compute_maps(fmodel=fmodel,crystal_gridding=crystal_gridding,map_type="mFo-DFc")
-    # mtz_dataset = fcfc.as_mtz_dataset(column_root_label="FOFCWT")
-    # mtz_object = mtz_dataset.mtz_object()
-    # mtz_object.write(file_name="testing_{}_{}.mtz".format(bound_occupancy, u_iso))
-
-def refmac_0_cyc(input_mtz, input_pdb, output_pdb, output_mtz, occupancy):
-
-    with open("refmac_0_cyc_occ_{}.sh".format(str(occupancy).replace(".", "_")), 'w') as f:
-        f.write("#!/bin/bash \n")
-        f.write(
-            "source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-        f.write("refmac5 HKLIN {} \\\n".format(input_mtz))
-        f.write("HKLOUT {} \\\n".format(output_mtz))
-        f.write("XYZIN {} \\\n".format(input_pdb))
-        f.write("XYZOUT {} \\\n".format(output_pdb))
-        f.write("LIBIN /dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif \\\n")
-        f.write("LIBOUT /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/NUOOA000181a.cif \\\n")
-        f.write(" << EOF > refmac_{}.log".format(str(occupancy).replace(".", "_")))
-        f.write("""
-make -
-    hydrogen ALL -
-    hout NO -
-    peptide NO -
-    cispeptide YES -
-    ssbridge YES -
-    symmetry YES -
-    sugar YES -
-    connectivity NO -
-    link YES
-refi -
-    type REST -
-    resi MLKF -
-    meth CGMAT -
-    bref ISOT
-ncyc 0
-scal -
-    type SIMP -
-    LSSC -
-    ANISO -
-    EXPE
-weight AUTO
-solvent YES
-monitor MEDIUM -
-    torsion 10.0 -
-    distance 10.0 -
-    angle 10.0 -
-    plane 10.0 -
-    chiral 10.0 -
-    bfactor 10.0 -
-    bsphere 10.0 -
-    rbond 10.0 -
-    ncsr 10.0
-labin  FP=FOBS SIGFP=SIGFOBS
-labout  FC=FC FWT=FWT PHIC=PHIC PHWT=PHWT DELFWT=DELFWT PHDELWT=PHDELWT FOM=FOM
-DNAME NUDT7A-x1851
-END
-EOF
-    """)
-
-    os.system("qsub refmac_0_cyc_occ_{}.sh".format(str(occupancy).replace(".", "_")))
-
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                                             ground_state_pdb_path,
-                                             input_mtz,
-                                             dataset_prefix,
-                                             out_path,
-                                             set_b = None,
-                                             step = 0.05,
-                                             start_occ = 0.05,
-                                             end_occ = 0.95):
+                                 ground_state_pdb_path,
+                                 input_mtz,
+                                 dataset_prefix,
+                                 out_path,
+                                 set_b = None,
+                                 step = 0.05,
+                                 start_occ = 0.05,
+                                 end_occ = 0.95,
+                                 buffer = 0,
+                                 grid_spacing = 0.25):
 
     for lig_occupancy in np.arange(start_occ, end_occ+step/5, step):
         merged_pdb = os.path.join(out_path,
@@ -230,11 +48,18 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
             merged_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                str(set_b).replace(".", "_"))
 
-        os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
-                  "input.xray_data.file_name={} "
-                  "model.file_name={} input.xray_data.label=\"F,SIGF\" "
-                  "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb,
-                                                                              simulate_log, simulate_mtz))
+        # os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
+        #           "input.xray_data.file_name={} "
+        #           "model.file_name={} input.xray_data.label=\"F,SIGF\" "
+        #           "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb,
+        #                                                       simulate_log, simulate_mtz))
+
+        os.chdir(out_path)
+
+        o = iotbx.mtz.object(input_mtz)
+        low,high =o.max_min_resolution()
+
+        os.system("phenix.fmodel high_res={} type=real {} ".format(high, merged_pdb))
 
         # Exhaustive search
         sh_file = "{}_occ_{}_b_{}.sh".format(dataset_prefix,
@@ -250,8 +75,13 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
 
             file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
                        " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
-                       "options.csv_name={} options.step={}".format(merged_pdb, simulate_mtz, out_path, dataset_prefix,
-                                                                    csv_name, step))
+                       "options.csv_name={} options.step={} options.buffer={} "
+                       "options.grid_spacing={}".format(merged_pdb, merged_pdb+".mtz",out_path, dataset_prefix,csv_name,
+                                                         step, buffer, grid_spacing))
+
+        # os.chmod(os.path.join(out_path, sh_file),0777)
+        # os.system(os.path.join(out_path, sh_file))
+        # exit()
 
         os.system("qsub -o {} -e {} {}".format(os.path.join(out_path,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
                                                os.path.join(out_path,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
@@ -449,16 +279,6 @@ def connectpoints(x,y,x_1,y_1,p1):
 def connectpoint(x,y,x_1,y_1):
     plt.plot([x,x_1],[y,y_1],'k-')
 
-def occ_diff(occs, min_occs):
-
-    eps = 1e-15
-    occ_diff = np.abs(np.array(occs) - np.array(min_occs))
-    occ_diff[np.abs(occ_diff)< eps] = 0
-    frac_zeroes = float(len(occ_diff) - np.count_nonzero(occ_diff))/float(len(occ_diff))
-    mean_occ_diff = np.mean(occ_diff)
-
-    return frac_zeroes,mean_occ_diff
-
 def plot_fofc_occ(start_occ, end_occ, step, set_b):
 
     min_fofcs = []
@@ -474,8 +294,6 @@ def plot_fofc_occ(start_occ, end_occ, step, set_b):
         occs.append(lig_occupancy)
         min_fofcs.append(fo_fc_at_min)
         min_occs.append(min_occ)
-
-    frac_zeroes, mean_occ_diff = occ_diff(occs, min_occs)
 
     fig, ax = plt.subplots()
     min_plot, = ax.plot(min_occs, min_fofcs,'k+')
@@ -854,22 +672,38 @@ def plot_random_refinement_with_ES(start_occ, end_occ,step, dataset_prefix, set_
         plt.savefig(os.path.join(ES_folder,"random_occ_start_refine_simul_{}_20_cyc.png".format(
             str(simul_occ).replace('.','_'))), bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=300)
 
-in_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
-bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
-ground_state_pdb_path = os.path.join(in_path,"refine.output.ground-state.pdb")
-input_mtz = os.path.join(in_path,"NUDT7A-x1740.free.mtz")
-# input_cif = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif"
-dataset_prefix = "NUDT7A-x1740"
-# out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
-out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_step_0_01"
 
-os.chdir(out_path)
-plot_fofc_occ(0.01, 0.99, step = 0.01, set_b = 40)
-exit()
+def wait_for_file_existence(file_path, wait_time):
+    time_in_loop = 0
+    while not os.path.exists(file_path):
+        if time_in_loop < wait_time:
+            print("waiting")
+            time.sleep(1)
+            time_in_loop += 1
+        else:
+            raise IOError("Cannot find file {} within {} seconds".format(file_path, wait_time))
+
+
+def get_csv_filepath(directory, set_b=None, step=0.05, start_occ=0.05, end_occ=0.95):
+    for occupancy in np.arange(start_occ, end_occ + step / 5, step):
+        if set_b is not None:
+            yield os.path.join(directory, "occ_{}_b_{}_u_iso.csv".format(str(occupancy).replace(".","_"), set_b))
+        else:
+            yield os.path.join(directory, "occ_{}_u_iso.csv".format((str(occupancy).replace(".","_"))))
+
+
+in_path = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x1038"
+bound_state_pdb_path = os.path.join(in_path, "refine.output.bound-state.pdb")
+ground_state_pdb_path = os.path.join(in_path, "refine.output.ground-state.pdb")
+input_mtz = os.path.join(in_path, "NUDT22A-x1038.free.mtz")
+# input_cif = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif"
+dataset_prefix = "NUDT22A-x1038"
+out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/NUDT22A-x1038"
 
 if not os.path.exists(out_path):
     os.mkdir(out_path)
 
+# This loop runs exhaustive search many times across simulated data
 occ_loop_merge_confs_simulate(bound_state_pdb_path,
                               ground_state_pdb_path,
                               input_mtz,
@@ -878,28 +712,45 @@ occ_loop_merge_confs_simulate(bound_state_pdb_path,
                               set_b = 40,
                               step = 0.01,
                               start_occ = 0.01,
-                              end_occ = 0.99)
+                              end_occ = 0.99,
+                              buffer = 0,
+                              grid_spacing = 0.25)
 
+
+# Waits for occupancy csvs to be output
+for file_path in get_csv_filepath(out_path, set_b=40, step=0.01, start_occ=0.01, end_occ=0.99):
+    wait_for_file_existence(file_path, wait_time=1000)
+
+# This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
+os.chdir(out_path)
+plot_fofc_occ(0.01, 0.99, step=0.01, set_b=40)
+
+
+os.chdir(out_path)
+for simul_occ in np.arange(0.01, 0.99, 0.01):
+    csv_name = "occ_{}_b_40_u_iso".format(str(simul_occ).replace(".", "_"))
+    scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
+exit()
 # occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
 #                                          ground_state_pdb_path,
 #                                          input_mtz,
 #                                          dataset_prefix,
 #                                          out_path,
 #                                          set_b = 40)
-#submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
+# submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
 # os.chdir(out_path)
 # plot_fofc_occ(0.05, 0.95, 0.05, 40)
 
 
-validation_path ="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/"
+validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/"
 
 dataset_prefix = "NUDT7A-x1740"
 folder_prefix = "NUDT7A-x1740_refine_occ_"
 set_b = 40
 
-for simul_occ in np.arange(0.05,0.96,0.05):
+for simul_occ in np.arange(0.05, 0.96, 0.05):
 
-    working_dir = os.path.join(validation_path, folder_prefix + str(simul_occ).replace(".","_"))
+    working_dir = os.path.join(validation_path, folder_prefix + str(simul_occ).replace(".", "_"))
 
     # Create a folder for each
     # giant.score_model for simulated data: use refmac 0 cycles version for compatibility
@@ -965,31 +816,18 @@ for simul_occ in np.arange(0.05,0.96,0.05):
 
     exit()
 
-# Read residue_scores.csv for each cateogry
 
-# Plot delta occ vs B factor ratio
+    # plot_random_refinement_with_ES(start_occ=0.05, end_occ=0.95, step=0.05,
+    #                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
 
-###################################################
-
-
-#delta_fofc_array = get_delta_fofc_over_occupancies(40,0.05, 0.95, step = 0.05)
-#print(delta_fofc_array)
-
-#
-
-# plot_random_refinement_with_ES(start_occ=0.05, end_occ=0.95, step=0.05,
-#                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
-
-# quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
-#                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
+    # quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
+    #                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
 
 
-# occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
-#                                              ground_state_pdb_path,
-#                                              input_mtz,
-#                                              dataset_prefix,
-#                                              out_path,
-#                                              input_cif,
-#                                              set_b = 40)
-
-
+    # occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
+    #                                              ground_state_pdb_path,
+    #                                              input_mtz,
+    #                                              dataset_prefix,
+    #                                              out_path,
+    #                                              input_cif,
+    #                                              set_b = 40)
