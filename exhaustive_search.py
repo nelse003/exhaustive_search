@@ -38,6 +38,8 @@ input{
         .type = path
     mtz = None
         .type = path
+    xtal_name = None
+        .type = str
 }
 output{
     out_dir = "NUDT22A"
@@ -56,18 +58,23 @@ options{
         .type = float
     buffer = 0
         .type = float
-    csv_name = 'u_iso_occupancy_vary_new_atoms'
+    csv_name = 'u_iso_occupancy_vary'
         .type = str
     grid_spacing = 0.25
         .type = float
     generate_mtz = False
         .type = bool
     processes = 8
+        .type = int
 }
 """, process_includes=True)
 #########################################################################
 import logging
+import datetime
 
+logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
+                                                              'exhaustive_search/validation/buffer_vary/exhaustive_search_%Y_%m_%d_%H_%m.log'),
+                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -120,7 +127,6 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
 
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
-    sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     occupancy_group_cart_points = flex.vec3_double()
     for state in states:
@@ -133,6 +139,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
         grid_from_selection = grid.Grid(grid_spacing = params.options.grid_spacing,
                                origin = tuple(grid_min),
                                approx_max = tuple(grid_max))
+        print(grid_from_selection.summary())
 
         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(grid_from_selection.cart_points())
 
@@ -186,6 +193,7 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
             u_iso_occ.append((occupancy,u_iso))
 
     try:
+	print("\n\n\n"+ pdb + "\n\n\n")
         bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
     except UnboundLocalError:
         logger.info("Insufficient state information")
@@ -298,7 +306,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         for i, site_frac in enumerate(sites_frac):
             num_altlocs = ground_state[1]
             set_ground_occupancy = ground_occupancy / num_altlocs
-            if (bound_state[0][i]):
+            if (ground_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
@@ -319,9 +327,12 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
-def run(args, xtal_name):
+def run(params):
+
+ #def run(args, xtal_name)
+
     """
-    Main Function, Setup for protien model and run mean |Fo-Fc| calculation. 
+    Main Function, Setup for protein model and run mean |Fo-Fc| calculation. 
     
     Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb
     
@@ -330,9 +341,11 @@ def run(args, xtal_name):
     :return: 
     """
 
-    params = master_phil.extract()
-
     ####################################################
+
+    xtal_name = params.input.xtal_name
+    args = [params.input.pdb,params.input.mtz]
+
     header = " ############################################# "
     logger.info("\n {} \n #".format(header) + xtal_name + ": running exhaustive search \n {}".format(header))
 
@@ -357,6 +370,8 @@ def run(args, xtal_name):
     xrs = ph.extract_xray_structure(
         crystal_symmetry = inputs.crystal_symmetry)
 
+    xrs.show_summary()
+
     logger.info("Extract Fobs and free-r flags")
 
     f_obs = determined_data_and_flags.f_obs
@@ -375,7 +390,7 @@ def run(args, xtal_name):
     mask_params.ignore_hydrogens=False
     mask_params.ignore_zero_occupancy_atoms=False
     fmodel = mmtbx.f_model.manager(
-        f_obs          = f_obs,
+        f_obs = f_obs,
         r_free_flags   = r_free_flags,
         mask_params    = mask_params,
         xray_structure = xrs)
@@ -384,9 +399,9 @@ def run(args, xtal_name):
 
     logger.info("Organising output directory")
 
-    output_folder = "{}".format(xtal_name)
-    output_path = os.path.join(os.getcwd(),output_folder)
-    print("OUT:{}".format(output_path))
+    # output_folder = "{}".format(xtal_name)
+    # output_path = os.path.join(os.getcwd(),output_folder)
+    # print("OUT:{}".format(output_path))
     #output_path_base = os.path.join(os.getcwd(),"NUDT22A")
 
     # print(output_path_base)
@@ -394,9 +409,9 @@ def run(args, xtal_name):
     # if not os.path.exists(output_path_base):
     #      os.mkdir(output_path_base)
     #
-    if not os.path.exists(output_path):
-         os.mkdir(output_path)
-    os.chdir(output_folder)
+    # if not os.path.exists(output_path):
+    #      os.mkdir(output_path)
+    os.chdir(params.output.out_dir)
 
     pdb = args[0]
     # Run main calculation of |Fo-Fc| at grid points near ligand

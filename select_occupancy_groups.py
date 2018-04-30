@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import datetime
 import sys
 from copy import deepcopy
 
@@ -58,6 +59,9 @@ settings{
 ##############################################################
 import logging
 
+logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
+                                                              'exhaustive_search/validation/exhaustive_search_%Y_%m_%d_%H_%m.log'),
+                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 ##############################################################
 # Shared Functions
@@ -78,6 +82,7 @@ def get_occupancy_groups(pdb, params=master_phil.extract()):
     """
 
     logger.info("Gathering occupancy group information from PDB", pdb)
+    print("Gathering occupancy group information from PDB", pdb)
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.occupancy.resnames.split(',')
@@ -347,6 +352,8 @@ def get_state_selection(hier, coincident, occupancy_groups, params):
         logger.warning("No Ground State detected")
     if not bound_states:
         logger.warning("No Bound State detected")
+
+    logger.info("____________________________________________________________________________________________________")
 
     return bound_states, ground_states
 

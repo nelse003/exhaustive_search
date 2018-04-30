@@ -3,9 +3,9 @@ import numpy as np
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from utils import get_fofc_from_csv, get_minimum_fofc
 
-
-def scatter_plot(csv_name, three_dim_plot=True):
+def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
@@ -35,6 +35,9 @@ def scatter_plot(csv_name, three_dim_plot=True):
 
         plt.xlabel("Occupancy")
         plt.ylabel("Fo-Fc")
+
+    if title_text is not None:
+        plt.title(title_text)
 
     #plt.show()
     plt.savefig(csv_name)
@@ -115,44 +118,58 @@ def colourbar_2d_scatter(atom_name):
     plt.savefig("{}_colorbar".format(atom_name))
     plt.close()
 
-###########################################################
-# TODO make work
-def get_steps(csv_name):
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+def connectpoints(x,y,x_1,y_1,p1):
 
-    occ = data[:, 0]
-    u_iso = data[:, 2]
-    fo_fc = data[:, 3]
+    """ Draw lines between two lists of points"""
 
-    print occ
+    x1, x2 = x[p1], x_1[p1]
+    y1, y2 = y[p1], y_1[p1]
+    plt.plot([x1,x2],[y1,y2],'k-')
 
-    smallest_occ_step =[x-occ[i-1] for i, x in enumerate(occ)][1:]
-    print smallest_occ_step
+def connectpoint(x,y,x_1,y_1):
+
+    "Draw line between two points "
+
+    plt.plot([x,x_1],[y,y_1],'k-')
+
+def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
+
+    """ Plot the difference in occupancy/ fofc at the simulated occupancy and  """
+
+    min_fofcs = []
+    min_occs = []
+    fofcs = []
+    occs = []
+
+    for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
+        csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".","_"),str(set_b).replace(".","_"))
+        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_name)
+        fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(40)), step)
+        fofcs.append(fofc)
+        occs.append(lig_occupancy)
+        min_fofcs.append(fo_fc_at_min)
+        min_occs.append(min_occ)
+
+    fig, ax = plt.subplots()
+    min_plot, = ax.plot(min_occs, min_fofcs,'k+')
+    occ_plot, = ax.plot(occs, fofcs, 'ro')
+
+    for i in np.arange(0, len(occs)):
+        connectpoints(occs,fofcs,min_occs,min_fofcs,i)
+
+    ax.legend((min_plot,occ_plot),
+              ('Minima of mean |Fo-Fc|','Mean |Fo-Fc| at simulated occupancy'),
+              prop={"size": 8},
+              numpoints=1,
+              bbox_to_anchor=(1, 1),
+              bbox_transform=plt.gcf().transFigure)
+
+    ax.set_xlabel("Occupancy")
+    ax.set_ylabel("Mean |Fo-Fc|")
+
+    plt.title("{}: Delta mean|Fo-Fc| and Delta Occupancy".format(dataset_prefix), fontsize=10)
+    plt.savefig("{}-delta_fofc_occ.png".format(dataset_prefix))
 
 
-# Per atom plots
-"""
-for i in range(71,79):
-    atom_name = "HETATM_3{}".format((3 - len(str(i))) * '0' + str(i))
-#    scatter_plot(atom_name)
-#    bounded_2d_scatter(atom_name,lower_bound = -0.05, upper_bound = 0.05)
-    colourbar_2d_scatter(atom_name)
 
-#bounded_2d_scatter("HETATM_3077",-0.3,0.3)
-#bounded_2d_scatter("HETATM_3071",-0.3,0.3)
-#bounded_2d_scatter("HETATM_3072",-0.3,0.3)
-
-"""
-
-#os.chdir("../output_0A_frac_fix")
-
-# Per residue plot
-#print os.getcwd()
-
-#scatter_plot_4col("mean_ground_bound_5A_buffer")
-#scatter_plot_2d("fixed_B_5A_covary")
-#print os.getcwd()
-#os.chdir("../output_4kjt")
-#scatter_plot_4col("0A_bound_ground_covary_frac_fix")
-#bounded_2d_scatter("LIG",-0.1,0.1)
 

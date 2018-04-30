@@ -2,10 +2,14 @@ import csv
 import os
 import sys
 
+import iotbx
 import libtbx.phil
 import numpy as np
+from iotbx.pdb import hierarchy
 
 from Repeating_exhaustive_search import get_in_refinement_or_better
+from select_occupancy_groups import process_refined_pdb_bound_ground_states
+from utils import u_iso_to_b_fac
 
 #################################################
 master_phil = libtbx.phil.parse("""
@@ -22,33 +26,41 @@ output{
         .type = str
 }
 options{
-
+    cat = "cat"
+        .type = str
 }
 """, process_includes=True)
 ###################################################
 
-def get_minimum_fofc(csv_name):
 
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+def write_minima_pdb(input_pdb,output_pdb,csv_name):
 
-    # If four column data from multiple ligand
-    if len(data[0]) == 4:
-        occ = data[:, 0]
-        u_iso = data[:, 2]
-        fo_fc = data[:, 3]
-    elif len(data[0]) == 3:
-        occ = data[:, 0]
-        u_iso = data[:, 1]
-        fo_fc = data[:, 2]
-    else:
-        print("Data is not in correct format")
-    # b_iso = (8 * np.pi ** 2) * u_iso ** 2
+    min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 
-    # if three column data
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(input_pdb)
+    pdb_inp = iotbx.pdb.input(input_pdb)
+    hier = pdb_inp.construct_hierarchy()
 
-    min_index = np.argmin(fo_fc)
+    for chain in hier.only_model().chains():
+        for residue_group in chain.residue_groups():
+            for atom_group in residue_group.atom_groups():
+                for atom in atom_group.atoms():
 
-    return occ[min_index], u_iso[min_index]
+                    for ground_state in ground_states:
+                        num_altlocs = ground_state[1]
+                        if ground_state[0][atom.i_seq]:
+                            atom.occ = (1 - min_occ) / num_altlocs
+                            atom.b = u_iso_to_b_fac(min_u_iso)
+
+                    for bound_state in bound_states:
+                        num_altlocs = bound_state[1]
+                        if bound_state[0][atom.i_seq]:
+                            atom.set_occ(min_occ/num_altlocs)
+                            atom.set_b(u_iso_to_b_fac(min_u_iso))
+
+
+    with open(output_pdb,"w") as file:
+        file.write(hier.as_pdb_string(crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
 
 def get_all_minima(params):
@@ -75,7 +87,7 @@ def get_all_minima(params):
 
                     os.chdir(os.path.join(params.output.out_dir, xtal_name))
                     try:
-                        occ, u_iso = get_minimum_fofc(params.input.csv_name)
+                        occ, u_iso, _ = get_minimum_fofc(params.input.csv_name)
                     except IOError:
                         print("Skipping crystal {}".format(xtal_name))
                         continue
@@ -105,17 +117,21 @@ def minima_flatness(csv_path):
 
     print(u_iso_mean,u_iso_std, occ_mean, occ_std, mean_fofc_mean, mean_fofc_std)
 
-def check_whether_ground_and_bound_states_exist():
-    """ Check whetehr both ground and bound states exist"""
-    pass
 
 # minima_flatness('NUDT22A-x1058/NUDT22A-x1058/u_iso_occupancy_vary')
 # minima_flatness('occupancy_group_test/NUDT22A-x1058/u_iso_occupancy_vary')
 
 def run(params):
 
-    print(params.input.database_path)
-    get_all_minima(params)
+    pass
+
+    # print(params.input.database_path)
+    # get_all_minima(params)
+    # print("AAAAAAAAAAAAA")
+    # input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1787/refine.pdb"
+    # csv_name = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT7_Copied_atoms/NUDT7A-x1787/u_iso_occupancy_vary_new_atoms"
+    # write_minima_pdb(input_pdb, csv_name)
+
 
 if __name__ == '__main__':
     from giant.jiffies import run_default
