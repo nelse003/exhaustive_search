@@ -10,21 +10,22 @@ from utils import set_u_iso_all_occupancy_groups, wait_for_file_existence, get_c
 
 
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                                 ground_state_pdb_path,
-                                 input_mtz,
-                                 dataset_prefix,
-                                 out_path,
-                                 set_b = None,
-                                 step = 0.05,
-                                 start_occ = 0.05,
-                                 end_occ = 0.95,
-                                 buffer = 0,
-                                 grid_spacing = 0.25,
-                                 overwrite = False):
+                                  ground_state_pdb_path,
+                                  input_mtz,
+                                  dataset_prefix,
+                                  out_path,
+                                  set_b = None,
+                                  step_simul = 0.05,
+                                  step_sampling = 0.01,
+                                  start_simul_occ = 0.05,
+                                  end_simul_occ = 0.95,
+                                  buffer = 0,
+                                  grid_spacing = 0.25,
+                                  overwrite = False):
 
 
 
-    for lig_occupancy in np.arange(start_occ, end_occ+step/5, step):
+    for lig_occupancy in np.arange(start_simul_occ, end_simul_occ+step_simul/5, step_simul):
 
         csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".", "_"), str(set_b).replace(".", "_"))
         # Skip if already generated csv
@@ -81,8 +82,8 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
             file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
                        " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                        "options.csv_name={} options.step={} options.buffer={} "
-                       "options.grid_spacing={}".format(merged_pdb, merged_pdb+".mtz",out_path, dataset_prefix,csv_name,
-                                                         step, buffer, grid_spacing))
+                       "options.grid_spacing={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
+                                                        step_sampling, buffer, grid_spacing))
 
         # os.chmod(os.path.join(out_path, sh_file),0777)
         # os.system(os.path.join(out_path, sh_file))
@@ -298,9 +299,9 @@ occ_loop_merge_confs_simulate(bound_state_pdb_path,
                               dataset_prefix,
                               out_path,
                               set_b = 40,
-                              step = 0.01,
-                              start_occ = 0.01,
-                              end_occ = 0.99,
+                              step_simul= 0.01,
+                              start_simul_occ= 0.01,
+                              end_simul_occ= 0.99,
                               buffer = 0,
                               grid_spacing = 0.25)
 
