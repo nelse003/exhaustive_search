@@ -328,28 +328,6 @@ def get_bound_ground_pdb(refinement_pdb):
 
     return bound_pdb_path, ground_pdb_path
 
-##############################################
-#From exhaustive_search run()
-##############################################
-
-# Fo-Fc Line plotting
-
-fofc_map, fofc = compute_maps(
-    fmodel=fmodel,
-    crystal_gridding=crystal_gridding,
-    map_type="mFo-DFc")
-
-lig_cart = xrs_lig.sites_cart()
-lig_frac = xrs_lig.sites_frac()
-
-print(type(lig_cart[0]))
-print(fofc_map.eight_point_interpolation(lig_cart[0]), fofc_map.eight_point_interpolation(lig_frac[0]))
-print(fofc_map.eight_point_interpolation(inputs.crystal_symmetry.unit_cell().fractionalize(lig_cart[0])))
-
-for i in range(1,len(lig_cart)):
-    line_coords, all_fofc = fofc_between_two_atoms(lig_cart[i-1], lig_cart[i], fmodel, crystal_gridding, inputs, buffer=2)
-    plot_name = "Atom_{}_to_{}".format(i-1,i)
-    fofc_line_plot(line_coords, all_fofc, plot_name, buffer=2)
 
 #################################################
 #Depreceated functions from select_occupancy_groups
@@ -828,3 +806,26 @@ def occ_loop_simulate_exp_data():
     # mtz_dataset = fcfc.as_mtz_dataset(column_root_label="FOFCWT")
     # mtz_object = mtz_dataset.mtz_object()
     # mtz_object.write(file_name="testing_{}_{}.mtz".format(bound_occupancy, u_iso))
+
+##############################################
+#From exhaustive_search run()
+##############################################
+
+# Fo-Fc Line plotting
+
+fofc_map, fofc = compute_maps(
+    fmodel=fmodel,
+    crystal_gridding=crystal_gridding,
+    map_type="mFo-DFc")
+
+lig_cart = xrs_lig.sites_cart()
+lig_frac = xrs_lig.sites_frac()
+
+print(type(lig_cart[0]))
+print(fofc_map.eight_point_interpolation(lig_cart[0]), fofc_map.eight_point_interpolation(lig_frac[0]))
+print(fofc_map.eight_point_interpolation(inputs.crystal_symmetry.unit_cell().fractionalize(lig_cart[0])))
+
+for i in range(1,len(lig_cart)):
+    line_coords, all_fofc = fofc_between_two_atoms(lig_cart[i-1], lig_cart[i], fmodel, crystal_gridding, inputs, buffer=2)
+    plot_name = "Atom_{}_to_{}".format(i-1,i)
+    fofc_line_plot(line_coords, all_fofc, plot_name, buffer=2)
