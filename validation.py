@@ -86,8 +86,13 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
             o = iotbx.mtz.object(input_mtz)
             low,high =o.max_min_resolution()
             #print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz ))
-            os.system("phenix.fmodel data_column_label=\"F,SIGF,DANO,SIGDANO,ISYM\" {} {} type=real".format(merged_pdb, input_mtz ))
+
+            #TODO Work out data column label for sensible input?
+
+            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz))
             #os.system("phenix.fmodel high_res={} type=real {}".format(high, merged_pdb, merged_pdb +".mtz" ))
+
+        assert os.path.exists(merged_pdb+".mtz")
 
         sh_file = "{}_occ_{}_b_{}.sh".format(dataset_prefix,
                                              str(lig_occupancy).replace(".", "_"),
@@ -333,25 +338,25 @@ set_b= 40
 if not os.path.exists(out_path):
     os.mkdir(out_path)
 
-# This loop runs exhaustive search many times across simulated data
-occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                              ground_state_pdb_path,
-                              input_mtz,
-                              dataset_prefix,
-                              out_path,
-                              set_b = set_b,
-                              step_simul= 0.05,
-                              start_simul_occ= 0.05,
-                              end_simul_occ= 0.95,
-                              buffer = 1,
-                              grid_spacing = 0.25,
-                              overwrite = True,
-                              input_cif = input_cif)
-
-
-# Waits for occupancy csvs to be output
-for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
-    wait_for_file_existence(file_path, wait_time=10000)
+# # This loop runs exhaustive search many times across simulated data
+# occ_loop_merge_confs_simulate(bound_state_pdb_path,
+#                               ground_state_pdb_path,
+#                               input_mtz,
+#                               dataset_prefix,
+#                               out_path,
+#                               set_b = set_b,
+#                               step_simul= 0.05,
+#                               start_simul_occ= 0.05,
+#                               end_simul_occ= 0.95,
+#                               buffer = 1,
+#                               grid_spacing = 0.25,
+#                               overwrite = False,
+#                               input_cif = input_cif)
+#
+#
+# # Waits for occupancy csvs to be output
+# for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
+#     wait_for_file_existence(file_path, wait_time=10000)
 
 # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
 os.chdir(out_path)
