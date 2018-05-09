@@ -31,11 +31,15 @@ def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
     e=0.0001
     data_line = data[((occupancy-e)<data[:,0]) & ((occupancy+e)>data[:,0]) & ((u_iso-e)<data[:,2]) & ((u_iso+e)>data[:,2]) ]
+
+    print u_iso
+    print data_line
+
     fo_fc = data_line[0][3]
 
     return fo_fc
 
-def set_u_iso_all_occupancy_groups(input_pdb, output_pdb, b_fac):
+def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac):
 
     """ Change b factor of all atoms involved in occupancy groups"""
 

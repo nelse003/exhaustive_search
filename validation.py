@@ -4,9 +4,9 @@ import random
 import iotbx.mtz
 import numpy as np
 
-from plot_exhaustive_search import scatter_plot, plot_fofc_occ
+from plot_exhaustive_search import scatter_plot, plot_3d_fofc_occ
 from refinement import refmac_0_cyc
-from utils import set_u_iso_all_occupancy_groups, wait_for_file_existence, get_csv_filepath
+from utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath
 
 
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
@@ -21,33 +21,47 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
                                   end_simul_occ = 0.95,
                                   buffer = 0,
                                   grid_spacing = 0.25,
-                                  overwrite = False):
+                                  overwrite = False,
+                                  input_cif = None):
 
+    """ Simulate Experimental data using phenix f_model. Run exhaustive_search on simulated data. 
+    
+    Loop over all occupancies between start_simul_occ and end_simul_occ, in sizes of step_simul. 
+     For each of these occupancies:
+     > Run giant.merge_conformations to generate suitable (with occupancies set to (1- lig_occ) 
+     for ground and to (lig_occ) for bound state) pdb file (multi-state-model.pdb) 
+     to be passed to the simulation routine.
+     > If a B factor is to be set (using set_b) then set B factor of ground and bound states to 
+     a fixed value using set_u_iso_all_occupancy_groups()
+     > Get high resolution shell from input_mtz, use the free.mtz. Needed for simulating data using 
+     phenix.f_model
+     > Simulate Fobs data using phenix.f_model
+     > Run exhaustive search routine on simulated data. Via qsub submission
+     > Run refmac with 0 cycles of refinement to get viewable mtz from siluated mtz.
+    """
 
+    assert os.path.exists(out_path), "{} does not exist".format(out_path)
+    assert os.path.exists(ground_state_pdb_path), "Ground state pdb: \n{}\n does not exist".format(ground_state_pdb_path)
+    assert os.path.exists(bound_state_pdb_path),"bound state pdb: \n{}\n does not exist".format(bound_state_pdb_path)
+    assert os.path.exists(input_mtz), "Input mtz: \n{}\ndoes not exist".format(input_mtz)
+    assert os.path.exists(input_cif), "Input cif:\n{}\ndoes not exist".format(input_cif)
 
     for lig_occupancy in np.arange(start_simul_occ, end_simul_occ+step_simul/5, step_simul):
 
         csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".", "_"), str(set_b).replace(".", "_"))
-        # Skip if already generated csv
-        if not overwrite:
-            if os.path.exists(os.path.join(out_path,csv_name +".csv")):
-                print("Skipping {} because {} exists".format(lig_occupancy,csv_name) )
-                continue
 
         merged_pdb = os.path.join(out_path,
                                   "{}_refine_occ_{}.pdb".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
 
-        os.system("giant.merge_conformations input.major={} input.minor={} "
-                  "major_occupancy={} minor_occupancy={} output.pdb={}".format(
-            ground_state_pdb_path, bound_state_pdb_path, str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
-
-        simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
-        simulate_mtz = os.path.join(out_path,"{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+        if overwrite or not os.path.exists(os.path.join(merged_pdb)):
+            os.system("giant.merge_conformations input.major={} input.minor={} "
+                      "major_occupancy={} minor_occupancy={} output.pdb={}".format(
+                ground_state_pdb_path, bound_state_pdb_path, str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
 
         if set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            set_u_iso_all_occupancy_groups(input_pdb = merged_pdb,
+            set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                            output_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                str(set_b).replace(".", "_")),
                                            b_fac = set_b)
@@ -55,6 +69,10 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
             merged_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                str(set_b).replace(".", "_"))
 
+        simulate_mtz = os.path.join(out_path,
+                                    "{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+
+        simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
         # os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
         #           "input.xray_data.file_name={} "
         #           "model.file_name={} input.xray_data.label=\"F,SIGF\" "
@@ -63,46 +81,61 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
 
         os.chdir(out_path)
 
-        o = iotbx.mtz.object(input_mtz)
-        low,high =o.max_min_resolution()
+        if overwrite or not os.path.exists(os.path.join(out_path, merged_pdb +".mtz")):
 
-        os.system("phenix.fmodel high_res={} type=real {} ".format(high, merged_pdb))
+            o = iotbx.mtz.object(input_mtz)
+            low,high =o.max_min_resolution()
+            #print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz ))
+            os.system("phenix.fmodel data_column_label=\"F,SIGF,DANO,SIGDANO,ISYM\" {} {} type=real".format(merged_pdb, input_mtz ))
+            #os.system("phenix.fmodel high_res={} type=real {}".format(high, merged_pdb, merged_pdb +".mtz" ))
 
-        # Exhaustive search
         sh_file = "{}_occ_{}_b_{}.sh".format(dataset_prefix,
                                              str(lig_occupancy).replace(".", "_"),
                                              str(set_b).replace(".", "_"))
 
-        with open(os.path.join(out_path, sh_file),'w') as file:
+        if lig_occupancy == 0.05:
+            generate_mtz= True
+        else:
+            generate_mtz = False
 
-            file.write("#!/bin/bash\n")
-            file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-            file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+        if overwrite or os.path.exists(os.path.join(out_path,sh_file)):
+            with open(os.path.join(out_path, sh_file),'w') as file:
 
-            file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
-                       " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
-                       "options.csv_name={} options.step={} options.buffer={} "
-                       "options.grid_spacing={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
-                                                        step_sampling, buffer, grid_spacing))
+                file.write("#!/bin/bash\n")
+                file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+                file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
-        # os.chmod(os.path.join(out_path, sh_file),0777)
-        # os.system(os.path.join(out_path, sh_file))
-        # exit()
+                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
+                           " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
+                           "options.csv_name={} options.step={} options.buffer={} "
+                           "options.grid_spacing={} generate_mtz={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
+                                                            step_sampling, buffer, grid_spacing, generate_mtz))
 
-        os.system("qsub -o {} -e {} {}".format(os.path.join(out_path,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
-                                               os.path.join(out_path,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
-                                               os.path.join(out_path, sh_file)))
 
-        #Refmac 0 cycles
+        if overwrite or not os.path.exists(os.path.join(out_path,csv_name +".csv")):
+
+            os.system("qsub -o {} -e {} {}".format(os.path.join(out_path,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(out_path,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(out_path, sh_file)))
+
         output_pdb = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix,
                                                                            str(lig_occupancy).replace(".","_"),
                                                                            str(set_b).replace(".", "_")))
         output_mtz = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix,
                                                                            str(lig_occupancy).replace(".","_"),
                                                                            str(set_b).replace(".", "_")))
-        refmac_0_cyc(input_mtz = simulate_mtz, input_pdb = merged_pdb,
-                     output_pdb = output_pdb , output_mtz = output_mtz,
-                     occupancy= lig_occupancy)
+        output_cif =os.path.join(out_path, os.path.basename(input_cif))
+
+        if overwrite or not os.path.exists(output_mtz) or not os.path.exists(output_pdb):
+            # refmac_0_cyc(input_mtz = simulate_mtz, input_pdb = merged_pdb,
+            #              output_pdb = output_pdb , output_mtz = output_mtz,
+            #              input_cif = input_cif,output_cif= output_cif,
+            #              occupancy= lig_occupancy)
+            # os.system("phenix.refine {} {} {} main.number_of_macro_cycles=0 "
+            #           "refinement.input.xray_data.r_free_flags.generate=True".format(merged_pdb,
+            #                                                                          merged_pdb +".mtz",
+            #                                                                          input_cif))
+            os.system("phenix.maps {} {} maps.map.map_type=\"mfo-Dfc\"".format(merged_pdb, merged_pdb +".mtz"))
 
 def occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
                                              ground_state_pdb_path,
@@ -127,7 +160,7 @@ def occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
         if set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            set_u_iso_all_occupancy_groups(input_pdb = merged_pdb,
+            set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                            output_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                str(set_b).replace(".", "_")),
                                            b_fac = set_b)
@@ -199,7 +232,7 @@ def occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
         if set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            set_u_iso_all_occupancy_groups(input_pdb = merged_pdb,
+            set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                            output_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                str(set_b).replace(".", "_")),
                                            b_fac = set_b)
@@ -280,14 +313,22 @@ def occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
         out_path = os.path.dirname(out_path)
         print(out_path)
 
+def gradient(csv_name):
+    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+    occ = data[:,0]
+    u_iso = data[:,2]
+    fo_fc = data[:,3]
 
-in_path = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x1058"
-bound_state_pdb_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT22A_new_ground_state_x1058/multi-state-model.split.bound-state.pdb"
-ground_state_pdb_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/NUDT22A_new_ground_state_x1058/multi-state-model.split.ground-state.pdb"
-input_mtz = os.path.join(in_path, "NUDT22A-x1058.free.mtz")
-# input_cif = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif"
-dataset_prefix = "NUDT22A-x1058"
-out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/NUDT22A-x1058"
+
+
+in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
+bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
+ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
+input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
+input_cif = os.path.join(in_path, "FMOPL000287a.cif")
+dataset_prefix = "FALZA-x0085"
+out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085"
+set_b= 40
 
 if not os.path.exists(out_path):
     os.mkdir(out_path)
@@ -298,26 +339,28 @@ occ_loop_merge_confs_simulate(bound_state_pdb_path,
                               input_mtz,
                               dataset_prefix,
                               out_path,
-                              set_b = 40,
-                              step_simul= 0.01,
-                              start_simul_occ= 0.01,
-                              end_simul_occ= 0.99,
-                              buffer = 0,
-                              grid_spacing = 0.25)
+                              set_b = set_b,
+                              step_simul= 0.05,
+                              start_simul_occ= 0.05,
+                              end_simul_occ= 0.95,
+                              buffer = 1,
+                              grid_spacing = 0.25,
+                              overwrite = True,
+                              input_cif = input_cif)
 
 
 # Waits for occupancy csvs to be output
-for file_path in get_csv_filepath(out_path, set_b=40, step=0.01, start_occ=0.01, end_occ=0.99):
-    wait_for_file_existence(file_path, wait_time=1000)
+for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
+    wait_for_file_existence(file_path, wait_time=10000)
 
 # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
 os.chdir(out_path)
-plot_fofc_occ(0.01, 0.99, step=0.01, set_b=40, dataset_prefix=dataset_prefix)
+plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, dataset_prefix=dataset_prefix)
 
 
 os.chdir(out_path)
-for simul_occ in np.arange(0.01, 0.99, 0.01):
-    csv_name = "occ_{}_b_40_u_iso".format(str(simul_occ).replace(".", "_"))
+for simul_occ in np.arange(0.05, 0.95, 0.05):
+    csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),set_b)
     scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
 exit()
 

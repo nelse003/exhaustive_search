@@ -6,16 +6,17 @@ from __future__ import print_function
 import csv
 import os
 import sys
+from cStringIO import StringIO
 
 import cctbx.miller
 import giant.grid as grid
+import iotbx.ccp4_map
 import iotbx.pdb
 import libtbx.phil
 import mmtbx.f_model
 import mmtbx.masks
 import mmtbx.utils
 import numpy as np
-from cStringIO import StringIO
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from libtbx import easy_mp
@@ -104,7 +105,7 @@ def compute_maps(fmodel, crystal_gridding, map_type):
         crystal_gridding     = crystal_gridding,
         fourier_coefficients = map_coefficients)
     fft_map.apply_sigma_scaling()
-    return fft_map.real_map_unpadded(), map_coefficients
+    return fft_map,fft_map.real_map_unpadded(), map_coefficients
 
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
@@ -313,12 +314,29 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     fmodel.update_xray_structure(
         xray_structure=xrs_dc,
         update_f_calc=True)
-    fofc_map, fofc = compute_maps(
+    fft_map, fofc_map, fofc = compute_maps(
         fmodel=fmodel,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
+    # Need to somehow use fofc which is the map_coefficent. Using these with mtz write and then open with
+    # phenix.mtz2map, show sensible flat maps near minima, and
+
     if params.options.generate_mtz:
+    # and( decimal.Decimal(bound_occupancy) == 0.05
+    # and decimal.Decimal(u_iso) ==0.52 or decimal.Decimal(u_iso)==0.71)):
+    #
+    #     print("GOT IN")
+    #
+    #     iotbx.ccp4_map.write_ccp4_map(
+    #         file_name ="testing_iotbx_{}_{}.ccp4".format(bound_occupancy, u_iso),
+    #         unit_cell = inputs.crystal_symmetry.unit_cell(),
+    #         space_group = inputs.crystal_symmetry.space_group()
+    #         map_data = fofc_map
+    #     )
+    #
+
+        # fft_map.as_ccp4_map(file_name="testing_{}_{}.ccp4".format(bound_occupancy, u_iso))
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
         mtz_object.write(file_name="testing_{}_{}.mtz".format(bound_occupancy, u_iso))
@@ -415,6 +433,8 @@ def run(params):
 
     pdb = args[0]
     # Run main calculation of |Fo-Fc| at grid points near ligand
+
+
     try:
         calculate_mean_fofc(params = params,
                         protein_hier = ph,

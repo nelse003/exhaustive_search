@@ -3,7 +3,7 @@ import numpy as np
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from utils import get_fofc_from_csv, get_minimum_fofc
+from utils import get_fofc_from_csv, get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac
 
 def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     # Load data from CSV
@@ -132,6 +132,58 @@ def connectpoint(x,y,x_1,y_1):
 
     plt.plot([x,x_1],[y,y_1],'k-')
 
+def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
+
+    x1, x2 = x[p1], x_1[p1]
+    y1, y2 = y[p1], y_1[p1]
+    z1, z2 = z[p1], z_1[p1]
+    plt.plot([x1,x2],[y1,y2],[z1,z2],'k-')
+
+
+def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
+
+    """ Plot the difference in occupancy/ fofc at the simulated occupancy and  """
+
+    min_fofcs = []
+    min_occs = []
+    min_b_facs = []
+    fofcs = []
+    occs = []
+    b_facs = []
+
+    for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
+        csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".","_"),str(set_b).replace(".","_"))
+        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_name)
+        fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(set_b)), step)
+        fofcs.append(fofc)
+        occs.append(lig_occupancy)
+        b_facs.append(set_b)
+        min_b_facs.append(u_iso_to_b_fac(min_u_iso))
+        min_fofcs.append(fo_fc_at_min)
+        min_occs.append(min_occ)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    min_plot, = ax.plot(min_occs, min_b_facs, min_fofcs,'k+')
+    occ_plot, = ax.plot(occs, b_facs, fofcs, 'ro')
+
+    for i in np.arange(0, len(occs)):
+        connectpoints_3d(occs,b_facs,fofcs,min_occs,min_b_facs,min_fofcs,i)
+
+    ax.legend((min_plot,occ_plot),
+              ('Minima of mean |Fo-Fc|','Mean |Fo-Fc| at simulated occupancy'),
+              prop={"size": 8},
+              numpoints=1,
+              bbox_to_anchor=(1, 1),
+              bbox_transform=plt.gcf().transFigure)
+
+    ax.set_xlabel("Occupancy")
+    ax.set_ylabel("B factor")
+    ax.set_zlabel("Mean |Fo-Fc|")
+
+    plt.title("{}: Delta mean|Fo-Fc| and Delta Occupancy".format(dataset_prefix), fontsize=10)
+    plt.savefig("{}-3d-delta_fofc_occ.png".format(dataset_prefix))
+
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
     """ Plot the difference in occupancy/ fofc at the simulated occupancy and  """
@@ -144,7 +196,7 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
     for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
         csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".","_"),str(set_b).replace(".","_"))
         min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_name)
-        fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(40)), step)
+        fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(set_b)), step)
         fofcs.append(fofc)
         occs.append(lig_occupancy)
         min_fofcs.append(fo_fc_at_min)
@@ -169,7 +221,5 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
     plt.title("{}: Delta mean|Fo-Fc| and Delta Occupancy".format(dataset_prefix), fontsize=10)
     plt.savefig("{}-delta_fofc_occ.png".format(dataset_prefix))
-
-
 
 

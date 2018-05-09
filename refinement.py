@@ -1,6 +1,6 @@
 import os
 
-def refmac_0_cyc(input_mtz, input_pdb, output_pdb, output_mtz, occupancy):
+def refmac_0_cyc(input_mtz, input_pdb, output_pdb, output_mtz, input_cif, output_cif, occupancy):
 
     with open("refmac_0_cyc_occ_{}.sh".format(str(occupancy).replace(".", "_")), 'w') as f:
         f.write("#!/bin/bash \n")
@@ -10,8 +10,8 @@ def refmac_0_cyc(input_mtz, input_pdb, output_pdb, output_mtz, occupancy):
         f.write("HKLOUT {} \\\n".format(output_mtz))
         f.write("XYZIN {} \\\n".format(input_pdb))
         f.write("XYZOUT {} \\\n".format(output_pdb))
-        f.write("LIBIN /dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1740/NUOOA000181a.cif \\\n")
-        f.write("LIBOUT /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/NUOOA000181a.cif \\\n")
+        f.write("LIBIN {} \\\n".format(input_cif))
+        f.write("LIBOUT {} \\\n".format(output_cif))
         f.write(" << EOF > refmac_{}.log".format(str(occupancy).replace(".", "_")))
         f.write("""
 make -
