@@ -43,9 +43,9 @@ class error_swap(object):
     print(len(list(self.miller_calc.indices())))
     self.miller_mock = miller_mock
 
-    # take a common set to avoid possible problems
+    # take a utils set to avoid possible problems
     self.miller_calc = self.miller_calc.common_set( self.miller_obs )
-    print("common",len(list(miller_calc.indices())))
+    print("utils",len(list(miller_calc.indices())))
     self.miller_mock = self.miller_mock.common_set( self.miller_obs )
 
 

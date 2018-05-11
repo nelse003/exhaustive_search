@@ -7,9 +7,9 @@ import libtbx.phil
 import numpy as np
 from iotbx.pdb import hierarchy
 
-from Repeating_exhaustive_search import get_in_refinement_or_better
-from select_occupancy_groups import process_refined_pdb_bound_ground_states
-from utils import u_iso_to_b_fac
+from exhaustive.utils.select import process_refined_pdb_bound_ground_states
+from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.validation.Repeating_exhaustive_search import get_in_refinement_or_better
 
 #################################################
 master_phil = libtbx.phil.parse("""

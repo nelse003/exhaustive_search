@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.spatial as ss
 
-from process_exhaustive_search import get_minimum_fofc
+from exhaustive.process.minima import get_minimum_fofc
 
 
 def trapezoidal_area(xyz):

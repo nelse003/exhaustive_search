@@ -524,7 +524,7 @@ def select_chains_to_vary(bound_pdb_path, ground_pdb_path):
     else:
         ground_bound_chains = []
 
-    # If there are common chains between bound not in ground and ground not in bound, check whether the common
+    # If there are utils chains between bound not in ground and ground not in bound, check whether the utils
     # chains lie within a rmsd cutoff of the chains found uniquely in the bound not in ground?
 
     #Is bound_ph appropriate here?
@@ -572,7 +572,7 @@ def compare_hier(hier_1, hier_2, cache_1 = None, cache_2 = None, rmsd_cutoff = 0
     chain_ids_1 = [chain.id for chain in hier_1.only_model().chains()]
     chain_ids_2 = [chain.id for chain in hier_2.only_model().chains()]
 
-    # Find common, and unique chains in each hierarchy
+    # Find utils, and unique chains in each hierarchy
     common_chain_ids = list(set(chain_ids_1).intersection(chain_ids_2))
 
     chain_id1_not_in_id2 = list(set(chain_ids_1) - set(chain_ids_2))
@@ -702,7 +702,7 @@ def buffer_validation():
         # file.write("#!/bin/bash\n")
         # file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
         # file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py "\
+        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive.py "\
         #            "input.pdb={} input.mtz={} options.buffer={} "\
         #            "xtal_name={} output.out_dir={} \n".format(input_pdb, input_mtz, buffer,xtal_name, out_dir))
         #
@@ -759,7 +759,7 @@ def occ_loop_simulate_exp_data():
         # file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
         # file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
         #
-        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
+        # file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive.py"
         #            " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
         #            "options.csv_name={}".format(input_pdb,input_mtz,out_dir,xtal_name,csv_name))
         # file.close()

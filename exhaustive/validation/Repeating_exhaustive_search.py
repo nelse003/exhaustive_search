@@ -7,7 +7,7 @@ import sys
 import libtbx.phil
 import pandas as pd
 
-from exhaustive_search import run as exhaustive_search
+from exhaustive.exhaustive import run as exhaustive_search
 
 ##############################################################
 

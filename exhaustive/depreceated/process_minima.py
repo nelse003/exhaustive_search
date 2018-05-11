@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 # from process_exhaustive_search import write_minima_pdb
-from process_exhaustive_search import get_minimum_fofc
+from exhaustive.process.minima import get_minimum_fofc
 
 #from validation import refine_after_exhasutive_search
 

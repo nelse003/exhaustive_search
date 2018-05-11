@@ -4,9 +4,10 @@ import random
 import iotbx.mtz
 import numpy as np
 
-from plot_exhaustive_search import scatter_plot, plot_3d_fofc_occ
-from refinement import refmac_0_cyc
-from utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath
+from exhaustive.utils.refinement import refmac_0_cyc
+from exhaustive.utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
+    set_b_fac_all_atoms
+from exhaustive.plotting.plot import scatter_plot, plot_3d_fofc_occ
 
 
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
@@ -61,12 +62,17 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
         if set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
-                                           output_pdb = merged_file_name + "_set_b_{}.pdb".format(
-                                               str(set_b).replace(".", "_")),
-                                           b_fac = set_b)
+            # set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
+            #                                output_pdb = merged_file_name + "_set_b_{}.pdb".format(
+            #                                    str(set_b).replace(".", "_")),
+            #                                b_fac = set_b)
 
-            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(
+            set_b_fac_all_atoms(input_pdb = merged_pdb,
+                                output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
+                                   str(set_b).replace(".", "_")),
+                                b_fac = set_b)
+
+            merged_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
                                                str(set_b).replace(".", "_"))
 
         simulate_mtz = os.path.join(out_path,
@@ -89,6 +95,10 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
 
             #TODO Work out data column label for sensible input?
 
+            print(merged_pdb)
+            if merged_pdb != merged_file_name + "_set_all_b_{}.pdb".format(str(set_b).replace(".","_")):
+                exit()
+
             os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz))
             #os.system("phenix.fmodel high_res={} type=real {}".format(high, merged_pdb, merged_pdb +".mtz" ))
 
@@ -103,14 +113,14 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
         else:
             generate_mtz = False
 
-        if overwrite or os.path.exists(os.path.join(out_path,sh_file)):
+        if overwrite or not os.path.exists(os.path.join(out_path,sh_file)):
             with open(os.path.join(out_path, sh_file),'w') as file:
 
                 file.write("#!/bin/bash\n")
                 file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
                 file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
-                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
+                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive.py"
                            " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                            "options.csv_name={} options.step={} options.buffer={} "
                            "options.grid_spacing={} generate_mtz={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
@@ -202,7 +212,7 @@ def occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
             file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
             file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
-            file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive_search.py"
+            file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive.py"
                        " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                        "options.csv_name={}".format(output_pdb,output_mtz,out_path,dataset_prefix,csv_name))
 
@@ -332,31 +342,31 @@ ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
 input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
 input_cif = os.path.join(in_path, "FMOPL000287a.cif")
 dataset_prefix = "FALZA-x0085"
-out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085"
+out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-volume-scale"
 set_b= 40
 
 if not os.path.exists(out_path):
     os.mkdir(out_path)
 
-# # This loop runs exhaustive search many times across simulated data
-# occ_loop_merge_confs_simulate(bound_state_pdb_path,
-#                               ground_state_pdb_path,
-#                               input_mtz,
-#                               dataset_prefix,
-#                               out_path,
-#                               set_b = set_b,
-#                               step_simul= 0.05,
-#                               start_simul_occ= 0.05,
-#                               end_simul_occ= 0.95,
-#                               buffer = 1,
-#                               grid_spacing = 0.25,
-#                               overwrite = False,
-#                               input_cif = input_cif)
-#
-#
-# # Waits for occupancy csvs to be output
-# for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
-#     wait_for_file_existence(file_path, wait_time=10000)
+# This loop runs exhaustive search many times across simulated data
+occ_loop_merge_confs_simulate(bound_state_pdb_path,
+                              ground_state_pdb_path,
+                              input_mtz,
+                              dataset_prefix,
+                              out_path,
+                              set_b = set_b,
+                              step_simul= 0.05,
+                              start_simul_occ= 0.05,
+                              end_simul_occ= 0.95,
+                              buffer = 0,
+                              grid_spacing = 0.25,
+                              overwrite = False,
+                              input_cif = input_cif)
+
+
+# Waits for occupancy csvs to be output
+for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
+    wait_for_file_existence(file_path, wait_time=10000)
 
 # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
 os.chdir(out_path)
@@ -383,8 +393,6 @@ exit()
 # submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
 # os.chdir(out_path)
 # plot_fofc_occ(0.05, 0.95, 0.05, 40)
-
-
 
 validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/"
 

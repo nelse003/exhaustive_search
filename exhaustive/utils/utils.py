@@ -4,7 +4,7 @@ import time
 import numpy as np
 from iotbx.pdb import hierarchy
 
-from select_occupancy_groups import get_occupancy_groups
+from exhaustive.utils.select import get_occupancy_groups
 
 
 def b_to_u_iso(b_fac):
@@ -59,6 +59,19 @@ def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac):
                                     atom.set_b(b_fac)
                                     print("Changed: {}".format(residue))
     with open(output_pdb,"w") as f:
+        f.write(pdb_inp.hierarchy.as_pdb_string(crystal_symmetry=pdb_inp.input.crystal_symmetry()))
+
+def set_b_fac_all_atoms(input_pdb, output_pdb, b_fac):
+
+    """ Change B factors of all atoms to the same provided value"""
+
+    pdb_inp = hierarchy.input(input_pdb)
+    for chain in pdb_inp.hierarchy.only_model().chains():
+        for residue_group in chain.residue_groups():
+            for atom_group in residue_group.atom_groups():
+                for atom in atom_group.atoms() :
+                    atom.set_b(b_fac)
+    with open(output_pdb, "w") as f:
         f.write(pdb_inp.hierarchy.as_pdb_string(crystal_symmetry=pdb_inp.input.crystal_symmetry()))
 
 def get_minimum_fofc(csv_name, b_fac=None):
