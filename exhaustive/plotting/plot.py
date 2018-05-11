@@ -7,6 +7,9 @@ from exhaustive.utils.utils import get_fofc_from_csv, get_minimum_fofc, round_st
 
 
 def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
+
+    """ A 3d """
+
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
@@ -40,7 +43,6 @@ def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     if title_text is not None:
         plt.title(title_text)
 
-    #plt.show()
     plt.savefig(csv_name)
     plt.close()
 
@@ -129,11 +131,13 @@ def connectpoints(x,y,x_1,y_1,p1):
 
 def connectpoint(x,y,x_1,y_1):
 
-    "Draw line between two points "
+    """ Draw line between two points """
 
     plt.plot([x,x_1],[y,y_1],'k-')
 
 def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
+
+    """ Draw lines between two sets od points in 3d"""
 
     x1, x2 = x[p1], x_1[p1]
     y1, y2 = y[p1], y_1[p1]
@@ -143,7 +147,7 @@ def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
 
 def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
-    """ Plot the difference in occupancy/ fofc at the simulated occupancy and  """
+    """ Plot the difference in occupancy & mean(|fo-fc|) at the simulated occupancy and the minima. """
 
     min_fofcs = []
     min_occs = []
@@ -187,7 +191,7 @@ def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
-    """ Plot the difference in occupancy/ fofc at the simulated occupancy and  """
+    """ Plot the difference in occupancy/ fofc at the simulated occupancy and minima.  """
 
     min_fofcs = []
     min_occs = []

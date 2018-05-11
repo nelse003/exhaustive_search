@@ -23,7 +23,7 @@ from libtbx import easy_mp
 from mmtbx import map_tools
 from scitbx.array_family import flex
 
-from exhaustive.utils.select import process_refined_pdb_bound_ground_states
+from utils.select import process_refined_pdb_bound_ground_states
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -112,11 +112,11 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
     """
     Get cartesian points that correspond to atoms involved in the occupancy groups (as in multi-state.restraints.params)
     
-    :param pdb:
+    :param pdb: Input PDB file
     :type path
-    :param params:
+    :param params: Working phil parameters 
     :type 
-    :return: occupancy_group_cart_points 
+    :return: occupancy_group_cart_points: The cartesian points involved in the bound and ground states as 
     """
 
     logger.info("For all bound and ground states, select cartesian grid points for each altloc/residue \n" \

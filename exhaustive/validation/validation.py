@@ -4,10 +4,10 @@ import random
 import iotbx.mtz
 import numpy as np
 
-from exhaustive.utils.refinement import refmac_0_cyc
-from exhaustive.utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
-    set_b_fac_all_atoms
-from exhaustive.plotting.plot import scatter_plot, plot_3d_fofc_occ
+from ..utils.refinement import refmac_0_cyc
+from ..utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
+    set_b_fac_all_atoms, get_random_starting_occ_from_folder_name
+from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
 
 
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
@@ -38,7 +38,7 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
      phenix.f_model
      > Simulate Fobs data using phenix.f_model
      > Run exhaustive search routine on simulated data. Via qsub submission
-     > Run refmac with 0 cycles of refinement to get viewable mtz from siluated mtz.
+     > Run phenix maps to get viewable map from siluated mtz.
     """
 
     assert os.path.exists(out_path), "{} does not exist".format(out_path)
@@ -334,152 +334,153 @@ def gradient(csv_name):
     u_iso = data[:,2]
     fo_fc = data[:,3]
 
+def run():
+
+    in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
+    bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
+    ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
+    input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
+    input_cif = os.path.join(in_path, "FMOPL000287a.cif")
+    dataset_prefix = "FALZA-x0085"
+    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-volume-scale"
+    set_b= 40
+
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
+
+    # This loop runs exhaustive search many times across simulated data
+    occ_loop_merge_confs_simulate(bound_state_pdb_path,
+                                  ground_state_pdb_path,
+                                  input_mtz,
+                                  dataset_prefix,
+                                  out_path,
+                                  set_b = set_b,
+                                  step_sampling= 0.05,
+                                  step_simul= 0.05,
+                                  start_simul_occ= 0.05,
+                                  end_simul_occ= 0.95,
+                                  buffer = 0,
+                                  grid_spacing = 0.25,
+                                  overwrite = False,
+                                  input_cif = input_cif)
 
 
-in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
-bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
-ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
-input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
-input_cif = os.path.join(in_path, "FMOPL000287a.cif")
-dataset_prefix = "FALZA-x0085"
-out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-volume-scale"
-set_b= 40
+    # Waits for occupancy csvs to be output
+    for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
+        wait_for_file_existence(file_path, wait_time=10000)
 
-if not os.path.exists(out_path):
-    os.mkdir(out_path)
-
-# This loop runs exhaustive search many times across simulated data
-occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                              ground_state_pdb_path,
-                              input_mtz,
-                              dataset_prefix,
-                              out_path,
-                              set_b = set_b,
-                              step_simul= 0.05,
-                              start_simul_occ= 0.05,
-                              end_simul_occ= 0.95,
-                              buffer = 0,
-                              grid_spacing = 0.25,
-                              overwrite = False,
-                              input_cif = input_cif)
+    # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
+    os.chdir(out_path)
+    plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, dataset_prefix=dataset_prefix)
 
 
-# Waits for occupancy csvs to be output
-for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
-    wait_for_file_existence(file_path, wait_time=10000)
-
-# This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
-os.chdir(out_path)
-plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, dataset_prefix=dataset_prefix)
+    os.chdir(out_path)
+    for simul_occ in np.arange(0.05, 0.95, 0.05):
+        csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),set_b)
+        scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
 
 
-os.chdir(out_path)
-for simul_occ in np.arange(0.05, 0.95, 0.05):
-    csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),set_b)
-    scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
-exit()
-
-################################################
-# Check and turn to functions
-################################################
-
-
-# occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
-#                                          ground_state_pdb_path,
-#                                          input_mtz,
-#                                          dataset_prefix,
-#                                          out_path,
-#                                          set_b = 40)
-# submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
-# os.chdir(out_path)
-# plot_fofc_occ(0.05, 0.95, 0.05, 40)
-
-validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/"
-
-dataset_prefix = "NUDT7A-x1740"
-folder_prefix = "NUDT7A-x1740_refine_occ_"
-set_b = 40
-
-for simul_occ in np.arange(0.05, 0.96, 0.05):
-
-    working_dir = os.path.join(validation_path, folder_prefix + str(simul_occ).replace(".", "_"))
-
-    # Create a folder for each
-    # giant.score_model for simulated data: use refmac 0 cycles version for compatibility
-
-    # if not os.path.exists(os.path.join(working_dir, "simulated_refmac_0_score_model")):
-    #     os.mkdir(os.path.join(working_dir, "simulated_refmac_0_score_model"))
-    # os.chdir(os.path.join(working_dir, "simulated_refmac_0_score_model"))
-    #
-    # input_pdb = os.path.join(working_dir,
-    #                          "{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix, str(simul_occ).replace(".","_"),
-    #                                                                             str(set_b).replace(".","_")))
-    # input_mtz = os.path.join(working_dir,
-    #                          "{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix, str(simul_occ).replace(".","_"),
-    #                                                                             str(set_b).replace(".","_")))
-    # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
-    #
-    # # giant.score_model for exhaustive search minima pdb
-    #
-    # if not os.path.exists(os.path.join(working_dir, "exhaustive_search_minima_score_model")):
-    #     os.mkdir(os.path.join(working_dir, "exhaustive_search_minima_score_model"))
-    # os.chdir(os.path.join(working_dir, "exhaustive_search_minima_score_model"))
-    #
-    # input_pdb = os.path.join(working_dir,
-    #                          "exhaustive_seach_minima.pdb".format(str(simul_occ).replace(".","_")))
-    #
-    # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
-    #
-    # # giant.score_model for exhaustive search minima, after refinement
-    #
-    # if not os.path.exists(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model")):
-    #     os.mkdir(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model"))
-    # os.chdir(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model"))
-    #
-    # folders = [name for name in os.listdir(working_dir) if os.path.isdir(os.path.join(working_dir, name))]
-    #
-    # es_refine = []
-    # for folder in folders:
-    #     if folder.find('refine_after_exhaustive_search') != -1:
-    #         es_refine.append(int(folder[-4:]))
-    # es_refine_folder = os.path.join(ES_folder,
-    #                                 "{}_refine_after_exhaustive_search{}".format(dataset_prefix,
-    #                                                                              str(max(es_refine)).rjust(4, '0')))
-    # ES_refine_pdb = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.pdb".format(dataset_prefix))
-    # ES_refine_mtz = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.mtz".format(dataset_prefix))
-    #
-    # os.system("giant.score_model input.pdb1={} input.mtz1={} input.pdb2={} input.mtz2={}".format(ES_refine_pdb,
-    #                                                                                              ES_refine_mtz,
-    #                                                                                              input_pdb,
-    #                                                                                              input_mtz))
-
-    # giant.score model for refined from random point (5 cycles)
-
-    for starting_rand_occ in get_random_starting_occ_from_folder_name(simul_occ, validation_path, dataset_prefix):
-        cur_dir = os.path.join(working_dir,
-                               dataset_prefix + "_expected_occ_"
-                               + str(simul_occ).replace(".", "_") + "_b_" + str(set_b) + "_supplied_occ_" +
-                               str(starting_rand_occ).replace(".", "_"))
-
-        print(cur_dir)
-
-    # giant.score_model for refined from random point (20 cycles)
-
-
-    exit()
-
-
-    # plot_random_refinement_with_ES(start_occ=0.05, end_occ=0.95, step=0.05,
-    #                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
-
-    # quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
-    #                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
-
-
-    # occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
-    #                                              ground_state_pdb_path,
-    #                                              input_mtz,
-    #                                              dataset_prefix,
-    #                                              out_path,
-    #                                              input_cif,
-    #                                              set_b = 40)
+# ################################################
+# # Check and turn to functions
+# ################################################
+#
+#
+# # occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
+# #                                          ground_state_pdb_path,
+# #                                          input_mtz,
+# #                                          dataset_prefix,
+# #                                          out_path,
+# #                                          set_b = 40)
+# # submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
+# # os.chdir(out_path)
+# # plot_fofc_occ(0.05, 0.95, 0.05, 40)
+#
+# validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/"
+#
+# dataset_prefix = "NUDT7A-x1740"
+# folder_prefix = "NUDT7A-x1740_refine_occ_"
+# set_b = 40
+#
+# for simul_occ in np.arange(0.05, 0.96, 0.05):
+#
+#     working_dir = os.path.join(validation_path, folder_prefix + str(simul_occ).replace(".", "_"))
+#
+#     # Create a folder for each
+#     # giant.score_model for simulated data: use refmac 0 cycles version for compatibility
+#
+#     # if not os.path.exists(os.path.join(working_dir, "simulated_refmac_0_score_model")):
+#     #     os.mkdir(os.path.join(working_dir, "simulated_refmac_0_score_model"))
+#     # os.chdir(os.path.join(working_dir, "simulated_refmac_0_score_model"))
+#     #
+#     # input_pdb = os.path.join(working_dir,
+#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix, str(simul_occ).replace(".","_"),
+#     #                                                                             str(set_b).replace(".","_")))
+#     # input_mtz = os.path.join(working_dir,
+#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix, str(simul_occ).replace(".","_"),
+#     #                                                                             str(set_b).replace(".","_")))
+#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
+#     #
+#     # # giant.score_model for exhaustive search minima pdb
+#     #
+#     # if not os.path.exists(os.path.join(working_dir, "exhaustive_search_minima_score_model")):
+#     #     os.mkdir(os.path.join(working_dir, "exhaustive_search_minima_score_model"))
+#     # os.chdir(os.path.join(working_dir, "exhaustive_search_minima_score_model"))
+#     #
+#     # input_pdb = os.path.join(working_dir,
+#     #                          "exhaustive_seach_minima.pdb".format(str(simul_occ).replace(".","_")))
+#     #
+#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
+#     #
+#     # # giant.score_model for exhaustive search minima, after refinement
+#     #
+#     # if not os.path.exists(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model")):
+#     #     os.mkdir(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model"))
+#     # os.chdir(os.path.join(working_dir, "exhaustive_search_minima_refined_score_model"))
+#     #
+#     # folders = [name for name in os.listdir(working_dir) if os.path.isdir(os.path.join(working_dir, name))]
+#     #
+#     # es_refine = []
+#     # for folder in folders:
+#     #     if folder.find('refine_after_exhaustive_search') != -1:
+#     #         es_refine.append(int(folder[-4:]))
+#     # es_refine_folder = os.path.join(ES_folder,
+#     #                                 "{}_refine_after_exhaustive_search{}".format(dataset_prefix,
+#     #                                                                              str(max(es_refine)).rjust(4, '0')))
+#     # ES_refine_pdb = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.pdb".format(dataset_prefix))
+#     # ES_refine_mtz = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.mtz".format(dataset_prefix))
+#     #
+#     # os.system("giant.score_model input.pdb1={} input.mtz1={} input.pdb2={} input.mtz2={}".format(ES_refine_pdb,
+#     #                                                                                              ES_refine_mtz,
+#     #                                                                                              input_pdb,
+#     #                                                                                              input_mtz))
+#
+#     # giant.score model for refined from random point (5 cycles)
+#
+#     for starting_rand_occ in get_random_starting_occ_from_folder_name(simul_occ, validation_path, dataset_prefix):
+#         cur_dir = os.path.join(working_dir,
+#                                dataset_prefix + "_expected_occ_"
+#                                + str(simul_occ).replace(".", "_") + "_b_" + str(set_b) + "_supplied_occ_" +
+#                                str(starting_rand_occ).replace(".", "_"))
+#
+#         print(cur_dir)
+#
+#     # giant.score_model for refined from random point (20 cycles)
+#
+#
+#     exit()
+#
+#
+#     # plot_random_refinement_with_ES(start_occ=0.05, end_occ=0.95, step=0.05,
+#     #                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
+#
+#     # quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
+#     #                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
+#
+#
+#     # occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
+#     #                                              ground_state_pdb_path,
+#     #                                              input_mtz,
+#     #                                              dataset_prefix,
+#     #                                              out_path,
+#     #                                              input_cif,
+#     #                                              set_b = 40)

@@ -149,20 +149,20 @@ def get_csv_filepath(directory, set_b=None, step=0.05, start_occ=0.05, end_occ=0
         else:
             yield os.path.join(directory, "occ_{}_u_iso.csv".format((str(occupancy).replace(".", "_"))))
 
-        def get_random_starting_occ_from_folder_name(occupancy, out_path, dataset_prefix):
+def get_random_starting_occ_from_folder_name(occupancy, out_path, dataset_prefix):
 
-            "From folder structure pull out occupancy values from random refinements"
+    "From folder structure pull out occupancy values from random refinements"
 
-            folders = [name for name in os.listdir(
-                os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".", "_"))) if
-                       os.path.isdir(
-                           os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".", "_"),
-                                        name))]
+    folders = [name for name in os.listdir(
+        os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".", "_"))) if
+               os.path.isdir(
+                   os.path.join(out_path, dataset_prefix + "_refine_occ_" + str(occupancy).replace(".", "_"),
+                                name))]
 
-            folders = [name for name in folders if "exhaustive" not in name]
+    folders = [name for name in folders if "exhaustive" not in name]
 
-            for folder in folders:
-                yield float("0." + folder.split('_')[-1])
+    for folder in folders:
+        yield float("0." + folder.split('_')[-1])
 
 ###############################################################################
 #  Likely depreceated.
