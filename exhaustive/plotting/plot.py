@@ -4,7 +4,7 @@ import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from exhaustive.utils.utils import get_fofc_from_csv, get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac
-
+from mpl_toolkits.mplot3d import Axes3D
 
 def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
 
