@@ -23,7 +23,8 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
                                   buffer = 0,
                                   grid_spacing = 0.25,
                                   overwrite = False,
-                                  input_cif = None):
+                                  input_cif = None,
+                                  generate_mtz= False):
 
     """ Simulate Experimental data using phenix f_model. Run exhaustive_search on simulated data. 
     
@@ -62,41 +63,42 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
         if set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            # set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
-            #                                output_pdb = merged_file_name + "_set_b_{}.pdb".format(
-            #                                    str(set_b).replace(".", "_")),
-            #                                b_fac = set_b)
+            if overwrite or not os.path.exists(merged_pdb  + "_set_b_{}.pdb".format(str(set_b).replace(".", "_"))):
 
-            set_b_fac_all_atoms(input_pdb = merged_pdb,
-                                output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
-                                   str(set_b).replace(".", "_")),
-                                b_fac = set_b)
+                # set_b_fac_all_atoms(input_pdb = merged_pdb,
+                #                     output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
+                #                        str(set_b).replace(".", "_")),
+                #                     b_fac = set_b)
 
-            merged_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
-                                               str(set_b).replace(".", "_"))
+                set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
+                                               output_pdb = merged_file_name + "_set_b_{}.pdb".format(
+                                                   str(set_b).replace(".", "_")),
+                                               b_fac = set_b)
 
-        simulate_mtz = os.path.join(out_path,
-                                    "{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(str(set_b).replace(".", "_"))
 
-        simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
-        # os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
-        #           "input.xray_data.file_name={} "
-        #           "model.file_name={} input.xray_data.label=\"F,SIGF\" "
-        #           "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb,
-        #                                                       simulate_log, simulate_mtz))
+        # simulate_mtz = os.path.join(out_path,
+        #                             "{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+        #
+        # simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
+        # # os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
+        # #           "input.xray_data.file_name={} "
+        # #           "model.file_name={} input.xray_data.label=\"F,SIGF\" "
+        # #           "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb,
+        # #                                                       simulate_log, simulate_mtz))
 
         os.chdir(out_path)
 
         if overwrite or not os.path.exists(os.path.join(out_path, merged_pdb +".mtz")):
 
-            o = iotbx.mtz.object(input_mtz)
-            low,high =o.max_min_resolution()
+            # o = iotbx.mtz.object(input_mtz)
+            # low,high =o.max_min_resolution()
             #print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz ))
 
             #TODO Work out data column label for sensible input?
 
             print(merged_pdb)
-            if merged_pdb != merged_file_name + "_set_all_b_{}.pdb".format(str(set_b).replace(".","_")):
+            if merged_pdb != merged_file_name + "_set_b_{}.pdb".format(str(set_b).replace(".","_")):
                 exit()
 
             os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz))
@@ -108,10 +110,6 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
                                              str(lig_occupancy).replace(".", "_"),
                                              str(set_b).replace(".", "_"))
 
-        if lig_occupancy == 0.05:
-            generate_mtz= True
-        else:
-            generate_mtz = False
 
         if overwrite or not os.path.exists(os.path.join(out_path,sh_file)):
             with open(os.path.join(out_path, sh_file),'w') as file:
@@ -120,7 +118,7 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
                 file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
                 file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
-                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive.py"
+                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
                            " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                            "options.csv_name={} options.step={} options.buffer={} "
                            "options.grid_spacing={} generate_mtz={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
@@ -342,7 +340,7 @@ def run():
     input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
     input_cif = os.path.join(in_path, "FMOPL000287a.cif")
     dataset_prefix = "FALZA-x0085"
-    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-volume-scale"
+    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-U-not-squared"
     set_b= 40
 
     if not os.path.exists(out_path):

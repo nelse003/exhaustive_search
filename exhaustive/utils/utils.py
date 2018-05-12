@@ -10,13 +10,13 @@ from exhaustive.utils.select import get_occupancy_groups
 def b_to_u_iso(b_fac):
     """ Convert isotropic B factor to u iso"""
 
-    u_iso = np.sqrt(b_fac/(8 * np.pi ** 2))
+    u_iso = b_fac/(8 * np.pi ** 2)
     return u_iso
 
 def u_iso_to_b_fac(u_iso):
     """ Convert u_iso to isotropic B factor """
 
-    b_iso = (8 * np.pi ** 2) * u_iso ** 2
+    b_iso = (8 * np.pi ** 2) * u_iso
     return b_iso
 
 def round_step(x, prec=2, base=.05):
@@ -64,7 +64,6 @@ def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac):
 def set_b_fac_all_atoms(input_pdb, output_pdb, b_fac):
 
     """ Change B factors of all atoms to the same provided value"""
-
     pdb_inp = hierarchy.input(input_pdb)
     for chain in pdb_inp.hierarchy.only_model().chains():
         for residue_group in chain.residue_groups():

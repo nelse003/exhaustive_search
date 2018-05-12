@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
 
-    """ A 3d """
+    """ Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output """
 
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
