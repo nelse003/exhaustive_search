@@ -34,18 +34,7 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 ##############################################################
 master_phil = libtbx.phil.parse("""
-input{
-    pdb = None
-        .type = path
-    mtz = None
-        .type = path
-    xtal_name = None
-        .type = str
-}
-output{
-    out_dir = "NUDT22A"
-        .type = str
-}
+
 options{
     lower_occ = 0.0
         .type = float
@@ -68,13 +57,16 @@ options{
     processes = 8
         .type = int
 }
-""", process_includes=True)
+include scope phil.io_phil
+"""
+, process_includes=True)
 #########################################################################
 import logging
 import datetime
 
-logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
-                                                              'exhaustive_search/validation/buffer_vary/exhaustive_search_%Y_%m_%d_%H_%m.log'),
+logging.basicConfig(filename=datetime.datetime.now().strftime(parmas.output.log_dir +
+                                                              params.output.log_name +
+                                                              "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 

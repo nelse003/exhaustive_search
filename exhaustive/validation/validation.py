@@ -1,6 +1,5 @@
 import os
 import random
-
 import iotbx.mtz
 import numpy as np
 
@@ -8,6 +7,7 @@ from ..utils.refinement import refmac_0_cyc
 from ..utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
     set_b_fac_all_atoms, get_random_starting_occ_from_folder_name
 from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
+
 
 
 def occ_loop_merge_confs_simulate(bound_state_pdb_path,
@@ -35,9 +35,7 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
      to be passed to the simulation routine.
      > If a B factor is to be set (using set_b) then set B factor of ground and bound states to 
      a fixed value using set_u_iso_all_occupancy_groups()
-     > Get high resolution shell from input_mtz, use the free.mtz. Needed for simulating data using 
-     phenix.f_model
-     > Simulate Fobs data using phenix.f_model
+     > Simulate Fobs data using phenix.f_model, base ouput on reflections on input.mtz
      > Run exhaustive search routine on simulated data. Via qsub submission
      > Run phenix maps to get viewable map from siluated mtz.
     """
@@ -325,12 +323,6 @@ def occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
 
         out_path = os.path.dirname(out_path)
         print(out_path)
-
-def gradient(csv_name):
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
-    occ = data[:,0]
-    u_iso = data[:,2]
-    fo_fc = data[:,3]
 
 def run():
 
