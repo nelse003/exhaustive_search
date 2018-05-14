@@ -24,7 +24,7 @@ from mmtbx import map_tools
 from scitbx.array_family import flex
 
 from utils.select import process_refined_pdb_bound_ground_states
-
+from phil import master_phil
 ##############################################################
 PROGRAM = 'Exhaustive Search'
 DESCRIPTION = """
@@ -33,30 +33,7 @@ DESCRIPTION = """
 """
 blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 ##############################################################
-exhaustive_phil = libtbx.phil.parse("""
-options{
-    lower_occ = 0.0
-        .type = float
-    upper_occ = 1.01
-        .type = float
-    step = 0.05
-        .type = float
-    lower_u_iso = 0.2
-        .type = float
-    upper_u_iso = 1.21
-        .type = float
-    buffer = 0
-        .type = float
-    csv_name = 'u_iso_occupancy_vary'
-        .type = str
-    grid_spacing = 0.25
-        .type = float
-    generate_mtz = False
-        .type = bool
-}
-include scope phil.general_phil
-"""
-, process_includes=True)
+
 #########################################################################
 import logging
 import datetime
@@ -108,9 +85,9 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
     """
 
     logger.info("For all bound and ground states, select cartesian grid points for each altloc/residue \n" \
-                "involved in occupancy groups. A buffer of {} Angstrom \n".format(params.options.buffer) + \
+                "involved in occupancy groups. A buffer of {} Angstrom \n".format(params.exhaustive.options.buffer) + \
                 "is applied to minimal and maximal grid points, with a grid seperation of {}.\n".format(
-                    params.options.grid_spacing))
+                    params.exhaustive.options.grid_spacing))
 
     states = bound_states + ground_states
 
@@ -123,9 +100,9 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states, params):
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
         sites_cart = selected_atoms.extract_xyz()
-        grid_min = flex.double([s - params.options.buffer for s in sites_cart.min()])
-        grid_max = flex.double([s + params.options.buffer for s in sites_cart.max()])
-        grid_from_selection = grid.Grid(grid_spacing = params.options.grid_spacing,
+        grid_min = flex.double([s - params.exhaustive.options.buffer for s in sites_cart.min()])
+        grid_max = flex.double([s + params.exhaustive.options.buffer for s in sites_cart.max()])
+        grid_from_selection = grid.Grid(grid_spacing = params.exhaustive.options.grid_spacing,
                                origin = tuple(grid_min),
                                approx_max = tuple(grid_max))
         print(grid_from_selection.summary())
@@ -177,8 +154,8 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
     # TODO implement an iteratively smaller step size based on minima
 
     u_iso_occ = []
-    for occupancy in np.arange(params.options.lower_occ, params.options.upper_occ, params.options.step):
-        for u_iso in np.arange(params.options.lower_u_iso, params.options.upper_u_iso, params.options.step):
+    for occupancy in np.arange(params.exhaustive.options.lower_occ, params.exhaustive.options.upper_occ, params.exhaustive.options.step):
+        for u_iso in np.arange(params.exhaustive.options.lower_u_iso, params.exhaustive.options.upper_u_iso, params.exhaustive.options.step):
             u_iso_occ.append((occupancy,u_iso))
 
     try:
@@ -193,12 +170,12 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
     logger.debug(occupancy_group_cart_points)
 
     logger.info("Looping over occupancy, u_iso with" \
-                "occupancy betweeen {} and {} in steps of {}.".format(params.options.lower_occ,
-                                                                      params.options.upper_occ,
-                                                                      params.options.step) + \
-                "and u_iso between {} and {} in steps of {}.".format(params.options.lower_u_iso,
-                                                                     params.options.upper_u_iso,
-                                                                     params.options.step))
+                "occupancy betweeen {} and {} in steps of {}.".format(params.exhaustive.options.lower_occ,
+                                                                      params.exhaustive.options.upper_occ,
+                                                                      params.exhaustive.options.step) + \
+                "and u_iso between {} and {} in steps of {}.".format(params.exhaustive.options.lower_u_iso,
+                                                                     params.exhaustive.options.upper_u_iso,
+                                                                     params.exhaustive.options.step))
 
     occ_b_loop = occ_b_loop_caller(xrs =xrs,
                                    sites_frac = sites_frac,
@@ -210,13 +187,13 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
                                    ground_states = ground_states,
                                    occupancy_group_cart_points = occupancy_group_cart_points)
 
-    sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.options.processes)
+    sum_fofc_results = easy_mp.pool_map(fixed_func = occ_b_loop, args = u_iso_occ, processes = params.exhaustive.options.processes)
 
     logger.info("Loop finished.\n" \
                 "Writing bound occupancy, ground_occupancy, u_iso, meann |Fo-Fc| to CSV: {}".format(
-        params.options.csv_name))
+        params.exhaustive.options.csv_name))
 
-    with open(params.options.csv_name + ".csv", 'w') as f1:
+    with open(params.exhaustive.options.csv_name + ".csv", 'w') as f1:
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
         writer.writerows(sum_fofc_results)
         sys.stdout.flush()
@@ -309,14 +286,14 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    if params.options.generate_mtz:
+    if params.exhaustive.options.generate_mtz:
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
         mtz_object.write(file_name="testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
-                                                              str(u_iso).replace(".","_"))
-    if params.options.generate_map:
+                                                              str(u_iso).replace(".","_")))
+    if params.exhaustive.options.generate_map:
         os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
-                                                              str(u_iso).replace(".","_"))
+                                                              str(u_iso).replace(".","_")))
 
     print(type(fofc_map))
     print(type(fofc))

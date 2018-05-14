@@ -2,240 +2,204 @@ import os
 import random
 import iotbx.mtz
 import numpy as np
+import libtbx.phil
+
+# Local imports
 
 from ..utils.refinement import refmac_0_cyc
 from ..utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
     set_b_fac_all_atoms, get_random_starting_occ_from_folder_name
 from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
+from ..phil import master_phil, prepare_validate_phil, check_input_files
 
-validate_phil = libtbx.phil.parse("""
-options={
-    bound_state_pdb_path = None
-        .type = str
-    
-}
-include scope phil.general_phil
-"""
-, process_includes=True)
+##############################################################
+# Logging
 
-def prepare_validate_phil():
+##############################################################
 
-    """ Add bound state and ground state paths if they do not exist"""
+def check_validate_input_files(params):
 
-    pass
+    """Check existence of input files, including all needed for validation code"""
 
-def check_input_files(params):
+    check_input_files(params)
 
-    """Check existence of input files"""
+    assert os.path.exists(params.output.out_dir), "{} does not exist".format(params.output.params.output.out_dir)
+    assert os.path.exists(params.validate.input.params.validate.ground_state_pdb_path), \
+        "Ground state pdb: \n{}\n does not exist".format(params.validate.input.params.validate.ground_state_pdb_path)
+    assert os.path.exists(params.validate.input.params.validate.bound_state_pdb_path),\
+        "Bound state pdb: \n{}\n does not exist".format(params.validate.input.params.validate.ground_state_pdb_path)
 
-    assert os.path.exists(params.out_path), "{} does not exist".format(out_path)
-    assert os.path.exists(params.ground_state_pdb_path), "Ground state pdb: \n{}\n does not exist".format(ground_state_pdb_path)
-    assert os.path.exists(params.bound_state_pdb_path),"bound state pdb: \n{}\n does not exist".format(bound_state_pdb_path)
-    assert os.path.exists(params.input_mtz), "Input mtz: \n{}\ndoes not exist".format(input_mtz)
-
-def occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                                  ground_state_pdb_path,
-                                  input_mtz,
-                                  dataset_prefix,
-                                  out_path,
-                                  set_b = None,
-                                  step_simul = 0.05,
-                                  step_sampling = 0.01,
-                                  start_simul_occ = 0.05,
-                                  end_simul_occ = 0.95,
-                                  buffer = 0,
-                                  grid_spacing = 0.25,
-                                  overwrite = False,
-                                  generate_mtz= False):
+def occ_loop_merge_confs_simulate(params):
 
     """ Simulate Experimental data using phenix f_model. Run exhaustive_search on simulated data. 
     
-    Loop over all occupancies between start_simul_occ and end_simul_occ, in sizes of step_simul. 
+    Loop over all occupancies between params.validate.options.start_simul_occ
+    and params.validate.options.end_simul_occ, in sizes of params.validate.options.step_simulation.
      For each of these occupancies:
      > Run giant.merge_conformations to generate suitable (with occupancies set to (1- lig_occ) 
      for ground and to (lig_occ) for bound state) pdb file (multi-state-model.pdb) 
      to be passed to the simulation routine.
-     > If a B factor is to be set (using set_b) then set B factor of ground and bound states to 
-     a fixed value using set_u_iso_all_occupancy_groups()
-     > Simulate Fobs data using phenix.f_model, base ouput on reflections on input.mtz
+     > If a B factor is to be set (using params.validate.options.set_b) then set B factor of ground and bound states to 
+     a fixed value using set_b_fac_all_occupancy_groups()
+     > Simulate Fobs data using phenix.f_model, base ouput on reflections on params.input.mtz
      > Run exhaustive search routine on simulated data. Via qsub submission
      > Run phenix maps to get viewable map from simluated mtz.
     """
 
-    #check_input_files(params = params)
-    assert os.path.exists(out_path), "{} does not exist".format(out_path)
-    assert os.path.exists(ground_state_pdb_path), "Ground state pdb: \n{}\n does not exist".format(ground_state_pdb_path)
-    assert os.path.exists(bound_state_pdb_path),"bound state pdb: \n{}\n does not exist".format(bound_state_pdb_path)
-    assert os.path.exists(input_mtz), "Input mtz: \n{}\ndoes not exist".format(input_mtz)
+    check_validate_input_files(params = params)
 
-    for lig_occupancy in np.arange(start_simul_occ, end_simul_occ+step_simul/5, step_simul):
+    for lig_occupancy in np.arange(params.validate.options.start_simul_occ, 
+                                   params.validate.options.end_simul_occ+params.validate.options.step_simulation/5, 
+                                   params.validate.options.step_simulation):
 
-        csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".", "_"), str(set_b).replace(".", "_"))
+        merged_pdb = os.path.join(params.output.out_dir,
+                                  "{}_refine_occ_{}.pdb".format(params.input.xtal_name, 
+                                                                str(lig_occupancy).replace(".", "_")))
 
-        merged_pdb = os.path.join(out_path,
-                                  "{}_refine_occ_{}.pdb".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
-
-        if overwrite or not os.path.exists(os.path.join(merged_pdb)):
+        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(merged_pdb)):
             os.system("giant.merge_conformations input.major={} input.minor={} "
                       "major_occupancy={} minor_occupancy={} output.pdb={}".format(
-                ground_state_pdb_path, bound_state_pdb_path, str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
+                params.validate.ground_state_pdb_path, params.validate.bound_state_pdb_path,
+                str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
 
-        if set_b is not None:
+        if params.validate.options.set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            if overwrite or not os.path.exists(merged_pdb  + "_set_b_{}.pdb".format(str(set_b).replace(".", "_"))):
+            if params.exhaustive.options.overwrite or not os.path.exists(merged_pdb
+             + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))):
 
                 # set_b_fac_all_atoms(input_pdb = merged_pdb,
                 #                     output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
-                #                        str(set_b).replace(".", "_")),
-                #                     b_fac = set_b)
+                #                        str(params.validate.options.set_b).replace(".", "_")),
+                #                     b_fac = params.validate.options.set_b)
 
                 set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                                output_pdb = merged_file_name + "_set_b_{}.pdb".format(
-                                                   str(set_b).replace(".", "_")),
-                                               b_fac = set_b)
+                                                   str(params.validate.options.set_b).replace(".", "_")),
+                                               b_fac = params.validate.options.set_b)
 
-            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(str(set_b).replace(".", "_"))
+            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))
 
-        # simulate_mtz = os.path.join(out_path,
-        #                             "{}_simul_{}.mtz".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
-        #
-        # simulate_log = os.path.join(out_path,"{}_simul_{}.log".format(dataset_prefix, str(lig_occupancy).replace(".", "_")))
-        # # os.system("ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/simulate_experimental_data.py "
-        # #           "input.xray_data.file_name={} "
-        # #           "model.file_name={} input.xray_data.label=\"F,SIGF\" "
-        # #           "output.logfile={} output.hklout={}".format(input_mtz, merged_pdb,
-        # #                                                       simulate_log, simulate_mtz))
+        os.chdir(params.output.out_dir)
 
-        os.chdir(out_path)
-
-        if overwrite or not os.path.exists(os.path.join(out_path, merged_pdb +".mtz")):
-
-            # o = iotbx.mtz.object(input_mtz)
-            # low,high =o.max_min_resolution()
-            #print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz ))
+        if params.exhaustive.options.overwrite or not \
+                os.path.exists(os.path.join(params.output.out_dir, merged_pdb +".mtz")):
 
             #TODO Work out data column label for sensible input?
 
-            print(merged_pdb)
-            if merged_pdb != merged_file_name + "_set_b_{}.pdb".format(str(set_b).replace(".","_")):
+            if merged_pdb != merged_file_name + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".","_")):
                 exit()
 
-            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, input_mtz))
+            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, params.input.mtz))
             #os.system("phenix.fmodel high_res={} type=real {}".format(high, merged_pdb, merged_pdb +".mtz" ))
 
         assert os.path.exists(merged_pdb+".mtz")
 
-        sh_file = "{}_occ_{}_b_{}.sh".format(dataset_prefix,
+        sh_file = "{}_occ_{}_b_{}.sh".format(params.input.xtal_name,
                                              str(lig_occupancy).replace(".", "_"),
-                                             str(set_b).replace(".", "_"))
+                                             str(params.validate.options.set_b).replace(".", "_"))
 
 
-        if overwrite or not os.path.exists(os.path.join(out_path,sh_file)):
-            with open(os.path.join(out_path, sh_file),'w') as file:
+        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
+            with open(os.path.join(params.output.out_dir, sh_file),'w') as file:
 
                 file.write("#!/bin/bash\n")
-                file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-                file.write("source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
+                file.write("export XChemExplorer_DIR=\"/dls/science/"
+                           "groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+                file.write("source /dls/science/groups/i04-1/software/"
+                           "XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
-                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
-                           " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
+                file.write("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
+                           "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
+                           "input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                            "options.csv_name={} options.step={} options.buffer={} "
-                           "options.grid_spacing={} generate_mtz={}".format(merged_pdb, merged_pdb +".mtz", out_path, dataset_prefix, csv_name,
-                                                            step_sampling, buffer, grid_spacing, generate_mtz))
+                           "options.params.exhaustive.options.grid_spacing={} "
+                           "params.exhaustive.options.generate_mtz={}".format(merged_pdb, merged_pdb +".mtz",
+                                                                            params.output.out_dir, 
+                                                                            params.input.xtal_name, 
+                                                                            params.exhaustive.options.csv_name,
+                                                                            params.exhaustive.options.step,
+                                                                            params.validate.options.buffer,
+                                                                            params.exhaustive.options.grid_spacing,
+                                                                            params.exhaustive.options.generate_mtz))
 
 
-        if overwrite or not os.path.exists(os.path.join(out_path,csv_name +".csv")):
+        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(
+                params.output.out_dir,params.exhaustive.csv_name +".csv")):
+            os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(params.output.out_dir,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                                                   os.path.join(params.output.out_dir, sh_file)))
 
-            os.system("qsub -o {} -e {} {}".format(os.path.join(out_path,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
-                                                   os.path.join(out_path,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
-                                                   os.path.join(out_path, sh_file)))
-
-        output_pdb = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix,
-                                                                           str(lig_occupancy).replace(".","_"),
-                                                                           str(set_b).replace(".", "_")))
-        output_mtz = os.path.join(out_path,"{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix,
-                                                                           str(lig_occupancy).replace(".","_"),
-                                                                           str(set_b).replace(".", "_")))
-        output_cif =os.path.join(out_path, os.path.basename(input_cif))
-
-        if overwrite or not os.path.exists(output_mtz) or not os.path.exists(output_pdb):
-            # refmac_0_cyc(input_mtz = simulate_mtz, input_pdb = merged_pdb,
-            #              output_pdb = output_pdb , output_mtz = output_mtz,
-            #              input_cif = input_cif,output_cif= output_cif,
-            #              occupancy= lig_occupancy)
-            # os.system("phenix.refine {} {} {} main.number_of_macro_cycles=0 "
-            #           "refinement.input.xray_data.r_free_flags.generate=True".format(merged_pdb,
-            #                                                                          merged_pdb +".mtz",
-            #                                                                          input_cif))
+        if params.exhaustive.options.overwrite or not os.path.exists(merged_pdb +".mtz") or not os.path.exists(merged_pdb):
             os.system("phenix.maps {} {} maps.map.map_type=\"mfo-Dfc\"".format(merged_pdb, merged_pdb +".mtz"))
 
-def run():
+def run(params):
 
-    in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
-    bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
-    ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
-    input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
-    input_cif = os.path.join(in_path, "FMOPL000287a.cif")
-    dataset_prefix = "FALZA-x0085"
-    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation.py/exhaustive_search_phenix_fmodel/FALZA-x0085-code-cleanup-tests"
-    set_b= 40
+    params = master_phil.extract()
+    # params.input.in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
+    # params.input.mtz = os.path.join(params.input.in_path, "FALZA-x0085.free.mtz")
+    modified_phil = master_phil.format(python_object=params)
+    modified_phil = prepare_validate_phil(modified_phil)
+    params = modified_phil.extract()
+    check_validate_input_files(params)
 
-    if not os.path.exists(out_path):
-        os.mkdir(out_path)
+    # in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
+    # params.validate.bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
+    # params.validate.ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
+    # input_cif = os.path.join(in_path, "FMOPL000287a.cif")
+    # params.input.xtal_name = "FALZA-x0085"
+    # params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation.py/exhaustive_search_phenix_fmodel/FALZA-x0085-code-cleanup-tests"
+    # params.validate.options.set_b= 40
+
+    if not os.path.exists(params.output.out_dir):
+        os.mkdir(params.output.out_dir)
 
     # This loop runs exhaustive search many times across simulated data
-    occ_loop_merge_confs_simulate(bound_state_pdb_path,
-                                  ground_state_pdb_path,
-                                  input_mtz,
-                                  dataset_prefix,
-                                  out_path,
-                                  set_b = set_b,
-                                  step_sampling= 0.05,
-                                  step_simul= 0.05,
-                                  start_simul_occ= 0.05,
-                                  end_simul_occ= 0.95,
-                                  buffer = 0,
-                                  grid_spacing = 0.25,
-                                  overwrite = False,
-                                  input_cif = input_cif)
-
+    occ_loop_merge_confs_simulate(params)
 
     # Waits for occupancy csvs to be output
-    for file_path in get_csv_filepath(out_path, set_b=set_b, step=0.05, start_occ=0.05, end_occ=0.95):
+    for file_path in get_csv_filepath(params.output.out_dir,
+                                      set_b=params.validate.options.set_b,
+                                      step= params.validate.,
+                                      start_occ=0.05,
+                                      end_occ=0.95):
         wait_for_file_existence(file_path, wait_time=10000)
 
     # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
-    os.chdir(out_path)
-    plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, dataset_prefix=dataset_prefix)
+    os.chdir(params.output.out_dir)
+    plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, xtal_name=params.input.xtal_name)
 
 
-    os.chdir(out_path)
+    os.chdir(params.output.out_dir)
     for simul_occ in np.arange(0.05, 0.95, 0.05):
-        csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),set_b)
+        csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),params.validate.options.set_b)
         scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
 
+if(__name__ == "__main__"):
+    from giant.jiffies import run_default
+
+    run_default(run=run, master_phil=master_phil, args = sys.argv[1:])
 
 # ################################################
 # # Check and turn to functions
 # ################################################
 #
 #
-# # occ_loop_merge_confs_simulate_with_refmac_0(bound_state_pdb_path,
-# #                                          ground_state_pdb_path,
-# #                                          input_mtz,
-# #                                          dataset_prefix,
-# #                                          out_path,
-# #                                          set_b = 40)
-# # submit_exhasutive_with_refmac_0(dataset_prefix, out_path, set_b = 40)
-# # os.chdir(out_path)
+# # occ_loop_merge_confs_simulate_with_refmac_0(params.validate.bound_state_pdb_path,
+# #                                          params.validate.ground_state_pdb_path,
+# #                                          params.input.mtz,
+# #                                          params.input.xtal_name,
+# #                                          params.output.out_dir,
+# #                                          params.validate.options.set_b = 40)
+# # submit_exhasutive_with_refmac_0(params.input.xtal_name, params.output.out_dir, params.validate.options.set_b = 40)
+# # os.chdir(params.output.out_dir)
 # # plot_fofc_occ(0.05, 0.95, 0.05, 40)
 #
 # validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/validation_bound_ground/"
 #
-# dataset_prefix = "NUDT7A-x1740"
+# params.input.xtal_name = "NUDT7A-x1740"
 # folder_prefix = "NUDT7A-x1740_refine_occ_"
-# set_b = 40
+# params.validate.options.set_b = 40
 #
 # for simul_occ in np.arange(0.05, 0.96, 0.05):
 #
@@ -249,12 +213,12 @@ def run():
 #     # os.chdir(os.path.join(working_dir, "simulated_refmac_0_score_model"))
 #     #
 #     # input_pdb = os.path.join(working_dir,
-#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(dataset_prefix, str(simul_occ).replace(".","_"),
-#     #                                                                             str(set_b).replace(".","_")))
-#     # input_mtz = os.path.join(working_dir,
-#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(dataset_prefix, str(simul_occ).replace(".","_"),
-#     #                                                                             str(set_b).replace(".","_")))
-#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
+#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.pdb".format(params.input.xtal_name, str(simul_occ).replace(".","_"),
+#     #                                                                             str(params.validate.options.set_b).replace(".","_")))
+#     # params.input.mtz = os.path.join(working_dir,
+#     #                          "{}_occ_{}_b_{}_refmac_0_cyc.mtz".format(params.input.xtal_name, str(simul_occ).replace(".","_"),
+#     #                                                                             str(params.validate.options.set_b).replace(".","_")))
+#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,params.input.mtz))
 #     #
 #     # # giant.score_model for exhaustive search minima pdb
 #     #
@@ -265,7 +229,7 @@ def run():
 #     # input_pdb = os.path.join(working_dir,
 #     #                          "exhaustive_seach_minima.pdb".format(str(simul_occ).replace(".","_")))
 #     #
-#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,input_mtz))
+#     # os.system("giant.score_model input.pdb1={} input.mtz1={}".format(input_pdb,params.input.mtz))
 #     #
 #     # # giant.score_model for exhaustive search minima, after refinement
 #     #
@@ -280,22 +244,22 @@ def run():
 #     #     if folder.find('refine_after_exhaustive_search') != -1:
 #     #         es_refine.append(int(folder[-4:]))
 #     # es_refine_folder = os.path.join(ES_folder,
-#     #                                 "{}_refine_after_exhaustive_search{}".format(dataset_prefix,
+#     #                                 "{}_refine_after_exhaustive_search{}".format(params.input.xtal_name,
 #     #                                                                              str(max(es_refine)).rjust(4, '0')))
-#     # ES_refine_pdb = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.pdb".format(dataset_prefix))
-#     # ES_refine_mtz = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.mtz".format(dataset_prefix))
+#     # ES_refine_pdb = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.pdb".format(params.input.xtal_name))
+#     # ES_refine_mtz = os.path.join(es_refine_folder, "{}_refine_after_exhaustive_search.mtz".format(params.input.xtal_name))
 #     #
 #     # os.system("giant.score_model input.pdb1={} input.mtz1={} input.pdb2={} input.mtz2={}".format(ES_refine_pdb,
 #     #                                                                                              ES_refine_mtz,
 #     #                                                                                              input_pdb,
-#     #                                                                                              input_mtz))
+#     #                                                                                              params.input.mtz))
 #
 #     # giant.score model for refined from random point (5 cycles)
 #
-#     for starting_rand_occ in get_random_starting_occ_from_folder_name(simul_occ, validation_path, dataset_prefix):
+#     for starting_rand_occ in get_random_starting_occ_from_folder_name(simul_occ, validation_path, params.input.xtal_name):
 #         cur_dir = os.path.join(working_dir,
-#                                dataset_prefix + "_expected_occ_"
-#                                + str(simul_occ).replace(".", "_") + "_b_" + str(set_b) + "_supplied_occ_" +
+#                                params.input.xtal_name + "_expected_occ_"
+#                                + str(simul_occ).replace(".", "_") + "_b_" + str(params.validate.options.set_b) + "_supplied_occ_" +
 #                                str(starting_rand_occ).replace(".", "_"))
 #
 #         print(cur_dir)
@@ -307,16 +271,16 @@ def run():
 #
 #
 #     # plot_random_refinement_with_ES(start_occ=0.05, end_occ=0.95, step=0.05,
-#     #                               dataset_prefix=dataset_prefix, set_b=40, out_path=out_path)
+#     #                               params.input.xtal_name=params.input.xtal_name, params.validate.options.set_b=40, params.output.out_dir=params.output.out_dir)
 #
 #     # quick_refine_repeats(start_occ = 0.05, end_occ = 0.95, step = 0.05,
-#     #                      dataset_prefix = dataset_prefix, set_b=40, out_path = out_path, input_cif = input_cif)
+#     #                      params.input.xtal_name = params.input.xtal_name, params.validate.options.set_b=40, params.output.out_dir = params.output.out_dir, input_cif = input_cif)
 #
 #
-#     # occ_loop_merge_refine_random_confs_simulate(bound_state_pdb_path,
-#     #                                              ground_state_pdb_path,
-#     #                                              input_mtz,
-#     #                                              dataset_prefix,
-#     #                                              out_path,
+#     # occ_loop_merge_refine_random_confs_simulate(params.validate.bound_state_pdb_path,
+#     #                                              params.validate.ground_state_pdb_path,
+#     #                                              params.input.mtz,
+#     #                                              params.input.xtal_name,
+#     #                                              params.output.out_dir,
 #     #                                              input_cif,
-#     #                                              set_b = 40)
+#     #                                              params.validate.options.set_b = 40)

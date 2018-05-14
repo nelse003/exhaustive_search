@@ -50,7 +50,7 @@ settings{
         .help = ' RMSD Cutoff in Angstrom, for two structures considered coincident'
         .type = float
 }
-include scope exhaustive.phil.general_phil
+include scope exhaustive.phil.master_phil
 """, process_includes=True)
 ##############################################################
 import logging

@@ -6,7 +6,6 @@ from iotbx.pdb import hierarchy
 
 from exhaustive.utils.select import get_occupancy_groups
 
-
 def b_to_u_iso(b_fac):
     """ Convert isotropic B factor to u iso"""
 
@@ -132,6 +131,12 @@ def get_lig_occ(refine_pdb):
         exit()
 
 def wait_for_file_existence(file_path, wait_time):
+
+    """ Wait for a file to exist, stop after wait_time (seconds)
+
+    Used for waitign for qsub to finish
+    """
+
     time_in_loop = 0
     while not os.path.exists(file_path):
         if time_in_loop < wait_time:
