@@ -43,10 +43,6 @@ occupancy{
         .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. Generate a set of weaker constraints for overlapping atoms when False.'
         .type = bool
 }        
-output{
-    out_dir = "/hdlocal/home/enelson/Dropbox/DPhil/exhaustive_search/output/"
-        .type = str
-}        
 settings{
     verbose = True
         .type = bool
@@ -54,13 +50,15 @@ settings{
         .help = ' RMSD Cutoff in Angstrom, for two structures considered coincident'
         .type = float
 }
-
+include scope exhaustive.phil.general_phil
 """, process_includes=True)
 ##############################################################
 import logging
+params=master_phil.extract()
 
-logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
-                                                              'exhaustive_search/validation/exhaustive_search_%Y_%m_%d_%H_%m.log'),
+logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
+                                                              params.output.log_name +
+                                                              "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 ##############################################################

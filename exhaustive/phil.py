@@ -1,3 +1,5 @@
+import libtbx.phil
+
 general_phil = libtbx.phil.parse("""
 input{
     pdb = None

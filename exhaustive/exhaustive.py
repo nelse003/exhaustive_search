@@ -61,12 +61,11 @@ include scope phil.general_phil
 import logging
 import datetime
 
-logging.basicConfig(filename=datetime.datetime.now().strftime(parmas.output.log_dir +
+logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
                                                               params.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 #########################################################################
 def compute_maps(fmodel, crystal_gridding, map_type):
@@ -310,28 +309,14 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-
-    # Need to somehow use fofc which is the map_coefficent. Using these with mtz write and then open with
-    # phenix.mtz2map, show sensible flat maps near minima, and
-
     if params.options.generate_mtz:
-    # and( decimal.Decimal(bound_occupancy) == 0.05
-    # and decimal.Decimal(u_iso) ==0.52 or decimal.Decimal(u_iso)==0.71)):
-    #
-    #     print("GOT IN")
-    #
-    #     iotbx.ccp4_map.write_ccp4_map(
-    #         file_name ="testing_iotbx_{}_{}.ccp4".format(bound_occupancy, u_iso),
-    #         unit_cell = inputs.crystal_symmetry.unit_cell(),
-    #         space_group = inputs.crystal_symmetry.space_group()
-    #         map_data = fofc_map
-    #     )
-    #
-
-        # fft_map.as_ccp4_map(file_name="testing_{}_{}.ccp4".format(bound_occupancy, u_iso))
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
-        mtz_object.write(file_name="testing_{}_{}.mtz".format(bound_occupancy, u_iso))
+        mtz_object.write(file_name="testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
+                                                              str(u_iso).replace(".","_"))
+    if params.options.generate_map:
+        os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
+                                                              str(u_iso).replace(".","_"))
 
     print(type(fofc_map))
     print(type(fofc))
@@ -342,12 +327,13 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
 def run(params):
 
- #def run(args, xtal_name)
+# TODO Clean up ability to run as command line, and source as python
+#def run(args, xtal_name)
 
     """
     Main Function, Setup for protein model and run mean |Fo-Fc| calculation. 
     
-    Currently selects ligands based on c    hains found in split.bound.pdb bs split.ground.pdb
+    Currently selects ligands based on chains found in split.bound.pdb bs split.ground.pdb
     
     :param args: 
     :param xtal_name: 

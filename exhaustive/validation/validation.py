@@ -332,7 +332,7 @@ def run():
     input_mtz = os.path.join(in_path, "FALZA-x0085.free.mtz")
     input_cif = os.path.join(in_path, "FMOPL000287a.cif")
     dataset_prefix = "FALZA-x0085"
-    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-U-not-squared"
+    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation/exhaustive_search_phenix_fmodel/FALZA-x0085-code-cleanup-tests"
     set_b= 40
 
     if not os.path.exists(out_path):
