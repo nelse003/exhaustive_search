@@ -34,7 +34,6 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 ##############################################################
 master_phil = libtbx.phil.parse("""
-
 options{
     lower_occ = 0.0
         .type = float
@@ -54,10 +53,8 @@ options{
         .type = float
     generate_mtz = False
         .type = bool
-    processes = 8
-        .type = int
 }
-include scope phil.io_phil
+include scope phil.general_phil
 """
 , process_includes=True)
 #########################################################################

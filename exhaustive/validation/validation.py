@@ -37,7 +37,7 @@ def occ_loop_merge_confs_simulate(bound_state_pdb_path,
      a fixed value using set_u_iso_all_occupancy_groups()
      > Simulate Fobs data using phenix.f_model, base ouput on reflections on input.mtz
      > Run exhaustive search routine on simulated data. Via qsub submission
-     > Run phenix maps to get viewable map from siluated mtz.
+     > Run phenix maps to get viewable map from simluated mtz.
     """
 
     assert os.path.exists(out_path), "{} does not exist".format(out_path)

@@ -1,4 +1,4 @@
-io_phil = libtbx.phil.parse("""
+general_phil = libtbx.phil.parse("""
 input{
     pdb = None
         .type = path
@@ -15,4 +15,8 @@ output{
     log_name = "exhaustive_search"
         .type =str
 }
-                            """, process_includes=True)
+settings{
+    processes = 8
+        .type = int
+}
+""", process_includes=True)
