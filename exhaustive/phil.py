@@ -17,14 +17,16 @@ output{
         .type = str
     log_dir = "logs"
         .type = str
-    log_name = "exhaustive_search"
-        .type =str
 }
 settings{
     processes = 8
         .type = int
 }
 exhaustive{
+    output{
+        log_name = "exhaustive_search"
+            .type =str
+    }
     options{
         lower_occ = 0.0
             .type = float
@@ -57,8 +59,13 @@ validate{
         ground_state_pdb_name = "refine.output.ground-state.pdb"
             .type = str
     }
+    output{
+        log_name = "validate"
+    }
     options{
         set_b = None
+            .type = float
+        set_all_b = None
             .type = float
         step_simulation = 0.05
             .type = float
@@ -81,6 +88,8 @@ def prepare_validate_phil(master_phil):
     params = master_phil.extract()
 
     if params.validate.input.bound_state_pdb_path is None:
+        print params.validate.input.bound_state_pdb_name
+        print params.input.in_path
         params.validate.input.bound_state_pdb_path = os.path.join(params.input.in_path,
                                                                   params.validate.input.bound_state_pdb_name)
     if params.validate.input.ground_state_pdb_path is None:

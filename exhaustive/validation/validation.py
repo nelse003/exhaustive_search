@@ -15,6 +15,11 @@ from ..phil import master_phil, prepare_validate_phil, check_input_files
 ##############################################################
 # Logging
 
+logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
+                                                              params.validate.output.log_name +
+                                                              "_%Y_%m_%d_%H_%m.log"),
+                    level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 ##############################################################
 
 def check_validate_input_files(params):
@@ -23,11 +28,28 @@ def check_validate_input_files(params):
 
     check_input_files(params)
 
-    assert os.path.exists(params.output.out_dir), "{} does not exist".format(params.output.params.output.out_dir)
-    assert os.path.exists(params.validate.input.params.validate.ground_state_pdb_path), \
-        "Ground state pdb: \n{}\n does not exist".format(params.validate.input.params.validate.ground_state_pdb_path)
-    assert os.path.exists(params.validate.input.params.validate.bound_state_pdb_path),\
-        "Bound state pdb: \n{}\n does not exist".format(params.validate.input.params.validate.ground_state_pdb_path)
+    # Output directory
+    try:
+        assert os.path.exists(params.output.out_dir), "{} does not exist".format(params.output.out_dir)
+    except AssertionError:
+        log.exception("{} does not exist".format(params.output.out_dir))
+        raise
+
+    # Ground state pdb
+    try:
+        assert os.path.exists(params.validate.input.ground_state_pdb_path), \
+        "Ground state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path)
+    except AssertionError:
+        log.execption("Ground state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
+        raise
+
+    # Bound state pdb
+    try:
+        assert os.path.exists(params.validate.input.bound_state_pdb_path),\
+        "Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path)
+    except AssertionError:
+        log.exception("Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
+        raise
 
 def occ_loop_merge_confs_simulate(params):
 
@@ -46,7 +68,13 @@ def occ_loop_merge_confs_simulate(params):
      > Run phenix maps to get viewable map from simluated mtz.
     """
 
+    logger.info("Checking validity of input files")
     check_validate_input_files(params = params)
+
+    logger.info("Looping over simulated occupancies "
+                "between {} and {} in steps of {}".format(params.validate.options.start_simul_occ,
+                                                          params.validate.options.end_simul_occ,
+                                                          params.validate.options.step_simulation))
 
     for lig_occupancy in np.arange(params.validate.options.start_simul_occ, 
                                    params.validate.options.end_simul_occ+params.validate.options.step_simulation/5, 
@@ -56,33 +84,55 @@ def occ_loop_merge_confs_simulate(params):
                                   "{}_refine_occ_{}.pdb".format(params.input.xtal_name, 
                                                                 str(lig_occupancy).replace(".", "_")))
 
-        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(merged_pdb)):
+        if params.validate.options.overwrite or not os.path.exists(os.path.join(merged_pdb)):
+
+            logger.info("Using giant.merge_conformations to generate a pdb "
+                        "file with bound state occupancy {}".format(str(1-lig_occupancy)))
+
             os.system("giant.merge_conformations input.major={} input.minor={} "
                       "major_occupancy={} minor_occupancy={} output.pdb={}".format(
-                params.validate.ground_state_pdb_path, params.validate.bound_state_pdb_path,
-                str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
+                       params.validate.input.ground_state_pdb_path,
+                       params.validate.input.bound_state_pdb_path,
+                       str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
+
+        else:
+            logger.info("Skipping generating merged pdb\n{}\n as it already exists, "
+                        "and overwriting is not flagged".format(merged_pdb))
 
         if params.validate.options.set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
 
-            if params.exhaustive.options.overwrite or not os.path.exists(merged_pdb
+            if params.validate.options.overwrite or not os.path.exists(merged_pdb
              + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))):
 
-                # set_b_fac_all_atoms(input_pdb = merged_pdb,
-                #                     output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
-                #                        str(params.validate.options.set_b).replace(".", "_")),
-                #                     b_fac = params.validate.options.set_b)
+                if params.validate.options.set_all_b is not None:
+                    logger.info("Generating pdb file:\n{}\n with all B factors set to {}".format(merged_file_name +
+                                                        "_set_all_b_{}.pdb".format(
+                                                        str(params.validate.options.set_b).replace(".", "_"))))
 
-                set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
+                    set_b_fac_all_atoms(input_pdb = merged_pdb,
+                                    output_pdb = merged_file_name + "_set_all_b_{}.pdb".format(
+                                       str(params.validate.options.set_b).replace(".", "_")),
+                                    b_fac = params.validate.options.set_b)
+                else:
+                    logger.info("Generating pdb file:\n{}\n with B factors  of atoms in occupancy groups related to "
+                                "ground and bound states set to {}".format(merged_file_name +
+                                                        "_set_all_b_{}.pdb".format(
+                                                        str(params.validate.options.set_b).replace(".", "_"))))
+
+                    set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                                output_pdb = merged_file_name + "_set_b_{}.pdb".format(
                                                    str(params.validate.options.set_b).replace(".", "_")),
                                                b_fac = params.validate.options.set_b)
 
-            merged_pdb = merged_file_name + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))
+            if params.validate.options.set_all_b is not None:
+                merged_pdb = merged_file_name + "_set_all_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))
+            else:
+                merged_pdb = merged_file_name + "_set_b_{}.pdb".format(str(params.validate.options.set_b).replace(".", "_"))
 
         os.chdir(params.output.out_dir)
 
-        if params.exhaustive.options.overwrite or not \
+        if params.validate.options.overwrite or not \
                 os.path.exists(os.path.join(params.output.out_dir, merged_pdb +".mtz")):
 
             #TODO Work out data column label for sensible input?
@@ -91,7 +141,7 @@ def occ_loop_merge_confs_simulate(params):
                 exit()
 
             os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, params.input.mtz))
-            #os.system("phenix.fmodel high_res={} type=real {}".format(high, merged_pdb, merged_pdb +".mtz" ))
+
 
         assert os.path.exists(merged_pdb+".mtz")
 
@@ -100,7 +150,7 @@ def occ_loop_merge_confs_simulate(params):
                                              str(params.validate.options.set_b).replace(".", "_"))
 
 
-        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
+        if params.validate.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
             with open(os.path.join(params.output.out_dir, sh_file),'w') as file:
 
                 file.write("#!/bin/bash\n")
@@ -124,32 +174,21 @@ def occ_loop_merge_confs_simulate(params):
                                                                             params.exhaustive.options.generate_mtz))
 
 
-        if params.exhaustive.options.overwrite or not os.path.exists(os.path.join(
-                params.output.out_dir,params.exhaustive.csv_name +".csv")):
+        if params.validate.options.overwrite or not os.path.exists(os.path.join(
+                params.output.out_dir,params.exhaustive.options.csv_name +".csv")):
             os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
                                                    os.path.join(params.output.out_dir,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
                                                    os.path.join(params.output.out_dir, sh_file)))
 
-        if params.exhaustive.options.overwrite or not os.path.exists(merged_pdb +".mtz") or not os.path.exists(merged_pdb):
+        if params.validate.options.overwrite or not os.path.exists(merged_pdb +".mtz") or not os.path.exists(merged_pdb):
             os.system("phenix.maps {} {} maps.map.map_type=\"mfo-Dfc\"".format(merged_pdb, merged_pdb +".mtz"))
 
 def run(params):
 
-    params = master_phil.extract()
-    # params.input.in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
-    # params.input.mtz = os.path.join(params.input.in_path, "FALZA-x0085.free.mtz")
     modified_phil = master_phil.format(python_object=params)
     modified_phil = prepare_validate_phil(modified_phil)
     params = modified_phil.extract()
     check_validate_input_files(params)
-
-    # in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"
-    # params.validate.bound_state_pdb_path = os.path.join(in_path,"refine.output.bound-state.pdb")
-    # params.validate.ground_state_pdb_path =  os.path.join(in_path,"refine.output.ground-state.pdb")
-    # input_cif = os.path.join(in_path, "FMOPL000287a.cif")
-    # params.input.xtal_name = "FALZA-x0085"
-    # params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation.py/exhaustive_search_phenix_fmodel/FALZA-x0085-code-cleanup-tests"
-    # params.validate.options.set_b= 40
 
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
@@ -160,9 +199,9 @@ def run(params):
     # Waits for occupancy csvs to be output
     for file_path in get_csv_filepath(params.output.out_dir,
                                       set_b=params.validate.options.set_b,
-                                      step= params.validate.step_simulation,
-                                      start_occ=params.validate.start_simul_occ,
-                                      end_occ=params.validate.end_simul_occ):
+                                      step= params.validate.options.step_simulation,
+                                      start_occ=params.validate.options.start_simul_occ,
+                                      end_occ=params.validate.options.end_simul_occ):
         wait_for_file_existence(file_path, wait_time=10000)
 
     # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy

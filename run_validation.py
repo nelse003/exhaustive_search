@@ -12,4 +12,8 @@ params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_se
 params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 params.validate.options.set_b= 40
 
-validate(params)
+modified_phil = master_phil.format(python_object=params)
+modified_phil.show()
+modified_params = modified_phil.extract()
+
+validate(modified_params)

@@ -160,7 +160,7 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
 
     try:
 	print("\n\n\n"+ pdb + "\n\n\n")
-        bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb)
+        bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb, params)
     except UnboundLocalError:
         logger.info("Insufficient state information")
         raise

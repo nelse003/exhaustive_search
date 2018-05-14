@@ -33,11 +33,11 @@ options{
 ###################################################
 
 
-def write_minima_pdb(input_pdb,output_pdb,csv_name):
+def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
 
     min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(input_pdb)
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(input_pdb, params)
     pdb_inp = iotbx.pdb.input(input_pdb)
     hier = pdb_inp.construct_hierarchy()
 

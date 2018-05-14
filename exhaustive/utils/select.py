@@ -54,10 +54,9 @@ include scope exhaustive.phil.master_phil
 """, process_includes=True)
 ##############################################################
 import logging
-params=master_phil.extract()
 
 logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
-                                                              params.output.log_name +
+                                                              params.exhaustive.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -66,7 +65,7 @@ logger = logging.getLogger(__name__)
 ##############################################################
 
 # Process pdb file to provide occupancy groups
-def get_occupancy_groups(pdb, params=master_phil.extract()):
+def get_occupancy_groups(pdb, params):
     """
     Calculate occupancy groups given pdb file path.
     
@@ -473,7 +472,7 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
     # If no matching coinicdent cases have been made return just the ligand altlocs
     return tuple(lig_altlocs)
 
-def process_refined_pdb_bound_ground_states(pdb, params=master_phil.extract()):
+def process_refined_pdb_bound_ground_states(pdb, params):
     """
     Main Function that returns bound and ground states from occupancy group of the supplied PDB file.
     
