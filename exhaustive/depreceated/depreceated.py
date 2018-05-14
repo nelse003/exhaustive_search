@@ -685,7 +685,7 @@ def buffer_validation():
 
     input_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb"
     input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/refine.mtz"
-    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/buffer_vary/"
+    out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/buffer_vary/"
     xtal_name = "NUDT7A-x1237"
 
     for buffer in np.arange(0.0, 0.76, 0.25):
@@ -721,7 +721,7 @@ def occ_loop_simulate_exp_data():
     input_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1237/NUDT7A-x1237.mtz"
     xtal_name = "NUDT7A-x1237"
 
-    os.chdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation")
+    os.chdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py")
 
     for occupancy in np.arange(0,1.01,0.05):
         # pdb_in = hierarchy.input(input_pdb)
@@ -746,9 +746,9 @@ def occ_loop_simulate_exp_data():
                   "model.file_name={} input.xray_data.label=\"I(+),SIGI(+),I(-),SIGI(-),merged\" "
                   "output.logfile={} output.hklout={}".format(input_mtz, occ_pdb, log_file,mtz_out))
 
-        # input_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_{}.mtz".format(str(occupancy).replace(".","_"))
+        # input_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/simul_{}.mtz".format(str(occupancy).replace(".","_"))
         #
-        # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/"
+        # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/"
         # csv_name = "occ_u_iso_{}".format(str(occupancy).replace(".","_"))
         #
         # sh_file = "{}_{}.sh".format(xtal_name, occupancy)

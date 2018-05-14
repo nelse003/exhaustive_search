@@ -33,7 +33,7 @@ DESCRIPTION = """
 """
 blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 ##############################################################
-master_phil = libtbx.phil.parse("""
+exhaustive_phil = libtbx.phil.parse("""
 options{
     lower_occ = 0.0
         .type = float
@@ -432,4 +432,4 @@ def run(params):
 if(__name__ == "__main__"):
     from giant.jiffies import run_default
 
-    run_default(run=run, master_phil=master_phil, blank_arg_prepend=blank_arg_prepend, args = sys.argv[1:])
+    run_default(run=run, master_phil=exhaustive_phil, blank_arg_prepend=blank_arg_prepend, args = sys.argv[1:])

@@ -5,7 +5,7 @@ import numpy as np
 # from process_exhaustive_search import write_minima_pdb
 from exhaustive.process.minima import get_minimum_fofc
 
-#from validation import refine_after_exhasutive_search
+#from validation.py import refine_after_exhasutive_search
 
 # Initial Test
 
@@ -25,7 +25,7 @@ from exhaustive.process.minima import get_minimum_fofc
 
 
 set_b = 40
-out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground"
+out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/validation_bound_ground"
 
 for simul_occ in np.arange(0.05,0.96,0.05):
 
@@ -35,7 +35,7 @@ for simul_occ in np.arange(0.05,0.96,0.05):
 
 # Test with simulated_data
 
-# validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/exhaustive_search_of_refmac_0_cyc/"
+# validation_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/exhaustive_search_of_refmac_0_cyc/"
 #
 # dataset_prefix = "NUDT7A-x1740"
 # folder_prefix = "NUDT7A-x1740_refine_occ_"

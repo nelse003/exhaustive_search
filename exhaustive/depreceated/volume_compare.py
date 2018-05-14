@@ -24,7 +24,7 @@ step = 0.05
 all_fofc_gaps = []
 for simul_occ in np.arange(start_occ,end_occ+step/5,step):
 
-    csv_path = ("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/" +
+    csv_path = ("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/validation_bound_ground/" +
                 "occ_{}_b_40_u_iso".format(str(simul_occ).replace('.','_')))
 
     data = np.genfromtxt('{}.csv'.format(csv_path), delimiter=',', skip_header=0)
@@ -39,7 +39,7 @@ print("u_iso:{}".format(np.sqrt(40/(8 * np.pi ** 2))))
 
 for simul_occ in np.arange(start_occ,end_occ+step/5,step):
 
-    csv_path = ("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/validation_bound_ground/" +
+    csv_path = ("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/validation_bound_ground/" +
                 "occ_{}_b_40_u_iso".format(str(simul_occ).replace('.','_')))
 
     data = np.genfromtxt('{}.csv'.format(csv_path), delimiter=',', skip_header=0)

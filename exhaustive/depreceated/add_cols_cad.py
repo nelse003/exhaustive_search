@@ -6,9 +6,9 @@ input_data_mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial
 
 for occupancy in np.arange(0,1.01,0.05):
 
-    input_simul_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_{}.mtz".format(
+    input_simul_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/simul_{}.mtz".format(
         str(occupancy).replace(".", "_"))
-    output_simul_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation/simul_cad_{}.mtz".format(
+    output_simul_mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/validation.py/simul_cad_{}.mtz".format(
         str(occupancy).replace(".", "_"))
 
     cmd = ('cad hklin1 {} hklin2 {} hklout {} << eof\n'.format(input_simul_mtz, input_data_mtz,output_simul_mtz) +
