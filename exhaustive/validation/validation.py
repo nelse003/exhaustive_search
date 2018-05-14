@@ -160,18 +160,22 @@ def run(params):
     # Waits for occupancy csvs to be output
     for file_path in get_csv_filepath(params.output.out_dir,
                                       set_b=params.validate.options.set_b,
-                                      step= params.validate.,
-                                      start_occ=0.05,
-                                      end_occ=0.95):
+                                      step= params.validate.step_simulation,
+                                      start_occ=params.validate.start_simul_occ,
+                                      end_occ=params.validate.end_simul_occ):
         wait_for_file_existence(file_path, wait_time=10000)
 
     # This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy
     os.chdir(params.output.out_dir)
-    plot_3d_fofc_occ(0.05, 0.95, step=0.05, set_b=40, xtal_name=params.input.xtal_name)
+    plot_3d_fofc_occ(params.validate.options.start_simul_occ,
+                     params.validate.options.end_simul_occ,
+                     step=params.validate.option.step_simualtion,
+                     set_b=params.validate.set_b,
+                     xtal_name=params.input.xtal_name)
 
-
-    os.chdir(params.output.out_dir)
-    for simul_occ in np.arange(0.05, 0.95, 0.05):
+    for simul_occ in np.arange(params.validate.options.start_simul_occ,
+                               params.validate.options.end_simul_occ,
+                               params.validate.options.step_simulation):
         csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),params.validate.options.set_b)
         scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
 
