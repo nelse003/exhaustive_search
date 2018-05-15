@@ -61,6 +61,11 @@ validate{
     }
     output{
         log_name = "validate"
+            .type = str
+        set_all_b_name_extension = "_set_all_b_"
+            .type = str
+        set_b_name_extension ="_set_b_"
+            .type = str
     }
     options{
         set_b = None
@@ -76,6 +81,10 @@ validate{
         buffer = 0
             .type = float
         overwrite = False
+            .type = bool
+        generate_ccp4 = False
+            .type = bool
+        use_qsub = True
             .type = bool
     }
 }
@@ -95,6 +104,17 @@ def prepare_validate_phil(master_phil):
     if params.validate.input.ground_state_pdb_path is None:
         params.validate.input.ground_state_pdb_path = os.path.join(params.input.in_path,
                                                                    params.validate.input.ground_state_pdb_name)
+    if params.validate.output.set_all_b_name_extension is None:
+        params.validate.output.set_all_b_name_extension = str(params.validate.options.set_b).replace(".","_") +".pdb"
+    else:
+        params.validate.output.set_all_b_name_extension = params.validate.output.set_all_b_name_extension + \
+                                                          str(params.validate.options.set_b).replace(".","_") +".pdb"
+
+    if params.validate.output.set_b_name_extension is None:
+        params.validate.output.set_b_name_extension = str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+    else:
+        params.validate.output.set_b_name_extension = params.validate.output.set_b_name_extension + \
+                                                     str(params.validate.options.set_b).replace(".", "_") + ".pdb"
 
     modified_phil = master_phil.format(python_object = params)
     modified_phil.show()
