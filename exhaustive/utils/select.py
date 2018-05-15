@@ -22,12 +22,12 @@ input{
     csv = None
         .type = path
 }
-occupancy{
+occupancKy{
     resnames = DRG,FRG,LIG,UNK,UNL
         .help = 'Residues to generate constraint groups around for occupancy refinement (comma separated list of residue identifiers, i.e. resname=LIG or resname=LIG,UNL)'
         .type = str
 
-    group_dist = 5
+    group_dist = 5K
         .type = float
         .help = 'Distance to use when clustering atoms that should have the SAME occupancy'
 
@@ -54,7 +54,7 @@ include scope exhaustive.phil.master_phil
 """, process_includes=True)
 ##############################################################
 import logging
-
+params = master_phil.extract()
 logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
                                                               params.exhaustive.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),

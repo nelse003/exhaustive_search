@@ -38,12 +38,12 @@ def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
 
     return fo_fc
 
-def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac):
+def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):
 
     """ Change b factor of all atoms involved in occupancy groups"""
 
     pdb_inp = hierarchy.input(input_pdb)
-    occ_group = get_occupancy_groups(pdb= input_pdb)
+    occ_group = get_occupancy_groups(pdb=input_pdb, params = params)
     for group in occ_group[0]:
         for residue in group:
 

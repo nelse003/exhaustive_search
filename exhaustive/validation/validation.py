@@ -3,6 +3,8 @@ import random
 import iotbx.mtz
 import numpy as np
 import libtbx.phil
+import logging
+import datetime
 
 # Local imports
 
@@ -14,7 +16,8 @@ from ..phil import master_phil, prepare_validate_phil, check_input_files
 
 ##############################################################
 # Logging
-
+# TODO replace with call to current phil
+params = master_phil.extract()
 logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
                                                               params.validate.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),
@@ -116,15 +119,18 @@ def occ_loop_merge_confs_simulate(params):
                                                                     params.validate.output.set_all_b_name_extension))
 
                     set_b_fac_all_atoms(input_pdb = merged_pdb,
-                                    output_pdb = merged_file_name + params.validate.output.set_all_b_name_extension
+                                    output_pdb = merged_file_name + params.validate.output.set_all_b_name_extension,
                                     b_fac = params.validate.options.set_b)
                 else:
                     logger.info("Generating pdb file:\n{}\n with B factors of atoms in occupancy groups related to "
                                 "ground and bound states set to {}".format(merged_file_name +
-                                                                           params.validate.output.set_b_name_extension))
+                                                                           params.validate.output.set_b_name_extension,
+                                                                           lig_occupancy))
+
                     set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
                                                    output_pdb = merged_file_name + params.validate.output.set_all_b_name_extension,
-                                                   b_fac = params.validate.options.set_b)
+                                                   b_fac = params.validate.options.set_b,
+                                                   params = params)
 
             if params.validate.options.set_all_b is not None:
                 merged_pdb = merged_file_name + params.validate.output.set_all_b_name_extension
@@ -136,8 +142,12 @@ def occ_loop_merge_confs_simulate(params):
         if params.validate.options.overwrite or not \
                 os.path.exists(os.path.join(params.output.out_dir, merged_pdb +".mtz")):
 
-            logger.info("Generating simulated mtz \n{}\nFor occupancy {} using phenix.fmodel".format(merged_pdb +".mtz",)
-                        "from pdb: \n{}\n With miller indices matched to input mtz:\n{}\n".format(merged_pdb,params.input.mtz))
+            logger.info("Generating simulated mtz \n{}\nFor occupancy {} using phenix.fmodel"
+                        "from pdb: \n{}\n With miller indices matched to "
+                        "input mtz:\n{}\n".format(merged_pdb +".mtz",
+                                                  lig_occupancy,
+                                                  merged_pdb,
+                                                  params.input.mtz))
 
             #TODO Work out data column label for sensible input?
             #TODO Allocate location of phenix.fmodel log/ generate log
@@ -145,8 +155,8 @@ def occ_loop_merge_confs_simulate(params):
 
         else:
             logger.info("Skipping the generation of simulated data using phenix.fmodel"
-                        "as it already exists, for occupancy {}, and params.validate.options.overwrite is".format(lig_occupancy)
-                        "{}".format(params.validate.options.overwrite))
+                        "as it already exists, for occupancy {}, and params.validate.options.overwrite is"
+                        "{}".format(lig_occupancy, params.validate.options.overwrite))
         try:
             assert os.path.exists(merged_pdb+".mtz"), "Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz")
         except AssertionError:
@@ -160,12 +170,12 @@ def occ_loop_merge_confs_simulate(params):
         # TODO Change so that exhauistive search is run if csv doesn't exist
         if params.validate.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
 
-            cmd = "$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
+            cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
                   "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
                   "input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                   "options.csv_name={} options.step={} options.buffer={} "
                     "options.params.exhaustive.options.grid_spacing={} "
-                    "params.exhaustive.options.generate_mtz={}".format(merged_pdb, merged_pdb +".mtz",
+                    "params.exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb +".mtz",
                                                                         params.output.out_dir,
                                                                         params.input.xtal_name,
                                                                         params.exhaustive.options.csv_name,
