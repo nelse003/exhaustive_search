@@ -38,7 +38,8 @@ blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 import logging
 import datetime
 
-logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
+logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.out_dir +
+                                                              params.output.log_dir +
                                                               params.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)

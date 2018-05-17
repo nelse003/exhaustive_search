@@ -18,7 +18,8 @@ from ..phil import master_phil, prepare_validate_phil, check_input_files
 # Logging
 # TODO replace with call to current phil
 params = master_phil.extract()
-logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
+logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.out_dir +
+                                                              params.output.log_dir +
                                                               params.validate.output.log_name +
                                                               "_%Y_%m_%d_%H_%m.log"),
                     level=logging.DEBUG)
@@ -99,10 +100,13 @@ def occ_loop_merge_confs_simulate(params):
                         "file with bound state occupancy {}".format(str(1-lig_occupancy)))
 
             os.system("giant.merge_conformations input.major={} input.minor={} "
-                      "major_occupancy={} minor_occupancy={} output.pdb={}".format(
+                      "major_occupancy={} minor_occupancy={} output.pdb={} output.log={}".format(
                        params.validate.input.ground_state_pdb_path,
                        params.validate.input.bound_state_pdb_path,
-                       str(1 - lig_occupancy), str(lig_occupancy), merged_pdb))
+                       str(1 - lig_occupancy),
+                       str(lig_occupancy),
+                       merged_pdb),
+                       os.path.join(params.output.log_dir,"{}_merge_conformations.log").format(params.validate.set_b))
 
         else:
             logger.info("Skipping generating merged pdb\n{}\n as it already exists, "
@@ -160,14 +164,14 @@ def occ_loop_merge_confs_simulate(params):
         try:
             assert os.path.exists(merged_pdb+".mtz"), "Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz")
         except AssertionError:
-            logger.excpetion("Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz"))
+            logger.exception("Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz"))
 
         # TODO How to supply sh_file as phil parameter, with {} defined in loop?
         sh_file = "{}_occ_{}_b_{}.sh".format(params.input.xtal_name,
                                              str(lig_occupancy).replace(".", "_"),
                                              str(params.validate.options.set_b).replace(".", "_"))
 
-        # TODO Change so that exhauistive search is run if csv doesn't exist
+        # TODO Change so that exhaustive search is run if csv doesn't exist
         if params.validate.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
 
             cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
@@ -226,6 +230,13 @@ def run(params):
 
     modified_phil = master_phil.format(python_object=params)
     modified_phil = prepare_validate_phil(modified_phil)
+    logger.info("Default Parameters")
+    logger.info(master_phil.show())
+    logger.info("Current Parameters")
+    logger.info(modified_phil.show())
+    logger.info("Parameters Different from default")
+    diff_phil = master_phil.fetch_diff(source=modified_phil)
+    logger.info(diff_phil.show)
     params = modified_phil.extract()
     check_validate_input_files(params)
 
