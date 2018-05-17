@@ -48,6 +48,34 @@ exhaustive{
             .type = bool
     }
 }
+select{
+    resnames = DRG,FRG,LIG,UNK,UNL
+        .help = 'Residues to generate constraint groups around for occupancy refinement (comma separated list of residue identifiers, i.e. resname=LIG or resname=LIG,UNL)'
+        .type = str
+
+    group_dist = 5
+        .type = float
+        .help = 'Distance to use when clustering atoms that should have the SAME occupancy'
+
+    overlap_dist = 2
+        .type = float
+        .help = 'Distance to use when clustering atoms that should have occupancies that SUM TO LESS THAN ONE'
+
+    exclude_altlocs = None
+        .help = 'Exclude certain altlocs from occupancy groups (e.g. A or A,B)'
+        .type = str
+
+    complete_groups = True
+        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. Generate a set of weaker constraints for overlapping atoms when False.'
+        .type = bool
+
+    verbose = True
+        .type = bool
+        
+    coincident_cutoff = 0.05
+        .help = 'RMSD Cutoff in Angstrom, for two structures considered coincident'
+        .type = float
+}
 validate{
     input{
         bound_state_pdb_path = None

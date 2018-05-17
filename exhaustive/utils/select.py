@@ -10,50 +10,11 @@ import libtbx.phil
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
+from ..phil import master_phil
 
-blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
-##############################################################
-master_phil = libtbx.phil.parse("""
-input{
-    pdb = None
-        .type = path
-    mtz = None
-        .type = path
-    csv = None
-        .type = path
-}
-occupancKy{
-    resnames = DRG,FRG,LIG,UNK,UNL
-        .help = 'Residues to generate constraint groups around for occupancy refinement (comma separated list of residue identifiers, i.e. resname=LIG or resname=LIG,UNL)'
-        .type = str
-
-    group_dist = 5K
-        .type = float
-        .help = 'Distance to use when clustering atoms that should have the SAME occupancy'
-
-    overlap_dist = 2
-        .type = float
-        .help = 'Distance to use when clustering atoms that should have occupancies that SUM TO LESS THAN ONE'
-
-    exclude_altlocs = None
-        .help = 'Exclude certain altlocs from occupancy groups (e.g. A or A,B)'
-        .type = str
-
-    complete_groups = True
-        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. Generate a set of weaker constraints for overlapping atoms when False.'
-        .type = bool
-}        
-settings{
-    verbose = True
-        .type = bool
-    coincident_cutoff = 0.05
-        .help = ' RMSD Cutoff in Angstrom, for two structures considered coincident'
-        .type = float
-}
-include scope exhaustive.phil.master_phil
-""", process_includes=True)
 ##############################################################
 import logging
+# TODO Find solution that reads working phil
 params = master_phil.extract()
 logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
                                                               params.exhaustive.output.log_name +
@@ -82,18 +43,18 @@ def get_occupancy_groups(pdb, params):
     print("Gathering occupancy group information from PDB", pdb)
     pdb_in = hierarchy.input(pdb)
 
-    resnames = params.occupancy.resnames.split(',')
+    resnames = params.select.resnames.split(',')
 
     logger.info('Looking for ligands with resname {!s}'.format(' or '.join(resnames)))
 
     occupancy_groups = overlapping_occupancy_groups(hierarchy=pdb_in.hierarchy,
                                                     resnames=resnames,
-                                                    group_dist=params.occupancy.group_dist,
-                                                    overlap_dist=params.occupancy.overlap_dist,
-                                                    complete_groups=params.occupancy.complete_groups,
-                                                    exclude_altlocs=params.occupancy.exclude_altlocs.split(
-                                                        ',') if params.occupancy.exclude_altlocs else [],
-                                                    verbose=params.settings.verbose)
+                                                    group_dist=params.select.group_dist,
+                                                    overlap_dist=params.select.overlap_dist,
+                                                    complete_groups=params.select.complete_groups,
+                                                    exclude_altlocs=params.select.exclude_altlocs.split(
+                                                        ',') if params.select.exclude_altlocs else [],
+                                                    verbose=params.select.verbose)
 
     return occupancy_groups
 
@@ -178,7 +139,7 @@ def within_rmsd_cutoff(atoms1, atoms2, params):
     """
 
     for i in range(0, len(pairwise_dists(atoms1.extract_xyz(), atoms2.extract_xyz()))):
-        if pairwise_dists(atoms1.extract_xyz(), atoms2.extract_xyz())[i][i] < params.settings.coincident_cutoff:
+        if pairwise_dists(atoms1.extract_xyz(), atoms2.extract_xyz())[i][i] < params.select.coincident_cutoff:
             continue
         else:
             return False
@@ -435,7 +396,7 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
     :return: 
     """
 
-    resnames = params.occupancy.resnames.split(',')
+    resnames = params.select.resnames.split(',')
     sel_cache = hier.atom_selection_cache()
     pdb_atoms = hier.atoms()
 
@@ -505,7 +466,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
             bound_state_flag = False
             state = []
             for residue_altloc in occupancy_group:
-                if residue_altloc.get('resname') in params.occupancy.resnames:
+                if residue_altloc.get('resname') in params.select.resnames:
                     bound_state_flag = True
                     state_string = "Bound"
                 else:

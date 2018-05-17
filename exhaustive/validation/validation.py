@@ -207,7 +207,7 @@ def occ_loop_merge_confs_simulate(params):
         else:
             logger.info("Skipping exhaustive search")
 
-        if params.validate.option.use_qsub:
+        if params.validate.options.use_qsub:
             if params.validate.options.overwrite or not os.path.exists(os.path.join(
                     params.output.out_dir,params.exhaustive.options.csv_name +".csv")):
                 logger.info("Job submission to qsub")
