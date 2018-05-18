@@ -38,11 +38,10 @@ blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 import logging
 import datetime
 
-logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.out_dir +
-                                                              params.output.log_dir +
-                                                              params.output.log_name +
-                                                              "_%Y_%m_%d_%H_%m.log"),
-                    level=logging.DEBUG)
+logging.basicConfig(filename=datetime.datetime.now().strftime(os.path.join(params.output.log_dir,
+                                                                           params.exhaustive.output.log_name +
+                                                                            "_%Y_%m_%d_%H_%m.log")),
+                                                              level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 #########################################################################
@@ -155,8 +154,12 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
     # TODO implement an iteratively smaller step size based on minima
 
     u_iso_occ = []
-    for occupancy in np.arange(params.exhaustive.options.lower_occ, params.exhaustive.options.upper_occ, params.exhaustive.options.step):
-        for u_iso in np.arange(params.exhaustive.options.lower_u_iso, params.exhaustive.options.upper_u_iso, params.exhaustive.options.step):
+    for occupancy in np.arange(params.exhaustive.options.lower_occ,
+                               params.exhaustive.options.upper_occ + params.exhaustive.options.step/5,
+                               params.exhaustive.options.step):
+        for u_iso in np.arange(params.exhaustive.options.lower_u_iso,
+                               params.exhaustive.options.upper_u_iso + params.exhaustive.options.step/5,
+                               params.exhaustive.options.step):
             u_iso_occ.append((occupancy,u_iso))
 
     try:

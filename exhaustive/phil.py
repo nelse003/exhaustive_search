@@ -29,14 +29,16 @@ exhaustive{
     }
     options{
         lower_occ = 0.0
+            .help = Lowest bound occupancy to check in the exhauistive search
             .type = float
-        upper_occ = 1.01
+        upper_occ = 1.00
+            .help = Highest bound occupancy to check in the exhaustive search
             .type = float
         step = 0.05
             .type = float
         lower_u_iso = 0.2
             .type = float
-        upper_u_iso = 1.21
+        upper_u_iso = 1.20
             .type = float
         buffer = 0
             .type = float
@@ -114,6 +116,10 @@ validate{
             .type = bool
         use_qsub = True
             .type = bool
+        qsub_error_file_prefix = "qsub_error_"
+            .type = str
+        qsub_output_file_prefix = "qsub_output_"
+            .type = str
     }
 }
 """, process_includes=True)

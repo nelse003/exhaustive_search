@@ -18,10 +18,9 @@ from ..phil import master_phil, prepare_validate_phil, check_input_files
 # Logging
 # TODO replace with call to current phil
 params = master_phil.extract()
-logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.out_dir +
-                                                              params.output.log_dir +
-                                                              params.validate.output.log_name +
-                                                              "_%Y_%m_%d_%H_%m.log"),
+logging.basicConfig(filename=datetime.datetime.now().strftime(os.path.join(params.output.log_dir,
+                                                                           params.validate.output.log_name +
+                                                                            "_%Y_%m_%d_%H_%m.log")),
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 ##############################################################
@@ -105,8 +104,11 @@ def occ_loop_merge_confs_simulate(params):
                        params.validate.input.bound_state_pdb_path,
                        str(1 - lig_occupancy),
                        str(lig_occupancy),
-                       merged_pdb),
-                       os.path.join(params.output.log_dir,"{}_merge_conformations.log").format(params.validate.set_b))
+                       merged_pdb,
+                       os.path.join(params.output.log_dir,
+                                    "occ_{}_b_{}_merge_conformations.log".format(
+                                    str(lig_occupancy).format(lig_occupancy),
+                                    str(params.validate.options.set_b).replace(".","_")))))
 
         else:
             logger.info("Skipping generating merged pdb\n{}\n as it already exists, "
@@ -132,7 +134,7 @@ def occ_loop_merge_confs_simulate(params):
                                                                            lig_occupancy))
 
                     set_b_fac_all_occupancy_groups(input_pdb = merged_pdb,
-                                                   output_pdb = merged_file_name + params.validate.output.set_all_b_name_extension,
+                                                   output_pdb = merged_file_name + params.validate.output.set_b_name_extension,
                                                    b_fac = params.validate.options.set_b,
                                                    params = params)
 
@@ -140,6 +142,7 @@ def occ_loop_merge_confs_simulate(params):
                 merged_pdb = merged_file_name + params.validate.output.set_all_b_name_extension
             else:
                 merged_pdb = merged_file_name + params.validate.output.set_b_name_extension
+
 
         #TODO merged pdb and simulated mtz names as phil parameters
 
@@ -155,6 +158,7 @@ def occ_loop_merge_confs_simulate(params):
 
             #TODO Work out data column label for sensible input?
             #TODO Allocate location of phenix.fmodel log/ generate log
+
             os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, params.input.mtz))
 
         else:
@@ -176,7 +180,7 @@ def occ_loop_merge_confs_simulate(params):
 
             cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
                   "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
-                  "input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
+                  " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
                   "options.csv_name={} options.step={} options.buffer={} "
                     "options.params.exhaustive.options.grid_spacing={} "
                     "params.exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb +".mtz",
@@ -215,8 +219,16 @@ def occ_loop_merge_confs_simulate(params):
             if params.validate.options.overwrite or not os.path.exists(os.path.join(
                     params.output.out_dir,params.exhaustive.options.csv_name +".csv")):
                 logger.info("Job submission to qsub")
-                os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,"output_{}.txt".format(str(lig_occupancy).replace(".","_"))),
-                                                       os.path.join(params.output.out_dir,"error_{}.txt".format(str(lig_occupancy).replace(".","_"))),
+                os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,
+                                                                    params.output.log_dir,
+                                                                    params.validate.options.qsub_output_file_prefix +
+                                                                    "_{}.txt".format(str(
+                                                                        lig_occupancy).replace(".","_"))),
+                                                       os.path.join(params.output.out_dir,
+                                                                    params.output.log_dir,
+                                                                    params.validate.options.qsub_error_file_prefix
+                                                                    + "_{}.txt".format(
+                                                                        str(lig_occupancy).replace(".","_"))),
                                                        os.path.join(params.output.out_dir, sh_file)))
 
         if params.validate.options.generate_ccp4:
@@ -228,16 +240,17 @@ def occ_loop_merge_confs_simulate(params):
 
 def run(params):
 
-    modified_phil = master_phil.format(python_object=params)
-    modified_phil = prepare_validate_phil(modified_phil)
-    logger.info("Default Parameters")
-    logger.info(master_phil.show())
-    logger.info("Current Parameters")
-    logger.info(modified_phil.show())
-    logger.info("Parameters Different from default")
-    diff_phil = master_phil.fetch_diff(source=modified_phil)
-    logger.info(diff_phil.show)
+    modified_phil = prepare_validate_phil(master_phil.format(python_object = params))
     params = modified_phil.extract()
+
+    # logger.info("Default Parameters")
+    # logger.info(master_phil.show())
+    # logger.info("Current Parameters")
+    # logger.info(modified_phil.show())
+    # logger.info("Parameters Different from default")
+    # diff_phil = master_phil.fetch_diff(source=modified_phil)
+    # logger.info(diff_phil.show)
+    # params = modified_phil.extract()
     check_validate_input_files(params)
 
     if not os.path.exists(params.output.out_dir):
@@ -247,7 +260,7 @@ def run(params):
     logger.info("Running exhaustive search many times across simulated data")
     occ_loop_merge_confs_simulate(params)
 
-    logger.info("Checking for files exitence : wait for jobs submitted to the cluster")
+    logger.info("Checking for files existence : wait for jobs submitted to the cluster")
     # Waits for occupancy csvs to be output
     for file_path in get_csv_filepath(params.output.out_dir,
                                       set_b=params.validate.options.set_b,

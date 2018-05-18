@@ -14,8 +14,9 @@ params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 params.validate.options.set_b = 40
 params.exhaustive.options.generate_mtz = False
 
-modified_phil = master_phil.format(python_object=params)
-modified_phil.show()
-modified_params = modified_phil.extract()
+#modified_phil = master_phil.format(python_object = params)
 
-validate(modified_params)
+if not os.path.exists(os.path.join(params.output.out_dir, params.output.log_dir)):
+    os.mkdir(os.path.join(params.output.out_dir, params.output.log_dir))
+
+validate(params)
