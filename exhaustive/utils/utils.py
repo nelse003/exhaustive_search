@@ -145,13 +145,16 @@ def wait_for_file_existence(file_path, wait_time):
             time_in_loop += 1
         else:
             raise IOError("Cannot find file {} within {} seconds".format(file_path, wait_time))
+# TODO Replace
+def get_csv_filepath(params):
+    for occupancy in np.arange(params.validate.options.start_simul_occ,
+                               params.validate.options.end_simul_occ +
+                               params.validate.options.step_simulation / 5,
+                               params.validate.options.step_simulation):
 
-def get_csv_filepath(directory, set_b=None, step=0.05, start_occ=0.05, end_occ=0.95):
-    for occupancy in np.arange(start_occ, end_occ + step / 5, step):
-        if set_b is not None:
-            yield os.path.join(directory, "occ_{}_b_{}_u_iso.csv".format(str(occupancy).replace(".", "_"), set_b))
-        else:
-            yield os.path.join(directory, "occ_{}_u_iso.csv".format((str(occupancy).replace(".", "_"))))
+        yield os.path.join(params.output.out_dir, params.exhaustive.output.csv_prefix + \
+                                            "_occ_{}_b_{}.csv".format(str(occupancy).replace(".", "_"),
+                                                                      str(params.validate.options.set_b)))
 
 def get_random_starting_occ_from_folder_name(occupancy, out_path, dataset_prefix):
 

@@ -144,8 +144,8 @@ def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
     z1, z2 = z[p1], z_1[p1]
     plt.plot([x1,x2],[y1,y2],[z1,z2],'k-')
 
-
-def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
+# TODO replace with params
+def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b, params):
 
     """ Plot the difference in occupancy & mean(|fo-fc|) at the simulated occupancy and the minima. """
 
@@ -157,7 +157,9 @@ def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
     b_facs = []
 
     for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
-        csv_name = "occ_{}_b_{}_u_iso".format(str(lig_occupancy).replace(".","_"),str(set_b).replace(".","_"))
+        csv_name = params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
+            str(lig_occupancy).replace(".", "_"),str(set_b).replace(".","_"))
+
         min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_name)
         fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(set_b)), step)
         fofcs.append(fofc)

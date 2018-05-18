@@ -26,27 +26,32 @@ exhaustive{
     output{
         log_name = "exhaustive_search"
             .type =str
+        csv_prefix = 'exhaustive_search'
+            .type = str
+        csv_name = None
+            .type = str
     }
     options{
         lower_occ = 0.0
-            .help = Lowest bound occupancy to check in the exhauistive search
+            .help = Lowest bound occupancy to check in the exhaustive search
             .type = float
         upper_occ = 1.00
             .help = Highest bound occupancy to check in the exhaustive search
             .type = float
         step = 0.05
             .type = float
+            .help = Step size for u_iso and occupancy variation
         lower_u_iso = 0.2
             .type = float
         upper_u_iso = 1.20
             .type = float
         buffer = 0
             .type = float
-        csv_name = 'u_iso_occupancy_vary'
-            .type = str
         grid_spacing = 0.25
             .type = float
         generate_mtz = False
+            .type = bool
+        generate_map = False
             .type = bool
     }
 }
@@ -151,7 +156,6 @@ def prepare_validate_phil(master_phil):
                                                      str(params.validate.options.set_b).replace(".", "_") + ".pdb"
 
     modified_phil = master_phil.format(python_object = params)
-    modified_phil.show()
 
     return modified_phil
 

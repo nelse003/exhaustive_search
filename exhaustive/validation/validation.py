@@ -13,16 +13,29 @@ from ..utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existenc
     set_b_fac_all_atoms, get_random_starting_occ_from_folder_name
 from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
 from ..phil import master_phil, prepare_validate_phil, check_input_files
+from ..exhaustive import run as exhaustive
 
 ##############################################################
 # Logging
-# TODO replace with call to current phil
-params = master_phil.extract()
-logging.basicConfig(filename=datetime.datetime.now().strftime(os.path.join(params.output.log_dir,
-                                                                           params.validate.output.log_name +
-                                                                            "_%Y_%m_%d_%H_%m.log")),
-                    level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+def start_validate_logger(params):
+
+    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
+    log_path = os.path.join(params.output.log_dir, params.validate.output.log_name + log_time)
+    hdlr = logging.FileHandler(log_path)
+    logger = logging.getLogger(__name__)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+
+    logger.info("Running validation \n\n")
+    modified_phil = master_phil.format(python_object = params)
+    logger.info("Current Parameters")
+    logger.info(master_phil.format(python_object =params).as_str())
+    logger.info("Parameters Different from default")
+    logger.info(master_phil.fetch_diff(source=modified_phil).as_str())
+
+    return logger
+
 ##############################################################
 
 def check_validate_input_files(params):
@@ -54,7 +67,7 @@ def check_validate_input_files(params):
         log.exception("Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
         raise
 
-def occ_loop_merge_confs_simulate(params):
+def occ_loop_merge_confs_simulate(params, logger):
 
     """ Simulate Experimental data using phenix f_model. Run exhaustive_search on simulated data. 
     
@@ -146,52 +159,61 @@ def occ_loop_merge_confs_simulate(params):
 
         #TODO merged pdb and simulated mtz names as phil parameters
 
-        if params.validate.options.overwrite or not \
-                os.path.exists(os.path.join(params.output.out_dir, merged_pdb +".mtz")):
+        simulated_mtz =os.path.join(params.output.out_dir, merged_pdb +".mtz")
+
+        if params.validate.options.overwrite or not os.path.exists(simulated_mtz):
 
             logger.info("Generating simulated mtz \n{}\nFor occupancy {} using phenix.fmodel"
                         "from pdb: \n{}\n With miller indices matched to "
-                        "input mtz:\n{}\n".format(merged_pdb +".mtz",
+                        "input mtz:\n{}\n".format(simulated_mtz,
                                                   lig_occupancy,
                                                   merged_pdb,
                                                   params.input.mtz))
 
-            #TODO Work out data column label for sensible input?
+            #TODO Work out data column label for sensible input: Talk to tobias- Frank suggests  a pre-selection filter.
             #TODO Allocate location of phenix.fmodel log/ generate log
 
-            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb, params.input.mtz))
+            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} "
+                      "type=real output.file_name={}".format(merged_pdb,params.input.mtz,simulated_mtz))
 
         else:
-            logger.info("Skipping the generation of simulated data using phenix.fmodel"
-                        "as it already exists, for occupancy {}, and params.validate.options.overwrite is"
-                        "{}".format(lig_occupancy, params.validate.options.overwrite))
+            logger.info("Skipping the generation of simulated data:\n{}\n using phenix.fmodel "
+                        "as it already exists, for occupancy {}, and params.validate.options.overwrite is "
+                        "{}".format(simulated_mtz,lig_occupancy, params.validate.options.overwrite))
         try:
             assert os.path.exists(merged_pdb+".mtz"), "Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz")
         except AssertionError:
             logger.exception("Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz"))
+            raise
 
         # TODO How to supply sh_file as phil parameter, with {} defined in loop?
         sh_file = "{}_occ_{}_b_{}.sh".format(params.input.xtal_name,
                                              str(lig_occupancy).replace(".", "_"),
                                              str(params.validate.options.set_b).replace(".", "_"))
 
+        params.exhaustive.output.csv_name = params.exhaustive.output.csv_prefix + \
+                                            "_occ_{}_b_{}.csv".format(str(lig_occupancy).replace(".", "_"),
+                                                                      str(params.validate.options.set_b))
+
         # TODO Change so that exhaustive search is run if csv doesn't exist
-        if params.validate.options.overwrite or not os.path.exists(os.path.join(params.output.out_dir,sh_file)):
+        if params.validate.options.overwrite or not \
+                os.path.exists(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name)):
 
             cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
                   "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
-                  " input.pdb={} input.mtz={} output.out_dir={} xtal_name={} "
-                  "options.csv_name={} options.step={} options.buffer={} "
-                    "options.params.exhaustive.options.grid_spacing={} "
-                    "params.exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb +".mtz",
+                  " input.pdb={} input.mtz={} output.out_dir={} input.xtal_name={} "
+                  "exhaustive.output.csv_name={} exhaustive.options.step={} exhaustive.options.buffer={} "
+                  "exhaustive.options.grid_spacing={} "
+                  "exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb +".mtz",
                                                                         params.output.out_dir,
                                                                         params.input.xtal_name,
-                                                                        params.exhaustive.options.csv_name,
+                                                                        params.exhaustive.output.csv_name,
                                                                         params.exhaustive.options.step,
                                                                         params.validate.options.buffer,
                                                                         params.exhaustive.options.grid_spacing,
                                                                         params.exhaustive.options.generate_mtz)
-
+            #TODO Test with qsub
+            #TODO Sort parameter passing with qsub
             if params.validate.options.use_qsub:
 
                 logger.info("Writing {} to run exhaustive search via qsub".format(sh_file))
@@ -205,19 +227,17 @@ def occ_loop_merge_confs_simulate(params):
                                "XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
 
                     file.write(cmd)
-            #TODO Test without qsub
-            #TODO Change to python internal call, not os.system
-            else:
 
+            else:
                 logger.info("Running exhaustive search locally")
-                os.system(cmd)
+                exhaustive(params = params)
 
         else:
             logger.info("Skipping exhaustive search")
 
         if params.validate.options.use_qsub:
             if params.validate.options.overwrite or not os.path.exists(os.path.join(
-                    params.output.out_dir,params.exhaustive.options.csv_name +".csv")):
+                    params.output.out_dir,params.exhaustive.output.csv_name +".csv")):
                 logger.info("Job submission to qsub")
                 os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,
                                                                     params.output.log_dir,
@@ -242,15 +262,7 @@ def run(params):
 
     modified_phil = prepare_validate_phil(master_phil.format(python_object = params))
     params = modified_phil.extract()
-
-    # logger.info("Default Parameters")
-    # logger.info(master_phil.show())
-    # logger.info("Current Parameters")
-    # logger.info(modified_phil.show())
-    # logger.info("Parameters Different from default")
-    # diff_phil = master_phil.fetch_diff(source=modified_phil)
-    # logger.info(diff_phil.show)
-    # params = modified_phil.extract()
+    logger = start_validate_logger(params)
     check_validate_input_files(params)
 
     if not os.path.exists(params.output.out_dir):
@@ -258,26 +270,21 @@ def run(params):
         os.mkdir(params.output.out_dir)
 
     logger.info("Running exhaustive search many times across simulated data")
-    occ_loop_merge_confs_simulate(params)
+    occ_loop_merge_confs_simulate(params, logger)
 
     logger.info("Checking for files existence : wait for jobs submitted to the cluster")
-    # Waits for occupancy csvs to be output
-    for file_path in get_csv_filepath(params.output.out_dir,
-                                      set_b=params.validate.options.set_b,
-                                      step= params.validate.options.step_simulation,
-                                      start_occ=params.validate.options.start_simul_occ,
-                                      end_occ=params.validate.options.end_simul_occ):
+    for file_path in get_csv_filepath(params):
         wait_for_file_existence(file_path, wait_time=10000)
 
-    #
     os.chdir(params.output.out_dir)
 
     logger.info("This plots exhaustive search results, to confirm whether exhaustive search recovers the simulated occupancy")
     plot_3d_fofc_occ(params.validate.options.start_simul_occ,
                      params.validate.options.end_simul_occ,
-                     step=params.validate.option.step_simualtion,
-                     set_b=params.validate.set_b,
-                     xtal_name=params.input.xtal_name)
+                     step=params.validate.options.step_simulation,
+                     set_b=params.validate.options.set_b,
+                     dataset_prefix=params.input.xtal_name,
+                     params=params)
 
     logger.info("Plotting occupancy, bfactor and mean|Fobs-Fcalc| for each simulated occupancy")
     for simul_occ in np.arange(params.validate.options.start_simul_occ,
