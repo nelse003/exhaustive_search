@@ -27,7 +27,13 @@ def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
     occupancy = round_step(occupancy,base=step)
     u_iso = round_step(u_iso,base=step)
 
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+    #TODO Remove this dual .csv by cleaning up csv name
+
+    if csv_name.endswith(".csv"):
+        data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
+    else:
+        data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+
     e=0.0001
     data_line = data[((occupancy-e)<data[:,0]) & ((occupancy+e)>data[:,0]) & ((u_iso-e)<data[:,2]) & ((u_iso+e)>data[:,2]) ]
 
@@ -82,8 +88,12 @@ def get_minimum_fofc(csv_name, b_fac=None):
     :param b_fac: 
     :return: 
     """
-
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+    print(os.getcwd())
+    #TODO Remove this dual .csv by cleaning up csv name
+    if csv_name.endswith(".csv"):
+        data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
+    else:
+        data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
     # If four column data from multiple ligand
     if len(data[0]) == 4:
@@ -154,7 +164,7 @@ def get_csv_filepath(params):
 
         yield os.path.join(params.output.out_dir, params.exhaustive.output.csv_prefix + \
                                             "_occ_{}_b_{}.csv".format(str(occupancy).replace(".", "_"),
-                                                                      str(params.validate.options.set_b)))
+                                                                      str(params.validate.options.set_b).replace(".","_")))
 
 def get_random_starting_occ_from_folder_name(occupancy, out_path, dataset_prefix):
 

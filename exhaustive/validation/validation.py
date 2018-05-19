@@ -193,7 +193,7 @@ def occ_loop_merge_confs_simulate(params, logger):
 
         params.exhaustive.output.csv_name = params.exhaustive.output.csv_prefix + \
                                             "_occ_{}_b_{}.csv".format(str(lig_occupancy).replace(".", "_"),
-                                                                      str(params.validate.options.set_b))
+                                                                      str(params.validate.options.set_b).replace(".","_"))
 
         # TODO Change so that exhaustive search is run if csv doesn't exist
         if params.validate.options.overwrite or not \
@@ -290,7 +290,9 @@ def run(params):
     for simul_occ in np.arange(params.validate.options.start_simul_occ,
                                params.validate.options.end_simul_occ,
                                params.validate.options.step_simulation):
-        csv_name = "occ_{}_b_{}_u_iso".format(str(simul_occ).replace(".", "_"),params.validate.options.set_b)
+    # TODO remove duplication of this code: utils.get_minimum_fofc
+        csv_name = params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
+            str(simul_occ).replace(".", "_"),str(params.validate.options.set_b).replace(".","_"))
         scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))
 
     logger.info("Validation script finished")

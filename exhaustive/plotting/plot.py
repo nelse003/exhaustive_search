@@ -1,3 +1,4 @@
+import os
 import matplotlib
 import numpy as np
 
@@ -11,7 +12,10 @@ def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     """ Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output """
 
     # Load data from CSV
-    data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
+    if csv_name.endswith(".csv"):
+        data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
+    else:
+        data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
     if len(data[0]) == 3:
         occ = data[:,0]
@@ -43,7 +47,8 @@ def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     if title_text is not None:
         plt.title(title_text)
 
-    plt.savefig(csv_name)
+    # TODO Plot name parameter
+    plt.savefig(csv_name.rstrip(".csv"))
     plt.close()
 
 
@@ -160,7 +165,9 @@ def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b, params):
         csv_name = params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
             str(lig_occupancy).replace(".", "_"),str(set_b).replace(".","_"))
 
-        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_name)
+        csv_path = os.path.join(params.output.out_dir, csv_name)
+
+        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_path)
         fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(set_b)), step)
         fofcs.append(fofc)
         occs.append(lig_occupancy)

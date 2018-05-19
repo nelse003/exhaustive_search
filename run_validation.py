@@ -14,8 +14,8 @@ params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 params.validate.options.set_b = 40
 params.exhaustive.options.generate_mtz = False
 params.validate.options.use_qsub = False
-params.validate.options.step_simulation = 0.25
-params.exhaustive.options.step = 0.25
+params.validate.options.step_simulation = 0.1
+params.exhaustive.options.step = 0.1
 
 #modified_phil = master_phil.format(python_object = params)
 
