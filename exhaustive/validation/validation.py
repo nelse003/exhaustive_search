@@ -85,7 +85,7 @@ def occ_loop_merge_confs_simulate(params, logger):
      > Run phenix maps to get viewable map from simluated mtz.
     """
 
-    # TODO Remove requirement to be in output dir if possible
+    # TODO Remove requirement to be in output dir if possible #64
     logger.info("Changing to the local directory")
     os.chdir(params.output.out_dir)
 
@@ -157,7 +157,7 @@ def occ_loop_merge_confs_simulate(params, logger):
                 merged_pdb = merged_file_name + params.validate.output.set_b_name_extension
 
 
-        #TODO merged pdb and simulated mtz names as phil parameters
+        #TODO merged pdb and simulated mtz names as phil parameters #54
 
         simulated_mtz =os.path.join(params.output.out_dir, merged_pdb +".mtz")
 
@@ -170,8 +170,8 @@ def occ_loop_merge_confs_simulate(params, logger):
                                                   merged_pdb,
                                                   params.input.mtz))
 
-            #TODO Work out data column label for sensible input: Talk to tobias- Frank suggests  a pre-selection filter.
-            #TODO Allocate location of phenix.fmodel log/ generate log
+            #TODO Work out data column label for sensible input: Talk to tobias- Frank suggests  a pre-selection filter. #32
+            #TODO Allocate location of phenix.fmodel log/ generate log #56
 
             os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} "
                       "type=real output.file_name={}".format(merged_pdb,params.input.mtz,simulated_mtz))
@@ -186,7 +186,7 @@ def occ_loop_merge_confs_simulate(params, logger):
             logger.exception("Simulated mtz does not exist:\n{}\n".format(merged_pdb +".mtz"))
             raise
 
-        # TODO How to supply sh_file as phil parameter, with {} defined in loop?
+        # TODO How to supply sh_file as phil parameter, with {} defined in loop? #54
         sh_file = "{}_occ_{}_b_{}.sh".format(params.input.xtal_name,
                                              str(lig_occupancy).replace(".", "_"),
                                              str(params.validate.options.set_b).replace(".", "_"))
@@ -195,7 +195,6 @@ def occ_loop_merge_confs_simulate(params, logger):
                                             "_occ_{}_b_{}.csv".format(str(lig_occupancy).replace(".", "_"),
                                                                       str(params.validate.options.set_b).replace(".","_"))
 
-        # TODO Change so that exhaustive search is run if csv doesn't exist
         if params.validate.options.overwrite or not \
                 os.path.exists(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name)):
 
@@ -212,8 +211,8 @@ def occ_loop_merge_confs_simulate(params, logger):
                                                                         params.validate.options.buffer,
                                                                         params.exhaustive.options.grid_spacing,
                                                                         params.exhaustive.options.generate_mtz)
-            #TODO Test with qsub
-            #TODO Sort parameter passing with qsub
+            #TODO Test with qsub #57
+            #TODO Sort parameter passing with qsub #57
             if params.validate.options.use_qsub:
 
                 logger.info("Writing {} to run exhaustive search via qsub".format(sh_file))
@@ -290,7 +289,7 @@ def run(params):
     for simul_occ in np.arange(params.validate.options.start_simul_occ,
                                params.validate.options.end_simul_occ,
                                params.validate.options.step_simulation):
-    # TODO remove duplication of this code: utils.get_minimum_fofc
+    # TODO remove duplication of this code: utils.get_minimum_fofc #59
         csv_name = params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
             str(simul_occ).replace(".", "_"),str(params.validate.options.set_b).replace(".","_"))
         scatter_plot(csv_name, title_text="Phenix.fmodel at occ {}".format(simul_occ))

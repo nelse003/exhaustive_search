@@ -27,7 +27,7 @@ def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
     occupancy = round_step(occupancy,base=step)
     u_iso = round_step(u_iso,base=step)
 
-    #TODO Remove this dual .csv by cleaning up csv name
+    #TODO Remove this dual .csv by cleaning up csv name #59
 
     if csv_name.endswith(".csv"):
         data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
@@ -52,9 +52,6 @@ def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):
     occ_group = get_occupancy_groups(pdb=input_pdb, params = params)
     for group in occ_group[0]:
         for residue in group:
-
-            #TODO Replace many for loops with better structure
-
             for chain in pdb_inp.hierarchy.only_model().chains():
                 if chain.id == residue.get('chain'):
                     for residue_group in chain.residue_groups():
@@ -89,7 +86,7 @@ def get_minimum_fofc(csv_name, b_fac=None):
     :return: 
     """
     print(os.getcwd())
-    #TODO Remove this dual .csv by cleaning up csv name
+    #TODO Remove this dual .csv by cleaning up csv name #59
     if csv_name.endswith(".csv"):
         data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
     else:
@@ -155,7 +152,7 @@ def wait_for_file_existence(file_path, wait_time):
             time_in_loop += 1
         else:
             raise IOError("Cannot find file {} within {} seconds".format(file_path, wait_time))
-# TODO Replace
+
 def get_csv_filepath(params):
     for occupancy in np.arange(params.validate.options.start_simul_occ,
                                params.validate.options.end_simul_occ +

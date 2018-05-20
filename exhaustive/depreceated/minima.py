@@ -1,3 +1,25 @@
+#################################################
+master_phil = libtbx.phil.parse("""
+input{
+    database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"
+        .type = path
+    csv_name = 'u_iso_occupancy_vary_new_atoms'
+        .type = str
+}
+output{
+    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement"
+        .type = str
+    minima_csv_name = "min_occ_u_iso_NUDT22_with_refinement"
+        .type = str
+}
+options{
+    cat = "cat"
+        .type = str
+}
+""", process_includes=True)
+###################################################
+
+
 def get_all_minima(params):
     start_xtal_num = 0
     end_xtal_num = 2000

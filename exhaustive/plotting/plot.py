@@ -47,7 +47,7 @@ def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
     if title_text is not None:
         plt.title(title_text)
 
-    # TODO Plot name parameter
+    # TODO Plot name parameter #54, requires templating
     plt.savefig(csv_name.rstrip(".csv"))
     plt.close()
 
@@ -149,8 +149,13 @@ def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
     z1, z2 = z[p1], z_1[p1]
     plt.plot([x1,x2],[y1,y2],[z1,z2],'k-')
 
-# TODO replace with params
-def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b, params):
+
+def plot_3d_fofc_occ(start_occ = params.validate.options.start_simul_occ,
+                     end_occ = params.validate.options.end_simul_occ,
+                     step=params.validate.options.step_simulation,
+                     dataset_prefix=params.input.xtal_name,
+                     set_b=params.validate.options.set_b,
+                     out_dir=params.output.out_dir):
 
     """ Plot the difference in occupancy & mean(|fo-fc|) at the simulated occupancy and the minima. """
 
@@ -162,10 +167,13 @@ def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b, params):
     b_facs = []
 
     for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
+
+        # TODO Replace CSV naming #59
+
         csv_name = params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
             str(lig_occupancy).replace(".", "_"),str(set_b).replace(".","_"))
 
-        csv_path = os.path.join(params.output.out_dir, csv_name)
+        csv_path = os.path.join(out_dir, csv_name)
 
         min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_path)
         fofc = get_fofc_from_csv(csv_name,lig_occupancy, round_step(b_to_u_iso(set_b)), step)
@@ -196,6 +204,9 @@ def plot_3d_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b, params):
     ax.set_zlabel("Mean |Fo-Fc|")
 
     plt.title("{}: Delta mean|Fo-Fc| and Delta Occupancy".format(dataset_prefix), fontsize=10)
+
+    #TODO Replace with vlaidate.output.plot_name, requires templating #54
+
     plt.savefig("{}-3d-delta_fofc_occ.png".format(dataset_prefix))
 
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
