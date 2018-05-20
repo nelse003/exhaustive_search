@@ -283,7 +283,8 @@ def run(params):
                      step=params.validate.options.step_simulation,
                      set_b=params.validate.options.set_b,
                      dataset_prefix=params.input.xtal_name,
-                     params=params)
+                     out_dir=params.output.out_dir,
+                     params = params)
 
     logger.info("Plotting occupancy, bfactor and mean|Fobs-Fcalc| for each simulated occupancy")
     for simul_occ in np.arange(params.validate.options.start_simul_occ,

@@ -390,7 +390,10 @@ def run(params):
         crystal_symmetry = inputs.crystal_symmetry)
 
     # TODO To log as string #68
+    summary_str = ""
     xrs.show_summary()
+    print(summary_str)
+    sys.exit()
 
     logger.info("Extract Fobs and free-r flags")
 

@@ -149,13 +149,14 @@ def connectpoints_3d(x,y,z,x_1,y_1,z_1,p1):
     z1, z2 = z[p1], z_1[p1]
     plt.plot([x1,x2],[y1,y2],[z1,z2],'k-')
 
-
-def plot_3d_fofc_occ(start_occ = params.validate.options.start_simul_occ,
-                     end_occ = params.validate.options.end_simul_occ,
-                     step=params.validate.options.step_simulation,
-                     dataset_prefix=params.input.xtal_name,
-                     set_b=params.validate.options.set_b,
-                     out_dir=params.output.out_dir):
+# TODO sort out params
+def plot_3d_fofc_occ(start_occ,
+                     end_occ,
+                     step,
+                     dataset_prefix,
+                     set_b,
+                     out_dir,
+                     params):
 
     """ Plot the difference in occupancy & mean(|fo-fc|) at the simulated occupancy and the minima. """
 
