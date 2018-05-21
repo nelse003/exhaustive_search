@@ -392,8 +392,8 @@ def run(params):
     # TODO To log as string #68
     summary_str = ""
     xrs.show_summary()
-    print(summary_str)
-    sys.exit()
+    #print(summary_str)
+
 
     logger.info("Extract Fobs and free-r flags")
 
