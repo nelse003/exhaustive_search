@@ -1,4 +1,4 @@
 sudo: required
 services: docker
-install: docker build docker build --tag ccp4_phenix_docker .
+install: docker build docker build --tag ccp4_phenix_docker github.com/nelse003/exhaustive_search
 script: docker run ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4_python /exhaustive_search/compile_test.py"
