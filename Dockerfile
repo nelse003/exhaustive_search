@@ -27,6 +27,6 @@ ADD ccp4.setup-sh ./ccp4/bin
 
 CMD ["ccp4/start"]
 
-ADD ./compile_test.py
 RUN mkdir exhaustive_search
 ADD * /exhaustive_search/
+ADD ./compile_test.py /exhaustive_search/compile_test.py
