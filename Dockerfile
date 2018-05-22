@@ -7,7 +7,7 @@ RUN apt-get -qq install tzdata
 #RUN echo Europe/London >/etc/timezone && \
 #RUN dpkg-reconfigure -f noninteractive tzdata
 
-RUN apt-get -qq -y install vim tar sudo gcc g++ gfortran m4 python2.7 git wget bzip2 tar expect
+RUN apt-get -qq -y install vim tar libgfortran3 m4 python2.7 git wget bzip2 tar expect
 RUN wget http://devtools.fg.oisin.rc-harwell.ac.uk/nightly/ccp4-linux64-latest.tar.bz2
 RUN bunzip2 ccp4-linux64-latest.tar.bz2
 RUN mkdir ./ccp4
