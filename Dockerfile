@@ -21,9 +21,9 @@ ADD ccp4.setup-sh ./ccp4/bin
 #ADD pandda_update /
 #RUN ./pandda_update
 
-#CMD ["source", "/ccp4/bin/ccp4.setup-sh"] 
-#CMD ["ccp4-python", "-m", "pip", "uninstall", "panddas"]
-#CMD ["ccp4-python", "-m", "pip", "install", "panddas"]
+CMD ["source", "/ccp4/bin/ccp4.setup-sh"] 
+CMD ["ccp4-python", "-m", "pip", "uninstall", "panddas"]
+CMD ["ccp4-python", "-m", "pip", "install", "panddas"]
 
 CMD ["ccp4/start"]
 
