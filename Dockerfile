@@ -33,3 +33,5 @@ CMD ["ccp4/start"]
 RUN mkdir exhaustive_search
 ADD * /exhaustive_search/
 ADD ./compile_test.py /exhaustive_search/compile_test.py
+
+######################################################
