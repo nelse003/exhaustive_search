@@ -168,8 +168,8 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
 
     sites_frac = xrs.sites_frac()
 
-    # TODO Loop over b factor separately for multiple ligands: Is this needed?
-    # TODO implement an iteratively smaller step size based on minima
+    # TODO Loop over b factor separately for multiple ligands: Is this needed? #33
+    # TODO implement an iteratively smaller step size based on minima #66
 
     u_iso_occ = []
     for occupancy in np.arange(params.exhaustive.options.lower_occ,
@@ -181,10 +181,9 @@ def calculate_mean_fofc(params, protein_hier, xrs, inputs, fmodel, crystal_gridd
             u_iso_occ.append((occupancy,u_iso))
 
     try:
-	print("\n\n\n"+ pdb + "\n\n\n")
         bound_states, ground_states = process_refined_pdb_bound_ground_states(pdb, params)
     except UnboundLocalError:
-        logger.info("Insufficient state information")
+        logger.info("Insufficient state information for pdb file %s",pdb)
         raise
 
     occupancy_group_cart_points = get_occupancy_group_grid_points(pdb, bound_states, ground_states, params, logger)
@@ -326,7 +325,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
 def run(params):
 
-# TODO Clean up ability to run as command line, and source as python
+# TODO Clean up ability to run as command line, and source as python #67
 #def run(args, xtal_name)
 
     """
@@ -360,7 +359,7 @@ def run(params):
         err              = StringIO())
     logger.debug("Processed reflection files using reflection file server")
 
-    # TODO Way to select appropriate labels?
+    # TODO Way to select appropriate labels? #55
     column_type = "F,SIGF"
     logger.debug("Extracting a copy of data_and_flags_master_params from mmtbx utils \n"
                  "Adding labels {} for mtz column type to use".format(column_type))
@@ -390,8 +389,11 @@ def run(params):
     xrs = ph.extract_xray_structure(
         crystal_symmetry = inputs.crystal_symmetry)
 
-    # TODO To log as string
+    # TODO To log as string #68
+    summary_str = ""
     xrs.show_summary()
+    #print(summary_str)
+
 
     logger.info("Extract Fobs and free-r flags")
 

@@ -10,11 +10,11 @@ import libtbx.phil
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
-from exhaustive.phil import master_phil
+from phil import master_phil
 
 ##############################################################
 import logging
-# TODO Find solution that reads working phil
+# TODO Find solution that reads working phil #62
 params = master_phil.extract()
 logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
                                                               params.exhaustive.output.log_name +
@@ -495,7 +495,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         return bound_states, ground_states
 
-    #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states)
+    #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states) #63
     else:
         residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
         coincident = get_coincident_group(hier, residue_altloc_dict, params)

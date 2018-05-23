@@ -93,7 +93,6 @@ def run(params):
 
     #get_all_minima(params)
 
-    # TODO Move repat soaks to function
     # Repeat soaks of DCP2B; run over all
 
     # if not os.path.exists(params.input.csv):
