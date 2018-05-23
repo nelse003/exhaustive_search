@@ -3,7 +3,8 @@ services:
 - docker
 
 install: 
-- docker build --tag nelse003/ccp4_phenix_docker .
+- docker pull nelse003/ccp4_phenix_docker || true
+- docker build --pull --cache-from nelse003/ccp4_phenix_docker--tag nelse003/ccp4_phenix_docker .
 
 script: 
 - docker run nelse003/ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4-python /exhaustive_search/compile_test.py"
