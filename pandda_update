@@ -2,4 +2,6 @@
 
 source /ccp4/bin/ccp4.setup-sh
 yes y | ccp4-python -m pip uninstall panddas
+yes y | ccp4-python -m pip install pip --upgrade
+yes y | ccp4-python -m pip install numpy --upgrade 
 ccp4-python -m pip install panddas

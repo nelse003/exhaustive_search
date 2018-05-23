@@ -10,7 +10,7 @@ import libtbx.phil
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
-from exhaustive.phil import master_phil
+from phil import master_phil
 
 ##############################################################
 import logging
