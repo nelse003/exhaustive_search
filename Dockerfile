@@ -22,6 +22,9 @@ ADD pandda_update /
 RUN ./pandda_update
 
 CMD ["source", "/ccp4/bin/ccp4.setup-sh"] 
+
+#USing pandda update as this doesn't seem to work?
+
 #CMD ["ccp4-python", "-m", "pip", "uninstall", "panddas"]
 #CMD ["ccp4-python", "-m" "pip", "install", "pip", "--upgrade"]
 #CMD ["ccp4-python", "-m" "pip", "install", "numpy", "--upgrade"]
