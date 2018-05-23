@@ -3,10 +3,10 @@ services:
 - docker
 
 install: 
-- docker build --tag ccp4_phenix_docker .
+- docker build --tag nelse003/ccp4_phenix_docker .
 
 script: 
-- docker run ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4-python /exhaustive_search/compile_test.py"
+- docker run nelse003/ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4-python /exhaustive_search/compile_test.py"
 
 after_script:
 - docker images
@@ -18,4 +18,4 @@ deploy:
   provider: script
   script: docker push nelse003/ccp4_phenix_docker
   on:
-branch: master
+    branch: master
