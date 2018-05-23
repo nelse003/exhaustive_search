@@ -16,8 +16,6 @@ RUN tar -xf ccp4-linux64-latest.tar -C ./ccp4 --strip-components=1
 ADD ccp4.setup-sh ./ccp4/bin
 #RUN /bin/bash -c "source /ccp4/bin/ccp4.setup-sh"
 
-# Add back if needed, not needed for compile test
-
 ADD pandda_update /
 RUN ./pandda_update
 
