@@ -339,7 +339,6 @@ def run(params):
     """
 
     ####################################################
-
     logger = start_exhaustive_logger(params)
 
     args = [params.input.pdb,params.input.mtz]
@@ -390,10 +389,10 @@ def run(params):
         crystal_symmetry = inputs.crystal_symmetry)
 
     # TODO To log as string #68
-    summary_str = ""
     xrs.show_summary()
-    #print(summary_str)
-
+    # summary_str = ""
+    # xrs.show_summary(f = summary_str)
+    # print(summary_str)
 
     logger.info("Extract Fobs and free-r flags")
 
@@ -452,6 +451,7 @@ def run(params):
     except UnboundLocalError:
         raise
 
+    exit()
     os.chdir("../../")
 
 if(__name__ == "__main__"):

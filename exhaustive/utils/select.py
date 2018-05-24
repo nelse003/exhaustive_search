@@ -39,8 +39,8 @@ def get_occupancy_groups(pdb, params):
     :return: 
     """
 
-    logger.info("Gathering occupancy group information from PDB", pdb)
-    print("Gathering occupancy group information from PDB", pdb)
+    logger.info("Gathering occupancy group information from PDB: %s", pdb)
+    print("Gathering occupancy group information from PDB: %s", pdb)
     pdb_in = hierarchy.input(pdb)
 
     resnames = params.select.resnames.split(',')
