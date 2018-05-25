@@ -2,7 +2,7 @@ from exhaustive.validation.validation import run as validate
 from exhaustive.phil import master_phil
 import os
 
-params =  master_phil.extract(master_phil)
+params =  master_phil.extract()
 
 params.input.xtal_name = "FALZA-x0085"
 params.input.in_path = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085"

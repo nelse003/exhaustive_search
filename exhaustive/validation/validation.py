@@ -38,7 +38,7 @@ def start_validate_logger(params):
 
 ##############################################################
 
-def check_validate_input_files(params):
+def check_validate_input_files(params, logger):
 
     """Check existence of input files, including all needed for validation code"""
 
@@ -48,7 +48,7 @@ def check_validate_input_files(params):
     try:
         assert os.path.exists(params.output.out_dir), "{} does not exist".format(params.output.out_dir)
     except AssertionError:
-        log.exception("{} does not exist".format(params.output.out_dir))
+        logger.exception("{} does not exist".format(params.output.out_dir))
         raise
 
     # Ground state pdb
@@ -56,7 +56,7 @@ def check_validate_input_files(params):
         assert os.path.exists(params.validate.input.ground_state_pdb_path), \
         "Ground state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path)
     except AssertionError:
-        log.execption("Ground state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
+        logger.exception("Ground state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
         raise
 
     # Bound state pdb
@@ -64,7 +64,7 @@ def check_validate_input_files(params):
         assert os.path.exists(params.validate.input.bound_state_pdb_path),\
         "Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path)
     except AssertionError:
-        log.exception("Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
+        logger.exception("Bound state pdb: \n{}\n does not exist".format(params.validate.input.ground_state_pdb_path))
         raise
 
 def occ_loop_merge_confs_simulate(params, logger):
@@ -90,7 +90,7 @@ def occ_loop_merge_confs_simulate(params, logger):
     os.chdir(params.output.out_dir)
 
     logger.info("Checking validity of input files")
-    check_validate_input_files(params = params)
+    check_validate_input_files(params = params, logger = logger)
 
     logger.info("Looping over simulated occupancies "
                 "between {} and {} in steps of {}".format(params.validate.options.start_simul_occ,
@@ -156,7 +156,6 @@ def occ_loop_merge_confs_simulate(params, logger):
             else:
                 merged_pdb = merged_file_name + params.validate.output.set_b_name_extension
 
-
         #TODO merged pdb and simulated mtz names as phil parameters #54
 
         simulated_mtz =os.path.join(params.output.out_dir, merged_pdb +".mtz")
@@ -173,9 +172,12 @@ def occ_loop_merge_confs_simulate(params, logger):
             #TODO Work out data column label for sensible input: Talk to tobias- Frank suggests  a pre-selection filter. #32
             #TODO Allocate location of phenix.fmodel log/ generate log #56
 
-            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} "
+            print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} "
                       "type=real output.file_name={}".format(merged_pdb,params.input.mtz,simulated_mtz))
 
+            #TODO remplace with cctbx call? Would improve testing flexibility?
+            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} reference_file={} "
+                      "type=real ".format(merged_pdb,params.input.mtz))
         else:
             logger.info("Skipping the generation of simulated data:\n{}\n using phenix.fmodel "
                         "as it already exists, for occupancy {}, and params.validate.options.overwrite is "
@@ -262,7 +264,7 @@ def run(params):
     modified_phil = prepare_validate_phil(master_phil.format(python_object = params))
     params = modified_phil.extract()
     logger = start_validate_logger(params)
-    check_validate_input_files(params)
+    check_validate_input_files(params,logger)
 
     if not os.path.exists(params.output.out_dir):
         logger.info("Creating output directory:\n{}\n".format(params.output.out_dir))
