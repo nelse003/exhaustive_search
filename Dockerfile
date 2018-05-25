@@ -13,9 +13,6 @@ RUN bunzip2 ccp4-linux64-latest.tar.bz2
 RUN mkdir ./ccp4
 RUN tar -xf ccp4-linux64-latest.tar -C ./ccp4 --strip-components=1
 
-RUN rm ccp4-linux64-latest.tar.bz2
-RUN rm ccp4-linux64-latest.tar
-
 ADD ccp4.setup-sh ./ccp4/bin
 #RUN /bin/bash -c "source /ccp4/bin/ccp4.setup-sh"
 
