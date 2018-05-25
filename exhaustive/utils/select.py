@@ -10,7 +10,7 @@ import libtbx.phil
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
-from ..phil import master_phil
+from exhaustive.phil import master_phil
 
 ##############################################################
 import logging
@@ -124,6 +124,7 @@ def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
                     raise Warning("Multiple models are present in pdb file. "
                                   "This is not processable with occupancy group selection")
     if not parameters:
+        logger.warning("Parameter may not be recognised,as output list is empty")
         raise Warning("Parameter may not be recognised,as output list is empty")
 
     return parameters

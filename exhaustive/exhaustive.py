@@ -313,7 +313,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         mtz_object.write(file_name="testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
                                                               str(u_iso).replace(".","_")))
     if params.exhaustive.options.generate_map:
-        os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
+        os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).replace(".","_"),
                                                               str(u_iso).replace(".","_")))
 
     # print(type(fofc_map))
