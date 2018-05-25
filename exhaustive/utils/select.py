@@ -1,16 +1,13 @@
 from __future__ import print_function
 
-import datetime
-import sys
 from copy import deepcopy
 
 import iotbx
 import itertools
-import libtbx.phil
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
-from exhaustive.phil import master_phil
+
 
 ##############################################################
 import logging
@@ -528,13 +525,3 @@ def print_hier_atoms(hierarchy):
                         print("Atom Name: {}".format(atom.name))
 
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
-def run(params):
-    occupancy_groups = get_occupancy_groups(params.input.pdb)
-    get_parameter_from_occupancy_groups(occupancy_groups, "CAT")
-
-
-if __name__ == '__main__':
-    from giant.jiffies import run_default
-
-    run_default(run=run, master_phil=master_phil, args=sys.argv[1:], blank_arg_prepend=blank_arg_prepend)
