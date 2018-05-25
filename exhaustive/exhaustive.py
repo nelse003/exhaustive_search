@@ -451,7 +451,6 @@ def run(params):
     except UnboundLocalError:
         raise
 
-    exit()
     os.chdir("../../")
 
 if(__name__ == "__main__"):

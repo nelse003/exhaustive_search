@@ -15,8 +15,9 @@ params.validate.options.set_b = 40
 params.exhaustive.options.generate_mtz = False
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.1
-params.validate.options.overwrite = True
+params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.1
+params.validate.options.generate_ccp4 = True
 
 #modified_phil = master_phil.format(python_object = params)
 

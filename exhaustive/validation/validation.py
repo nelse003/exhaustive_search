@@ -6,11 +6,15 @@ import libtbx.phil
 import logging
 import datetime
 
+from mmtbx.command_line.fmodel import run as fmodel
+from mmtbx.command_line.maps import run as map
+from giant.jiffies.merge_conformations import run as merge_conformations
+from giant.jiffies.merge_conformations import master_phil as merge_confs_phil
+
 # Local imports
 
-from ..utils.refinement import refmac_0_cyc
 from ..utils.utils import set_b_fac_all_occupancy_groups, wait_for_file_existence, get_csv_filepath, \
-    set_b_fac_all_atoms, get_random_starting_occ_from_folder_name
+    set_b_fac_all_atoms
 from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
 from ..phil import master_phil, prepare_validate_phil, check_input_files
 from ..exhaustive import run as exhaustive
@@ -110,18 +114,19 @@ def occ_loop_merge_confs_simulate(params, logger):
 
             logger.info("Using giant.merge_conformations to generate a pdb "
                         "file with bound state occupancy {}".format(str(1-lig_occupancy)))
-
-            os.system("giant.merge_conformations input.major={} input.minor={} "
-                      "major_occupancy={} minor_occupancy={} output.pdb={} output.log={}".format(
-                       params.validate.input.ground_state_pdb_path,
-                       params.validate.input.bound_state_pdb_path,
-                       str(1 - lig_occupancy),
-                       str(lig_occupancy),
-                       merged_pdb,
-                       os.path.join(params.output.log_dir,
+            # Params for merging confs
+            merge_confs_params = merge_confs_phil.extract()
+            merge_confs_params.input.major = params.validate.input.ground_state_pdb_path
+            merge_confs_params.input.minor = params.validate.input.bound_state_pdb_path
+            merge_confs_params.options.major_occupancy = 1 - lig_occupancy
+            merge_confs_params.options.minor_occupancy =  lig_occupancy
+            merge_confs_params.output.pdb = merged_pdb
+            merge_confs_params.output.log = os.path.join(params.output.log_dir,
                                     "occ_{}_b_{}_merge_conformations.log".format(
                                     str(lig_occupancy).format(lig_occupancy),
-                                    str(params.validate.options.set_b).replace(".","_")))))
+                                    str(params.validate.options.set_b).replace(".","_")))
+
+            merge_conformations(merge_confs_params)
 
         else:
             logger.info("Skipping generating merged pdb\n{}\n as it already exists, "
@@ -160,6 +165,7 @@ def occ_loop_merge_confs_simulate(params, logger):
 
         simulated_mtz =os.path.join(params.output.out_dir, merged_pdb +".mtz")
 
+
         if params.validate.options.overwrite or not os.path.exists(simulated_mtz):
 
             logger.info("Generating simulated mtz \n{}\nFor occupancy {} using phenix.fmodel"
@@ -170,16 +176,14 @@ def occ_loop_merge_confs_simulate(params, logger):
                                                   params.input.mtz))
 
             #TODO Work out data column label for sensible input: Talk to tobias- Frank suggests  a pre-selection filter. #32
-            #TODO Allocate location of phenix.fmodel log/ generate log #56
+            #TODO Allocate location of fmodel log/ generate log #56
 
-            print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} "
-                      "type=real output.file_name={}".format(merged_pdb,params.input.mtz,simulated_mtz))
+            fmodel_args = [merged_pdb, params.input.mtz, "data_column_label=\"F,SIGF\"", "type=real",
+                           "output.file_name={}".format(simulated_mtz)]
+            fmodel(args=fmodel_args)
 
-            #TODO remplace with cctbx call? Would improve testing flexibility?
-            os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} reference_file={} "
-                      "type=real ".format(merged_pdb,params.input.mtz))
         else:
-            logger.info("Skipping the generation of simulated data:\n{}\n using phenix.fmodel "
+            logger.info("Skipping the generation of simulated data:\n{}\n using fmodel "
                         "as it already exists, for occupancy {}, and params.validate.options.overwrite is "
                         "{}".format(simulated_mtz,lig_occupancy, params.validate.options.overwrite))
         try:
@@ -200,22 +204,23 @@ def occ_loop_merge_confs_simulate(params, logger):
         if params.validate.options.overwrite or not \
                 os.path.exists(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name)):
 
-            cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
-                  "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
-                  " input.pdb={} input.mtz={} output.out_dir={} input.xtal_name={} "
-                  "exhaustive.output.csv_name={} exhaustive.options.step={} exhaustive.options.buffer={} "
-                  "exhaustive.options.grid_spacing={} "
-                  "exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb +".mtz",
-                                                                        params.output.out_dir,
-                                                                        params.input.xtal_name,
-                                                                        params.exhaustive.output.csv_name,
-                                                                        params.exhaustive.options.step,
-                                                                        params.validate.options.buffer,
-                                                                        params.exhaustive.options.grid_spacing,
-                                                                        params.exhaustive.options.generate_mtz)
             #TODO Test with qsub #57
             #TODO Sort parameter passing with qsub #57
             if params.validate.options.use_qsub:
+
+                cmd = ("$CCP4/bin/ccp4-python /dls/science/groups/i04-1/"
+                       "elliot-dev/Work/exhaustive_search/exhaustive/exhaustive.py"
+                       " input.pdb={} input.mtz={} output.out_dir={} input.xtal_name={} "
+                       "exhaustive.output.csv_name={} exhaustive.options.step={} exhaustive.options.buffer={} "
+                       "exhaustive.options.grid_spacing={} "
+                       "exhaustive.options.generate_mtz={}").format(merged_pdb, merged_pdb + ".mtz",
+                                                                    params.output.out_dir,
+                                                                    params.input.xtal_name,
+                                                                    params.exhaustive.output.csv_name,
+                                                                    params.exhaustive.options.step,
+                                                                    params.validate.options.buffer,
+                                                                    params.exhaustive.options.grid_spacing,
+                                                                    params.exhaustive.options.generate_mtz)
 
                 logger.info("Writing {} to run exhaustive search via qsub".format(sh_file))
 
@@ -226,8 +231,20 @@ def occ_loop_merge_confs_simulate(params, logger):
                                "groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
                     file.write("source /dls/science/groups/i04-1/software/"
                                "XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-
                     file.write(cmd)
+
+                logger.info("Job submission to qsub")
+                os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,
+                                                                    params.output.log_dir,
+                                                                    params.validate.options.qsub_output_file_prefix +
+                                                                    "_{}.txt".format(str(
+                                                                        lig_occupancy).replace(".", "_"))),
+                                                       os.path.join(params.output.out_dir,
+                                                                    params.output.log_dir,
+                                                                    params.validate.options.qsub_error_file_prefix
+                                                                    + "_{}.txt".format(
+                                                                        str(lig_occupancy).replace(".", "_"))),
+                                                       os.path.join(params.output.out_dir, sh_file)))
 
             else:
                 logger.info("Running exhaustive search locally")
@@ -236,28 +253,14 @@ def occ_loop_merge_confs_simulate(params, logger):
         else:
             logger.info("Skipping exhaustive search")
 
-        if params.validate.options.use_qsub:
-            if params.validate.options.overwrite or not os.path.exists(os.path.join(
-                    params.output.out_dir,params.exhaustive.output.csv_name +".csv")):
-                logger.info("Job submission to qsub")
-                os.system("qsub -o {} -e {} {}".format(os.path.join(params.output.out_dir,
-                                                                    params.output.log_dir,
-                                                                    params.validate.options.qsub_output_file_prefix +
-                                                                    "_{}.txt".format(str(
-                                                                        lig_occupancy).replace(".","_"))),
-                                                       os.path.join(params.output.out_dir,
-                                                                    params.output.log_dir,
-                                                                    params.validate.options.qsub_error_file_prefix
-                                                                    + "_{}.txt".format(
-                                                                        str(lig_occupancy).replace(".","_"))),
-                                                       os.path.join(params.output.out_dir, sh_file)))
-
         if params.validate.options.generate_ccp4:
             if params.validate.options.overwrite or not os.path.exists(merged_pdb +".mtz") or not os.path.exists(merged_pdb):
 
                 logger.info("Converting simualted mtz: \n{}\n to difference map .ccp4 file".format(merged_pdb +".mtz"))
+                map_args = ["maps.map.map_type=\"mfo-Dfc\"",merged_pdb,merged_pdb + ".mtz"]
+                # equivalent to phenix.maps
+                map(args = map_args)
 
-                os.system("phenix.maps {} {} maps.map.map_type=\"mfo-Dfc\"".format(merged_pdb, merged_pdb +".mtz"))
 
 def run(params):
 
