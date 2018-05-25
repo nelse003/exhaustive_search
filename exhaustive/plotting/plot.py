@@ -6,6 +6,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from exhaustive.utils.utils import get_fofc_from_csv, get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac
 from mpl_toolkits.mplot3d import Axes3D
+from exhaustive.utils.utils import u_iso_to_b_fac
+##############################################################
+import logging
+logger = logging.getLogger(__name__)
 
 def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
 
@@ -18,20 +22,23 @@ def scatter_plot(csv_name, three_dim_plot=True ,title_text=None ):
         data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',', skip_header=0)
 
     if len(data[0]) == 3:
+        logger.info("Using 3 column data to plot")
         occ = data[:,0]
         u_iso = data[:,1]
         fo_fc = data[:,2]
 
     if len(data[0]) == 4:
+        logger.info("Using 4 column data to plot")
         occ = data[:, 0]
         u_iso = data[:, 2]
         fo_fc = data[:, 3]
 
-    b_iso = (8*np.pi**2)*u_iso**2
+    b_iso = u_iso_to_b_fac(u_iso)
 
     fig = plt.figure()
 
     if three_dim_plot:
+        logger.info("Plotting 3d plot")
         ax = fig.add_subplot(111,projection='3d')
         ax.scatter(occ, b_iso, fo_fc)
         plt.xlabel("Occupancy")
@@ -207,7 +214,6 @@ def plot_3d_fofc_occ(start_occ,
     plt.title("{}: Delta mean|Fo-Fc| and Delta Occupancy".format(dataset_prefix), fontsize=10)
 
     #TODO Replace with vlaidate.output.plot_name, requires templating #54
-
     plt.savefig("{}-3d-delta_fofc_occ.png".format(dataset_prefix))
 
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):

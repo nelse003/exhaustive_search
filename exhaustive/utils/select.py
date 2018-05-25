@@ -14,12 +14,6 @@ from exhaustive.phil import master_phil
 
 ##############################################################
 import logging
-# TODO Find solution that reads working phil #62
-params = master_phil.extract()
-logging.basicConfig(filename=datetime.datetime.now().strftime(params.output.log_dir +
-                                                              params.exhaustive.output.log_name +
-                                                              "_%Y_%m_%d_%H_%m.log"),
-                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 ##############################################################
 # Shared Functions

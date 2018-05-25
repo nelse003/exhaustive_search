@@ -27,6 +27,7 @@ from mmtbx import map_tools
 from scitbx.array_family import flex
 
 from mmtbx.utils import data_and_flags_master_params
+from mmtbx.command_line.mtz2map import run as mtz2map
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -288,7 +289,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
             if (bound_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
-                #print("gs: {}".format(xrs_dc.scatterers()[i].u_iso))
 
     for ground_state in ground_states:
         for i, site_frac in enumerate(sites_frac):
@@ -297,7 +297,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
             if (ground_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
-                #print("bs: {}".format(xrs_dc.scatterers()[i].u_iso))
 
     fmodel.update_xray_structure(
         xray_structure=xrs_dc,
@@ -308,18 +307,25 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         map_type="mFo-DFc")
 
     if params.exhaustive.options.generate_mtz:
+        output_mtz = "testing_{}_{}.mtz".format(str(bound_occupancy).replace(".","_"),
+                                                              str(u_iso).replace(".","_"))
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
-        mtz_object.write(file_name="testing_{}_{}.mtz".format(str(bound_occupancy).repalce(".","_"),
-                                                              str(u_iso).replace(".","_")))
-    if params.exhaustive.options.generate_map:
-        os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).replace(".","_"),
-                                                              str(u_iso).replace(".","_")))
+        mtz_object.write(file_name=output_mtz)
 
-    # print(type(fofc_map))
-    # print(type(fofc))
+    if params.exhaustive.options.generate_map and os.path.exists(os.path.join(params.output.out_dir,output_mtz)):
+
+        mtz2map_args = [output_mtz]
+        mtz2map(args=mtz2map_args)
+
+        # Replaces
+        # os.system("phenix.mtz2map testing_{}_{}.mtz".format(str(bound_occupancy).replace(".","_"),
+        #                                                       str(u_iso).replace(".","_")))
+
 
     mean_abs_fofc_value = get_mean_fofc_over_cart_sites(occupancy_group_cart_points, fofc_map, inputs)
+
+    print(bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value)
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
