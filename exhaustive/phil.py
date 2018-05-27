@@ -127,6 +127,13 @@ validate{
             .type = str
     }
 }
+repeat{
+    input{
+        database_path = None
+            .type = path
+            .help = 'Database path for sqlite databse from xce'
+    }
+}
 """, process_includes=True)
 
 def prepare_validate_phil(master_phil):

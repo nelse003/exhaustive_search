@@ -46,7 +46,6 @@ def start_exhaustive_logger(params):
 
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.log_dir, params.exhaustive.output.log_name + log_time)
-    print(log_path)
     hdlr = logging.FileHandler(log_path)
     logger = logging.getLogger(__name__)
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
