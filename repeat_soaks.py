@@ -108,6 +108,10 @@ for xtal_name in xtals:
 
     params.exhaustive.output.csv_name = params.input.xtal_name + "exhaustive_search_occ_u_iso"
 
+    if os.path.exists(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name)):
+        continue
+
+
     # Get mtz from database
     conn = sqlite3.connect(params.repeat.input.database_path)
     cur = conn.cursor()
@@ -123,7 +127,12 @@ for xtal_name in xtals:
         params.input.mtz = refinement_xtals[0][0].encode('ascii')
 
         check_input_files(params)
-        exhaustive(params)
+        try:
+            exhaustive(params)
+        except UnboundLocalError:
+            rejects.append(xtal_name)
+            continue
+
     else:
         print("Refinement Mtz does not exist? for xtal: {}".format(xtal_name))
         rejects.append(xtal_name)
