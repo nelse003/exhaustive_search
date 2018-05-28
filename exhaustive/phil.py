@@ -21,6 +21,8 @@ output{
 settings{
     processes = 8
         .type = int
+    plot_dpi = 300
+        .type = float
 }
 exhaustive{
     output{
@@ -129,6 +131,9 @@ validate{
 }
 repeat{
     input{
+        compound_code = None
+            .type = str
+            .help = 'Compound code to refer to repeat soak compound. The one used in XCE/ sqlite database'
         database_path = None
             .type = path
             .help = 'Database path for sqlite databse from xce'

@@ -6,6 +6,8 @@ from iotbx.pdb import hierarchy
 
 def copy_atoms(path, prefix,start_xtal_num, end_xtal_num, new_ground_structure_path, atoms_new, out_dir):
 
+    """ Copy one set of atoms from a pdb strcutre to many other pdb structure run refinemnt"""
+
     pdb_in = hierarchy.input(file_name=new_ground_structure_path)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
@@ -76,9 +78,9 @@ def copy_atoms(path, prefix,start_xtal_num, end_xtal_num, new_ground_structure_p
 
 copy_atoms(path = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model",
            prefix = "NUDT22A-x",
-           start_xtal_num=910,
-           end_xtal_num=1058,
-           new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/"\
+           start_xtal_num=182,
+           end_xtal_num=182,
+           new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/"\
                                      "NUDT22A_new_ground_state_x1058/ground_state_refine_2_more_waters.pdb",
-           atoms_new=[['W','11'],['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],
-           out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement")
+           atoms_new=[['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],#[['W','11'],['W','230'],['W','231'],['W','232'],['W','233'],['W','234'],['W','235']],
+           out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/occupancy_group_with_refinement")

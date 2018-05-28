@@ -216,6 +216,30 @@ def plot_3d_fofc_occ(start_occ,
     #TODO Replace with vlaidate.output.plot_name, requires templating #54
     plt.savefig("{}-3d-delta_fofc_occ.png".format(dataset_prefix))
 
+
+
+def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,protein_name, compound, params):
+
+    occ_bins = np.linspace(0, 1, 21, endpoint=True)
+
+    fig, ax = plt.subplots()
+    ax.hist(es_occs, bins=occ_bins, width=0.04, color='r',  alpha=0.5,
+            label='Exhaustive search occupancy: {}'.format(len(es_occs)))
+    ax.hist(refined_occs,bins=occ_bins, width=0.04, color='b', alpha=0.5,
+            label='Refined occupancy: {}'.format(len(refined_occs)))
+    plt.xlim(0, 1.05)
+    ax.legend(loc='best',fontsize='small')
+
+    labels = ["Refined occupancy", "Exhasutive search occupancy"]
+
+    plt.title("Occupancy Histogram: {} : {}".format(protein_name, compound))
+    plt.xlabel("Occupancy")
+    plt.ylabel("Frequency")
+
+    file_path = os.path.join(params.output.out_dir,"occ_hist_with_exhaustive_{}_{}.png".format(protein_name,compound))
+    plt.savefig(file_path, dpi=300)
+    plt.close()
+
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
     """ Plot the difference in occupancy/ fofc at the simulated occupancy and minima.  """
