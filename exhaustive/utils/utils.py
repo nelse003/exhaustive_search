@@ -248,7 +248,6 @@ def read_ligand_occupancy_b(pdb_path, lig_chain):
     """Extract occupancy and B factor of ligand of interest from one PDB file into a dataframe"""
 
     # Read in single PDB file
-    print(pdb_path)
     pdb_in = hierarchy.input(file_name=pdb_path)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
     lig_sel = sel_cache.selection("chain {}".format(lig_chain))
