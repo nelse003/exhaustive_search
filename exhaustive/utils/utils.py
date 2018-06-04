@@ -178,6 +178,91 @@ def get_random_starting_occ_from_folder_name(occupancy, out_path, dataset_prefix
     for folder in folders:
         yield float("0." + folder.split('_')[-1])
 
+def read_ligand_occupancy_b(pdb_path, lig_chain):
+    """Extract occupancy and B factor of ligand of interest from one PDB file into a dataframe"""
+
+    # Read in single PDB file
+    pdb_in = hierarchy.input(file_name=pdb_path)
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
+    lig_sel = sel_cache.selection("chain {}".format(lig_chain))
+    lig_hierarchy = pdb_in.hierarchy.select(lig_sel)
+
+    lig_occ_b = []
+    # Get occupancy & B factor of ligand
+    for model in lig_hierarchy.models():
+        for chain in model.chains():
+            for rg in chain.residue_groups():
+                for ag in rg.atom_groups():
+                    for atom in ag.atoms():
+                        lig_occ_b.append([atom.name, atom.occ, atom.b])
+    occ_b_df = pd.DataFrame(lig_occ_b, columns=["Atom", "Occupancy", "B_factor"])
+
+    return occ_b_df
+
+def get_pdbs(refinement_dir, pdb_name="refine.pdb"):
+    """ Given a folder get all pdb paths that match compound and/or name
+
+    If a compound code is provided will only extract pdbs with that compound cif present in folder
+    """
+
+    pdbs = []
+    for root, dirs, files in os.walk(refinement_dir):
+        for file in files:
+            if file == pdb_name:
+                pdbs.append(os.path.join(root, file))
+
+
+    print("# of pdbs", len(pdbs))
+    return pdbs
+
+
+def get_occs(refinement_dir, lig_chain,
+             pdb_name="refine.split.bound_state.pdb"):
+    """ Given a folder get all occupancies of ligand in provided chain """
+
+    pdbs = get_pdbs(refinement_dir, pdb_name)
+
+    all_lig_occupancy = []
+    for pdb in pdbs:
+
+        occ_b_df = read_ligand_occupancy_b(pdb, lig_chain)
+
+        if occ_b_df.apply(lambda x: x.nunique())[1] == 1:
+            lig_occ = occ_b_df.loc("Occupancy")[0][1]
+            all_lig_occupancy.append(lig_occ)
+        else:
+            print(occ_b_df)
+            print "Occupancy varies across ligand, " \
+                  "histogram not currently generated"
+
+    return all_lig_occupancy
+
+def get_occ_b(refinement_dir, lig_chain,
+              pdb_name="refine.split.bound_state.pdb"):
+    """ Given a folder get occupancies & B factor of ligand in provided chain"""
+
+    pdbs = get_pdbs(refinement_dir, pdb_name)
+
+    all_lig_occupancy = []
+    mean_ligand_b_factor = []
+    std_ligand_b_factor = []
+    for pdb in pdbs:
+
+        occ_b_df = read_ligand_occupancy_b(pdb, lig_chain)
+
+        mean_ligand_b_factor.append(occ_b_df['B_factor'].mean())
+        std_ligand_b_factor.append(occ_b_df['B_factor'].std())
+
+        if occ_b_df.apply(lambda x: x.nunique())[1] == 1:
+            lig_occ = occ_b_df.loc("Occupancy")[0][1]
+            all_lig_occupancy.append(lig_occ)
+        else:
+            print(occ_b_df)
+            print "Occupancy varies across ligand, " \
+                  "histogram not currently generated"
+
+    return all_lig_occupancy, mean_ligand_b_factor, std_ligand_b_factor
+
 ###############################################################################
 #  Likely depreceated.
 ###############################################################################
@@ -244,62 +329,6 @@ def get_delta_u_iso(csv_name):
     _, min_u_iso, _ = get_minimum_fofc(csv_name)
     return u_iso - min_u_iso
 
-def read_ligand_occupancy_b(pdb_path, lig_chain):
-    """Extract occupancy and B factor of ligand of interest from one PDB file into a dataframe"""
-
-    # Read in single PDB file
-    pdb_in = hierarchy.input(file_name=pdb_path)
-    sel_cache = pdb_in.hierarchy.atom_selection_cache()
-    lig_sel = sel_cache.selection("chain {}".format(lig_chain))
-    lig_hierarchy = pdb_in.hierarchy.select(lig_sel)
-
-    lig_occ_b = []
-    # Get occupancy & B factor of ligand
-    for model in lig_hierarchy.models():
-        for chain in model.chains():
-            for rg in chain.residue_groups():
-                for ag in rg.atom_groups():
-                    for atom in ag.atoms():
-                        lig_occ_b.append([atom.name, atom.occ, atom.b])
-    occ_b_df = pd.DataFrame(lig_occ_b, columns=["Atom", "Occupancy", "B_factor"])
-
-    return occ_b_df
-
-def get_pdbs(refinement_dir, pdb_name="refine.pdb"):
-    """ Given a folder get all pdb paths that match compound and/or name
-
-    If a compound code is provided will only extract pdbs with that compound cif present in folder
-    """
-
-    pdbs = []
-    for root, dirs, files in os.walk(refinement_dir):
-        for file in files:
-            if file == pdb_name:
-                pdbs.append(os.path.join(root, file))
 
 
-    print("# of pdbs", len(pdbs))
-    return pdbs
 
-
-def get_occs(refinement_dir, lig_chain, pdb_name="refine.split.bound_state.pdb"):
-    """ Given a folder get all occupancies of ligand in provided chain
-
-    If a compound code is provided will only extract pdbs with that compound cif present in folder
-    """
-
-    pdbs = get_pdbs(refinement_dir, pdb_name)
-
-    all_lig_occupancy = []
-    for pdb in pdbs:
-
-        occ_b_df = read_ligand_occupancy_b(pdb, lig_chain)
-
-        if occ_b_df.apply(lambda x: x.nunique())[1] == 1:
-            lig_occ = occ_b_df.loc("Occupancy")[0][1]
-            all_lig_occupancy.append(lig_occ)
-        else:
-            print(occ_b_df)
-            print "Occupancy varies across ligand, histogram not currently generated"
-
-    return all_lig_occupancy

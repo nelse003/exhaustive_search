@@ -5,7 +5,6 @@ import sys
 import pytest
 
 from exhaustive.validation.validation import run as validate
-from exhaustive.validation.validation import occ_loop_merge_confs_simulate
 from exhaustive.phil import master_phil
 from exhaustive.utils.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 
@@ -31,6 +30,7 @@ def params():
     params.validate.options.step_simulation = 0.1
     params.validate.options.overwrite = True
     params.exhaustive.options.step = 0.1
+    params.settings.processes = 20
 
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)

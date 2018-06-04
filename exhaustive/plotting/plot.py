@@ -218,7 +218,9 @@ def plot_3d_fofc_occ(start_occ,
 
 
 
-def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,protein_name, compound, params):
+def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,
+                                               protein_name, compound,
+                                               params):
 
     occ_bins = np.linspace(0, 1, 21, endpoint=True)
 
@@ -230,13 +232,40 @@ def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,protein_nam
     plt.xlim(0, 1.05)
     ax.legend(loc='best',fontsize='small')
 
-    labels = ["Refined occupancy", "Exhasutive search occupancy"]
-
     plt.title("Occupancy Histogram: {} : {}".format(protein_name, compound))
     plt.xlabel("Occupancy")
     plt.ylabel("Frequency")
 
-    file_path = os.path.join(params.output.out_dir,"occ_hist_with_exhaustive_{}_{}.png".format(protein_name,compound))
+    file_path = os.path.join(params.output.out_dir,
+                             "occ_hist_with_exhaustive_{}_{}.png".format(
+                                 protein_name,compound))
+
+    plt.savefig(file_path, dpi=300)
+    plt.close()
+
+
+def occupancy_b_factor_scatter_plot(es_occs, refined_occs, es_b_fac,
+                                    refine_mean_b_fac, refine_std_b_fac,
+                                    protein_name, compound, params):
+
+    fig, ax = plt.subplots()
+    ax.scatter(es_occs, es_b_fac,
+               label="Exhaustive search: {}".format(len(es_occs)))
+    ax.errorbar(refined_occs, refine_mean_b_fac, yerr = refine_std_b_fac,
+               label="Refinement (errorbar = standard deviation of B factor " \
+                     "across ligand): {}".format(len(refined_occs)))
+
+    #TODO Add post Exhaustive search refinement
+
+    ax.legend(loc='best', fontsize='small')
+    plt.xlim(0, 1.05)
+    plt.xlabel("Occupancy")
+    plt.ylabel("B Factor")
+    plt.title("Exhaustive search minima compared to refined")
+
+    file_path = os.path.join(params.output.out_dir,
+                             "occ_scatter_with_exhaustive_{}_{}".format(protein_name,
+                                                                        compound))
     plt.savefig(file_path, dpi=300)
     plt.close()
 

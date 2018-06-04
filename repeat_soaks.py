@@ -4,10 +4,14 @@ import sqlite3
 import shutil
 import itertools
 import libtbx.phil
+
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.phil import master_phil, check_input_files
-from exhaustive.utils.utils import get_occs, get_minimum_fofc
+from exhaustive.utils.utils import get_occs, get_minimum_fofc, get_occ_b
+from exhaustive.utils.utils import u_iso_to_b_fac
 from exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
+from exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
+
 from giant.jiffies.split_conformations import run as split_conformations
 from giant.jiffies.split_conformations import master_phil as split_phil
 params =  master_phil.extract()
@@ -66,28 +70,49 @@ NUDT7_copied_dir = ("/dls/science/groups/i04-1/elliot-dev/Work/"
 # Plot the copied atoms refinement and exhaustive search occupancy
 ################################################################
 
-# refine_occs = get_occs(refinement_dir=NUDT7_copied_dir,lig_chain="E",
-#                        pdb_name="refine.split.bound-state_with_new_atoms.pdb")
-#
-# refine_occs = refine_occs + get_occs(refinement_dir=NUDT7_copied_dir,lig_chain="E",
-#                        pdb_name="refine.split.bound-state.pdb")
-#
-# es_occs =[]
-# for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
-#                        os.path.isdir(
-#                            os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied", x)),
-#                             os.listdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied")):
-#
-#     csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
-#                             NUDT7_cov_dataset, NUDT7_cov_dataset + "_exhaustive_search_occ_u_iso.csv")
-#     print(csv_name)
-#     occ, _, _ = get_minimum_fofc(csv_name)
-#     es_occs.append(occ)
-#
-# print(refine_occs,es_occs)
-# params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
-# occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,protein_name="NUDT7", compound="OX210", params=params)
+refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
+    refinement_dir=NUDT7_copied_dir,
+    lig_chain="E",
+    pdb_name="refine.split.bound-state_with_new_atoms.pdb")
 
+# Adding in extra dataset
+refine_occs_extra, \
+mean_ligand_b_factor_extra, \
+std_ligand_b_fac_extra = get_occ_b(refinement_dir=NUDT7_copied_dir,
+                                    lig_chain="E",
+                                    pdb_name="refine.split.bound-state.pdb")
+refine_occs = refine_occs + refine_occs_extra
+mean_ligand_b_factor = mean_ligand_b_factor + mean_ligand_b_factor_extra
+std_ligand_b_fac = std_ligand_b_fac + std_ligand_b_fac_extra
+
+es_occs =[]
+es_b_fac = []
+for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
+                       os.path.isdir(
+                           os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied", x)),
+                            os.listdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied")):
+
+    csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
+                            NUDT7_cov_dataset, NUDT7_cov_dataset + "_exhaustive_search_occ_u_iso.csv")
+    print(csv_name)
+    occ, u_iso , _ = get_minimum_fofc(csv_name)
+    es_b_fac.append(u_iso_to_b_fac(u_iso))
+    es_occs.append(occ)
+
+
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
+#occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,protein_name="NUDT7", compound="OX210", params=params)
+
+
+occupancy_b_factor_scatter_plot(es_occs = es_occs,
+                                refined_occs = refine_occs,
+                                es_b_fac = es_b_fac ,
+                                refine_mean_b_fac = mean_ligand_b_factor,
+                                refine_std_b_fac = std_ligand_b_fac,
+                                protein_name = "NUDT7A",
+                                compound = "OX210",
+                                params = params)
+exit()
 # NUDT7 NUOOA0000181a
 
 # Going to run on the files that are in
