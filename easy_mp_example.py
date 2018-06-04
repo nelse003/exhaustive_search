@@ -8,8 +8,18 @@ def try_easy_mp():
     print(result)
     return result
 
+def f_1(x, magic_string):
+    print(magic_string)
+    return x**2
+
+def try_f_caller():
+    f_call = f_caller(magic_string="CATS")
+    result = libtbx.easy_mp.pool_map(fixed_func=f_call, args=range(101))
+    print(result)
+    return result
+
 class f_caller (object) :
-    def __init__ (self) :
-        self._obj = "DASH"
+    def __init__ (self, magic_string) :
+        self._obj = magic_string
     def __call__ (self, x) :
-        return try_easy_mp(x, self._obj)
+        return f_1(x,magic_string = self._obj)

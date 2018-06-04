@@ -13,13 +13,17 @@ def params():
 
     params =  master_phil.extract()
     params.input.xtal_name = "FALZA-x0085"
-    params.input.in_path = os.path.join(os.path.realpath("./exhaustive/test/resources"), params.input.xtal_name)
-    params.input.mtz = os.path.join(params.input.in_path, "FALZA-x0085.free.mtz")
+    params.input.in_path = os.path.join(os.path.realpath(
+        "./exhaustive/test/resources"), params.input.xtal_name)
+    params.input.mtz = os.path.join(params.input.in_path,
+                                    "FALZA-x0085.free.mtz")
     params.input.pdb = os.path.join(params.input.in_path,"refine.pdb")
     params.output.out_dir = os.path.realpath("./exhaustive/test/output")
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
-    params.validate.input.ground_state_pdb_path = os.path.join(params.input.in_path, "refine.output.ground-state.pdb")
-    params.validate.input.bound_state_pdb_path = os.path.join(params.input.in_path, "refine.output.bound-state.pdb")
+    params.validate.input.ground_state_pdb_path = os.path.join(
+        params.input.in_path, "refine.output.ground-state.pdb")
+    params.validate.input.bound_state_pdb_path = os.path.join(
+        params.input.in_path, "refine.output.bound-state.pdb")
     params.validate.options.set_b = 40
     params.exhaustive.options.generate_mtz = False
     params.validate.options.use_qsub = False
@@ -35,13 +39,16 @@ def params():
 
     return params
 
+
 def teardown_module():
     pass
+
 
 def test_validation(params):
     validate(params)
     check_validate_result(params)
     check_ouput_files(params)
+
 
 def check_validate_result(params):
 
@@ -52,6 +59,7 @@ def check_validate_result(params):
                           params.validate.options.step_simulation):
         validate_occ_check(simul_occ, params)
 
+
 def validate_occ_check(simul_occ,params):
 
     """ Compare simulated occupancy to occupancy minima
@@ -60,19 +68,27 @@ def validate_occ_check(simul_occ,params):
     (2* step size (default 0.02)) from
     """
     occ, u_iso, fo_fc = get_minimum_fofc(params.output.out_dir,
-                                         params.exhaustive.output.csv_prefix + "_occ_{}_b_{}.csv".format(
-                                             str(simul_occ).replace(".","_"), str(params.validate.options.set_b)
+                                         params.exhaustive.output.csv_prefix
+                                         + "_occ_{}_b_{}.csv".format(
+                                             str(simul_occ).replace(".","_"),
+                                             str(params.validate.options.set_b)
                                          ))
-    assert simul_occ - occ >= params.exhaustive.options.step*2, "Occupancy minima {} is too far " \
-                                                                "from simulated occupancy {}".format(occ,simul_occ)
-    assert u_iso - b_to_u_iso(params.validate.options.set_b) >= params.exhaustive.options.step*2, \
-        "B factor minima {} is too far from target simulated b factor {}".format(u_iso_to_b_fac(u_iso),
-                                                                                 params.validate.options.set_b)
+    assert simul_occ - occ >= params.exhaustive.options.step*2,\
+        "Occupancy minima {} is too farfrom simulated occupancy {}".format(
+            occ,
+            simul_occ)
+    assert u_iso - b_to_u_iso(params.validate.options.set_b) \
+           >= params.exhaustive.options.step*2, \
+        "B factor minima {} is too far " \
+        "from target simulated b factor {}".format(u_iso_to_b_fac(u_iso),
+                                                params.validate.options.set_b)
+
 
 def check_validate_ouput_files(params):
 
     """
-    Check whether file output matches expected file output. All files expected exist, and no extra files generated
+    Check whether file output matches expected file output.
+    All files expected exist, and no extra files generated
 
     :param params:
     :return:
