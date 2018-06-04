@@ -5,6 +5,7 @@ import sys
 import pytest
 
 from exhaustive.validation.validation import run as validate
+from exhaustive.validation.validation import occ_loop_merge_confs_simulate
 from exhaustive.phil import master_phil
 from exhaustive.utils.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 
@@ -47,7 +48,7 @@ def teardown_module():
 def test_validation(params):
     validate(params)
     check_validate_result(params)
-    check_ouput_files(params)
+    check_output_files(params)
 
 
 def check_validate_result(params):
