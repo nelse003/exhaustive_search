@@ -7,7 +7,7 @@ import libtbx.phil
 
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.phil import master_phil, check_input_files
-from exhaustive.utils.utils import get_occs, get_minimum_fofc, get_occ_b
+from exhaustive.utils.utils import get_minimum_fofc, get_occ_b
 from exhaustive.utils.utils import u_iso_to_b_fac
 from exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 from exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
