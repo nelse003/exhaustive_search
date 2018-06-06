@@ -14,6 +14,8 @@ from exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
 
 from giant.jiffies.split_conformations import run as split_conformations
 from giant.jiffies.split_conformations import master_phil as split_phil
+from giant.jiffies.merge_conformations import run as merge_conformations
+from giant.jiffies.merge_conformations import master_phil as merge_phil
 params =  master_phil.extract()
 
 #TODO Apply DRY and functionalise this script
@@ -70,49 +72,49 @@ NUDT7_copied_dir = ("/dls/science/groups/i04-1/elliot-dev/Work/"
 # Plot the copied atoms refinement and exhaustive search occupancy
 ################################################################
 
-refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
-    refinement_dir=NUDT7_copied_dir,
-    lig_chain="E",
-    pdb_name="refine.split.bound-state_with_new_atoms.pdb")
+# refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
+#     refinement_dir=NUDT7_copied_dir,
+#     lig_chain="E",
+#     pdb_name="refine.split.bound-state_with_new_atoms.pdb")
+#
+# # Adding in extra dataset
+# refine_occs_extra, \
+# mean_ligand_b_factor_extra, \
+# std_ligand_b_fac_extra = get_occ_b(refinement_dir=NUDT7_copied_dir,
+#                                     lig_chain="E",
+#                                     pdb_name="refine.split.bound-state.pdb")
+# refine_occs = refine_occs + refine_occs_extra
+# mean_ligand_b_factor = mean_ligand_b_factor + mean_ligand_b_factor_extra
+# std_ligand_b_fac = std_ligand_b_fac + std_ligand_b_fac_extra
+#
+# es_occs =[]
+# es_b_fac = []
+# for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
+#                        os.path.isdir(
+#                            os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied", x)),
+#                             os.listdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied")):
+#
+#     csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
+#                             NUDT7_cov_dataset, NUDT7_cov_dataset + "_exhaustive_search_occ_u_iso.csv")
+#     print(csv_name)
+#     occ, u_iso , _ = get_minimum_fofc(csv_name)
+#     es_b_fac.append(u_iso_to_b_fac(u_iso))
+#     es_occs.append(occ)
+#
+#
+# params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
+# #occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,protein_name="NUDT7", compound="OX210", params=params)
+#
+#
+# occupancy_b_factor_scatter_plot(es_occs = es_occs,
+#                                 refined_occs = refine_occs,
+#                                 es_b_fac = es_b_fac ,
+#                                 refine_mean_b_fac = mean_ligand_b_factor,
+#                                 refine_std_b_fac = std_ligand_b_fac,
+#                                 protein_name = "NUDT7A",
+#                                 compound = "OX210",
+#                                 params = params)
 
-# Adding in extra dataset
-refine_occs_extra, \
-mean_ligand_b_factor_extra, \
-std_ligand_b_fac_extra = get_occ_b(refinement_dir=NUDT7_copied_dir,
-                                    lig_chain="E",
-                                    pdb_name="refine.split.bound-state.pdb")
-refine_occs = refine_occs + refine_occs_extra
-mean_ligand_b_factor = mean_ligand_b_factor + mean_ligand_b_factor_extra
-std_ligand_b_fac = std_ligand_b_fac + std_ligand_b_fac_extra
-
-es_occs =[]
-es_b_fac = []
-for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
-                       os.path.isdir(
-                           os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied", x)),
-                            os.listdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied")):
-
-    csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
-                            NUDT7_cov_dataset, NUDT7_cov_dataset + "_exhaustive_search_occ_u_iso.csv")
-    print(csv_name)
-    occ, u_iso , _ = get_minimum_fofc(csv_name)
-    es_b_fac.append(u_iso_to_b_fac(u_iso))
-    es_occs.append(occ)
-
-
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
-#occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,protein_name="NUDT7", compound="OX210", params=params)
-
-
-occupancy_b_factor_scatter_plot(es_occs = es_occs,
-                                refined_occs = refine_occs,
-                                es_b_fac = es_b_fac ,
-                                refine_mean_b_fac = mean_ligand_b_factor,
-                                refine_std_b_fac = std_ligand_b_fac,
-                                protein_name = "NUDT7A",
-                                compound = "OX210",
-                                params = params)
-exit()
 # NUDT7 NUOOA0000181a
 
 # Going to run on the files that are in
@@ -147,8 +149,50 @@ for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
             output_pdb_folders.append(int(folder[-4:]))
 
     if output_pdb_folders:
+
         folder = "refine_" + str(max(output_pdb_folders)).zfill(4)
-        output_pdb_path = os.path.join(folder)
+
+        output_pdb_path = os.path.join(NUDT7_covalent_path,
+                                       NUDT7_cov_dataset,
+                                       folder,
+                                       "output.pdb")
+
+        print("PATH: " + output_pdb_path)
+
+    if not os.path.exists(os.path.join(NUDT7_covalent_path, NUDT7_cov_dataset,
+                                       "refine.split.ground-state.pdb")):
+        merge_params = merge_phil.extract()
+        merge_params.input.minor = os.path.join(NUDT7_covalent_path,
+                                               NUDT7_cov_dataset,
+                                               "refine.pdb")
+        merge_params.input.major = os.path.join(
+            "/dls/labxchem/data/2017/lb18145-49/processing/"
+            "analysis/initial_model/", NUDT7_cov_dataset,
+            NUDT7_cov_dataset +"-pandda-input.pdb")
+
+        merge_params.output.pdb = os.path.join(NUDT7_covalent_path,
+                                               NUDT7_cov_dataset,
+                                               "merged.pdb")
+
+        if not os.path.exists(merge_params.input.major):
+            print("Skipping {} as {} doesn't exist".format(NUDT7_cov_dataset,
+                                                    merge_params.input.major))
+            continue
+
+        if not os.path.exists(merge_params.input.minor):
+            print("Skipping {} as {} doesn't exist".format(NUDT7_cov_dataset,
+                                                    merge_params.input.minor))
+            continue
+
+        print(merge_params.input.minor)
+        print(merge_params.input.major)
+        print(merge_phil.format(python_object=merge_params).as_str())
+        try:
+            merge_conformations(merge_params)
+        except IOError:
+            print(" confs: Issue in parsing:{}".format(NUDT7_cov_dataset))
+            continue
+    exit()
 
     if output_pdb_path is None:
         print(os.path.join(NUDT7_covalent_path,NUDT7_cov_dataset))
@@ -181,7 +225,7 @@ for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
 
-    params.input.in_path = os.path.join(NUDT7_copied_dir, NUDT7_cov_dataset)
+    params.input.in_path = os.path.join(NUDT7_covalent_path, NUDT7_cov_dataset)
     params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
     params.input.pdb = output_pdb_path
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
@@ -191,9 +235,14 @@ for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
     if not os.path.exists(params.output.log_dir):
         os.mkdir(params.output.log_dir)
 
-    check_input_files(params)
+    try:
+        check_input_files(params)
+    except AssertionError:
+        print("Skipping {} as input files aren't ok".format(NUDT7_cov_dataset))
+        continue
     exhaustive(params)
 
+exit()
 ################################################################
 # NUDT7 Covalent
 #
@@ -201,29 +250,74 @@ for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
 # Plot the copied atoms refinement and exhaustive search occupancy
 ################################################################
 
-refine_occs = get_occs(refinement_dir=NUDT7_covalent_path,lig_chain="E",
-                       pdb_name="output.pdb")
-#
-# refine_occs = refine_occs + get_occs(refinement_dir=NUDT7_copied_dir,lig_chain="E",
+# refine_occs = get_occs(refinement_dir=NUDT7_covalent_path,lig_chain="E",
+#                        pdb_name="output.pdb")
+refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
+    refinement_dir=NUDT7_covalent_path,
+    lig_chain="E",
+    pdb_name="output.pdb")
+
+NUDT7_covalent_out_path = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                          "exhaustive_search_data/repeat_soaks/" \
+                          "2018-06-05/NUDT7_cov"
+
+# refine_occs = refine_occs + get_occs(refinement_dir=NUDT7_copied_dir,
+#                           lig_chain="E",
 #                        pdb_name="refine.split.bound-state.pdb")
 #
-# es_occs =[]
-# for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
-#                        os.path.isdir(
-#                            os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied", x)),
-#                             os.listdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied")):
-#
-#     csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
-#                             NUDT7_cov_dataset, NUDT7_cov_dataset + "_exhaustive_search_occ_u_iso.csv")
-#     print(csv_name)
-#     occ, _, _ = get_minimum_fofc(csv_name)
-#     es_occs.append(occ)
-#
-# print(refine_occs,es_occs)
-# params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
-# occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,protein_name="NUDT7", compound="OX210", params=params)
+es_occs = []
+es_b_fac = []
+for NUDT7_cov_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
+                       os.path.isdir(
+                           os.path.join(NUDT7_covalent_out_path, x)),
+                            os.listdir(NUDT7_covalent_out_path)):
 
-#
+    if not os.path.exists(os.path.join(NUDT7_covalent_path, NUDT7_cov_dataset,
+                                       "refine.split.ground-state.pdb")):
+        split_params = split_phil.extract()
+        split_params.input.pdb = [os.path.join(NUDT7_covalent_path,
+                                               NUDT7_cov_dataset,
+                                               "refine.pdb")]
+        split_params.output.log = "cat.log"
+        print(split_params.input.pdb)
+        print(split_phil.format(python_object=split_params).as_str())
+        try:
+            split_conformations(split_params)
+        except IOError:
+            print("Split confs: Issue in parsing:{}".format(NUDT7_cov_dataset))
+            continue
+
+
+    csv_name = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/"
+                            "exhaustive_search_data/repeat_soaks/"
+                            "2018-05-27/NUDT7_copied",
+                            NUDT7_cov_dataset,
+                            NUDT7_cov_dataset
+                            + "_exhaustive_search_occ_u_iso.csv")
+    print(csv_name)
+    occ, u_iso, _ = get_minimum_fofc(csv_name)
+    es_b_fac.append(u_iso_to_b_fac(u_iso))
+    es_occs.append(occ)
+
+print(refine_occs,es_occs)
+
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/repeat_soaks/" \
+                        "2018-05-27/NUDT7_copied"
+
+occupancy_histogram_with_exhaustive_search(es_occs, refine_occs,
+                                           protein_name="NUDT7",
+                                           compound="NUOOA000181a",
+                                           params=params)
+
+occupancy_b_factor_scatter_plot(es_occs = es_occs,
+                                refined_occs = refine_occs,
+                                es_b_fac = es_b_fac ,
+                                refine_mean_b_fac = mean_ligand_b_factor,
+                                refine_std_b_fac = std_ligand_b_fac,
+                                protein_name = "NUDT7A",
+                                compound = "NUOOA000181a",
+                                params = params)
 
 # NUDT22_initial_models = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/occupancy_group_with_refinement" #"/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model"
 # params.repeat.input.database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"

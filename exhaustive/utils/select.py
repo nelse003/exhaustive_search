@@ -71,7 +71,8 @@ def powerset(iterable, min_len=0):
 
 def get_residue_altloc_dict(occupancy_groups):
     """
-    Return a dictionary of the format {(Residue, Chain):[altloc, altloc, altloc], ...} from occupancy groups
+    Return a dictionary of the format
+    {(Residue, Chain):[altloc, altloc, altloc], ...} from occupancy groups
     
     :param occupancy_groups: 
     :return: 
@@ -87,17 +88,21 @@ def get_residue_altloc_dict(occupancy_groups):
         for occupancy_group in occupancy_groups:
             for group in occupancy_group:
                 for residue_altloc in group:
-                    if residue_chain[0] == residue_altloc.get("resseq") and residue_chain[1] == residue_altloc.get("chain"):
+                    if residue_chain[0] == residue_altloc.get("resseq") \
+                            and residue_chain[1] == residue_altloc.get("chain"):
                         residue_altloc_set.add(residue_altloc.get("altloc"))
-                        residue_altloc_dict.update({residue_chain: residue_altloc_set})
+                        residue_altloc_dict.update({residue_chain:
+                                                        residue_altloc_set})
 
-    logger.info("The residues defined in the occupancy group have atlocs:\n {}".format(residue_altloc_dict))
+    logger.info("The residues defined in the occupancy group"
+                " have atlocs:\n {}".format(residue_altloc_dict))
 
     return residue_altloc_dict
 
 def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
     """
-    Extracts a parameter from occupancy groups, given a str matching that parameter (altloc, chain, resseq...)
+    Extracts a parameter from occupancy groups,
+    given a str matching that parameter (altloc, chain, resseq...)
     
     :param occupancy_groups: 
     :param parameter_str: 
@@ -113,16 +118,20 @@ def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
                     parameters.append(residue_altloc.get(parameter_str))
                 else:
                     raise Warning("Multiple models are present in pdb file. "
-                                  "This is not processable with occupancy group selection")
+                                  "This is not processable with occupancy "
+                                  "group selection")
     if not parameters:
-        logger.warning("Parameter may not be recognised,as output list is empty")
-        raise Warning("Parameter may not be recognised,as output list is empty")
+        logger.warning("Parameter may not be recognised,"
+                       "as output list is empty")
+        raise Warning("Parameter may not be recognised,"
+                      "as output list is empty")
 
     return parameters
 
 def within_rmsd_cutoff(atoms1, atoms2, params):
     """
-    Given two groups of atoms determine within a given cutoff (supplied via params)
+    Given two groups of atoms determine within a given cutoff
+    (supplied via params)
     
     :param atoms1: 
     :param atoms2: 
@@ -130,8 +139,11 @@ def within_rmsd_cutoff(atoms1, atoms2, params):
     :return: 
     """
 
-    for i in range(0, len(pairwise_dists(atoms1.extract_xyz(), atoms2.extract_xyz()))):
-        if pairwise_dists(atoms1.extract_xyz(), atoms2.extract_xyz())[i][i] < params.select.coincident_cutoff:
+    for i in range(0, len(pairwise_dists(atoms1.extract_xyz(),
+                                         atoms2.extract_xyz()))):
+        if pairwise_dists(atoms1.extract_xyz(),
+                          atoms2.extract_xyz())[i][i] \
+                < params.select.coincident_cutoff:
             continue
         else:
             return False
