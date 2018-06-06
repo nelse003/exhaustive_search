@@ -123,9 +123,9 @@ validate{
             .type = bool
         use_qsub = True
             .type = bool
-        qsub_error_file_prefix = "qsub_error_"
+        qsub_error_prefix = "qsub_error_"
             .type = str
-        qsub_output_file_prefix = "qsub_output_"
+        qsub_out_prefix = "qsub_output_"
             .type = str
     }
 }
