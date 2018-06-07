@@ -1,4 +1,10 @@
-#########################################################################
+"""Exhaustive search.
+
+Take in pdb and mtz, or csv of pdb and mtz locations,
+run a exhaustive search of B factor and occupancy to
+determine unique minima of mean(|Fo-Fc|).
+"""
+
 #  Imports
 from __future__ import division
 from __future__ import print_function
@@ -41,7 +47,11 @@ blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
 def start_exhaustive_logger(params):
+    """Prepare logging.
 
+    Logging for exhaustive search using python logging module.
+    Includes a description of parameters, and parameter different to default.
+    """
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
@@ -63,9 +73,13 @@ def start_exhaustive_logger(params):
 
 
 def compute_maps(fmodel, crystal_gridding, map_type):
+    """Compute electron density maps for a given model.
 
-    """
-    Compute electron density maps for a given model
+    Given a model through fmodel, a map type:
+    "mFo-DFc"
+    "2mFo-DFc"
+    Calculate a map.
+    Return the fft map, real map, and map coefficents.
 
     :param fmodel: fmodel is a class that contains the
     :type fmodel:
@@ -76,7 +90,6 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     :return: fft_map.real_map_unpadded():
     :type
     """
-
     map_coefficients = map_tools.electron_density_map(
         fmodel=fmodel).map_coefficients(
         map_type=map_type,
@@ -94,7 +107,8 @@ def compute_maps(fmodel, crystal_gridding, map_type):
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
                                     params, logger):
-    """
+    """Produce cartesian points related to occupancy groups.
+
     Get cartesian points that correspond to atoms involved in the
     occupancy groups (as in multi-state.restraints.params)
 
@@ -103,9 +117,8 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
     :param params: Working phil parameters
     :type
     :return: occupancy_group_cart_points: The cartesian points involved
-    in the bound and ground states as
+    in the bound and ground states as a list
     """
-
     logger.info("For all bound and ground states, "
                 "select cartesian grid points for each altloc/residue \n"
                 "involved in occupancy groups. A buffer of {} Angstrom \n"
@@ -147,16 +160,13 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
 
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
-    """
-    Given cartesian sites and an |Fo-Fc| map,
-    find the mean value of |Fo-Fc| over the cartesian points.
+    """Get mean of |Fo-Fc| over a cartesian point list.
 
     :param sites_cart:
     :param fofc_map:
     :param inputs:
     :return:
     """
-
     sum_abs_fofc_value = 0
 
     for site_cart in list(sites_cart):
@@ -175,7 +185,8 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                         pdb, logger):
-    """
+    """Generate csv of occupancy and B factor for bound and ground states.
+
     Wrapper to prepare for main loop. Outputs a csv with ground_occupancy,
     bound_occupancy, u_iso and mean(|Fo-Fc|).
     
@@ -188,7 +199,6 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
     :param pdb:
     :return:
     """
-
     sites_frac = xrs.sites_frac()
 
     # TODO Loop over b factor separately for multiple ligands #33
@@ -260,15 +270,19 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
 
 class occ_b_loop_caller(object):
+    """Class allowing unpickable objects to passed to loop.
 
-    """This class handles the calling of main loop,
+    This class handles the calling of main loop,
     such that only the iterable (occupancy and b factor) changes.
     This handling class is needed as some parameters are unpickable.
     These parameters must stay the same between iterations of the loop.
+    This is following the example in libtx.easy_mp documentation.
     """
+
     def __init__(self, xrs, sites_frac, fmodel, crystal_gridding,
                  inputs, params, bound_states, ground_states,
                  occupancy_group_cart_points):
+        """Provide all fixed parameters for calculating mean |Fo-Fc|."""
         self.xrs = xrs
         self.sites_frac = sites_frac
         self.fmodel = fmodel
@@ -280,6 +294,7 @@ class occ_b_loop_caller(object):
         self.occupancy_group_cart_points = occupancy_group_cart_points
 
     def __call__(self, u_iso_occ):
+        """Calculate mean|Fo-Fc| of bound/ground states."""
         return calculate_fofc_occupancy_b_factor(
             u_iso_occ,
             xrs=self.xrs,
@@ -303,9 +318,26 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                                       bound_states,
                                       ground_states,
                                       occupancy_group_cart_points):
-    """
-    Iteration of main loop over which mean(|Fo-Fc|) is calculated
-    given occupancy and B factor.
+    """Calculate mean|Fo-Fc| of ground/bound states with occupancy and B factor.
+
+    Take a two item list, iter_u_iso that contains occupancy and B factor.
+    This is used to determine mean(|Fo-Fc|) over a series of grid points
+    defined by the supplied bound and ground states.
+
+    The occupancy and B factor of scatterers (atoms) that correspond
+    to the atoms in bound or ground states are set on a copy of the
+    supplied xray structure (xrs_dc).
+
+    The fmodel is updated, and used to generate |mFo-DFc| maps.
+    If params.exhaustive.options.generate_mtz generate a mtz file.
+    If params.exhaustive.options.generate_map generate a ccp4 map file.
+
+    Return the occupancy of ground and bound states, u_iso
+    (converatable to isotropic B factor), and the mean value of |mFo-Fc|
+    over the ground and bound states.
+
+    The B factor is set across all atoms that are varied,
+    i.e. those belong to ground/ bound states which come from occupancy groups.
 
     :param iter_u_iso_occ:
     :param xrs:
@@ -319,7 +351,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     :param occupancy_group_cart_points:
     :return:
     """
-
     bound_occupancy = iter_u_iso_occ[0]
     ground_occupancy = 1 - iter_u_iso_occ[0]
     u_iso = iter_u_iso_occ[1]
@@ -376,21 +407,25 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
 
 def run(params):
+    """Load protein model and run exhaustive search.
 
-# TODO Clean up ability to run as command line, and source as python #67
+    Load in pdb and mtz file.
+    Process pdb and mtz to produce:
+     fmodel,
+     iotbx protein hierarchy,
+     xrs: xray structure
+     inputs, a object used my mmtbx utils
+     crystal gridding
 
-    """
-    Main Function, Setup for protein model and run mean |Fo-Fc| calculation.
-
-    Currently selects ligands based on chains found
-    in split.bound.pdb bs split.ground.pdb
+    These are used to determine the minima of mean(|Fo-Fc|) over grid
+    points defined by a search of Occupancy and B factor for atoms that
+    are part of a bound ligand, or the changed protein that the bound
+    atom is nearby.
 
     :param args:
     :param xtal_name:
     :return:
     """
-
-    ####################################################
     logger = start_exhaustive_logger(params)
 
     args = [params.input.pdb, params.input.mtz]
@@ -429,7 +464,7 @@ def run(params):
     logger.debug(data_and_flags_master_params().format(
         python_object=data_flags_params).as_str())
 
-    logger.debug(" Parameters different to default, "
+    logger.debug("Parameters different to default, "
                  "supplied to mmtbx.utils.determine_data_and_flags")
     logger.debug(data_and_flags_master_params().fetch_diff(
         source=data_and_flags_master_params().format(
