@@ -6,7 +6,6 @@ services:
 - docker
 
 before_script: 
-- docker image prune
 - docker pull nelse003/ccp4_phenix_docker || true
 - docker build --pull --cache-from nelse003/ccp4_phenix_docker --tag nelse003/ccp4_phenix_docker .
 
