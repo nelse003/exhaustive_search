@@ -1,5 +1,6 @@
 FROM ubuntu
 
+RUN df -h
 RUN apt-get -qq update
 #RUN apt-get -qq -y install vim tar sudo gcc g++ gfortran m4 tk8.4 tcl8.4 python2.7 git wget bzip2 tar expect
 
