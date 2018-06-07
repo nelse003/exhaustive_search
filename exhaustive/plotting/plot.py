@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import os
 import matplotlib
 import numpy as np
@@ -240,9 +241,13 @@ def occupancy_b_factor_scatter_plot(es_occs, refined_occs, es_b_fac,
     fig, ax = plt.subplots()
     ax.scatter(es_occs, es_b_fac,
                label="Exhaustive search: {}".format(len(es_occs)))
-    ax.errorbar(refined_occs, refine_mean_b_fac, yerr=refine_std_b_fac,
-               label="Refinement (errorbar = standard deviation of B factor "
-                     "across ligand): {}".format(len(refined_occs)))
+
+    ax.errorbar(refined_occs, refine_mean_b_fac,
+                fmt='rs',
+                yerr=refine_std_b_fac,
+                label="Refinement (errorbar = standard deviation of B factor "
+                     "across ligand): {}".format(len(refined_occs)),
+                linestyle="None")
 
     # TODO Add post Exhaustive search refinement
 

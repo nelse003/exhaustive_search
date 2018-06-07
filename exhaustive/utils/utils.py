@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import os
 import time
 import numpy as np
@@ -169,7 +170,7 @@ def get_csv_filepath(params):
 def get_random_starting_occ_from_folder_name(occupancy, out_path,
                                              dataset_prefix):
 
-    "From folder structure pull out occupancy values from random refinements"
+    """Pull occupancy values from folder names of random refinements"""
 
     folders = [name for name in os.listdir(
         os.path.join(out_path, dataset_prefix
@@ -250,7 +251,33 @@ def get_occ_b(refinement_dir, lig_chain,
             all_lig_occupancy.append(lig_occ)
         else:
             print(occ_b_df)
-            print "Occupancy varies across ligand, " \
-                  "histogram not currently generated"
+            print("Occupancy varies across ligand, "
+                  "histogram not currently generated")
 
     return all_lig_occupancy, mean_ligand_b_factor, std_ligand_b_factor
+
+def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
+
+    occupancy = round_step(occupancy,base=step)
+    u_iso = round_step(u_iso,base=step)
+
+    #TODO Remove this dual .csv by cleaning up csv name: issue 59
+
+    if csv_name.endswith(".csv"):
+        data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
+    else:
+        data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',',
+                             skip_header=0)
+
+    e=0.0001
+    data_line = data[((occupancy-e)<data[:,0])
+                     & ((occupancy+e)>data[:,0])
+                     & ((u_iso-e)<data[:,2])
+                     & ((u_iso+e)>data[:,2]) ]
+
+    print(u_iso)
+    print(data_line)
+
+    fo_fc = data_line[0][3]
+
+    return fo_fc

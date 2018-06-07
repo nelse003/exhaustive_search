@@ -1,16 +1,10 @@
-import csv
-import os
-import sys
+from __future__ import division, print_function
 import logging
-
 import iotbx
-import libtbx.phil
-import numpy as np
 from iotbx.pdb import hierarchy
 
 from exhaustive.utils.select import process_refined_pdb_bound_ground_states
-from exhaustive.utils.utils import u_iso_to_b_fac
-from exhaustive.validation.Repeating_exhaustive_search import get_in_refinement_or_better
+from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +12,8 @@ def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
 
     min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(input_pdb, params)
+    bound_states, ground_states = process_refined_pdb_bound_ground_states(
+        input_pdb, params)
     pdb_inp = iotbx.pdb.input(input_pdb)
     hier = pdb_inp.construct_hierarchy()
 
@@ -41,5 +36,6 @@ def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
 
 
     with open(output_pdb,"w") as file:
-        file.write(hier.as_pdb_string(crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
+        file.write(hier.as_pdb_string(
+            crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
