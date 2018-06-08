@@ -22,18 +22,24 @@ from giant.jiffies.score_model import run as score_model
 from giant.jiffies.score_model import master_phil as score_phil
 params =  master_phil.extract()
 
-def get_cif_file_from_dataset(dataset_dir):
+def get_cif_file_from_dataset(dataset_dir, preferred_cif=None):
 
     cifs = [f for f in os.listdir(dataset_dir) if f.endswith(".cif")]
 
+    if preferred_cif:
+        if os.path.exists(preferred_cif):
+            return preferred_cif
+        else:
+            raise Warning, "Prefered Cif file doesn't exist"
     if len(cifs) == 1:
         input_cif = os.path.join(dataset_dir, cifs[0])
+        return input_cif
     elif len(cifs) == 0:
         raise Warning, "No cif found"
     else:
-        raise Warning, "Multiple cif files found"
+        raise Warning, "Multiple cif files found: {}".format(dataset_dir)
 
-    return input_cif
+
 
 # TODO Add logging statements
 def run_es_many_xtals(xtals, in_dir, out_dir, params):
@@ -85,7 +91,8 @@ def process_exhaustive_search(compound_codes,
                               initial_model_dir,
                               in_dir,
                               out_dir,
-                              protein_name):
+                              protein_name,
+                              preferred_cif=None):
 
     protein_prefix = protein_name + "-x"
 
@@ -93,6 +100,7 @@ def process_exhaustive_search(compound_codes,
 
         es_occs = []
         es_b_fac = []
+        datasets = []
 
         for dataset in filter(lambda x: x.startswith(protein_prefix)
                                         and os.path.isdir(os.path.join(in_dir, compound, x)),
@@ -138,7 +146,7 @@ def process_exhaustive_search(compound_codes,
                     print("Issue in parsing:{}".format(dataset))
                     continue
 
-            get_cif_file_from_dataset(dataset_dir)
+            input_cif = get_cif_file_from_dataset(dataset_dir, preferred_cif)
 
             # Refinement of minima pdb
             # TODO remove explicit call to 0001
@@ -183,22 +191,27 @@ def process_exhaustive_search(compound_codes,
             pdb_name="refine.split.bound-state.pdb")
 
         params.output.out_dir = os.path.join(out_dir, compound)
+        if len(es_occs) > 0 and len(refine_occs) > 0:
+            occupancy_histogram_with_exhaustive_search(es_occs,
+                                                       refine_occs,
+                                                       protein_name=
+                                                       protein_name,
+                                                       compound=compound,
+                                                       params=params)
+            occupancy_b_factor_scatter_plot(es_occs=es_occs,
+                                            refined_occs=refine_occs,
+                                            es_b_fac=es_b_fac,
+                                            refine_mean_b_fac=mean_ligand_b_factor,
+                                            refine_std_b_fac=std_ligand_b_fac,
+                                            protein_name=protein_name,
+                                            compound=compound,
+                                            params=params)
+        else:
+            print("Occupancy plot won't work as no points to plot: "
+                  "{} {}".format(protein_name,compound))
+        datasets.append(dataset)
 
-        occupancy_histogram_with_exhaustive_search(es_occs,
-                                                   refine_occs,
-                                                   protein_name=protein_name,
-                                                   compound=compound,
-                                                   params=params)
-
-        occupancy_b_factor_scatter_plot(es_occs=es_occs,
-                                        refined_occs=refine_occs,
-                                        es_b_fac=es_b_fac,
-                                        refine_mean_b_fac=mean_ligand_b_factor,
-                                        refine_std_b_fac=std_ligand_b_fac,
-                                        protein_name=protein_name,
-                                        compound=compound,
-                                        params=params)
-
+    print(datasets)
 
 #TODO Apply DRY and functionalise this script
 
@@ -238,7 +251,7 @@ for num in range(start_xtal_num, end_xtal_num + 1):
 
 #TODO Check local folder
 
-run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
+# run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
 
 ######################################################
 # NUDT22 Separate crystals into compound sets
@@ -303,15 +316,14 @@ for compound in compound_codes:
 
 for xtal, compound_code in xtals_with_compound.iteritems():
     if os.path.exists(os.path.join(in_dir,xtal)):
-        shutil.move(os.path.join(in_dir,xtal),os.path.join(in_dir,compound_code))
+        shutil.move(os.path.join(in_dir,xtal),os.path.join(in_dir,
+                                                           compound_code))
 
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
           "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 
-process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
-                          protein_name)
-
-
+# process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
+#                           protein_name)
 
 #######################################################
 # NUDT7 copied atoms (OX210)
@@ -326,16 +338,34 @@ for NUDT7_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
                             os.listdir(NUDT7_copied_dir)):
     NUDT7_copied_xtals.append(NUDT7_dataset)
 
-run_es_many_xtals(xtals=NUDT7_copied_xtals,
-                  in_dir=NUDT7_copied_dir,
-                  out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied",
-                  params=params)
+# run_es_many_xtals(xtals=NUDT7_copied_xtals,
+#                   in_dir=NUDT7_copied_dir,
+#                   out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+#                           "exhaustive_search_data/repeat_soaks/2018-05-27/"
+#                           "NUDT7_copied",
+#                   params=params)
 
 ################################################################
 # NUDT7 copied atoms (OX210)
 #
 # Plot the copied atoms refinement and exhaustive search occupancy
 ################################################################
+
+NUDT7_compound_codes = ["OX210"]
+NUDT7_initial_model_dir = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
+
+NUDT7_in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/"\
+          "exhaustive_search_data/NUDT7_Copied_atoms/"
+
+NUDT7_out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/"\
+          "exhaustive_search_data/repeat_soaks/2018-05-27/NUDT7_copied"
+
+process_exhaustive_search(compound_codes=NUDT7_compound_codes,
+                          initial_model_dir=NUDT7_initial_model_dir,
+                          in_dir=NUDT7_in_dir,
+                          out_dir=NUDT7_out_dir,
+                          protein_name="NUDT7A",
+                          preferred_cif="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_Copied_atoms/OX210/NUDT7A-x1787/OX-210.cif")
 
 # refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
 #     refinement_dir=NUDT7_copied_dir,
