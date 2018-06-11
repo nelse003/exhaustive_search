@@ -5,6 +5,7 @@ import sqlite3
 import shutil
 import itertools
 import libtbx.phil
+import pandas as pd
 
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.phil import master_phil, check_input_files
@@ -98,9 +99,7 @@ def process_exhaustive_search(compound_codes,
 
     for compound in compound_codes:
 
-        es_occs = []
-        es_b_fac = []
-        datasets = []
+        es_occ_b = []
 
         for dataset in filter(lambda x: x.startswith(protein_prefix)
                                         and os.path.isdir(os.path.join(in_dir, compound, x)),
@@ -182,36 +181,33 @@ def process_exhaustive_search(compound_codes,
                 print("Issue in parsing:{}".format(dataset))
                 continue
 
-            es_occs.append(occ)
-            es_b_fac.append(u_iso_to_b_fac(u_iso))
+            es_occ_b.append([dataset,occ,u_iso_to_b_fac(u_iso)])
 
-        refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
+
+        print(es_occ_b)
+        es_occ_df = pd.DataFrame(data=es_occ_b, columns=['dataset',
+                                                        'es_occupancy',
+                                                        'es_b_fac'])
+
+        refine_occ_df = get_occ_b(
             refinement_dir=os.path.join(in_dir, compound),
             lig_chain="B",
             pdb_name="refine.split.bound-state.pdb")
 
-        params.output.out_dir = os.path.join(out_dir, compound)
-        if len(es_occs) > 0 and len(refine_occs) > 0:
-            occupancy_histogram_with_exhaustive_search(es_occs,
-                                                       refine_occs,
-                                                       protein_name=
-                                                       protein_name,
-                                                       compound=compound,
-                                                       params=params)
-            occupancy_b_factor_scatter_plot(es_occs=es_occs,
-                                            refined_occs=refine_occs,
-                                            es_b_fac=es_b_fac,
-                                            refine_mean_b_fac=mean_ligand_b_factor,
-                                            refine_std_b_fac=std_ligand_b_fac,
-                                            protein_name=protein_name,
-                                            compound=compound,
-                                            params=params)
-        else:
-            print("Occupancy plot won't work as no points to plot: "
-                  "{} {}".format(protein_name,compound))
-        datasets.append(dataset)
+        occ_df = pd.merge(es_occ_df,refine_occ_df, on='dataset', how='outer')
 
-    print(datasets)
+        params.output.out_dir = os.path.join(out_dir, compound)
+
+        occupancy_histogram_with_exhaustive_search(occ_df,
+                                                   protein_name=protein_name,
+                                                   compound=compound,
+                                                   params=params)
+        occupancy_b_factor_scatter_plot(occ_df,
+                                        protein_name=protein_name,
+                                        compound=compound,
+                                        params=params)
+
+
 
 #TODO Apply DRY and functionalise this script
 
@@ -251,7 +247,7 @@ for num in range(start_xtal_num, end_xtal_num + 1):
 
 #TODO Check local folder
 
-# run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
+run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
 
 ######################################################
 # NUDT22 Separate crystals into compound sets
@@ -322,8 +318,8 @@ for xtal, compound_code in xtals_with_compound.iteritems():
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
           "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 
-# process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
-#                           protein_name)
+process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
+                          protein_name)
 
 #######################################################
 # NUDT7 copied atoms (OX210)

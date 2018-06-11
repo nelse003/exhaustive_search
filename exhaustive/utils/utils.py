@@ -214,11 +214,7 @@ def read_ligand_occupancy_b(pdb_path, lig_chain):
 
 
 def get_pdbs(refinement_dir, pdb_name="refine.pdb"):
-    """ Given a folder get all pdb paths that match compound and/or name
-
-    If a compound code is provided will only extract pdbs
-    with that compound cif present in folder
-    """
+    """ Given a folder get all pdb paths that match name"""
 
     pdbs = []
     for root, dirs, files in os.walk(refinement_dir):
@@ -236,25 +232,33 @@ def get_occ_b(refinement_dir, lig_chain,
 
     pdbs = get_pdbs(refinement_dir, pdb_name)
 
-    all_lig_occupancy = []
-    mean_ligand_b_factor = []
-    std_ligand_b_factor = []
+    occ_b = []
+
     for pdb in pdbs:
 
-        occ_b_df = read_ligand_occupancy_b(pdb, lig_chain)
+        dataset, _ = os.path.split(pdb)
+        dataset = dataset.split("/")[-1]
 
-        mean_ligand_b_factor.append(occ_b_df['B_factor'].mean())
-        std_ligand_b_factor.append(occ_b_df['B_factor'].std())
+        occ_b_df = read_ligand_occupancy_b(pdb, lig_chain)
+        mean_ligand_b_factor = occ_b_df['B_factor'].mean()
+        std_ligand_b_factor = occ_b_df['B_factor'].std()
 
         if occ_b_df.apply(lambda x: x.nunique())[1] == 1:
             lig_occ = occ_b_df.loc("Occupancy")[0][1]
-            all_lig_occupancy.append(lig_occ)
+            occ_b.append([dataset, lig_occ,
+                          mean_ligand_b_factor,
+                          std_ligand_b_factor])
         else:
             print(occ_b_df)
             print("Occupancy varies across ligand, "
                   "histogram not currently generated")
 
-    return all_lig_occupancy, mean_ligand_b_factor, std_ligand_b_factor
+    print(occ_b)
+    occ_df = pd.DataFrame(data=occ_b,
+                          columns=['dataset', 'occupancy', 'mean_b_fac',
+                                   'std_b_fac'])
+
+    return occ_df
 
 def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
 
