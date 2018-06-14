@@ -10,6 +10,7 @@ from exhaustive.utils.utils import (get_fofc_from_csv,
 get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
 from mpl_toolkits.mplot3d import Axes3D
 from exhaustive.utils.utils import u_iso_to_b_fac
+import seaborn as sns
 ##############################################################
 
 logger = logging.getLogger(__name__)
@@ -114,29 +115,29 @@ def colourbar_2d_scatter(atom_name):
     plt.close()
 
 
-def connectpoints(x, y, x_1, y_1, p1):
+def connectpoints(x, y, x_1, y_1, p1, linestyle='k-'):
 
     """ Draw lines between two lists of points"""
 
     x1, x2 = x[p1], x_1[p1]
     y1, y2 = y[p1], y_1[p1]
-    plt.plot([x1, x2], [y1, y2], 'k-')
+    plt.plot([x1, x2], [y1, y2], linestyle)
 
 
-def connectpoint(x, y, x_1, y_1):
+def connectpoint(x, y, x_1, y_1, linestyle='k-'):
 
     """ Draw line between two points """
-    plt.plot([x, x_1], [y, y_1], 'k-')
+    plt.plot([x, x_1], [y, y_1], linestyle)
 
 
-def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1):
+def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
     """ Draw lines between two sets od points in 3d"""
 
     x1, x2 = x[p1], x_1[p1]
     y1, y2 = y[p1], y_1[p1]
     z1, z2 = z[p1], z_1[p1]
-    plt.plot([x1, x2], [y1, y2], [z1, z2], 'k-')
+    plt.plot([x1, x2], [y1, y2], [z1, z2], linestyle)
 
 
 # TODO sort out params
@@ -208,9 +209,11 @@ def plot_3d_fofc_occ(start_occ,
     plt.savefig("{}-3d-delta_fofc_occ.png".format(dataset_prefix))
 
 
-def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,
-                                               protein_name, compound,
+def occupancy_histogram_with_exhaustive_search(occ_df, protein_name, compound,
                                                params):
+
+    es_occs = occ_df['es_occupancy']
+    refined_occs = occ_df['occupancy']
 
     occ_bins = np.linspace(0, 1, 21, endpoint=True)
 
@@ -234,28 +237,44 @@ def occupancy_histogram_with_exhaustive_search(es_occs, refined_occs,
     plt.close()
 
 
-def occupancy_b_factor_scatter_plot(es_occs, refined_occs, es_b_fac,
-                                    refine_mean_b_fac, refine_std_b_fac,
-                                    protein_name, compound, params):
+def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
+
+    es_occs = occ_df['es_occupancy']
+    refined_occs = occ_df['occupancy']
+    es_b_fac = occ_df['es_b_fac']
+    refine_mean_b_fac = occ_df['mean_b_fac']
+    refine_std_b_fac = occ_df['std_b_fac']
+
+    es_occs_joined = occ_df.dropna()['es_occupancy']
+    refined_occs_joined = occ_df.dropna()['occupancy']
+    es_b_fac_joined = occ_df.dropna()['es_b_fac']
+    refine_mean_b_fac_joined = occ_df.dropna()['mean_b_fac']
 
     fig, ax = plt.subplots()
+
     ax.scatter(es_occs, es_b_fac,
-               label="Exhaustive search: {}".format(len(es_occs)))
+               label="Exhaustive search: {}".format(
+                   len(occ_df['es_occupancy'].dropna())))
 
     ax.errorbar(refined_occs, refine_mean_b_fac,
                 fmt='rs',
                 yerr=refine_std_b_fac,
                 label="Refinement (errorbar = standard deviation of B factor "
-                     "across ligand): {}".format(len(refined_occs)),
+                     "across ligand): {}".format(
+                    len(occ_df['occupancy'].dropna())),
                 linestyle="None")
+
+    for i in np.arange(0, len(es_occs_joined)):
+        connectpoints(es_occs_joined, es_b_fac_joined, refined_occs_joined,
+                      refine_mean_b_fac_joined, i, linestyle='k:')
 
     # TODO Add post Exhaustive search refinement
 
     ax.legend(loc='best', fontsize='small')
-    plt.xlim(0, 1.05)
     plt.xlabel("Occupancy")
     plt.ylabel("B Factor")
-    plt.title("Exhaustive search minima compared to refined")
+    plt.title("Exhaustive search minima compared to refined "
+              "{} : {}".format(protein_name, compound))
 
     file_path = os.path.join(params.output.out_dir,
                              "occ_scatter_with_exhaustive_"
@@ -264,6 +283,13 @@ def occupancy_b_factor_scatter_plot(es_occs, refined_occs, es_b_fac,
     plt.savefig(file_path, dpi=300)
     plt.close()
 
+    print(occ_df)
+
+    # if len(occ_df) != len(occ_df.dropna()):
+    #     print("!!!!!!")
+    #     print(occ_df)
+    #     print(occ_df.dropna())
+    #     exit()
 
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
 
@@ -313,4 +339,51 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
     plt.title("{}: Delta mean|Fo-Fc| "
               "and Delta Occupancy".format(dataset_prefix), fontsize=10)
     plt.savefig("{}-delta_fofc_occ.png".format(dataset_prefix))
+
+def plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
+                        metric_name):
+
+    """Plot a single giant.score_model metric"""
+
+    metric_filename = metric_name.replace(" ", "_")
+    metric_filename = metric_filename.replace("/", "_")
+
+    filename = os.path.join(
+        compound_folder,
+        "{}_{}_{}.png".format(protein_name, compound, metric_filename))
+
+    datasets = edstats_df['Dataset'].tolist()
+
+    ax=edstats_df.plot(x="Dataset", y=metric_name, marker='o', linestyle='None')
+    ax.legend().set_visible(False)
+    plt.title("{} {}".format(protein_name, compound))
+    plt.ylabel(metric_name)
+    plt.xticks(np.arange(len(datasets)),datasets,rotation='vertical')
+    plt.xlim(-1,len(datasets)+1)
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
+                              protein_name):
+
+    metrics = ["RSZO/OCC", "Model RMSD", "RSZD", "RSR",
+                   "Surroundings B-factor Ratio"]
+
+    for metric in metrics:
+        plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
+                            metric)
+
+    #pairplot
+
+    sns.pairplot(edstats_df)
+    plt.savefig(os.path.join(
+        compound_folder, "pairplot.png"), diag_kind='kde')
+
+    sns.pairplot(edstats_df, vars=metrics)
+    plt.savefig(os.path.join(
+        compound_folder, "reduced_pairplot.png"), diag_kind='kde')
+
+
+
 
