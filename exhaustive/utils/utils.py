@@ -260,7 +260,7 @@ def get_occ_b(refinement_dir, lig_chain,
 
     return occ_df
 
-def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
+def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
 
     occupancy = round_step(occupancy,base=step)
     u_iso = round_step(u_iso,base=step)
@@ -285,3 +285,41 @@ def get_fofc_from_csv(csv_name,occupancy, u_iso, step=0.05):
     fo_fc = data_line[0][3]
 
     return fo_fc
+
+def datasets_from_compound(protein_prefix,compound_folder):
+
+    """ Loop over datasets with prefix in folder."""
+
+    for dataset in filter(lambda x:
+                          x.startswith(protein_prefix)
+                          and os.path.isdir(os.path.join(compound_folder, x)),
+                                os.listdir(compound_folder)):
+        yield dataset
+
+def collate_edstats_scores(protein_prefix, compound_folder):
+
+    """ Collate edstats scores into DataFrame. Write csv. Return df"""
+
+    dfs = []
+    for dataset in datasets_from_compound(protein_prefix, compound_folder):
+
+        edstats_csv = os.path.join(compound_folder, dataset, "Plots",
+                                   "residue_scores.csv")
+
+        if os.path.exists(edstats_csv):
+            edstats_df = pd.read_csv(edstats_csv)
+            edstats_df['Dataset'] = dataset
+            dfs.append(edstats_df)
+        else:
+            print("No edstats scores found for {}".format(dataset))
+
+    compound_edstats = pd.concat(dfs, ignore_index=True)
+    print(compound_edstats)
+
+    compound_edstats.to_csv(file_name=os.path.join(compound_folder,
+                                                   "collated_edstats"),
+                            index=False)
+
+    return compound_edstats
+
+

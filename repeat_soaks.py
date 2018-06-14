@@ -10,9 +10,11 @@ import pandas as pd
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.phil import master_phil, check_input_files
 from exhaustive.utils.utils import get_minimum_fofc, get_occ_b
-from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.utils.utils import u_iso_to_b_fac, datasets_from_compound
+from exhaustive.utils.utils import collate_edstats_scores
 from exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 from exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
+from exhaustive.plotting.plot import plot_edstats_across_soaks
 from exhaustive.process.minima import write_minima_pdb
 
 from giant.jiffies.split_conformations import run as split_conformations
@@ -101,9 +103,9 @@ def process_exhaustive_search(compound_codes,
 
         es_occ_b = []
 
-        for dataset in filter(lambda x: x.startswith(protein_prefix)
-                                        and os.path.isdir(os.path.join(in_dir, compound, x)),
-                              os.listdir(os.path.join(in_dir, compound))):
+        for dataset in datasets_from_compound(protein_prefix,
+                                              compound_folder=os.path.join(
+                                                  in_dir,compound)):
             # Define paths
             es_csv = os.path.join(out_dir, compound, dataset,
                                   dataset + "_exhaustive_search_occ_u_iso.csv")
@@ -244,6 +246,17 @@ for num in range(start_xtal_num, end_xtal_num + 1):
     xtal_name = protein_prefix + "{0:0>4}".format(num)
     NUDT22_xtals.append(xtal_name)
 
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+          "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
+
+edstats_df = collate_edstats_scores(protein_prefix=protein_prefix,
+                       compound_folder=os.path.join(out_dir,"13369a"))
+plot_edstats_across_soaks(edstats_df=edstats_df,
+                         compound_folder=os.path.join(out_dir,"13369a"),
+                         compound="13369a",
+                         protein_name="NUDT22A")
+
+exit()
 
 #TODO Check local folder
 
@@ -315,9 +328,6 @@ for xtal, compound_code in xtals_with_compound.iteritems():
         shutil.move(os.path.join(in_dir,xtal),os.path.join(in_dir,
                                                            compound_code))
 
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-          "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
-
 process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
                           protein_name)
 
@@ -329,9 +339,10 @@ process_exhaustive_search(compound_codes, initial_model_dir, in_dir, out_dir,
 NUDT7_copied_dir = ("/dls/science/groups/i04-1/elliot-dev/Work/"
                    "exhaustive_search_data/NUDT7_Copied_atoms")
 NUDT7_copied_xtals = []
-for NUDT7_dataset in filter(lambda x: x.startswith("NUDT7A-x") and
-                       os.path.isdir(os.path.join(NUDT7_copied_dir, x)),
-                            os.listdir(NUDT7_copied_dir)):
+
+for dataset in datasets_from_compound(protein_prefix,
+                                      compound_folder=NUDT7_copied_dir):
+
     NUDT7_copied_xtals.append(NUDT7_dataset)
 
 # run_es_many_xtals(xtals=NUDT7_copied_xtals,

@@ -10,6 +10,7 @@ from exhaustive.utils.utils import (get_fofc_from_csv,
 get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
 from mpl_toolkits.mplot3d import Axes3D
 from exhaustive.utils.utils import u_iso_to_b_fac
+import seaborn as sns
 ##############################################################
 
 logger = logging.getLogger(__name__)
@@ -338,4 +339,51 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
     plt.title("{}: Delta mean|Fo-Fc| "
               "and Delta Occupancy".format(dataset_prefix), fontsize=10)
     plt.savefig("{}-delta_fofc_occ.png".format(dataset_prefix))
+
+def plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
+                        metric_name):
+
+    """Plot a single giant.score_model metric"""
+
+    metric_filename = metric_name.replace(" ", "_")
+    metric_filename = metric_filename.replace("/", "_")
+
+    filename = os.path.join(
+        compound_folder,
+        "{}_{}_{}.png".format(protein_name, compound, metric_filename))
+
+    datasets = edstats_df['Dataset'].tolist()
+
+    ax=edstats_df.plot(x="Dataset", y=metric_name, marker='o', linestyle='None')
+    ax.legend().set_visible(False)
+    plt.title("{} {}".format(protein_name, compound))
+    plt.ylabel(metric_name)
+    plt.xticks(np.arange(len(datasets)),datasets,rotation='vertical')
+    plt.xlim(-1,len(datasets)+1)
+    plt.tight_layout()
+    plt.savefig(filename)
+    plt.close()
+
+def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
+                              protein_name):
+
+    metrics = ["RSZO/OCC", "Model RMSD", "RSZD", "RSR",
+                   "Surroundings B-factor Ratio"]
+
+    for metric in metrics:
+        plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
+                            metric)
+
+    #pairplot
+
+    sns.pairplot(edstats_df)
+    plt.savefig(os.path.join(
+        compound_folder, "pairplot.png"), diag_kind='kde')
+
+    sns.pairplot(edstats_df, vars=metrics)
+    plt.savefig(os.path.join(
+        compound_folder, "reduced_pairplot.png"), diag_kind='kde')
+
+
+
 
