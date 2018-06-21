@@ -3,6 +3,7 @@ import os
 import matplotlib
 import numpy as np
 import logging
+import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -212,16 +213,28 @@ def plot_3d_fofc_occ(start_occ,
 def occupancy_histogram_with_exhaustive_search(occ_df, protein_name, compound,
                                                params):
 
-    es_occs = occ_df['es_occupancy']
-    refined_occs = occ_df['occupancy']
+    es_occs = occ_df['es_occupancy'].dropna()
+    refined_occs = occ_df['occupancy'].dropna()
+
+    if len(es_occs) == 0 | len(refined_occs) == 0:
+        print("No results to plot: {} {}".format(protein_name, compound))
+        return
+
+    print(refined_occs)
+    print(es_occs)
 
     occ_bins = np.linspace(0, 1, 21, endpoint=True)
 
     fig, ax = plt.subplots()
-    ax.hist(es_occs, bins=occ_bins, width=0.04, color='r',  alpha=0.5,
-            label='Exhaustive search occupancy: {}'.format(len(es_occs)))
-    ax.hist(refined_occs, bins=occ_bins, width=0.04, color='b', alpha=0.5,
-            label='Refined occupancy: {}'.format(len(refined_occs)))
+    try:
+        ax.hist(es_occs, bins=occ_bins, width=0.04, color='r',  alpha=0.5,
+                label='Exhaustive search occupancy: {}'.format(len(es_occs)))
+        ax.hist(refined_occs, bins=occ_bins, width=0.04, color='b', alpha=0.5,
+                label='Refined occupancy: {}'.format(len(refined_occs)))
+    except ValueError:
+        print("Can't make histogram for: {} {}".format(protein_name, compound))
+        return
+
     plt.xlim(0, 1.05)
     ax.legend(loc='best', fontsize='small')
 
@@ -365,24 +378,41 @@ def plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
     plt.close()
 
 def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
-                              protein_name):
+                              protein_name, title_suffix=None):
 
-    metrics = ["RSZO/OCC", "Model RMSD", "RSZD", "RSR",
+    metrics = ["Occupancy", "RSZO/OCC", "Model RMSD", "RSZD", "RSR", "RSCC",
                    "Surroundings B-factor Ratio"]
+    metrics_2 = ["Occupancy-2", "RSZO/OCC-2", "RSZD-2", "RSR-2", "RSCC-2"]
 
-    for metric in metrics:
+    for metric in metrics + metrics_2:
         plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
                             metric)
 
     #pairplot
 
-    sns.pairplot(edstats_df)
-    plt.savefig(os.path.join(
-        compound_folder, "pairplot.png"), diag_kind='kde')
 
-    sns.pairplot(edstats_df, vars=metrics)
-    plt.savefig(os.path.join(
-        compound_folder, "reduced_pairplot.png"), diag_kind='kde')
+
+    cols = [c for c in edstats_df.columns if c.lower()[-2:] == '-2']
+    cols_1 = [col.rstrip('-2') for col in cols]
+    metric_df = edstats_df.drop(cols, axis=1)
+    metric_2_df = edstats_df.drop(cols_1, axis=1)
+
+    metric_df['source_file'] = 1
+    metric_2_df['source_file'] = 2
+
+    for i in np.arange(len(cols)):
+        metric_2_df = metric_2_df.rename(columns={cols[i]:cols_1[i]})
+
+    edstats_df = pd.concat([metric_df, metric_2_df], ignore_index=True)
+
+    sns.pairplot(edstats_df, hue="source_file")
+    plt.tight_layout()
+    plt.savefig(os.path.join(compound_folder, "pairplot.png"))
+
+    pp = sns.pairplot(edstats_df, vars=metrics, hue="source_file")
+    pp.fig.suptitle("{} {} :{}".format(protein_name,compound,title_suffix))
+    plt.tight_layout()
+    plt.savefig(os.path.join(compound_folder, "reduced_pairplot.png"))
 
 
 

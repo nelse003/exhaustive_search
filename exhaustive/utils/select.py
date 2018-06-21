@@ -467,6 +467,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         #{'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
 
         for occupancy_group in occupancy_groups[0]:
+
+            print("AAA")
+            print(occupancy_group)
+
             bound_state_flag = False
             state = []
             for residue_altloc in occupancy_group:
@@ -496,6 +500,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         #     bound_states
         # except NameError:
         #     logger.info("There is no bound state.")
+        print(occupancy_groups)
+        print("len occ_groups {}".format(len(occupancy_groups)))
 
         return bound_states, ground_states
 

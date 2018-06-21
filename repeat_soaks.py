@@ -118,6 +118,17 @@ def process_exhaustive_search(compound_codes,
                                          "exhaustive_search0001",
                                          "es_refine.mtz")
             input_mtz = os.path.join(in_dir, compound, dataset, "refine.mtz")
+            # input_mtz = os.path.join(initial_model_dir, dataset,
+            #                          dataset + ".free.mtz")
+            input_mtz = os.path.join(initial_model_dir, dataset,
+                                     "refine.mtz")
+            input_pdb = os.path.join(initial_model_dir, dataset,
+                                     "refine.pdb")
+            print(input_mtz)
+            print(input_pdb)
+            print("---------------------")
+            exit()
+
             dataset_dir = os.path.join(initial_model_dir, dataset)
 
             # Generate split conformations
@@ -169,12 +180,15 @@ def process_exhaustive_search(compound_codes,
             # Plotting spider plots of minima pdb
             if not os.path.exists(es_minima_plot_folder):
                 score_params = score_phil.extract()
-                score_params.input.pdb1 = es_pdb
+                score_params.input.pdb1 = input_pdb
                 score_params.input.mtz1 = input_mtz
                 score_params.input.pdb2 = es_refine_pdb
                 score_params.input.mtz2 = es_refine_mtz
                 score_params.output.out_dir = es_minima_plot_folder
-                score_model(score_params)
+                try:
+                    score_model(score_params)
+                except:
+                    print("skipping edstats for {}".format(dataset))
 
             # Minima occupancy and B factor for histogram/ scatter summary
             try:
@@ -209,9 +223,18 @@ def process_exhaustive_search(compound_codes,
                                         compound=compound,
                                         params=params)
 
+        edstats_df = collate_edstats_scores(protein_prefix=protein_prefix,
+                                            compound_folder=os.path.join(
+                                                out_dir, compound))
+        if edstats_df is not None:
+            plot_edstats_across_soaks(edstats_df=edstats_df,
+                                      compound_folder=os.path.join(out_dir,
+                                                                   compound),
+                                      compound=compound,
+                                      protein_name=protein_name,
+                                      title_suffix="Exhaustive minima")
 
 
-#TODO Apply DRY and functionalise this script
 
 # Setting common parameters
 common_out_dir = os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/",
@@ -249,18 +272,10 @@ for num in range(start_xtal_num, end_xtal_num + 1):
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
           "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 
-edstats_df = collate_edstats_scores(protein_prefix=protein_prefix,
-                       compound_folder=os.path.join(out_dir,"13369a"))
-plot_edstats_across_soaks(edstats_df=edstats_df,
-                         compound_folder=os.path.join(out_dir,"13369a"),
-                         compound="13369a",
-                         protein_name="NUDT22A")
-
-exit()
 
 #TODO Check local folder
 
-run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
+# run_es_many_xtals(NUDT22_xtals, in_dir, out_dir, params)
 
 ######################################################
 # NUDT22 Separate crystals into compound sets
@@ -372,7 +387,9 @@ process_exhaustive_search(compound_codes=NUDT7_compound_codes,
                           in_dir=NUDT7_in_dir,
                           out_dir=NUDT7_out_dir,
                           protein_name="NUDT7A",
-                          preferred_cif="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_Copied_atoms/OX210/NUDT7A-x1787/OX-210.cif")
+                          preferred_cif=
+"/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/"\
+"NUDT7_Copied_atoms/OX210/NUDT7A-x1787/OX-210.cif")
 
 # refine_occs, mean_ligand_b_factor, std_ligand_b_fac = get_occ_b(
 #     refinement_dir=NUDT7_copied_dir,

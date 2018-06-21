@@ -312,8 +312,12 @@ def collate_edstats_scores(protein_prefix, compound_folder):
             dfs.append(edstats_df)
         else:
             print("No edstats scores found for {}".format(dataset))
+    try:
+        compound_edstats = pd.concat(dfs, ignore_index=True)
+    except ValueError:
+        print("Edstats not able to concatanate")
+        return None
 
-    compound_edstats = pd.concat(dfs, ignore_index=True)
     print(compound_edstats)
 
     compound_edstats.to_csv(file_name=os.path.join(compound_folder,

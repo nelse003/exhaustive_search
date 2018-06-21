@@ -33,6 +33,7 @@ from libtbx import easy_mp
 from mmtbx import map_tools
 from scitbx.array_family import flex
 
+from scipy.spatial import ConvexHull
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
 
@@ -158,6 +159,41 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
 
     return occupancy_group_cart_points
 
+def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
+                                                 ground_states, params, logger):
+
+    states = bound_states + ground_states
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms = pdb_in.hierarchy.atoms()
+
+    atom_points = flex.vec3_double()
+    for state in states:
+
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        sites_cart = selected_atoms.extract_xyz()
+        atom_points = atom_points.concatenate(sites_cart)
+
+    print(len(atom_points))
+    hull = ConvexHull(atom_points)
+    for vertex in hull.vertices:
+        print(hull.points[vertex])
+
+    grid_min = flex.double([s - params.exhaustive.options.buffer
+                            for s in atom_points.min()])
+    grid_max = flex.double([s + params.exhaustive.options.buffer
+                            for s in atom_points.max()])
+
+    grid_from_selection = grid.Grid(
+        grid_spacing=params.exhaustive.options.grid_spacing,
+        origin=tuple(grid_min),
+        approx_max=tuple(grid_max))
+
+    print(len(grid_from_selection.cart_points()))
+    print(grid_from_selection.cart_points().as_numpy_array())
+
+
+
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     """Get mean of |Fo-Fc| over a cartesian point list.
@@ -229,6 +265,15 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                                                   ground_states,
                                                                   params,
                                                                   logger)
+
+    convex_hull_points = convex_hull_from_occupancy_group_grid_points(pdb,
+                                                                  bound_states,
+                                                                  ground_states,
+                                                                  params,
+                                                                  logger)
+
+    exit()
+
 
     logger.debug(occupancy_group_cart_points)
 
@@ -426,6 +471,13 @@ def run(params):
     :param xtal_name:
     :return:
     """
+
+    if not os.path.exists(params.output.out_dir):
+        os.mkdir(params.output.out_dir)
+
+    if not os.path.exists(params.output.log_dir):
+        os.mkdir(params.output.log_dir)
+
     logger = start_exhaustive_logger(params)
 
     args = [params.input.pdb, params.input.mtz]
@@ -527,7 +579,6 @@ def run(params):
 
     try:
         calculate_mean_fofc(params=params,
-                            protein_hier=ph,
                             xrs=xrs,
                             inputs=inputs,
                             fmodel=fmodel,
