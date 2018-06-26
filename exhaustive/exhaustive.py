@@ -16,6 +16,7 @@ import numpy as np
 import logging
 import datetime
 from cStringIO import StringIO
+import itertools
 
 from utils.select import process_refined_pdb_bound_ground_states
 from phil import master_phil
@@ -162,11 +163,14 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
                                                  ground_states, params, logger):
 
+    """Mean |Fo-Fc| over a convex hull defined by bound & ground states """
+
     states = bound_states + ground_states
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
 
     atom_points = flex.vec3_double()
+
     for state in states:
 
         selection = state[0]
@@ -174,25 +178,45 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
-    print(len(atom_points))
     hull = ConvexHull(atom_points)
-    for vertex in hull.vertices:
-        print(hull.points[vertex])
 
-    grid_min = flex.double([s - params.exhaustive.options.buffer
-                            for s in atom_points.min()])
-    grid_max = flex.double([s + params.exhaustive.options.buffer
-                            for s in atom_points.max()])
+    grid_min = flex.double(atom_points.min())
+    grid_max = flex.double(atom_points.max())
 
     grid_from_selection = grid.Grid(
         grid_spacing=params.exhaustive.options.grid_spacing,
         origin=tuple(grid_min),
         approx_max=tuple(grid_max))
 
-    print(len(grid_from_selection.cart_points()))
-    print(grid_from_selection.cart_points().as_numpy_array())
+    grid_points = grid_to_np_array(grid_from_selection)
 
+    points_in_hull = []
 
+    for point in grid_points:
+        if point_in_hull(point, hull):
+            points_in_hull.append(point)
+
+    return flex.vec3_double(list(np.stack(points_in_hull)))
+
+def point_in_hull(point, hull, tolerance=1e-12):
+    """
+    https://stackoverflow.com/questions/16750618/
+    whats-an-efficient-way-to-find-if-a-
+    point-lies-in-the-convex-hull-of-a-point-cl
+
+    """
+
+    return all(
+        (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
+        for eq in hull.equations)
+
+def grid_to_np_array(grid):
+
+    array = np.zeros((grid.cart_points().all()[0],3))
+    for i, point in enumerate(grid.cart_points()):
+        array[i] = point
+
+    return array
 
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
@@ -260,22 +284,22 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logger.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    occupancy_group_cart_points = get_occupancy_group_grid_points(pdb,
-                                                                  bound_states,
-                                                                  ground_states,
-                                                                  params,
-                                                                  logger)
+    if params.exhaustive.options.convex_hull:
 
-    convex_hull_points = convex_hull_from_occupancy_group_grid_points(pdb,
-                                                                  bound_states,
-                                                                  ground_states,
-                                                                  params,
-                                                                  logger)
+        cart_points = convex_hull_from_occupancy_group_grid_points(pdb,
+                                                                      bound_states,
+                                                                      ground_states,
+                                                                      params,
+                                                                      logger)
+    else:
+        cart_points = get_occupancy_group_grid_points(pdb,
+                                                      bound_states,
+                                                      ground_states,
+                                                      params,
+                                                      logger)
 
-    exit()
 
-
-    logger.debug(occupancy_group_cart_points)
+    logger.debug(cart_points)
 
     logger.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "
@@ -295,8 +319,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                    params=params,
                                    bound_states=bound_states,
                                    ground_states=ground_states,
-                                   occupancy_group_cart_points=
-                                   occupancy_group_cart_points)
+                                   cart_points=cart_points)
 
     sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
                                         processes=params.settings.processes)
@@ -326,7 +349,7 @@ class occ_b_loop_caller(object):
 
     def __init__(self, xrs, sites_frac, fmodel, crystal_gridding,
                  inputs, params, bound_states, ground_states,
-                 occupancy_group_cart_points):
+                 cart_points):
         """Provide all fixed parameters for calculating mean |Fo-Fc|."""
         self.xrs = xrs
         self.sites_frac = sites_frac
@@ -336,7 +359,7 @@ class occ_b_loop_caller(object):
         self.params = params
         self.bound_states = bound_states
         self.ground_states = ground_states
-        self.occupancy_group_cart_points = occupancy_group_cart_points
+        self.cart_points = cart_points
 
     def __call__(self, u_iso_occ):
         """Calculate mean|Fo-Fc| of bound/ground states."""
@@ -350,7 +373,7 @@ class occ_b_loop_caller(object):
             params=self.params,
             bound_states=self.bound_states,
             ground_states=self.ground_states,
-            occupancy_group_cart_points=self.occupancy_group_cart_points)
+            cart_points=self.cart_points)
 
 
 def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
@@ -362,7 +385,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                                       params,
                                       bound_states,
                                       ground_states,
-                                      occupancy_group_cart_points):
+                                      cart_points):
     """Calculate mean|Fo-Fc| of ground/bound states with occupancy and B factor.
 
     Take a two item list, iter_u_iso that contains occupancy and B factor.
@@ -444,7 +467,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         mtz2map(args=mtz2map_args)
 
     mean_abs_fofc_value = get_mean_fofc_over_cart_sites(
-        occupancy_group_cart_points, fofc_map, inputs)
+        cart_points, fofc_map, inputs)
 
     print(bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value)
 

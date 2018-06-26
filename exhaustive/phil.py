@@ -55,6 +55,8 @@ exhaustive{
             .type = bool
         generate_map = False
             .type = bool
+        convex_hull = true
+            .type = bool
     }
 }
 select{
