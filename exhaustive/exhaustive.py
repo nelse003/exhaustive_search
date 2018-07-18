@@ -16,8 +16,7 @@ import numpy as np
 import logging
 import datetime
 from cStringIO import StringIO
-import itertools
-
+from giant.structure.select import find_nearest_atoms
 from utils.select import process_refined_pdb_bound_ground_states
 from phil import master_phil
 import cctbx.miller
@@ -33,7 +32,6 @@ from iotbx import reflection_file_utils
 from libtbx import easy_mp
 from mmtbx import map_tools
 from scitbx.array_family import flex
-
 from scipy.spatial import ConvexHull
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
@@ -169,16 +167,25 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
 
+    # Not sure what i was trying to do here?
+    #pdb_atoms.de
+
     atom_points = flex.vec3_double()
 
+    all_selected_atoms =[]
     for state in states:
 
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
+        all_selected_atoms.append(selected_atoms)
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
     hull = ConvexHull(atom_points)
+
+    for atom in all_selected_atoms:
+
+    exit()
 
     grid_min = flex.double(atom_points.min())
     grid_max = flex.double(atom_points.max())

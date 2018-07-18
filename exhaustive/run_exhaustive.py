@@ -15,9 +15,9 @@ params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                         "exhaustive_search_data/convex_hull/logs"
 params.settings.processes = 20
 
-params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "result_no_convex.csv")
+params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "result_convex_buffer.csv")
 
-params.exhaustive.options.convex_hull = False
+params.exhaustive.options.convex_hull = True
 
 exhaustive(params=params)
 

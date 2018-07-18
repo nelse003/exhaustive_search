@@ -55,7 +55,9 @@ exhaustive{
             .type = bool
         generate_map = False
             .type = bool
-        convex_hull = true
+        convex_hull = True
+            .type = bool
+        convex_hull_buffer = True
             .type = bool
     }
 }

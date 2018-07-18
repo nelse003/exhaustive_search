@@ -68,7 +68,6 @@ def powerset(iterable, min_len=0):
 # Selection by residue  with conicident altlocs
 ######################################################################
 
-
 def get_residue_altloc_dict(occupancy_groups):
     """
     Return a dictionary of the format
