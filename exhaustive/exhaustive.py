@@ -183,9 +183,9 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
 
     hull = ConvexHull(atom_points)
 
-    for atom in all_selected_atoms:
-
-    exit()
+    # for atom in all_selected_atoms:
+    #
+    # exit()
 
     grid_min = flex.double(atom_points.min())
     grid_max = flex.double(atom_points.max())
