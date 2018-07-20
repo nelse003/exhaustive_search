@@ -203,6 +203,8 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
         if point_in_hull(point, hull):
             points_in_hull.append(point)
 
+    print("Points in hull: {}".format(len(points_in_hull)))
+
     return flex.vec3_double(list(np.stack(points_in_hull)))
 
 def point_in_hull(point, hull, tolerance=1e-12):
@@ -289,6 +291,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         ground_states = process_refined_pdb_bound_ground_states(pdb, params)
     except UnboundLocalError:
         logger.info("Insufficient state information for pdb file %s", pdb)
+        logger.info("Insufficient state information for pdb file %s", pdb)
         raise
 
     if params.exhaustive.options.convex_hull:
@@ -328,8 +331,16 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                    ground_states=ground_states,
                                    cart_points=cart_points)
 
-    sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
-                                        processes=params.settings.processes)
+    print("Pre loop")
+    print(len(u_iso_occ))
+
+    if params.settings.processes > 1:
+
+        # For covalent ratios this wasn't working at all. The map method seems fast enough even at 0.01
+        sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
+                                            processes=params.settings.processes)
+    else:
+        sum_fofc_results = map(occ_b_loop,u_iso_occ)
 
     logger.info("Loop finished.\n"
                 "Writing bound occupancy, ground_occupancy, u_iso, "

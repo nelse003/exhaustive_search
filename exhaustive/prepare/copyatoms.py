@@ -139,6 +139,10 @@ def copy_dimple_atoms(path, prefix, start_xtal_num, end_xtal_num,
 
     for xtal_name in xtals:
 
+        # for quick rerun
+        if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")):
+            continue
+
         if os.path.exists(os.path.join(path, xtal_name,
                                        "dimple.pdb")):
 

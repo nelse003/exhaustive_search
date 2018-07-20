@@ -448,6 +448,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     :return: 
     """
 
+    print("HERE")
+
     logger.info("Process pdb file to get bound and ground states.")
 
     occupancy_groups = get_occupancy_groups(pdb, params)
@@ -455,7 +457,16 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
 
-    if len(occupancy_groups) == 1 and len(occupancy_groups[0]) == 2:
+    print("______________________________")
+    print(occupancy_groups)
+    print("______________________________")
+    print(len(occupancy_groups))
+    print(len(occupancy_groups[0]))
+
+    if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
+
+        print("THERE")
+
         # There are no coincident residues therefore use the occupancy id instead.
         # This may need doing earlier, i.e the selection by altlocs is possibly really stupid.
         # Only the case for if a single complete group (i.e first part of the if statement)
@@ -502,10 +513,20 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         print(occupancy_groups)
         print("len occ_groups {}".format(len(occupancy_groups)))
 
+        print("BOUND")
+        print(bound_states)
+
+        print("GROUND")
+        print(ground_states)
+
         return bound_states, ground_states
 
     #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states) #63
     else:
+
+        print("ACTUALLY")
+        exit()
+
         residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
         coincident = get_coincident_group(hier, residue_altloc_dict, params)
         logger.debug("Coincident: {}".format(coincident))
