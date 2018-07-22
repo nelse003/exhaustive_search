@@ -282,8 +282,8 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
 
     selection_string_list = []
     for atom_remove in atoms_remove:
-        selection_string = "(resid {} and chain {})".format(atom_new[1],
-                                                            atom_new[0])
+        selection_string = "(resid {} and chain {})".format(atom_remove[1],
+                                                            atom_remove[0])
         selection_string_list.append(selection_string)
 
     selection_string = "or".join(selection_string_list)
