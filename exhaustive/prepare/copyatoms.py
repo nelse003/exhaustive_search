@@ -314,7 +314,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
 
             print(not_selection_string)
-            exit()
 
             remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
             removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
