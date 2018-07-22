@@ -4,10 +4,11 @@ import os
 # from giant.jiffies.score_model import master_phil as score_phil
 # import libtbx.phil
 
-# Changing project just requires changing the initial code
+# Changing project just requires changing the directory.
+# Note the /mnt prefix for running locally on laptop
 
 #ini_folder = "/mnt/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-ini_folder = "/mnt/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/titration_series"
+ini_folder = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/titration_series"
 
 # This works in ccp4 python. Currently using the score model script as the
 # score params stuff is only needed if changing to a different residue
