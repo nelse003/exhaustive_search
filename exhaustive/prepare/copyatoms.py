@@ -288,7 +288,7 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
 
     selection_string = "or".join(selection_string_list)
     not_selection_string ="not ({})".format(selection_string)
-    remove_atoms_sel = sel_cache.selection(not_selection_string)
+
 
     xtals = []
     for num in range(start_xtal_num, end_xtal_num + 1):
@@ -315,6 +315,10 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                 verbose=False)
 
             #remove atoms
+            refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
+            remove_atoms_sel = sel_cache.selection(not_selection_string)
+
+
             removed_hier = acceptor_hier.select(remove_atoms_sel)
 
             if not os.path.exists(out_dir):
