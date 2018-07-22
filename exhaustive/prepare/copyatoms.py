@@ -405,7 +405,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
             print("pdb does not exist: {}".format(
                 os.path.join(path, xtal_name,
                              "dimple.pdb")))
-        exit()
 
 
 copy_titration(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
