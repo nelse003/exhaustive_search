@@ -353,8 +353,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
 
             f.close()
 
-            exit()
-
             print(os.getcwd())
             os.chdir(os.path.join(out_dir, xtal_name))
             os.system('cp {} {}'.format(
@@ -362,10 +360,9 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                 os.path.join(out_dir, xtal_name,
                              "dimple.pdb")))
 
-            os.system('cp {} {}'.format(os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/"
-                                                     "exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/"
-                                                     "NUDT7A-x1812LIG-CYS.cif"),
-                                        os.path.join(out_dir, xtal_name, "{}_LIG_CYS.cif".format(xtal_name))))
+            os.system('cp {} {}'.format(os.path.join("/dls/labxchem/data/2017/lb18145-3/processing/"
+                                                     "analysis/initial_model/NUDT7A-x1237/NUOOA000181a.cif"),
+                                        os.path.join(out_dir, xtal_name, "NUOOA000181a.cif".format(xtal_name))))
 
             print(os.listdir(os.path.join(out_dir, xtal_name)))
 
@@ -380,12 +377,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                 os.path.join(out_dir, xtal_name,
                              "dimple_with_lig.pdb")))
 
-            with open(os.path.join(out_dir, xtal_name, "multi-state-model.pdb"), "r") as original:
-                multi_model = original.read()
-            with open(os.path.join(out_dir, xtal_name, "multi-state-model.pdb"), "w") as modified:
-                modified.write("LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n")
-                modified.write("LINKR        C  DLIG E   1                 SG ACYS A  73                LIG-CYS\n")
-                modified.write(multi_model)
 
             cmds = "source /dls/science/groups/i04-1/software/" \
                    "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
@@ -414,6 +405,7 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
             print("pdb does not exist: {}".format(
                 os.path.join(path, xtal_name,
                              "dimple.pdb")))
+        exit()
 
 
 copy_titration(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
