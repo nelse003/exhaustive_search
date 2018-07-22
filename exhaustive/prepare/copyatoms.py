@@ -280,6 +280,7 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
     new_atoms_sel = sel_cache.selection(selection_string)
     new_atoms_hier = pdb_in.hierarchy.select(new_atoms_sel)
 
+    selection_string_list = []
     for atom_remove in atoms_remove:
         selection_string = "(resid {} and chain {})".format(atom_new[1],
                                                             atom_new[0])
