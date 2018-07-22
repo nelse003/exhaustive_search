@@ -41,10 +41,10 @@ qsub = True
 #     os.mkdir(out_dir)
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 #
-# xtals = []
-# for num in range(start_xtal_num, end_xtal_num + 1):
-#     xtal_name = prefix + "{0:0>4}".format(num)
-#     xtals.append(xtal_name)
+xtals = []
+for num in range(start_xtal_num, end_xtal_num + 1):
+    xtal_name = prefix + "{0:0>4}".format(num)
+    xtals.append(xtal_name)
 #
 # for xtal_name in xtals:
 #
