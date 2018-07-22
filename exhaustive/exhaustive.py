@@ -17,7 +17,7 @@ import logging
 import datetime
 from cStringIO import StringIO
 from giant.structure.select import find_nearest_atoms
-from utils.select import process_refined_pdb_bound_ground_states
+from utils.select_atoms import process_refined_pdb_bound_ground_states
 from phil import master_phil
 import cctbx.miller
 import giant.grid as grid

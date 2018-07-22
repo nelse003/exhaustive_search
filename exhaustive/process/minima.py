@@ -3,7 +3,7 @@ import logging
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive.utils.select import process_refined_pdb_bound_ground_states
+from exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
 
 logger = logging.getLogger(__name__)

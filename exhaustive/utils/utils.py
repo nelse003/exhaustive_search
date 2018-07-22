@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from iotbx.pdb import hierarchy
 
-from select import get_occupancy_groups
+from select_atoms import get_occupancy_groups
 
 
 def b_to_u_iso(b_fac):
