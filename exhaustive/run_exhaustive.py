@@ -7,6 +7,8 @@ import csv
 from utils.utils import get_minimum_fofc, u_iso_to_b_fac
 params =  master_phil.extract()
 
+# example for a single dataset
+
 # params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
 #                    "initial_model/NUDT7A-x0299/refine.pdb"
 # params.input.mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
@@ -24,11 +26,11 @@ params.exhaustive.options.step = 0.01
 params.exhaustive.options.convex_hull = True
 
 
-#Running exhaustive search for covalent ratios
+#Running exhaustive search for covalent ratios/ titration series
 
-start_xtal_num = 1906
-end_xtal_num = 2005
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+start_xtal_num = 2006
+end_xtal_num = 2073
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/titration_series"
 prefix = "NUDT7A-x"
 qsub = True
 
@@ -36,36 +38,6 @@ xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
     xtal_name = prefix + "{0:0>4}".format(num)
     xtals.append(xtal_name)
-
-
-# Get exhaustive search minima fofc
-with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
-
-    minima_writer = csv.writer(minima_csv, delimiter=',')
-
-    for xtal_name in xtals:
-
-        params.output.out_dir = os.path.join(out_dir, xtal_name)
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
-        if os.path.exists(params.exhaustive.output.csv_name):
-            os.chdir(os.path.join(out_dir, xtal_name))
-            scatter_plot(params.exhaustive.output.csv_name)
-        else:
-            continue
-        continue
-
-        params.output.out_dir = os.path.join(out_dir, xtal_name)
-        if os.path.exists(os.path.join(params.output.out_dir,"exhaustive_search.csv")):
-            occ, u_iso, fofc = get_minimum_fofc(os.path.join(params.output.out_dir,"exhaustive_search.csv"))
-            b_fac=u_iso_to_b_fac(u_iso)
-
-            minima_writer.writerow([xtal_name,occ, b_fac, fofc])
-
-
-
-exit()
-
-
 
 for xtal_name in xtals:
 
@@ -128,5 +100,30 @@ for xtal_name in xtals:
         bash_script.close()
         # submit job
         os.system("qsub {}".format(os.path.join(out_dir, xtal_name,xtal_name+"_exhaustive.sh")))
+
+# Get exhaustive search minima fofc
+# with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
+#
+#     minima_writer = csv.writer(minima_csv, delimiter=',')
+#
+#     for xtal_name in xtals:
+#
+#         params.output.out_dir = os.path.join(out_dir, xtal_name)
+#         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+#         if os.path.exists(params.exhaustive.output.csv_name):
+#             os.chdir(os.path.join(out_dir, xtal_name))
+#             scatter_plot(params.exhaustive.output.csv_name)
+#         else:
+#             continue
+#         continue
+#
+#         params.output.out_dir = os.path.join(out_dir, xtal_name)
+#         if os.path.exists(os.path.join(params.output.out_dir,"exhaustive_search.csv")):
+#             occ, u_iso, fofc = get_minimum_fofc(os.path.join(params.output.out_dir,"exhaustive_search.csv"))
+#             b_fac=u_iso_to_b_fac(u_iso)
+#
+#             minima_writer.writerow([xtal_name,occ, b_fac, fofc])
+
+
 
   
