@@ -307,17 +307,20 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
             pdb_in_refine = hierarchy.input(
                 file_name=os.path.join(path, xtal_name,
                                        "dimple.pdb"))
-            #add atoms
+
             acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
-            donor_hierarchy = new_atoms_hier
-            acceptor_hier = transfer_residue_groups_from_other(
-                acceptor_hierarchy, donor_hierarchy, in_place=False,
-                verbose=False)
 
             #remove atoms
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
             remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
             removed_hier = acceptor_hier.select(remove_atoms_sel)
+
+            # add atoms
+            donor_hierarchy = new_atoms_hier
+            acceptor_hier = transfer_residue_groups_from_other(
+                acceptor_hierarchy, donor_hierarchy, in_place=False,
+                verbose=False)
+
 
             if not os.path.exists(out_dir):
                 os.mkdir(out_dir)
