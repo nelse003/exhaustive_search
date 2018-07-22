@@ -318,17 +318,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
             remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
             removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
 
-            f = open(
-                os.path.join(out_dir,
-                             xtal_name,
-                             "dimple_removed.pdb"),
-                "w+")
-
-            f.write(removed_hier.as_pdb_string(
-                crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
-
-            f.close()
-
             # add atoms
             donor_hierarchy = new_atoms_hier
             acceptor_hier = transfer_residue_groups_from_other(
