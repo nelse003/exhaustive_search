@@ -115,11 +115,9 @@ with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
             scatter_plot(params.exhaustive.output.csv_name)
         else:
             continue
-        continue
 
-        params.output.out_dir = os.path.join(out_dir, xtal_name)
-        if os.path.exists(os.path.join(params.output.out_dir,"exhaustive_search.csv")):
-            occ, u_iso, fofc = get_minimum_fofc(os.path.join(params.output.out_dir,"exhaustive_search.csv"))
+        if os.path.exists(params.exhaustive.output.csv_name):
+            occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
             b_fac=u_iso_to_b_fac(u_iso)
 
             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
