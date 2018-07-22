@@ -30,9 +30,16 @@ params.exhaustive.options.convex_hull = False
 
 start_xtal_num = 1905
 end_xtal_num = 2005
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratio_no_convex"
 prefix = "NUDT7A-x"
 qsub = True
+
+# copy data to new folder
+
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    os.system('cp -r {} {}'.format(in_dir,out_dir))
 
 xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
