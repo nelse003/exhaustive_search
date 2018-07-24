@@ -127,6 +127,8 @@ with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
             occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
             b_fac=u_iso_to_b_fac(u_iso)
 
+            print([xtal_name, occ, b_fac, fofc])
+
             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
 
