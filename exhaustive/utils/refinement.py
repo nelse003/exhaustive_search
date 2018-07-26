@@ -186,8 +186,12 @@ for xtal_name in xtals:
         continue
 
     f = open(os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.refmac.params"),"a+")
-    f.write("NCYC 50")
+                     "multi-state-restraints.refmac.params"),"r")
+    lines=f.readlines()
+    f.close()
+    print(f[-1])
+    exit()
+    f.write("NCYC 1")
     f.close()
 
     cmds = "source /dls/science/groups/i04-1/software/" \
