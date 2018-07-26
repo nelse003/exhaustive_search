@@ -182,7 +182,7 @@ for xtal_name in xtals:
     if not os.path.exists(os.path.join(out_dir, xtal_name,"dimple.pdb")):
         continue
 
-    if not os.path.exists(os.path.join(out_dir, xtal_name, "multi-state-restraints.refmac.params"):
+    if not os.path.exists(os.path.join(out_dir, xtal_name, "multi-state-restraints.refmac.params")):
         continue
 
     f = open(os.path.join(out_dir, xtal_name,
