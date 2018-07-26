@@ -4,7 +4,7 @@ from plotting.plot import scatter_plot
 import os
 import pickle
 import csv
-from utils.utils import get_minimum_fofc, u_iso_to_b_fac
+from utils.utils import get_minimum_fofc, u_iso_to_b_fac, get_lig_occ
 params =  master_phil.extract()
 
 # example for a single dataset
