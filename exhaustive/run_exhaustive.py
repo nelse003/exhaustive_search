@@ -31,7 +31,7 @@ params.exhaustive.options.convex_hull = False
 start_xtal_num = 1905
 end_xtal_num = 2005
 in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_refine"
 prefix = "NUDT7A-x"
 qsub = True
 
