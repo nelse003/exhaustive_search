@@ -154,3 +154,58 @@ def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_pat
                 os.path.join(out_path, sh_file)))
 
             out_path = os.path.dirname(os.path.dirname(out_path))
+
+# Extra refinement for covalent ratios
+
+start_xtal_num = 1905
+end_xtal_num = 2005
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_refine"
+prefix = "NUDT7A-x"
+qsub = False
+
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+#
+
+xtals = []
+for num in range(start_xtal_num, end_xtal_num + 1):
+    xtal_name = prefix + "{0:0>4}".format(num)
+    xtals.append(xtal_name)
+
+for xtal_name in xtals:
+
+    params.input.xtal_name = xtal_name
+    params.input.pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
+    params.input.mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
+
+    f = open(os.path.join(out_dir, xtal_name,
+                     "multi-state-restraints.refmac.params"),"a+")
+    f.write("NCYC 50")
+    f.close()
+
+    cmds = "source /dls/science/groups/i04-1/software/" \
+           "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
+
+    cmds += "giant.quick_refine {} {} {} params={}\n".format(
+        params.input.pdb,
+        params.input.mtz,
+        os.path.join(out_dir, xtal_name, "*.cif"),
+        os.path.join(out_dir, xtal_name,
+                     "multi-state-restraints.refmac.params"))
+    if qsub:
+        f = open(
+            os.path.join(out_dir,
+                         xtal_name,
+                         "{}_quick_refine.sh".format(xtal_name)),
+            "w")
+
+        f.write(cmds)
+        f.close()
+
+        os.system('qsub {}'.format(os.path.join(out_dir, xtal_name, "{}_quick_refine.sh".format(xtal_name))))
+    else:
+        os.system(cmds)
+
+    exit()

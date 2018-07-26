@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 cvr = pd.read_csv('/home/nelse003/Documents/covalent_ratio_subjective.csv',
                   names=['ratio','cateogry'], engine='python')
@@ -16,8 +16,6 @@ plt.xlabel("Percentage of labelled protein")
 plt.ylabel("Number of Crystals")
 plt.legend(loc='best')
 plt.title("Strength of 2mFo-DFc evidence for covalent ligand")
+plt.tight_layout()
 
-# stacked = ct.stack().reset_index().rename(columns={0:'value'})
-# sns_plot = sns.barplot(x=stacked.cateogry, y=stacked.value, hue=stacked.mark)
-
-plt.savefig('/home/nelse003/Documents/example.png')
+plt.savefig('/home/nelse003/Documents/example.png', dpi=600, transparent=True)
