@@ -176,9 +176,8 @@ for num in range(start_xtal_num, end_xtal_num + 1):
 
 for xtal_name in xtals:
 
-    params.input.xtal_name = xtal_name
-    params.input.pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
-    params.input.mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
+    input_pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
+    input_mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
 
     f = open(os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.refmac.params"),"a+")
@@ -189,8 +188,8 @@ for xtal_name in xtals:
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
 
     cmds += "giant.quick_refine {} {} {} params={}\n".format(
-        params.input.pdb,
-        params.input.mtz,
+        input_pdb,
+        input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
         os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.refmac.params"))
