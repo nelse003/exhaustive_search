@@ -180,7 +180,7 @@ for xtal_name in xtals:
     input_mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
 
     if os.path.exists(os.path.join(out_dir, xtal_name,"refine_0002")):
-        contine
+        continue
 
     if not os.path.exists(os.path.join(out_dir, xtal_name,"dimple.pdb")):
         continue
