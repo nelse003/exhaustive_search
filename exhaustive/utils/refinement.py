@@ -197,6 +197,7 @@ for xtal_name in xtals:
                      "multi-state-restraints.refmac.params"),"w")
     f.writelines(lines)
     f.write("NCYC 1")
+    f.write("occupancy refine")
     f.close()
     exit()
 
