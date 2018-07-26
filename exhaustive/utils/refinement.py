@@ -189,7 +189,7 @@ for xtal_name in xtals:
                      "multi-state-restraints.refmac.params"),"r")
     lines=f.readlines()
     f.close()
-    print(f[-1])
+    print(lines[-1])
     exit()
     f.write("NCYC 1")
     f.close()
