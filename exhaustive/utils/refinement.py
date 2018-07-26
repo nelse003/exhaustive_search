@@ -189,10 +189,16 @@ for xtal_name in xtals:
                      "multi-state-restraints.refmac.params"),"r")
     lines=f.readlines()
     f.close()
-    print(lines[-1])
-    exit()
+    while lines[-1].startswith("NCYC"):
+        lines.pop()
+    if lines[-1].startswith("occupancy refine"):
+        lines.pop()
+    f = open(os.path.join(out_dir, xtal_name,
+                     "multi-state-restraints.refmac.params"),"w")
+    f.writelines(lines)
     f.write("NCYC 1")
     f.close()
+    exit()
 
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
