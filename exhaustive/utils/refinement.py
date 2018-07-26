@@ -203,7 +203,7 @@ for xtal_name in xtals:
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
 
-    cmds = "cd {}".format(os.path.join(out_dir,xtal_name))
+    cmds = "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
     cmds += "giant.quick_refine {} {} {} params={}\n".format(
         input_pdb,
