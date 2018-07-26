@@ -196,7 +196,7 @@ for xtal_name in xtals:
     f = open(os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.refmac.params"),"w")
     f.writelines(lines)
-    f.write("NCYC 1")
+    f.write("NCYC 1\n")
     f.write("occupancy refine")
     f.close()
     exit()
