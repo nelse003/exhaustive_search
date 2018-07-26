@@ -109,28 +109,41 @@ for num in range(start_xtal_num, end_xtal_num + 1):
 #         os.system("qsub {}".format(os.path.join(out_dir, xtal_name,xtal_name+"_exhaustive.sh")))
 
 # Get exhaustive search minima fofc
-with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
+# with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
+#
+#     minima_writer = csv.writer(minima_csv, delimiter=',')
+#
+#     for xtal_name in xtals:
+#
+#         params.output.out_dir = os.path.join(out_dir, xtal_name)
+#         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+#         if os.path.exists(params.exhaustive.output.csv_name):
+#             os.chdir(os.path.join(out_dir, xtal_name))
+#             scatter_plot(params.exhaustive.output.csv_name)
+#         else:
+#             continue
+#
+#         if os.path.exists(params.exhaustive.output.csv_name):
+#             occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
+#             b_fac=u_iso_to_b_fac(u_iso)
+#
+#             print([xtal_name, occ, b_fac, fofc])
+#
+#             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
+
+#refine minima
+
+with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
 
     minima_writer = csv.writer(minima_csv, delimiter=',')
 
     for xtal_name in xtals:
 
-        params.output.out_dir = os.path.join(out_dir, xtal_name)
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
-        if os.path.exists(params.exhaustive.output.csv_name):
-            os.chdir(os.path.join(out_dir, xtal_name))
-            scatter_plot(params.exhaustive.output.csv_name)
+        if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")):
+
+            occ = get_lig_occ(os.path.join(out_dir,xtal_name,"refine.pdb"))
+
+            minima_writer.writerow(xtal_name,occ)
         else:
             continue
-
-        if os.path.exists(params.exhaustive.output.csv_name):
-            occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
-            b_fac=u_iso_to_b_fac(u_iso)
-
-            print([xtal_name, occ, b_fac, fofc])
-
-            minima_writer.writerow([xtal_name, occ, b_fac, fofc])
-
-
-
   
