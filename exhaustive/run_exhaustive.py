@@ -143,7 +143,7 @@ with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
 
             occ = get_lig_occ(os.path.join(out_dir,xtal_name,"refine.pdb"))
 
-            minima_writer.writerow(xtal_name,occ)
+            minima_writer.writerow([xtal_name,occ])
         else:
             continue
   
