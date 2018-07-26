@@ -199,7 +199,6 @@ for xtal_name in xtals:
     f.write("NCYC 1\n")
     f.write("occupancy refine")
     f.close()
-    exit()
 
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
