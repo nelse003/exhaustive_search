@@ -179,6 +179,12 @@ for xtal_name in xtals:
     input_pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
     input_mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
 
+    if not os.path.exists(os.path.join(out_dir, xtal_name,"dimple.pdb")):
+        continue
+
+    if not os.path.exists(os.path.join(out_dir, xtal_name, "multi-state-restraints.refmac.params"):
+        continue
+
     f = open(os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.refmac.params"),"a+")
     f.write("NCYC 50")
