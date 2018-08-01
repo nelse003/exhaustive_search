@@ -160,9 +160,9 @@ def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_pat
 start_xtal_num = 1905
 end_xtal_num = 2005
 in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_refine"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_phenix"
 prefix = "NUDT7A-x"
-qsub = True
+qsub = False
 
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
@@ -192,18 +192,17 @@ for xtal_name in xtals:
     exit()
 
     f = open(os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.refmac.params"),"r")
+                     "multi-state-restraints.phenix.params"),"r")
     lines=f.readlines()
     f.close()
-    while lines[-1].startswith("NCYC"):
-        lines.pop()
-    if lines[-1].startswith("occupancy refine"):
-        lines.pop()
+    # while lines[-1].startswith("NCYC"):
+    #     lines.pop()
+    # if lines[-1].startswith("occupancy refine"):
+    #     lines.pop()
     f = open(os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.refmac.params"),"w")
+                     "multi-state-restraints.phenix.params"),"w")
     f.writelines(lines)
-    f.write("NCYC 50\n")
-    f.write("occupancy refine")
+    f.write("strategy=occupancies")
     f.close()
 
     cmds = "source /dls/science/groups/i04-1/software/" \
@@ -211,12 +210,12 @@ for xtal_name in xtals:
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
-    cmds += "giant.quick_refine {} {} {} params={}\n".format(
+    cmds += "giant.quick_refine {} {} {} params={} program=phenix\n".format(
         input_pdb,
         input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
         os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.refmac.params"))
+                     "multi-state-restraints.phenix.params"))
     if qsub:
         f = open(
             os.path.join(out_dir,
@@ -231,3 +230,4 @@ for xtal_name in xtals:
     else:
         os.system(cmds)
 
+    exit()
