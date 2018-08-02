@@ -204,7 +204,8 @@ for xtal_name in xtals:
     f.write("strategy=occupancies")
     f.close()
 
-    print([name for name in os.listdir(os.path.join(out_dir, xtal_name)) if os.path.isdir(name)])
+    print([name for name in os.listdir(os.path.join(out_dir, xtal_name))
+           if os.path.isdir(name) and name.startswith('refine')])
     exit()
 
     #"{0:0>4}".format(num)
