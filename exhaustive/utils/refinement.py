@@ -208,7 +208,7 @@ for xtal_name in xtals:
                         if os.path.isdir(name) and name.startswith('refine')]
 
     refine_fol_nums = [num[-4:] for num in refine_folders]
-    final_refine = max([int(i) for i in g2]))
+    final_refine = max([int(i) for i in g2])
 
     out_prefix="refine_{0:0>4}".format(final_refine)
 
