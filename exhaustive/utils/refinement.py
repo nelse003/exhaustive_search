@@ -236,6 +236,7 @@ for xtal_name in xtals:
 
         os.system('qsub {}'.format(os.path.join(out_dir, xtal_name, "{}_quick_refine.sh".format(xtal_name))))
     else:
+        print(cmds)
         os.system(cmds)
 
     exit()
