@@ -204,14 +204,22 @@ for xtal_name in xtals:
     f.write("strategy=occupancies")
     f.close()
 
+    print([name for name in os.listdir(os.path.join(out_dir, xtal_name)) if os.path.isdir(name)])
+    exit()
+
+    "{0:0>4}".format(num)
+
+    out_prefix =
+
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
-    cmds += "giant.quick_refine {} {} {} params={} program=phenix\n".format(
+    cmds += "giant.quick_refine {} {} {} output.out_prefix={} params={} program=phenix\n".format(
         input_pdb,
         input_mtz,
+        out_prefix,
         os.path.join(out_dir, xtal_name, "*.cif"),
         os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.phenix.params"))
