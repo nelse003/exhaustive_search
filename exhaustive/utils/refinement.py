@@ -217,11 +217,12 @@ for xtal_name in xtals:
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
-    cmds += "giant.quick_refine {} {} {} output.out_prefix=\"{}\" params={} program=phenix\n".format(
+    #output.out_prefix =\"{}\"
+    cmds += "giant.quick_refine {} {} {}  params={} program=phenix\n".format(
         input_pdb,
         input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
-        out_prefix,
+        #out_prefix,
         os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.phenix.params"))
     if qsub:
