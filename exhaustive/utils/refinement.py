@@ -208,7 +208,7 @@ for xtal_name in xtals:
                         if os.path.isdir(name) and name.startswith('refine')]
 
     g2 = [num[-4:] for num in refine_folders]
-    print(g2)
+    print(max([int(i) for i in g2]))
     exit()
 
     #"{0:0>4}".format(num)
