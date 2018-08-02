@@ -207,13 +207,10 @@ for xtal_name in xtals:
     refine_folders = [name for name in os.listdir(os.path.join(out_dir, xtal_name))
                         if os.path.isdir(name) and name.startswith('refine')]
 
-    g2 = [num[-4:] for num in refine_folders]
-    print(max([int(i) for i in g2]))
-    exit()
+    refine_fol_nums = [num[-4:] for num in refine_folders]
+    final_refine = max([int(i) for i in g2]))
 
-    #"{0:0>4}".format(num)
-
-    #out_prefix =
+    out_prefix="refine_{0:0>4}".format(final_refine)
 
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
