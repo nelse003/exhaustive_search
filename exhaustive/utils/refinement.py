@@ -207,9 +207,9 @@ for xtal_name in xtals:
     print([name for name in os.listdir(os.path.join(out_dir, xtal_name)) if os.path.isdir(name)])
     exit()
 
-    "{0:0>4}".format(num)
+    #"{0:0>4}".format(num)
 
-    out_prefix =
+    #out_prefix =
 
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
