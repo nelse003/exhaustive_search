@@ -205,7 +205,7 @@ for xtal_name in xtals:
     f.close()
 
     refine_folders = [name for name in os.listdir(os.path.join(out_dir, xtal_name))
-                        if os.path.isdir(name) and name.startswith('refine')])
+                        if os.path.isdir(name) and name.startswith('refine')]
 
     g2 = [int(num[:-4]) for num in refine_folders]
     exit()
