@@ -179,8 +179,8 @@ for xtal_name in xtals:
     input_pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
     input_mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
 
-    if os.path.exists(os.path.join(out_dir, xtal_name,"refine_0002")):
-        continue
+    # if os.path.exists(os.path.join(out_dir, xtal_name,"refine_0002")):
+    #     continue
 
     if not os.path.exists(os.path.join(out_dir, xtal_name,"dimple.pdb")):
         continue
@@ -189,7 +189,6 @@ for xtal_name in xtals:
         continue
 
     print(xtal_name)
-    exit()
 
     f = open(os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.phenix.params"),"r")
