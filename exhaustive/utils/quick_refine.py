@@ -182,8 +182,8 @@ def run(params):
 
     # Find output files
     try:
-        real_pdb = glob.glob(os.path.join(output_prefix, params.output.out_prefix + '*.pdb'))[0]
-        real_mtz = glob.glob(os.path.join(output_prefix, params.output.out_prefix + '*.mtz'))[0]
+        real_pdb = os.path.join(output_prefix, params.output.out_prefix + '.pdb')
+        real_mtz = os.path.join(output_prefix, params.output.out_prefix + '.mtz')
 
         print(real_pdb, "\n", real_mtz)
 
