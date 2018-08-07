@@ -217,7 +217,7 @@ for xtal_name in xtals:
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
-    os.chdir(out_dir,xtal_name)
+    os.chdir(os.path.join(out_dir,xtal_name))
 
     #output.out_prefix =\"{}\"
     # cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
