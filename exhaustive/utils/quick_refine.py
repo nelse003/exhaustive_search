@@ -197,6 +197,8 @@ def run(params):
     link_file_pairs = [     (real_pdb, params.output.link_prefix+'.pdb'),
                             (real_mtz, params.output.link_prefix+'.mtz')    ]
 
+    print(link_file_pairs)
+
     # Split conformations
     if params.options.split_conformations:
         params.split_conformations.settings.verbose = params.settings.verbose
