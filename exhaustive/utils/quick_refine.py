@@ -118,7 +118,12 @@ def run(params):
         shutil.copy(params.input.params, os.path.abspath(os.path.join(out_dir, 'input.params')))
 
     # Create output prefixes
-    output_prefix = os.path.join(out_dir, params.output.out_prefix)
+    if params.output.out_prefix:
+        output_prefix = os.path.join(out_dir, params.output.out_prefix)
+    else:
+        print("AAAAAAAAAAAAAAAAA")
+        output_prefix = out_dir
+
     log('Real output file path prefixes: {}'.format(output_prefix))
     log('Link output file path prefixes: {}'.format(params.output.link_prefix))
 
