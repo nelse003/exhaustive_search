@@ -176,10 +176,6 @@ def run(params):
 
     log.subheading('Post-processing output files')
 
-    print("TESTING:{}".format(output_prefix))
-
-    print(os.path.join(output_prefix, params.output.out_prefix + '*.pdb'))
-
     # Find output files
     try:
         real_pdb = os.path.join(output_prefix, params.output.out_prefix + '.pdb')

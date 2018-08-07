@@ -217,14 +217,28 @@ for xtal_name in xtals:
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
+    os.chdir(out_dir,xtal_name)
+
     #output.out_prefix =\"{}\"
+    # cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
+    #         "{} {} {} params={} program=phenix\n".format(
+    #     input_pdb,
+    #     input_mtz,
+    #     os.path.join(out_dir, xtal_name, "*.cif"),
+    #     os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"))
+    #
+
+
     cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
-            "{} {} {} params={} program=phenix\n".format(
+            "{} {} {} params={} program=phenix args=\n".format(
         input_pdb,
         input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
         os.path.join(out_dir, xtal_name,
                      "multi-state-restraints.phenix.params"))
+
+
     if qsub:
         f = open(
             os.path.join(out_dir,
