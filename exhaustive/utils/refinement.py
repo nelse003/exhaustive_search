@@ -231,7 +231,7 @@ for xtal_name in xtals:
 
 
     cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
-            "{} {} {} params={} program=phenix args=\"stratergy=occupancies\"\n".format(
+            "{} {} {} params={} program=phenix args=\"strategy=occupancies\"\n".format(
         input_pdb,
         input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
