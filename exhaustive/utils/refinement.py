@@ -218,7 +218,7 @@ for xtal_name in xtals:
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
     #output.out_prefix =\"{}\"
-    cmds += "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
+    cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
             "{} {} {} output.out_prefix='' params={} program=phenix\n".format(
         input_pdb,
         input_mtz,
