@@ -121,7 +121,6 @@ def run(params):
 
     output_prefix = out_dir
 
-
     log('Real output file path prefixes: {}'.format(output_prefix))
     log('Link output file path prefixes: {}'.format(params.output.link_prefix))
 
