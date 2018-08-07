@@ -217,7 +217,7 @@ for xtal_name in xtals:
 
     cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
-    os.chdir(os.path.join(out_dir,xtal_name))
+    os.chdir(os.path.join(out_dir,xtal_name,out_prefix))
 
     #output.out_prefix =\"{}\"
     # cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
@@ -231,7 +231,7 @@ for xtal_name in xtals:
 
 
     cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
-            "{} {} {} params={} program=phenix args=\"strategy=occupancies\"\n".format(
+            "{} {} {} params={} program=phenix args=\"strategy=occupancies main.number_of_macro_cycles=50\"\n".format(
         input_pdb,
         input_mtz,
         os.path.join(out_dir, xtal_name, "*.cif"),
