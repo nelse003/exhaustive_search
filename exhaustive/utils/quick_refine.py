@@ -2,11 +2,11 @@ import os, sys, glob, shutil
 
 import libtbx.phil
 
-from pandda.bamboo.common.command import CommandManager
-from pandda.bamboo.common.logs import Log
-from pandda.bamboo.common.path import rel_symlink
+from bamboo.common.command import CommandManager
+from bamboo.common.logs import Log
+from bamboo.common.path import rel_symlink
 
-from pandda.giant.jiffies import split_conformations
+from giant.jiffies import split_conformations
 
 ############################################################################
 
