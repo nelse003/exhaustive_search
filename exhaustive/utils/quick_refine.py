@@ -178,6 +178,8 @@ def run(params):
 
     print("TESTING:{}".format(output_prefix))
 
+    print(os.path.join(output_prefix, params.output.out_prefix + '*.pdb'))
+
     # Find output files
     try:
         real_pdb = glob.glob(os.path.join(output_prefix, params.output.out_prefix + '*.pdb'))[0]
