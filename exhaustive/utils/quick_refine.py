@@ -174,6 +174,8 @@ def run(params):
 
     log.subheading('Post-processing output files')
 
+    print("TESTING:{}".format(output_prefix))
+
     # Find output files
     try:
         real_pdb = glob.glob(output_prefix+'*.pdb')[0]
