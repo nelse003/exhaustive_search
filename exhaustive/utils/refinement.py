@@ -190,19 +190,19 @@ for xtal_name in xtals:
 
     print(xtal_name)
 
-    f = open(os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.phenix.params"),"r")
-    lines=f.readlines()
-    f.close()
-    # while lines[-1].startswith("NCYC"):
-    #     lines.pop()
-    # if lines[-1].startswith("occupancy refine"):
-    #     lines.pop()
-    f = open(os.path.join(out_dir, xtal_name,
-                     "multi-state-restraints.phenix.params"),"w")
-    f.writelines(lines)
-    f.write("strategy=occupancies")
-    f.close()
+    # f = open(os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"),"r")
+    # lines=f.readlines()
+    # f.close()
+    # # while lines[-1].startswith("NCYC"):
+    # #     lines.pop()
+    # # if lines[-1].startswith("occupancy refine"):
+    # #     lines.pop()
+    # f = open(os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"),"w")
+    # f.writelines(lines)
+    # f.write("strategy=occupancies")
+    # f.close()
 
     refine_folders = [name for name in os.listdir(os.path.join(out_dir, xtal_name))
                         if os.path.isdir(name) and name.startswith('refine')]
