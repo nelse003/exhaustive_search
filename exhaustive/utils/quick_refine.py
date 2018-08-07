@@ -119,7 +119,7 @@ def run(params):
 
     # Create output prefixes
 
-    output_prefix = out_dir
+    output_prefix = os.path.join(out_dir, params.output.out_prefix)
 
     log('Real output file path prefixes: {}'.format(output_prefix))
     log('Link output file path prefixes: {}'.format(params.output.link_prefix))
@@ -180,8 +180,11 @@ def run(params):
 
     # Find output files
     try:
-        real_pdb = glob.glob(output_prefix+'*.pdb')[0]
-        real_mtz = glob.glob(output_prefix+'*.mtz')[0]
+        real_pdb = glob.glob(os.path.join(output_prefix, params.output.out_prefix + '*.pdb'))[0]
+        real_mtz = glob.glob(os.path.join(output_prefix, params.output.out_prefix + '*.mtz'))[0]
+
+        print(real_pdb, "\n", real_mtz)
+
     except:
         log('Refinement has failed - output files do not exist')
         log('{}: {}'.format(output_prefix+'*.pdb', glob.glob(output_prefix+'*.pdb')))
