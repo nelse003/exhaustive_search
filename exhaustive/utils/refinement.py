@@ -215,7 +215,7 @@ for xtal_name in xtals:
     cmds = "source /dls/science/groups/i04-1/software/" \
            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
 
-    cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name,out_prefix))
+    cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
 
     #output.out_prefix =\"{}\"
     # cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
