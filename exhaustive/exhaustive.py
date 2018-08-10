@@ -175,8 +175,12 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     for group in occupancy_groups:
         for item in group:
             for residue in item:
-                print(residue['chain'])
-                #selection_string
+                selection_string = "(chain {} " \
+                                   "and altid {} " \
+                                   "and resid {})".format(residue['chain'],
+                                                          residue['altloc'],
+                                                          residue['resseq'])
+                print(selection_string)
     exit()
 
     for state in states:
