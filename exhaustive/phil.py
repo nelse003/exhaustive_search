@@ -141,7 +141,8 @@ repeat{
         database_path = None
             .type = path
             .help = 'Database path for sqlite databse from xce'
-    }
+        }
+}
 testing{
     testing= False
     .type = bool
