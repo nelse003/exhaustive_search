@@ -182,13 +182,12 @@ def extend_convex_hull(pdb, bound_states, ground_states):
     print(atom_points[0])
     print(pdb_atoms.extract_xyz()[0])
 
-    print(distance.cdist([atom_points[0]],[pdb_atoms.extract_xyz()[0]]))
     print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz()))
 
     for atom in atom_points:
         index_atom = distance.cdist([atom], pdb_atoms.extract_xyz()).argmin()
-        print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz()).shape())
-        #print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz())[index_atom])
+        print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz()))
+        print(pdb_atoms.extract_xyz()[index_atom])
     exit()
 
 
