@@ -524,7 +524,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states) #63
     else:
 
-        print("ACTUALLY")
+        print("ACTUALLY this is probably a untested piece of code, only come here if desperate")
         exit()
 
         residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)

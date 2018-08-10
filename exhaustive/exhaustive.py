@@ -159,21 +159,17 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
 
     return occupancy_group_cart_points
 
-def extend_convex_hull(pdb, bound_states, ground_states):
+def extend_convex_hull(pdb, bound_states, ground_states, params):
 
     states = bound_states + ground_states
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
-
-    # Not sure what i was trying to do here?
-    #pdb_atoms.de
-
     atom_points = flex.vec3_double()
 
     all_selected_atoms =[]
 
-    print(states)
-    exit()
+    occupancy_groups = get_occupancy_groups(pdb, params)
+    print(occupancy_groups)
 
     for state in states:
 
@@ -182,19 +178,6 @@ def extend_convex_hull(pdb, bound_states, ground_states):
         all_selected_atoms.append(selected_atoms)
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
-
-    selection_string_list = []
-    for residue_remove in residues_remove:
-        selection_string = "(resid {} and chain {} and altid {})".format(residue_remove[0],
-                                                                         residue_remove[1], residue_remove[2])
-        selection_string_list.append(selection_string)
-
-    selection_string = " or ".join(selection_string_list)
-    not_selection_string = "not ({})".format(selection_string)
-
-    acceptor_hierarchy = pdb_in.construct_hierarchy()
-
-
 
     for atom in atom_points:
         index_atom = distance.cdist([atom], atoms_xyz).argmin()
@@ -346,7 +329,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     if params.testing.testing:
 
-        extend_convex_hull(pdb, bound_states, ground_states)
+        extend_convex_hull(pdb, bound_states, ground_states, params)
 
     if params.exhaustive.options.convex_hull:
 
