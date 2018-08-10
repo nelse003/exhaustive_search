@@ -179,8 +179,7 @@ def extend_convex_hull(pdb, bound_states, ground_states):
         atom_points = atom_points.concatenate(sites_cart)
 
     print(atom_points[0])
-
-    print(find_nearest_atoms(atoms=list(protein(pdb_in.hierarchy).atoms_with_labels()), query=atom_points[0]))
+    print(pdb_atoms.extract_xyz()[0])
 
 
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
