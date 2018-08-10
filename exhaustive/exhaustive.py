@@ -170,9 +170,13 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     all_selected_atoms =[]
 
     occupancy_groups = get_occupancy_groups(pdb, params)
+
+    selection_string_list = []
     for group in occupancy_groups:
         for item in group:
-            print(item)
+            for residue in item:
+                print(residue['chain'])
+                #selection_string
     exit()
 
     for state in states:
