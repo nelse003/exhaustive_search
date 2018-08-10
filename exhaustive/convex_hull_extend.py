@@ -5,4 +5,9 @@ params =  master_phil.extract()
 params.testing.testing = True
 params.input.xtal_name = "test"
 
+params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/covalent_ratios/NUDT7A-x1906/refine.pdb"
+params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/covalent_ratios/NUDT7A-x1906/refine.mtz"
+
 exhaustive(params=params)
