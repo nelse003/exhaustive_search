@@ -326,18 +326,18 @@ def collate_edstats_scores(protein_prefix, compound_folder):
 
     return compound_edstats
 
-def remove_atoms(input_pdb, output_pdb, atoms_remove):
+def remove_residues(input_pdb, output_pdb, residues_remove):
 
     pdb_in = hierarchy.input(file_name = input_pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     selection_string_list = []
-    for atom_remove in atoms_remove:
-        selection_string = "(resid {} and chain {} and altid {})".format(atom_remove[0],
-                                                            atom_remove[1],atom_remove[2])
+    for residue_remove in residues_remove:
+        selection_string = "(resid {} and chain {} and altid {})".format(residue_remove[0],
+                                                            residue_remove[1],residue_remove[2])
         selection_string_list.append(selection_string)
 
-    selection_string = "or".join(selection_string_list)
+    selection_string = " or ".join(selection_string_list)
     not_selection_string ="not ({})".format(selection_string)
 
     acceptor_hierarchy = pdb_in.construct_hierarchy()
