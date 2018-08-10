@@ -16,7 +16,6 @@ import numpy as np
 import logging
 import datetime
 from cStringIO import StringIO
-from giant.structure.select import find_nearest_atoms
 from utils.select_atoms import process_refined_pdb_bound_ground_states
 from phil import master_phil
 import cctbx.miller
@@ -35,6 +34,7 @@ from scitbx.array_family import flex
 from scipy.spatial import ConvexHull
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
+from giant.structure.select import find_nearest_atoms, protein
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -157,6 +157,32 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
                 "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
 
     return occupancy_group_cart_points
+
+def extend_convex_hull(pdb, bound_states, ground_states):
+
+    states = bound_states + ground_states
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms = pdb_in.hierarchy.atoms()
+
+    # Not sure what i was trying to do here?
+    #pdb_atoms.de
+
+    atom_points = flex.vec3_double()
+
+    all_selected_atoms =[]
+    for state in states:
+
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        all_selected_atoms.append(selected_atoms)
+        sites_cart = selected_atoms.extract_xyz()
+        atom_points = atom_points.concatenate(sites_cart)
+
+    print(atom_points[0])
+
+    print(find_nearest_atoms(atoms=list(protein(pdb_in.hierarchy).atoms_with_labels()),
+                       query=atom_points[0]))
+
 
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
                                                  ground_states, params, logger):
@@ -293,6 +319,10 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logger.info("Insufficient state information for pdb file %s", pdb)
         logger.info("Insufficient state information for pdb file %s", pdb)
         raise
+
+    if params.testing:
+
+        extend_convex_hull(pdb, bound_states, ground_states)
 
     if params.exhaustive.options.convex_hull:
 
