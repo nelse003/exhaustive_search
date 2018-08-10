@@ -333,8 +333,8 @@ def remove_atoms(input_pdb, output_pdb, atoms_remove)
 
     selection_string_list = []
     for atom_remove in atoms_remove:
-        selection_string = "(resid {} and chain {})".format(atom_remove[1],
-                                                            atom_remove[0])
+        selection_string = "(resid {} and chain {} and altid {})".format(atom_remove[0],
+                                                            atom_remove[1],atom_remove[2])
         selection_string_list.append(selection_string)
 
     selection_string = "or".join(selection_string_list)
