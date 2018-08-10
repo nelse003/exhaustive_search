@@ -181,6 +181,8 @@ def extend_convex_hull(pdb, bound_states, ground_states):
     print(atom_points[0])
     print(pdb_atoms.extract_xyz()[0])
 
+    exit()
+
 
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
                                                  ground_states, params, logger):
