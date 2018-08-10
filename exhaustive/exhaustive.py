@@ -184,7 +184,7 @@ def extend_convex_hull(pdb, bound_states, ground_states):
 
     print(distance.cdist([atom_points[0]],[pdb_atoms.extract_xyz()[0]]))
     print(distance.cdist(atom_points, pdb_atoms.extract_xyz()))
-    print(distance.cdist(atom_points, pdb_atoms.extract_xyz()).min())
+    print(distance.cdist(atom_points, pdb_atoms.extract_xyz()).argmin())
     exit()
 
 
