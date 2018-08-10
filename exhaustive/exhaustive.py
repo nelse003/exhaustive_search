@@ -190,6 +190,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     selection_string = " or ".join(selection_string_list)
     not_selection_string ="not ({})".format(selection_string)
     tmp_hierarchy = pdb_in.construct_hierarchy()
+    sel_cache = tmp_hierarchy.atom_selection_cache()
     remove_atoms_sel = sel_cache.selection(not_selection_string)
     removed_hier = tmp_hierarchy.select(remove_atoms_sel)
 
