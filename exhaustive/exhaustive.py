@@ -171,7 +171,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
     occupancy_groups = get_occupancy_groups(pdb, params)
     for group in occupancy_groups:
-        print(group)
+        for item in group:
+            print item
     exit()
 
     for state in states:
