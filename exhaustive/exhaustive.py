@@ -169,6 +169,11 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
     all_selected_atoms =[]
 
+    # Select atoms that are involved in the occupancy groups
+    # and remove these from the distance matrix
+    # This will mean that atoms selected as close by are
+    # not already in that state
+
     occupancy_groups = get_occupancy_groups(pdb, params)
 
     selection_string_list = []
@@ -180,8 +185,15 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
                                    "and resid {})".format(residue['chain'],
                                                           residue['altloc'],
                                                           residue['resseq'])
-                print(selection_string)
-    exit()
+                selection_string_list.append(selection_string)
+
+    selection_string = " or ".join(selection_string_list)
+    not_selection_string ="not ({})".format(selection_string)
+    tmp_hierarchy = pdb_in.construct_hierarchy()
+    remove_atoms_sel = sel_cache.selection(not_selection_string)
+    removed_hier = tmp_hierarchy.select(remove_atoms_sel)
+
+    atoms_not_in_occ_group = removed_hier.atoms()
 
     for state in states:
 
@@ -191,17 +203,20 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
-    atoms_xyz = pdb_atoms.extract_xyz()
+    atoms_not_in_occ_group_xyz = atoms_not_in_occ_group.extract_xyz()
 
-    for atom in atom_points:
-        index_atom = distance.cdist([atom], atoms_xyz).argmin()
+    # generate a convex hull
+    hull = ConvexHull(atom_points)
 
-        if distance.cdist([atom], atoms_xyz).min() == 0:
+    # Find atoms closest to the convex hull, which are not part of the convex hull
+    for vertex in hull.vertices:
+
+        index_atom = distance.cdist([vertex], atoms_not_in_occ_group_xyz).argmin()
+
+        if distance.cdist([vertex], atoms_not_in_occ_group_xyz).min() == 0:
             print("MIN is 0")
-            print(atoms_xyz)
 
-        print(distance.cdist([atom_points[0]], atoms_xyz))
-        print(pdb_atoms.extract_xyz()[index_atom])
+        print(atoms_not_in_occ_group_xyz[index_atom])
     exit()
 
 
