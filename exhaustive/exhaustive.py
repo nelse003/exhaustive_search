@@ -170,7 +170,9 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     all_selected_atoms =[]
 
     occupancy_groups = get_occupancy_groups(pdb, params)
-    print(occupancy_groups)
+    for group in occupancy_groups:
+        print(group)
+    exit()
 
     for state in states:
 
