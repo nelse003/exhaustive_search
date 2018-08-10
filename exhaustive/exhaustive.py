@@ -188,9 +188,9 @@ def extend_convex_hull(pdb, bound_states, ground_states):
 
         if distance.cdist([atom], atoms_xyz).min() == 0:
             print("MIN is 0")
-            print(atoms_xyz.shape())
+            print(atoms_xyz)
 
-        print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz()))
+        print(distance.cdist([atom_points[0]], atoms_xyz))
         print(pdb_atoms.extract_xyz()[index_atom])
     exit()
 
