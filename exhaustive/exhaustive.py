@@ -171,6 +171,10 @@ def extend_convex_hull(pdb, bound_states, ground_states):
     atom_points = flex.vec3_double()
 
     all_selected_atoms =[]
+
+    print(states)
+    exit()
+
     for state in states:
 
         selection = state[0]
@@ -179,9 +183,18 @@ def extend_convex_hull(pdb, bound_states, ground_states):
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
-    print(distance.cdist([atom_points[0]], pdb_atoms.extract_xyz()))
+    selection_string_list = []
+    for residue_remove in residues_remove:
+        selection_string = "(resid {} and chain {} and altid {})".format(residue_remove[0],
+                                                                         residue_remove[1], residue_remove[2])
+        selection_string_list.append(selection_string)
 
-    atoms_xyz = pdb_atoms.extract_xyz()
+    selection_string = " or ".join(selection_string_list)
+    not_selection_string = "not ({})".format(selection_string)
+
+    acceptor_hierarchy = pdb_in.construct_hierarchy()
+
+
 
     for atom in atom_points:
         index_atom = distance.cdist([atom], atoms_xyz).argmin()
