@@ -212,6 +212,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # Find atoms closest to the convex hull, which are not part of the convex hull
     for vertex in hull.vertices:
 
+        print(vertex)
+
         index_atom = distance.cdist([vertex], atoms_not_in_occ_group_xyz).argmin()
 
         if distance.cdist([vertex], atoms_not_in_occ_group_xyz).min() == 0:
