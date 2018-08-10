@@ -36,6 +36,7 @@ from scipy.spatial import distance
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
 from giant.structure.select import find_nearest_atoms, protein
+from utils.select_atoms import get_occupancy_groups
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
