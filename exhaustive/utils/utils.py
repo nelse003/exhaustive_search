@@ -326,7 +326,7 @@ def collate_edstats_scores(protein_prefix, compound_folder):
 
     return compound_edstats
 
-def remove_atoms(input_pdb, output_pdb, atoms_remove)
+def remove_atoms(input_pdb, output_pdb, atoms_remove):
 
     pdb_in = hierarchy.input(file_name = input_pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
