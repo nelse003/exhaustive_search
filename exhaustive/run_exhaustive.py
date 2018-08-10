@@ -25,7 +25,6 @@ params.settings.processes = 1
 params.exhaustive.options.step = 0.01
 params.exhaustive.options.convex_hull = False
 
-
 #Running exhaustive search for covalent ratios/ titration series
 
 start_xtal_num = 1905
