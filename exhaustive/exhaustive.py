@@ -320,7 +320,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logger.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    if params.testing:
+    if params.testing.testing:
 
         extend_convex_hull(pdb, bound_states, ground_states)
 

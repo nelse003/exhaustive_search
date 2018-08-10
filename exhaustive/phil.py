@@ -142,10 +142,13 @@ repeat{
             .type = path
             .help = 'Database path for sqlite databse from xce'
     }
-testing = False
+testing{
+    testing= False
     .type = bool
     .help = flag for running enclosed test code
+    }
 }
+
 """, process_includes=True)
 
 def prepare_validate_phil(master_phil):
