@@ -144,10 +144,9 @@ repeat{
         }
 }
 testing{
-    testing= False
+    testing = False
     .type = bool
     .help = flag for running enclosed test code
-    }
 }
 
 """, process_includes=True)
