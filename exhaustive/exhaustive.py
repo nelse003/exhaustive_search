@@ -180,6 +180,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
+    atoms_xyz = pdb_atoms.extract_xyz()
+
     for atom in atom_points:
         index_atom = distance.cdist([atom], atoms_xyz).argmin()
 
