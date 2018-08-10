@@ -32,6 +32,7 @@ from libtbx import easy_mp
 from mmtbx import map_tools
 from scitbx.array_family import flex
 from scipy.spatial import ConvexHull
+from scipy.spatial import distance
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
 from giant.structure.select import find_nearest_atoms, protein
@@ -181,7 +182,7 @@ def extend_convex_hull(pdb, bound_states, ground_states):
     print(atom_points[0])
     print(pdb_atoms.extract_xyz()[0])
 
-    print(scipy.spatial.distance.cdist(atom_points[0],pdb_atoms.extract_xyz()[0]))
+    print(distance.cdist(atom_points[0],pdb_atoms.extract_xyz()[0]))
 
     exit()
 
