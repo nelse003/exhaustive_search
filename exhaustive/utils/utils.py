@@ -350,7 +350,7 @@ def remove_atoms(input_pdb, output_pdb, atoms_remove):
     f = open(os.path.join(output_pdb),"w+")
 
     f.write(removed_hier.as_pdb_string(
-        crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
+        crystal_symmetry=pdb_in.input.crystal_symmetry()))
 
     f.close()
 
