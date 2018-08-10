@@ -7,7 +7,7 @@ from iotbx.pdb import hierarchy
 def copy_atoms(path, prefix, start_xtal_num, end_xtal_num,
                new_ground_structure_path, atoms_new, out_dir):
 
-    """ Copy one set of atoms a pdb strcutre to other pdb structures
+    """ Copy one set of atoms a pdb structure to other pdb structures
     Also run refinement
     """,
 

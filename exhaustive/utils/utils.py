@@ -326,4 +326,31 @@ def collate_edstats_scores(protein_prefix, compound_folder):
 
     return compound_edstats
 
+def remove_atoms(input_pdb, output_pdb, atoms_remove)
+
+    pdb_in = hierarchy.input(file_name = input_pdb)
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
+
+    selection_string_list = []
+    for atom_remove in atoms_remove:
+        selection_string = "(resid {} and chain {})".format(atom_remove[1],
+                                                            atom_remove[0])
+        selection_string_list.append(selection_string)
+
+    selection_string = "or".join(selection_string_list)
+    not_selection_string ="not ({})".format(selection_string)
+
+    acceptor_hierarchy = pdb_in.construct_hierarchy()
+
+    print(not_selection_string)
+
+    remove_atoms_sel = sel_cache.selection(not_selection_string)
+    removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
+
+    f = open(os.path.join(output_pdb),"w+")
+
+    f.write(removed_hier.as_pdb_string(
+        crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
+
+    f.close()
 

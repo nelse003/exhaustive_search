@@ -132,7 +132,7 @@ def run(params):
         cm = CommandManager('phenix.refine')
         # Command line args
         cm.add_command_line_arguments([ params.input.pdb, params.input.mtz ])
-        cm.add_command_line_arguments([ 'output.prefix=output'])#{}'.format(output_prefix) ])
+        cm.add_command_line_arguments([ 'output.prefix={}'.format(output_prefix) ])
         if params.input.cif:
             cm.add_command_line_arguments( params.input.cif )
         if params.input.params and os.path.exists(params.input.params):
