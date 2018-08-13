@@ -220,7 +220,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         index_atom = distance.cdist(list(atom_points)[vertex], atoms_not_in_occ_group_xyz).argmin()
 
-        print(distance.cdist(list(atom_points)[vertex], atoms_not_in_occ_group_xyz))
+        print(distance.cdist([list(atom_points)[vertex]], atoms_not_in_occ_group_xyz))
         print(index_atom)
 
         if distance.cdist([vertex], atoms_not_in_occ_group_xyz).min() == 0:
