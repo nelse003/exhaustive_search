@@ -458,7 +458,7 @@ def run(params):
     log_path = os.path.join(params.output.out_dir,
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
-    logging.basicConfig(filename=log_path, level=logging.DEBUG)
+    logger = logging.basicConfig(filename=log_path, level=logging.DEBUG)
     # hdlr = logging.FileHandler(log_path)
     # logger = logging.getLogger(__name__)
     # formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
