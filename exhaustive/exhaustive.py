@@ -209,23 +209,48 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # generate a convex hull
     hull = ConvexHull(atom_points)
 
-    print(hull.vertices)
-    print(atom_points)
-    print(type(atom_points))
-    print(len(atom_points))
+    # print(hull.vertices)
+    # print(atom_points)
+    # print(type(atom_points))
+    # print(len(atom_points))
+
     # Find atoms closest to the convex hull, which are not part of the convex hull
+    buffer_points = flex.vec3_double()
     for vertex in hull.vertices:
 
         print(list(atom_points)[vertex])
-
-        dist_matrix = distance.cdist([list(atom_points)[vertex]], atoms_not_in_occ_group_xyz)
+        vertex_atom_point =[list(atom_points)[vertex]]
+        dist_matrix = distance.cdist(vertex_atom_point, atoms_not_in_occ_group_xyz)
         min_dist = dist_matrix.min()
         index_atom = dist_matrix.argmin()
 
         if min_dist == 0:
-            print("MIN is 0")
+            raise ValueError("Minimal distance to nearest atom is 0.0")
 
-        print(atoms_not_in_occ_group_xyz[index_atom])
+        nearest_atom_point = atoms_not_in_occ_group_xyz[index_atom]
+
+        if not params.exhaustive.options.convex_hull_ignore_nearest
+            and min_dist/2 => params.exhaustive.options.buffer:
+
+            buffer_point = nearest_atom_point + \
+                           (params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point)
+            print("Buffer point at buffer distance")
+
+        elif not params.exhaustive.options.convex_hull_ignore_nearest
+            and min_dist/2 < params.exhaustive.options.buffer:
+
+            buffer_point = nearest_atom_point + 0.5*(nearest_atom_point - vertex_atom_point)
+            print("Buffer point at mid point to nearest atom")
+
+        else:
+            buffer_point = nearest_atom_point + \
+                           params.exhaustive.options.buffer * \
+                           (nearest_atom_point - vertex_atom_point)/min_dist
+            print("Buffer point ignores nearest atom")
+
+
+        print(buffer_point, vertex_atom_point)
+
     exit()
 
 
