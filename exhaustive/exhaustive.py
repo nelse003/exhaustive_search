@@ -182,7 +182,11 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
         sum_abs_fofc_value += abs(fofc_value)
 
+        logging.debug(site_frac, fofc_value, sum_abs_fofc_value)
+
     mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
+
+    loging.info(mean_abs_fofc_value)
 
     return mean_abs_fofc_value
 
