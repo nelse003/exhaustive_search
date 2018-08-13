@@ -48,6 +48,7 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
+# NOT SURE IF WORKS
 def start_exhaustive_logging(params):
     """Prepare logging.
 
@@ -486,8 +487,6 @@ def run(params):
 
     inputs = mmtbx.utils.process_command_line_args(args=args)
     logging.debug("Processed command line arguments using mmtbx.utils")
-
-    exit()
 
     rfs = reflection_file_utils.reflection_file_server(
         crystal_symmetry=inputs.crystal_symmetry,
