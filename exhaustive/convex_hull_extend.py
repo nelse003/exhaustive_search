@@ -11,5 +11,5 @@ params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                    "exhaustive_search_data/covalent_ratios/NUDT7A-x1906/refine.mtz"
 
 params.exhaustive.options.buffer = 1.0
-
+params.settings.processes = 1
 exhaustive(params=params)
