@@ -215,7 +215,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # print(len(atom_points))
 
     # Find atoms closest to the convex hull, which are not part of the convex hull
-    buffer_points = []
+    buffer_points_list = []
     for vertex in hull.vertices:
 
         print(list(atom_points)[vertex])
@@ -264,15 +264,33 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         print(buffer_point)
         print(type(buffer_point))
-        buffer_points.append(buffer_point)
+        buffer_points_list.append(buffer_point)
 
-    buffer_points_array = np.concatenate(buffer_points)
+    buffer_points = np.concatenate(buffer_points_list)
 
-    print(buffer_points_array)
-    print(type(buffer_points_array))
-    print(buffer_points_array.shape())
+    # generate buffer hull
+    buffer_hull = ConvexHull(buffer_points)
+
+    grid_min = flex.double(buffer_points.min())
+    grid_max = flex.double(buffer_points.max())
+
+    grid_from_selection = grid.Grid(
+        grid_spacing=params.exhaustive.options.grid_spacing,
+        origin=tuple(grid_min),
+        approx_max=tuple(grid_max))
+
+    grid_points = grid_to_np_array(grid_from_selection)
+
+    points_in_hull = []
+
+    for point in grid_points:
+        if point_in_hull(point, hull):
+            points_in_hull.append(point)
+
+    print("Points in hull: {}".format(len(points_in_hull)))
 
     exit()
+    return flex.vec3_double(list(np.stack(points_in_hull)))
 
 
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
