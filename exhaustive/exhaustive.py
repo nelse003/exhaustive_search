@@ -239,7 +239,16 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
             buffer_point = nearest_atom_point + \
                            (params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point)
+
+            print(params.exhaustive.options.buffer)
+            print(min_dist)
+            print(params.exhaustive.options.buffer/min_dist)
+            print(nearest_atom_point - vertex_atom_point)
+            print(params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point))
+            print(buffer_point)
+
             print("Buffer point at buffer distance")
+            exit()
 
         elif not params.exhaustive.options.convex_hull_ignore_nearest \
             and min_dist/2 < params.exhaustive.options.buffer:
