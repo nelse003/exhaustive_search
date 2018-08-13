@@ -55,7 +55,8 @@ def start_exhaustive_logger(params):
     Includes a description of parameters, and parameter different to default.
     """
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
-    log_path = os.path.join(params.output.log_dir,
+    log_path = os.path.join(params.output.out_dir,
+                            params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
     hdlr = logging.FileHandler(log_path)
     logger = logging.getLogger(__name__)
@@ -453,10 +454,6 @@ def run(params):
         os.mkdir(params.output.log_dir)
 
     logger = start_exhaustive_logger(params)
-
-    print(params.exhaustive.output.log_name)
-    print(params.output.log_dir)
-    exit()
 
     args = [params.input.pdb, params.input.mtz]
 
