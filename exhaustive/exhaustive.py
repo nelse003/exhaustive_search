@@ -219,7 +219,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     for vertex in hull.vertices:
 
         print(list(atom_points)[vertex])
-        vertex_atom_point = np.array(list(atom_points)[vertex])
+        vertex_atom_point = [list(atom_points)[vertex]]
         dist_matrix = distance.cdist(vertex_atom_point, atoms_not_in_occ_group_xyz)
         min_dist = dist_matrix.min()
         index_atom = dist_matrix.argmin()
