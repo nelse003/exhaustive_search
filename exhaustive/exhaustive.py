@@ -210,6 +210,9 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     hull = ConvexHull(atom_points)
 
     print(hull.vertices)
+    print(atom_points)
+    print(type(atom_points))
+    print(len(atom_points))
     # Find atoms closest to the convex hull, which are not part of the convex hull
     for vertex in hull.vertices:
 
