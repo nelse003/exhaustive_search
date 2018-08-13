@@ -230,7 +230,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
         nearest_atom_point = atoms_not_in_occ_group_xyz[index_atom]
 
         if not params.exhaustive.options.convex_hull_ignore_nearest \
-            and min_dist/2 => params.exhaustive.options.buffer:
+            and min_dist/2 >= params.exhaustive.options.buffer:
 
             buffer_point = nearest_atom_point + \
                            (params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point)
