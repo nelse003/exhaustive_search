@@ -244,7 +244,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
             print(min_dist)
             print(params.exhaustive.options.buffer/min_dist)
             print(nearest_atom_point - vertex_atom_point)
-            print(params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point))
+            print((params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point))
             print(buffer_point)
 
             print("Buffer point at buffer distance")
