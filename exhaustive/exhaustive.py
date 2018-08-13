@@ -270,7 +270,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # generate buffer hull
     buffer_hull = ConvexHull(buffer_points)
 
-    print(buffer_points.min())
+    print(buffer_points.min(axis=0))
+    print(buffer_points.min(axis=1))
     print(type(buffer_points))
     print(buffer_points.shape)
     print(buffer_hull.vertices)
