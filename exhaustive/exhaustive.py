@@ -467,6 +467,8 @@ def run(params):
     inputs = mmtbx.utils.process_command_line_args(args=args)
     logger.debug("Processed command line arguments using mmtbx.utils")
 
+    exit()
+
     rfs = reflection_file_utils.reflection_file_server(
         crystal_symmetry=inputs.crystal_symmetry,
         force_symmetry=True,
