@@ -1,5 +1,6 @@
 from exhaustive import run as exhaustive
 from phil import master_phil
+import numpy as np
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT7A-x1991"
