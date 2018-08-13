@@ -271,6 +271,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # generate buffer hull
     buffer_hull = ConvexHull(buffer_points)
 
+    print(buffer_points.min())
+
     grid_min = flex.double(buffer_points.min())
     grid_max = flex.double(buffer_points.max())
 
