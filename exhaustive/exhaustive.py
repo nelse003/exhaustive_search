@@ -276,7 +276,7 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
 
     return convex_hull_grid_points(atom_points,params)
 
-def convex_hull_grid_points(atom_points,params)
+def convex_hull_grid_points(atom_points,params):
 
     hull = ConvexHull(atom_points)
 
