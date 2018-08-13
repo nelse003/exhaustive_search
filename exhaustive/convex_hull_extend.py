@@ -2,6 +2,7 @@ from exhaustive import run as exhaustive
 from phil import master_phil
 from plotting.plot import scatter_plot
 import numpy as np
+import os
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT7A-x1991"
