@@ -6,7 +6,7 @@ from iotbx.pdb import hierarchy
 from exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
 
-logging = logging.getlogger(__name__)
+logging = logging.getLogger(__name__)
 
 def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
 

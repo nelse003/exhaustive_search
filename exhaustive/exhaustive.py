@@ -59,7 +59,7 @@ def start_exhaustive_logging(params):
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
     hdlr = logging.FileHandler(log_path)
-    logging = logging.getlogger(__name__)
+    logging = logging.getLogger(__name__)
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     hdlr.setFormatter(formatter)
     logging.addHandler(hdlr)
@@ -460,7 +460,7 @@ def run(params):
                             params.exhaustive.output.log_name + log_time)
     logging.basicConfig(filename=log_path, level=logging.DEBUG)
     # hdlr = logging.FileHandler(log_path)
-    # logging = logging.getlogger(__name__)
+    # logging = logging.getLogger(__name__)
     # formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     # hdlr.setFormatter(formatter)
     # logging.addHandler(hdlr)
