@@ -69,7 +69,9 @@ exhaustive{
 }
 select{
     resnames = DRG,FRG,LIG,UNK,UNL
-        .help = 'Residues to generate constraint groups around for occupancy refinement (comma separated list of residue identifiers, i.e. resname=LIG or resname=LIG,UNL)'
+        .help = 'Residues to generate constraint groups around for occupancy 
+                refinement (comma separated list of residue identifiers, 
+                i.e. resname=LIG or resname=LIG,UNL)'
         .type = str
 
     group_dist = 5
@@ -85,7 +87,8 @@ select{
         .type = str
 
     complete_groups = True
-        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. Generate a set of weaker constraints for overlapping atoms when False.'
+        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. 
+                 Generate a set of weaker constraints for overlapping atoms when False.'
         .type = bool
 
     verbose = True
