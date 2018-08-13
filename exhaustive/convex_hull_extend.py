@@ -1,6 +1,6 @@
 from exhaustive import run as exhaustive
 from phil import master_phil
-from.plotting.plot import scatter_plot
+from plotting.plot import scatter_plot
 import numpy as np
 
 params =  master_phil.extract()
