@@ -14,7 +14,7 @@ from utils.utils import u_iso_to_b_fac
 import seaborn as sns
 ##############################################################
 
-logger = logging.getLogger(__name__)
+logging = logging.getlogging(__name__)
 
 
 def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
@@ -29,13 +29,13 @@ def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
          skip_header=0)
 
     if len(data[0]) == 3:
-        logger.info("Using 3 column data to plot")
+        logging.info("Using 3 column data to plot")
         occ = data[:, 0]
         u_iso = data[:, 1]
         fo_fc = data[:, 2]
 
     if len(data[0]) == 4:
-        logger.info("Using 4 column data to plot")
+        logging.info("Using 4 column data to plot")
         occ = data[:, 0]
         u_iso = data[:, 2]
         fo_fc = data[:, 3]
@@ -45,7 +45,7 @@ def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
     fig = plt.figure()
 
     if three_dim_plot:
-        logger.info("Plotting 3d plot")
+        logging.info("Plotting 3d plot")
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(occ, b_iso, fo_fc)
         plt.xlabel("Occupancy")

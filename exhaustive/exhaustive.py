@@ -48,7 +48,7 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
-def start_exhaustive_logger(params):
+def start_exhaustive_logging(params):
     """Prepare logging.
 
     Logging for exhaustive search using python logging module.
@@ -59,20 +59,20 @@ def start_exhaustive_logger(params):
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
     hdlr = logging.FileHandler(log_path)
-    logger = logging.getLogger(__name__)
+    logging = logging.getlogging(__name__)
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(0)
-    logger.info("Running Exhaustive Search \n\n")
+    logging.addHandler(hdlr)
+    logging.setLevel(0)
+    logging.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
-    logger.info("Current Parameters")
-    logger.info(master_phil.format(python_object=params).as_str())
-    logger.info("Parameters Different from default")
-    logger.info(master_phil.fetch_diff(source=modified_phil).as_str())
+    logging.info("Current Parameters")
+    logging.info(master_phil.format(python_object=params).as_str())
+    logging.info("Parameters Different from default")
+    logging.info(master_phil.fetch_diff(source=modified_phil).as_str())
 
-    return logger
+    return logging
 
 
 def compute_maps(fmodel, crystal_gridding, map_type):
@@ -109,7 +109,7 @@ def compute_maps(fmodel, crystal_gridding, map_type):
 
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
-                                    params, logger):
+                                    params, logging):
     """Produce cartesian points related to occupancy groups.
 
     Get cartesian points that correspond to atoms involved in the
@@ -122,7 +122,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
     :return: occupancy_group_cart_points: The cartesian points involved
     in the bound and ground states as a list
     """
-    logger.info("For all bound and ground states, "
+    logging.info("For all bound and ground states, "
                 "select cartesian grid points for each altloc/residue \n"
                 "involved in occupancy groups. A buffer of {} Angstrom \n"
                 "is applied to minimal and maximal grid points,"
@@ -150,13 +150,13 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
             origin=tuple(grid_min),
             approx_max=tuple(grid_max))
 
-        # TODO Move to logger
+        # TODO Move to logging
         print(grid_from_selection.summary())
 
         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
             grid_from_selection.cart_points())
 
-    logger.info("Number of cartesian points to calculate "
+    logging.info("Number of cartesian points to calculate "
                 "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
 
     return occupancy_group_cart_points
@@ -187,7 +187,7 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
-                        pdb, logger):
+                        pdb, logging):
 
     """Generate csv of occupancy and B factor for bound and ground states.
 
@@ -225,8 +225,8 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         bound_states,\
         ground_states = process_refined_pdb_bound_ground_states(pdb, params)
     except UnboundLocalError:
-        logger.info("Insufficient state information for pdb file %s", pdb)
-        logger.info("Insufficient state information for pdb file %s", pdb)
+        logging.info("Insufficient state information for pdb file %s", pdb)
+        logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
     if params.exhaustive.options.convex_hull:
@@ -240,12 +240,12 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                                       bound_states,
                                                       ground_states,
                                                       params,
-                                                      logger)
+                                                      logging)
 
 
-    logger.debug(cart_points)
+    logging.debug(cart_points)
 
-    logger.info("Looping over occupancy, u_iso with occupancy "
+    logging.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "
                 "between {} and {} in steps of {}.".format(
                  params.exhaustive.options.lower_occ,
@@ -276,7 +276,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
     else:
         sum_fofc_results = map(occ_b_loop,u_iso_occ)
 
-    logger.info("Loop finished.\n"
+    logging.info("Loop finished.\n"
                 "Writing bound occupancy, ground_occupancy, u_iso, "
                 "mean |Fo-Fc| to CSV: {}".format(
         params.exhaustive.output.csv_name))
@@ -458,34 +458,34 @@ def run(params):
     log_path = os.path.join(params.output.out_dir,
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
-    logger = logging.basicConfig(filename=log_path, level=logging.DEBUG)
+    logging.basicConfig(filename=log_path, level=logging.DEBUG)
     # hdlr = logging.FileHandler(log_path)
-    # logger = logging.getLogger(__name__)
+    # logging = logging.getlogging(__name__)
     # formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     # hdlr.setFormatter(formatter)
-    # logger.addHandler(hdlr)
-    # logger.setLevel(0)
-    logger.info("Running Exhaustive Search \n\n")
+    # logging.addHandler(hdlr)
+    # logging.setLevel(0)
+    logging.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
-    logger.info("Current Parameters")
-    logger.info(master_phil.format(python_object=params).as_str())
-    logger.info("Parameters Different from default")
-    logger.info(master_phil.fetch_diff(source=modified_phil).as_str())
+    logging.info("Current Parameters")
+    logging.info(master_phil.format(python_object=params).as_str())
+    logging.info("Parameters Different from default")
+    logging.info(master_phil.fetch_diff(source=modified_phil).as_str())
 
-    #logger = start_exhaustive_logger(params)
+    #logging = start_exhaustive_logging(params)
 
     args = [params.input.pdb, params.input.mtz]
 
     header = " ############################################# "
-    logger.info("\n {} \n #".format(header) + params.input.xtal_name
+    logging.info("\n {} \n #".format(header) + params.input.xtal_name
                 + ": running exhaustive search \n {}".format(header))
 
-    logger.info("Processing input PDB and reflection files. "
+    logging.info("Processing input PDB and reflection files. "
                 "Parse into xray structure, fmodel and hierarchies")
 
     inputs = mmtbx.utils.process_command_line_args(args=args)
-    logger.debug("Processed command line arguments using mmtbx.utils")
+    logging.debug("Processed command line arguments using mmtbx.utils")
 
     exit()
 
@@ -494,28 +494,28 @@ def run(params):
         force_symmetry=True,
         reflection_files=inputs.reflection_files,
         err=StringIO())
-    logger.debug("Processed reflection files using reflection file server")
+    logging.debug("Processed reflection files using reflection file server")
 
     # TODO Way to select appropriate labels? #55
     column_type = "F,SIGF"
-    logger.debug("Extracting a copy of data_and_flags_master_params "
+    logging.debug("Extracting a copy of data_and_flags_master_params "
                  "from mmtbx utils. Adding labels {} for mtz column type "
                  "to use".format(column_type))
     data_flags_params = data_and_flags_master_params().extract()
     data_flags_params.labels = column_type
 
-    logger.debug("Default parameters supplied to "
+    logging.debug("Default parameters supplied to "
                  "mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().as_str())
+    logging.debug(data_and_flags_master_params().as_str())
 
-    logger.debug("Current parameters supplied to "
+    logging.debug("Current parameters supplied to "
                  "mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().format(
+    logging.debug(data_and_flags_master_params().format(
         python_object=data_flags_params).as_str())
 
-    logger.debug("Parameters different to default, "
+    logging.debug("Parameters different to default, "
                  "supplied to mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().fetch_diff(
+    logging.debug(data_and_flags_master_params().fetch_diff(
         source=data_and_flags_master_params().format(
             python_object=data_flags_params)).as_str())
 
@@ -525,11 +525,11 @@ def run(params):
         keep_going=True,
         log=StringIO())
 
-    logger.debug("Processed data and flags")
+    logging.debug("Processed data and flags")
 
     pdb_inp = iotbx.pdb.input(file_name=inputs.pdb_file_names[0])
 
-    logger.debug("Constructing hierarchy from input PDB: "
+    logging.debug("Constructing hierarchy from input PDB: "
                  + inputs.pdb_file_names[0])
 
     ph = pdb_inp.construct_hierarchy()
@@ -542,19 +542,19 @@ def run(params):
     # xrs.show_summary(f = summary_str)
     # print(summary_str)
 
-    logger.info("Extract Fobs and free-r flags")
+    logging.info("Extract Fobs and free-r flags")
 
     f_obs = determined_data_and_flags.f_obs
     r_free_flags = determined_data_and_flags.r_free_flags
 
-    logger.info("Define map grididng")
+    logging.info("Define map grididng")
 
     crystal_gridding = f_obs.crystal_gridding(
         d_min=f_obs.d_min(),
         symmetry_flags=maptbx.use_space_group_symmetry,
         resolution_factor=1./4)
 
-    logger.info("Define fmodel")
+    logging.info("Define fmodel")
 
     mask_params = mmtbx.masks.mask_master_params.extract()
     mask_params.ignore_hydrogens = False
@@ -565,14 +565,14 @@ def run(params):
         mask_params=mask_params,
         xray_structure=xrs)
     fmodel.update_all_scales()
-    logger.info("r_work: {0} r_free: {1}".format(fmodel.r_work(),
+    logging.info("r_work: {0} r_free: {1}".format(fmodel.r_work(),
                                                  fmodel.r_free()))
-    logger.info("Organising output directory")
+    logging.info("Organising output directory")
     os.chdir(params.output.out_dir)
 
     pdb = args[0]
 
-    logger.info("Run main calculation of |Fo-Fc| at grid points near ligand")
+    logging.info("Run main calculation of |Fo-Fc| at grid points near ligand")
 
     try:
         calculate_mean_fofc(params=params,
@@ -581,7 +581,7 @@ def run(params):
                             fmodel=fmodel,
                             crystal_gridding=crystal_gridding,
                             pdb=pdb,
-                            logger=logger)
+                            logging=logging)
     except UnboundLocalError:
         raise
 
