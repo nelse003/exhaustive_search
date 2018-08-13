@@ -229,6 +229,11 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         nearest_atom_point = atoms_not_in_occ_group_xyz[index_atom]
 
+        print(nearest_atom_point)
+        print(type(nearest_atom_point))
+        print(vertex_atom_point)
+        print(type(vertex_atom_point))
+
         if not params.exhaustive.options.convex_hull_ignore_nearest \
             and min_dist/2 >= params.exhaustive.options.buffer:
 
