@@ -453,7 +453,26 @@ def run(params):
     if not os.path.exists(os.path.join(params.output.out_dir,params.output.log_dir)):
         os.mkdir(os.path.join(params.output.out_dir,params.output.log_dir))
 
-    logger = start_exhaustive_logger(params)
+
+    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
+    log_path = os.path.join(params.output.out_dir,
+                            params.output.log_dir,
+                            params.exhaustive.output.log_name + log_time)
+    hdlr = logging.FileHandler(log_path)
+    logger = logging.getLogger(__name__)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(0)
+    logger.info("Running Exhaustive Search \n\n")
+
+    modified_phil = master_phil.format(python_object=params)
+    logger.info("Current Parameters")
+    logger.info(master_phil.format(python_object=params).as_str())
+    logger.info("Parameters Different from default")
+    logger.info(master_phil.fetch_diff(source=modified_phil).as_str())
+
+    #logger = start_exhaustive_logger(params)
 
     args = [params.input.pdb, params.input.mtz]
 
