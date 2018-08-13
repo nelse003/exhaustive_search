@@ -57,8 +57,6 @@ exhaustive{
             .type = bool
         convex_hull = True
             .type = bool
-        convex_hull_buffer = True
-            .type = bool
         convex_hull_ignore_nearest = False
             .type = bool
             .help = "Default behaviour is to consider the buffer to be 
