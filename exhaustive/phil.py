@@ -61,10 +61,10 @@ exhaustive{
             .type = bool
         convex_hull_ignore_nearest = False
             .type = bool
-            .help = Default behaviour is to consider the buffer to be 
+            .help = "Default behaviour is to consider the buffer to be 
             at most half the distance to the nearest atom. If this is 
             set the buffer is applied regardless, should still be in
-            the direction of the nearest atom
+            the direction of the nearest atom"
     }
 }
 select{
