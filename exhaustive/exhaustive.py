@@ -189,10 +189,9 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
     selection_string = " or ".join(selection_string_list)
     not_selection_string ="not ({})".format(selection_string)
-    tmp_hierarchy = pdb_in.construct_hierarchy()
-    sel_cache = tmp_hierarchy.atom_selection_cache()
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
     remove_atoms_sel = sel_cache.selection(not_selection_string)
-    removed_hier = tmp_hierarchy.select(remove_atoms_sel)
+    removed_hier = pdb_in.hierarchy.select(remove_atoms_sel)
 
     atoms_not_in_occ_group = removed_hier.atoms()
 
@@ -208,11 +207,6 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
     # generate a convex hull
     hull = ConvexHull(atom_points)
-
-    # print(hull.vertices)
-    # print(atom_points)
-    # print(type(atom_points))
-    # print(len(atom_points))
 
     # Find atoms closest to the convex hull, which are not part of the convex hull
     buffer_points = []
@@ -240,14 +234,6 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
             buffer_point = vertex_atom_point + \
                            (params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point)
 
-            # print(nearest_atom_point,vertex_atom_point)
-            # print(params.exhaustive.options.buffer)
-            # print(min_dist)
-            # print(params.exhaustive.options.buffer/min_dist)
-            # print(nearest_atom_point - vertex_atom_point)
-            # print((params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point))
-            # print(buffer_point)
-
             print("Buffer point at buffer distance")
 
         elif not params.exhaustive.options.convex_hull_ignore_nearest \
@@ -265,30 +251,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
         buffer_points.append(buffer_point)
 
     buffer_points = np.concatenate(buffer_points)
-    print(buffer_points)
 
-    # generate buffer hull
-    buffer_hull = ConvexHull(buffer_points)
-    grid_min = flex.double(buffer_points.min(axis=0))
-    grid_max = flex.double(buffer_points.max(axis=0))
-
-    grid_from_selection = grid.Grid(
-        grid_spacing=params.exhaustive.options.grid_spacing,
-        origin=tuple(grid_min),
-        approx_max=tuple(grid_max))
-
-    grid_points = grid_to_np_array(grid_from_selection)
-
-    points_in_hull = []
-
-    for point in grid_points:
-        if point_in_hull(point, hull):
-            points_in_hull.append(point)
-
-    print("Points in hull: {}".format(len(points_in_hull)))
-
-    exit()
-    return flex.vec3_double(list(np.stack(points_in_hull)))
+    return convex_hull_grid_points(buffer_points, params)
 
 
 def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
@@ -299,10 +263,6 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
     states = bound_states + ground_states
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
-
-    # Not sure what i was trying to do here?
-    #pdb_atoms.de
-
     atom_points = flex.vec3_double()
 
     all_selected_atoms =[]
@@ -314,14 +274,20 @@ def convex_hull_from_occupancy_group_grid_points(pdb, bound_states,
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
+    return convex_hull_grid_points(atom_points,params)
+
+def convex_hull_grid_points(atom_points,params)
+
     hull = ConvexHull(atom_points)
 
-    # for atom in all_selected_atoms:
-    #
-    # exit()
-
-    grid_min = flex.double(atom_points.min())
-    grid_max = flex.double(atom_points.max())
+    if  isinstance(atom_points,flex.vec3_double):
+        grid_min = flex.double(atom_points.min())
+        grid_max = flex.double(atom_points.max())
+    elif isinstance(atom_points,np.ndarray):
+        grid_min = flex.double(atom_points.min(axis=0))
+        grid_max = flex.double(atom_points.max(axis=0))
+    else:
+        raise TypeError("Convex hull grids need either numpy array, or flex.vec3_double")
 
     grid_from_selection = grid.Grid(
         grid_spacing=params.exhaustive.options.grid_spacing,
