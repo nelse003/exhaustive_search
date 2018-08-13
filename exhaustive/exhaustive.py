@@ -262,7 +262,16 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
                            (nearest_atom_point - vertex_atom_point)/min_dist
             print("Buffer point ignores nearest atom")
 
-        buffer_points.append(list(np.stack(buffer_point)))
+        print(buffer_point)
+        print([1, 2, 3])
+        print(flex.vec3_double([1, 2, 3]))
+        print(flex.vec3_double(buffer_point))
+        exit()
+
+
+        buffer_points.append(buffer_point)
+
+
 
     print(buffer_points)
     exit()
