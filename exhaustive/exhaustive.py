@@ -215,7 +215,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
     # print(len(atom_points))
 
     # Find atoms closest to the convex hull, which are not part of the convex hull
-    buffer_points = flex.vec3_double()
+    buffer_points = []
     for vertex in hull.vertices:
 
         print(list(atom_points)[vertex])
@@ -264,10 +264,14 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         print(buffer_point)
         print(type(buffer_point))
+        buffer_points.append(buffer_point)
 
-        #buffer_points.append(buffer_point)
+    buffer_points_array = np.concatenate(buffer_points)
 
-    print(buffer_points)
+    print(buffer_points_array)
+    print(type(buffer_points_array))
+    print(buffer_points_array.shape())
+
     exit()
 
 
