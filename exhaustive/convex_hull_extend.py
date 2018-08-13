@@ -19,7 +19,9 @@ params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
     str(params.exhaustive.options.buffer).replace('.', '_'))
 
 #exhaustive(params=params)
-scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+scatter_plot(os.path.join(params.output.out_dir,
+                          params.exhaustive.output.csv_name),
+             three_dim_plot=True,
              title_text="{}_convex_hull_buffer".format(str(
                  params.exhaustive.options.buffer).replace('.', '_')))
 
@@ -29,16 +31,22 @@ for buffer in np.arange(0,4,0.5):
     params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
         str(params.exhaustive.options.buffer).replace('.','_'))
     #exhaustive(params=params)
-    scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+    scatter_plot(os.path.join(params.output.out_dir,
+                          params.exhaustive.output.csv_name),
+                              three_dim_plot=True,
                  title_text="{}_convex_hull_buffer".format(str(
                      params.exhaustive.options.buffer).replace('.', '_')))
 
-scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+scatter_plot(os.path.join(params.output.out_dir,
+                          params.exhaustive.output.csv_name),
+             three_dim_plot=True,
              title_text="convex_hull_no_buffer")
 
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
 params.exhaustive.options.convex_hull = False
-scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+scatter_plot(os.path.join(params.output.out_dir,
+                          params.exhaustive.output.csv_name),
+             three_dim_plot=True,
              title_text="no convex hull")
 
 exit()
