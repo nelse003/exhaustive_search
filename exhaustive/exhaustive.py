@@ -450,8 +450,8 @@ def run(params):
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
 
-    if not os.path.exists(params.output.log_dir):
-        os.mkdir(params.output.log_dir)
+    if not os.path.exists(os.path.join(params.output.out_dir,params.output.log_dir)):
+        os.mkdir(os.path.join(params.output.out_dir,params.output.log_dir))
 
     logger = start_exhaustive_logger(params)
 
