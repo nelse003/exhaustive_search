@@ -169,6 +169,8 @@ def atoms_not_in_occ_groups(pdb, params):
     
     """
 
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+
     occupancy_groups = get_occupancy_groups(pdb, params)
     selection_string_list = []
     for group in occupancy_groups:
@@ -187,7 +189,6 @@ def atoms_not_in_occ_groups(pdb, params):
     remove_atoms_sel = sel_cache.selection(not_selection_string)
     removed_hier = pdb_in.hierarchy.select(remove_atoms_sel)
 
-    atoms_not_in_occ_group = removed_hier.atoms()
     return removed_hier.atoms()
 
 
