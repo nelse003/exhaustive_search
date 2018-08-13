@@ -23,6 +23,7 @@ params.settings.processes = 1
 
 #scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
 
+params.options.generate_mtz= True
 params.exhaustive.options.convex_hull = True
 params.exhaustive.output.csv_name = "convex_hull.csv"
 exhaustive(params = params)

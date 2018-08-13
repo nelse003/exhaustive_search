@@ -182,12 +182,7 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
         sum_abs_fofc_value += abs(fofc_value)
 
-        logging.debug(type(fofc_value))
-        logging.debug(sum_abs_fofc_value)
-
     mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
-
-    logging.info(mean_abs_fofc_value)
 
     return mean_abs_fofc_value
 
@@ -426,8 +421,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     mean_abs_fofc_value = get_mean_fofc_over_cart_sites(
         cart_points, fofc_map, inputs)
-
-    print(bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value)
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
