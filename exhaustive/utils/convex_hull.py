@@ -6,6 +6,8 @@ from scipy.spatial import distance
 
 from scitbx.array_family import flex
 
+import giant.grid as grid
+
 from select_atoms import get_occupancy_groups
 
 def convex_hull_from_states(pdb, bound_states, ground_states, params):
