@@ -264,7 +264,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         print(buffer_point)
         print([1, 2, 3])
-        print(flex.vec3_double([1, 2, 3]))
+        print(flex.vec3_double([1.0, 2.0, 3.0]))
         print(flex.vec3_double(buffer_point))
         exit()
 
