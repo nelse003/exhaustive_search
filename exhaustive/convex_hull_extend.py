@@ -13,6 +13,12 @@ params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests"
 params.settings.processes = 1
 
+params.exhaustive.options.buffer = 1.35
+params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
+    str(params.exhaustive.options.buffer).replace('.', '_'))
+exhaustive(params=params)
+exit()
+
 for buffer in np.arange(0,4,0.5):
 
     params.exhaustive.options.buffer = buffer
