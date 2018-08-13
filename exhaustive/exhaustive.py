@@ -353,6 +353,7 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                         pdb, logger):
+
     """Generate csv of occupancy and B factor for bound and ground states.
 
     Wrapper to prepare for main loop. Outputs a csv with ground_occupancy,
@@ -393,11 +394,11 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logger.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    if params.testing.testing:
+    if params.exhaustive.options.convex_hull_buffer:
 
-        extend_convex_hull(pdb, bound_states, ground_states, params)
+        cart_points = extend_convex_hull(pdb, bound_states, ground_states, params)
 
-    if params.exhaustive.options.convex_hull:
+    elif params.exhaustive.options.convex_hull:
 
         cart_points = convex_hull_from_occupancy_group_grid_points(pdb,
                                                                       bound_states,
