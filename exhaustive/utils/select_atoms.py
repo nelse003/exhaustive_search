@@ -11,7 +11,7 @@ from iotbx.pdb import hierarchy
 
 ##############################################################
 import logging
-logging = logging.getlogging(__name__)
+logging = logging.getlogger(__name__)
 ##############################################################
 # Shared Functions
 ##############################################################

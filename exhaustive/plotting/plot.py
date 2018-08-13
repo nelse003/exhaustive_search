@@ -14,7 +14,7 @@ from utils.utils import u_iso_to_b_fac
 import seaborn as sns
 ##############################################################
 
-logging = logging.getlogging(__name__)
+logging = logging.getlogger(__name__)
 
 
 def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
