@@ -19,9 +19,6 @@ from cStringIO import StringIO
 
 import giant.grid as grid
 
-from utils.select_atoms import process_refined_pdb_bound_ground_states
-from utils.convex_hull import convex_hull_from_states
-
 from phil import master_phil
 import cctbx.miller
 import iotbx.ccp4_map
@@ -38,6 +35,8 @@ from scitbx.array_family import flex
 from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
 
+from utils.select_atoms import process_refined_pdb_bound_ground_states
+from utils.convex_hull import convex_hull_from_states
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
