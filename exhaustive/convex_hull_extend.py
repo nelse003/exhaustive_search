@@ -4,23 +4,33 @@ from plotting.plot import scatter_plot
 import numpy as np
 import os
 
-scatter_plot("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+params =  master_phil.extract()
+params.input.xtal_name = "NUDT22A-x"
+
+params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
 "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/" \
-"FMOPL000622a_DSI_poised/NUDT22A-x0955/NUDT22A-x0955_exhaustive_search_occ_u_iso.csv",
-three_dim_plot=True)
+"FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.pdb"
+params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+"repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/" \
+"FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.mtz"
+
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT22A-x0955"
+params.settings.processes = 1
+
+params.exhaustive.output.csv_name = "no_convex_hull.csv"
+params.exhaustive.options.convex_hull = False
+exhaustive(params = params)
+
+scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+
+params.exhaustive.options.convex_hull = True
+params.exhaustive.output.csv_name = "convex_hull.csv"
+exhaustive(params = params)
+
+scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
 
 exit()
 
-params =  master_phil.extract()
-params.input.xtal_name = "NUDT7A-x1991"
-
-params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                   "exhaustive_search_data/covalent_ratios/NUDT7A-x1991/refine.pdb"
-params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                   "exhaustive_search_data/covalent_ratios/NUDT7A-x1991/refine.mtz"
-
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests"
-params.settings.processes = 1
 
 params.exhaustive.options.buffer = 1.35
 params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
