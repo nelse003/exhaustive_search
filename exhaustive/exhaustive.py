@@ -264,7 +264,8 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
 
         buffer_points.append(list(np.stack(buffer_point))
 
-    buffer_points = np.concatenate(buffer_points)
+    print(buffer_points)
+    exit())
 
     # generate buffer hull
     buffer_hull = ConvexHull(buffer_points)
