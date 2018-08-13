@@ -1,5 +1,6 @@
 from exhaustive import run as exhaustive
 from phil import master_phil
+from.plotting.plot import scatter_plot
 import numpy as np
 
 params =  master_phil.extract()
@@ -16,23 +17,31 @@ params.settings.processes = 1
 params.exhaustive.options.buffer = 1.35
 params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
     str(params.exhaustive.options.buffer).replace('.', '_'))
-exhaustive(params=params)
-exit()
+
+#exhaustive(params=params)
+scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+             title_text="{}_convex_hull_buffer".format(str(
+                 params.exhaustive.options.buffer).replace('.', '_')))
 
 for buffer in np.arange(0,4,0.5):
 
     params.exhaustive.options.buffer = buffer
     params.exhaustive.output.csv_name = "{}_convex_hull_buffer.csv".format(
         str(params.exhaustive.options.buffer).replace('.','_'))
-    exhaustive(params=params)
+    #exhaustive(params=params)
+    scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+                 title_text="{}_convex_hull_buffer".format(str(
+                     params.exhaustive.options.buffer).replace('.', '_')))
 
-params.exhaustive.output.csv_name = "convex_hull_no_buffer.csv"
-params.exhaustive.options.convex_hull_buffer = False
-exhaustive(params=params)
+scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+             title_text="convex_hull_no_buffer")
 
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
 params.exhaustive.options.convex_hull = False
-exhaustive(params=params)
+scatter_plot(params.exhaustive.output.csv_name, three_dim_plot=True,
+             title_text="no convex hull")
+
+exit()
 
 for buffer in np.arange(0,6,0.5):
 
