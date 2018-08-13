@@ -455,7 +455,7 @@ def run(params):
     logger = start_exhaustive_logger(params)
 
     print(params.exhaustive.output.log_name)
-
+    print(params.output.log_dir)
     exit()
 
     args = [params.input.pdb, params.input.mtz]
