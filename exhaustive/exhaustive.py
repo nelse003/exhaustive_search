@@ -458,12 +458,13 @@ def run(params):
     log_path = os.path.join(params.output.out_dir,
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
-    hdlr = logging.FileHandler(log_path)
-    logger = logging.getLogger(__name__)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(0)
+    logging.basicConfig(filename=log_path, level=logging.DEBUG)
+    # hdlr = logging.FileHandler(log_path)
+    # logger = logging.getLogger(__name__)
+    # formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
+    # hdlr.setFormatter(formatter)
+    # logger.addHandler(hdlr)
+    # logger.setLevel(0)
     logger.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
