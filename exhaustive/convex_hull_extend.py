@@ -4,6 +4,13 @@ from plotting.plot import scatter_plot
 import numpy as np
 import os
 
+scatter_plot("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+"repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/" \
+"FMOPL000622a_DSI_poised/NUDT22A-x0955/NUDT22A-x0955_exhaustive_search_occ_u_iso.csv",
+three_dim_plot=True)
+
+exit()
+
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT7A-x1991"
 
