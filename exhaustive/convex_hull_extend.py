@@ -10,4 +10,6 @@ params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
 params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                    "exhaustive_search_data/covalent_ratios/NUDT7A-x1906/refine.mtz"
 
+params.exhaustive.options.buffer =2
+
 exhaustive(params=params)
