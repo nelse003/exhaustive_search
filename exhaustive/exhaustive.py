@@ -63,7 +63,7 @@ def start_exhaustive_logger(params):
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     hdlr.setFormatter(formatter)
     logger.addHandler(hdlr)
-
+    logger.setLevel(info)
     logger.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
