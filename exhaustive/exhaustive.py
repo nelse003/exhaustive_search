@@ -254,7 +254,7 @@ def extend_convex_hull(pdb, bound_states, ground_states, params):
             print("Buffer point ignores nearest atom")
 
 
-        print(buffer_point, vertex_atom_point)
+        print(buffer_point, vertex_atom_point, nearest_atom_point)
 
     exit()
 
