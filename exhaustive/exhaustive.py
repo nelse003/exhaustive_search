@@ -454,6 +454,10 @@ def run(params):
 
     logger = start_exhaustive_logger(params)
 
+    print(params.exhaustive.output.log_name)
+
+    exit()
+
     args = [params.input.pdb, params.input.mtz]
 
     header = " ############################################# "
