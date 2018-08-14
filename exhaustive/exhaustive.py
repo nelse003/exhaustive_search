@@ -390,6 +390,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
         logging.debug(str(bound_state))
         logging.debug(str(len(sites_frac)))
+        print("|||||||||||||||||||||||||||||||||||||||||||||")
         print(bound_state[0][1809])
         print(bound_state[0])
         print(bound_state[1])
