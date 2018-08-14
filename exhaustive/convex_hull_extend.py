@@ -13,16 +13,16 @@ params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_
 "NUDT7_covalent/NUDT7A-x1812/refine_0007/output.mtz"
 
 
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT7A-x1812"
-params.settings.processes = 1
+# params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT7A-x1812"
+# params.settings.processes = 1
+#
+# params.exhaustive.output.csv_name = "no_convex_hull.csv"
+# params.exhaustive.options.convex_hull = False
+# exhaustive(params = params)
+#
+# scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
 
-params.exhaustive.output.csv_name = "no_convex_hull.csv"
-params.exhaustive.options.convex_hull = False
-exhaustive(params = params)
-
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
-
-# params.exhaustive.options.generate_mtz= True
+params.exhaustive.options.generate_mtz= True
 params.exhaustive.options.convex_hull = True
 params.exhaustive.output.csv_name = "convex_hull.csv"
 exhaustive(params = params)
@@ -69,14 +69,14 @@ scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_nam
 #
 # exit()
 
-for buffer in np.arange(0,6,0.5):
-
-    convex_hull_ignore_nearest = True
-    params.exhaustive.options.buffer = buffer
-    params.exhaustive.output.csv_name = "{}_convex_hull_buffer_ignore_nearest.csv".format(
-        str(params.exhaustive.options.buffer).replace('.','_'))
-    exhaustive(params=params)
-    scatter_plot(os.path.join(params.output.out_dir,
-                              params.exhaustive.output.csv_name),
-                 three_dim_plot=True,
-                 title_text="convex hull ignore nearest atoms buffer {}".format(params.exhaustive.options.buffer))
+# for buffer in np.arange(0,6,0.5):
+#
+#     convex_hull_ignore_nearest = True
+#     params.exhaustive.options.buffer = buffer
+#     params.exhaustive.output.csv_name = "{}_convex_hull_buffer_ignore_nearest.csv".format(
+#         str(params.exhaustive.options.buffer).replace('.','_'))
+#     exhaustive(params=params)
+#     scatter_plot(os.path.join(params.output.out_dir,
+#                               params.exhaustive.output.csv_name),
+#                  three_dim_plot=True,
+#                  title_text="convex hull ignore nearest atoms buffer {}".format(params.exhaustive.options.buffer))
