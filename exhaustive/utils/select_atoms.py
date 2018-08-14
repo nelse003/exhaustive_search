@@ -513,14 +513,14 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         #     bound_states
         # except NameError:
         #     logging.info("There is no bound state.")
-        print(occupancy_groups)
-        print("len occ_groups {}".format(len(occupancy_groups)))
 
-        print("BOUND")
-        print(bound_states)
+        logger.info("len occ_groups {}".format(len(occupancy_groups)))
 
-        print("GROUND")
-        print(ground_states)
+        logger.info("BOUND")
+        logger.info(bound_states)
+
+        logger.info("GROUND")
+        logger.info(ground_states)
 
         return bound_states, ground_states
 
