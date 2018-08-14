@@ -460,12 +460,6 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
 
-    print("______________________________")
-    print(occupancy_groups)
-    print("______________________________")
-    print(len(occupancy_groups))
-    print(len(occupancy_groups[0]))
-
     if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
 
         print("THERE")
