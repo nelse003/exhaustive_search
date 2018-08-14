@@ -494,9 +494,9 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 logging.debug(state)
 
             if bound_state_flag:
-                bound_states = state
+                bound_states += state
             else:
-                ground_states = state
+                ground_states += state
 
         # try:
         #     ground_states
