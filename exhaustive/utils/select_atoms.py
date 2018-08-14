@@ -493,7 +493,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 logging.debug("APPEND STATE")
                 logging.debug(state)
 
-            print(type(ground_states))
+            print(type(state))
             exit()
             if bound_state_flag:
                 bound_states += state
