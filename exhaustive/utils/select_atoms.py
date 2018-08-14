@@ -475,9 +475,6 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         for occupancy_group in occupancy_groups[0]:
 
-            print("AAA")
-            print(occupancy_group)
-
             bound_state_flag = False
             state = []
             for residue_altloc in occupancy_group:
