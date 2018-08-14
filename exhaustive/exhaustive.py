@@ -385,7 +385,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     bound_count_true = 0
     for bound_state in bound_states:
         logging.debug(str(bound_state))
-        logging.debug(len(sites_frac))
+        logging.debug(str(len(sites_frac)))
         for i, site_frac in enumerate(sites_frac):
             num_altlocs = bound_state[1]
             set_bound_occupancy = bound_occupancy / num_altlocs
@@ -413,7 +413,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         map_type="mFo-DFc")
 
     logging.debug(str(xrs_dc.as_pdb_file()))
-    logging.debug("Bound atom count:", bound_count_true)
+    logging.debug("Bound atom count:", str(bound_count_true))
     exit()
 
     if params.exhaustive.options.generate_mtz:
