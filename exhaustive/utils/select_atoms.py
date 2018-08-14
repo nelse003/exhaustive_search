@@ -490,6 +490,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 resseq = residue_altloc.get('resseq')
                 logging.info("{} State: {}".format(state_string, (((altloc,), resseq, chain))))
                 state.append(get_bound_ground_selection(sel_cache, (((altloc,), resseq, chain))))
+                loggging.debug("APPEND STATE")
+                logging.debug(state)
 
             if bound_state_flag:
                 bound_states = state
