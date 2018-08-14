@@ -152,7 +152,6 @@ def atom_points_within_states(pdb, bound_states, ground_states):
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
     atom_points = flex.vec3_double()
-    all_selected_atoms = []
 
     for state in states:
         selection = state[0]
@@ -162,6 +161,17 @@ def atom_points_within_states(pdb, bound_states, ground_states):
         atom_points = atom_points.concatenate(sites_cart)
 
     return atom_points
+
+def atom_points_from_sel_string(pdb, selection_string):
+
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
+    atoms_sel = sel_cache.selection(selection_string)
+    atoms_selected = pdb_in.hierarchy.select(atoms_sel)
+    atom_points = atoms_selected.extract_xyz()
+
+    return atom_points
+
 
 def atoms_not_in_occ_groups(pdb, params):
 

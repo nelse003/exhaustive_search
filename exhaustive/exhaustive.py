@@ -36,7 +36,7 @@ from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
 
 from utils.select_atoms import process_refined_pdb_bound_ground_states
-from utils.convex_hull import convex_hull_from_states
+from utils.convex_hull import convex_hull_from_states, atom_points_from_sel_string
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -230,18 +230,22 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    if params.exhaustive.options.convex_hull:
+    cart_points = atom_points_from_sel_string(pdb,
+                                              selection_string=
+                                              "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
 
-        cart_points = convex_hull_from_states(pdb,
-                                              bound_states,
-                                              ground_states,
-                                              params)
-    else:
-        cart_points = get_occupancy_group_grid_points(pdb,
-                                                      bound_states,
-                                                      ground_states,
-                                                      params,
-                                                      logging)
+    # if params.exhaustive.options.convex_hull:
+    #
+    #     cart_points = convex_hull_from_states(pdb,
+    #                                           bound_states,
+    #                                           ground_states,
+    #                                           params)
+    # else:
+    #     cart_points = get_occupancy_group_grid_points(pdb,
+    #                                                   bound_states,
+    #                                                   ground_states,
+    #                                                   params,
+    #                                                   logging)
 
 
     logging.debug(cart_points)
