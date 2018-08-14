@@ -473,6 +473,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         #[altloc_selection, num_altlocs]
         #{'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
 
+        bound_states = []
+        ground_states = []
         for occupancy_group in occupancy_groups[0]:
 
             bound_state_flag = False
@@ -493,8 +495,6 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 logging.debug("APPEND STATE")
                 logging.debug(state)
 
-            print(type(state))
-            exit()
             if bound_state_flag:
                 bound_states += state
             else:
