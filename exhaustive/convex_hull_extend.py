@@ -76,7 +76,7 @@ for buffer in np.arange(0,6,0.5):
     params.exhaustive.options.buffer = buffer
     params.exhaustive.output.csv_name = "{}_convex_hull_buffer_ignore_nearest.csv".format(
         str(params.exhaustive.options.buffer).replace('.','_'))
-    exhaustive(params=params)
+    #exhaustive(params=params)
     scatter_plot(os.path.join(params.output.out_dir,
                               params.exhaustive.output.csv_name),
                  three_dim_plot=True,
