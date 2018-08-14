@@ -230,22 +230,22 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    cart_points = atom_points_from_sel_string(pdb,
-                                              selection_string=
-                                              "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
+    # cart_points = atom_points_from_sel_string(pdb,
+    #                                           selection_string=
+    #                                           "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
 
-    # if params.exhaustive.options.convex_hull:
-    #
-    #     cart_points = convex_hull_from_states(pdb,
-    #                                           bound_states,
-    #                                           ground_states,
-    #                                           params)
-    # else:
-    #     cart_points = get_occupancy_group_grid_points(pdb,
-    #                                                   bound_states,
-    #                                                   ground_states,
-    #                                                   params,
-    #                                                   logging)
+    if params.exhaustive.options.convex_hull:
+
+        cart_points = convex_hull_from_states(pdb,
+                                              bound_states,
+                                              ground_states,
+                                              params)
+    else:
+        cart_points = get_occupancy_group_grid_points(pdb,
+                                                      bound_states,
+                                                      ground_states,
+                                                      params,
+                                                      logging)
 
 
     logging.debug(cart_points)
@@ -394,8 +394,8 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         for i, site_frac in enumerate(sites_frac):
             num_altlocs = bound_state[1]
             set_bound_occupancy = bound_occupancy / num_altlocs
-            logging.debug("Occs:", set_bound_occupancy, bound_occupancy, num_altlocs)
-            logging.debug(str(bound_state[0][i]))
+            #logging.debug("Occs:", set_bound_occupancy, bound_occupancy, num_altlocs)
+            #logging.debug(str(bound_state[0][i]))
             if (bound_state[0][i]):
                 bound_count_true += 1
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
@@ -417,7 +417,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    logging.debug(str(xrs_dc.as_pdb_file()))
+    #logging.debug(str(xrs_dc.as_pdb_file()))
     logging.debug("Bound atom count:{}".format(bound_count_true))
 
     if params.exhaustive.options.generate_mtz:
