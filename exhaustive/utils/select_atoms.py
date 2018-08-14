@@ -453,6 +453,9 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     logging.info("Process pdb file to get bound and ground states.")
 
     occupancy_groups = get_occupancy_groups(pdb, params)
+
+    logging.debug(occupancy_group)
+
     pdb_inp = iotbx.pdb.input(pdb)
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
