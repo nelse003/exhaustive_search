@@ -383,6 +383,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     xrs_dc = xrs.deep_copy_scatterers()
 
     print(type(sites_frac))
+    print(sites_frac.size())
     exit()
 
     bound_count_true = 0
