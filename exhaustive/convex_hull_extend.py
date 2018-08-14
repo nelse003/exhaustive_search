@@ -14,7 +14,7 @@ params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_
 
 
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT7A-x1812-lig-atoms"
-# params.settings.processes = 1
+params.settings.processes = 1
 #
 # params.exhaustive.output.csv_name = "no_convex_hull.csv"
 # params.exhaustive.options.convex_hull = False
