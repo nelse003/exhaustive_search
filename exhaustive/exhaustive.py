@@ -234,6 +234,10 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                               selection_string=
                                               "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
 
+    print(cart_points)
+    print(len(cart_points))
+    exit()
+
     # if params.exhaustive.options.convex_hull:
     #
     #     cart_points = convex_hull_from_states(pdb,
