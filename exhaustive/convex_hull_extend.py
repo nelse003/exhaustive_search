@@ -70,7 +70,7 @@ params.settings.processes = 1
 #
 # exit()
 
-for buffer in np.arange(0,6,0.5):
+for buffer in np.arange(2,6,0.5):
 
     convex_hull_ignore_nearest = False
     params.exhaustive.options.buffer = buffer
