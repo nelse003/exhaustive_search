@@ -407,6 +407,9 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
+    print(xrs_dc.as_pdb_file())
+    exit()
+
     if params.exhaustive.options.generate_mtz:
 
         output_mtz = "testing_{}_{}.mtz".format(
