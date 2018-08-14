@@ -386,7 +386,9 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         for i, site_frac in enumerate(sites_frac):
             num_altlocs = bound_state[1]
             set_bound_occupancy = bound_occupancy / num_altlocs
-            print("Occs:", set_bound_occupancy, bound_occupancy, num_altlocs)
+            logging.debug("Occs:", set_bound_occupancy, bound_occupancy, num_altlocs)
+            logging.debug(bound_state)
+            logging.debug(bound_state[0][i])
             if (bound_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
@@ -407,7 +409,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    print(xrs_dc.as_pdb_file())
+    logging.debug(xrs_dc.as_pdb_file())
     exit()
 
     if params.exhaustive.options.generate_mtz:
