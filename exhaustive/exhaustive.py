@@ -393,8 +393,8 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         print("|||||||||||||||||||||||||||||||||||||||||||||")
         print(bound_state[0][498])
         print(bound_state[0][499])
+        print(bound_state[0][1808])
         print(bound_state[0][1809])
-        print(bound_state[0][1810])
         print(bound_state[0])
         print(bound_state[1])
         continue
