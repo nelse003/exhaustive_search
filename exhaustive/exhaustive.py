@@ -394,7 +394,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         print(bound_state[0][1809])
         print(bound_state[0])
         print(bound_state[1])
-        print(bound_state[1][1809])
         continue
 
         for i, site_frac in enumerate(sites_frac):
