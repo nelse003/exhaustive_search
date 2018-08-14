@@ -454,7 +454,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
     occupancy_groups = get_occupancy_groups(pdb, params)
 
-    logging.debug(occupancy_group)
+    logging.debug(occupancy_groups)
 
     pdb_inp = iotbx.pdb.input(pdb)
     hier = pdb_inp.construct_hierarchy()
