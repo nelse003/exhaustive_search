@@ -382,6 +382,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     xrs_dc = xrs.deep_copy_scatterers()
 
+    bound_count_true = 0
     for bound_state in bound_states:
         logging.debug(str(bound_state))
         logging.debug(len(sites_frac))
@@ -391,6 +392,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
             logging.debug("Occs:", set_bound_occupancy, bound_occupancy, num_altlocs)
             logging.debug(str(bound_state[0][i]))
             if (bound_state[0][i]):
+                bound_count_true += 1
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
@@ -411,6 +413,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         map_type="mFo-DFc")
 
     logging.debug(str(xrs_dc.as_pdb_file()))
+    logging.debug("Bound atom count:", bound_count_true)
     exit()
 
     if params.exhaustive.options.generate_mtz:
