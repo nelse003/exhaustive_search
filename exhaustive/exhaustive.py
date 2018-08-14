@@ -234,10 +234,6 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                               selection_string=
                                               "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
 
-    print(cart_points)
-    print(len(cart_points))
-    exit()
-
     # if params.exhaustive.options.convex_hull:
     #
     #     cart_points = convex_hull_from_states(pdb,
@@ -430,6 +426,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     mean_abs_fofc_value = get_mean_fofc_over_cart_sites(
         cart_points, fofc_map, inputs)
 
+    print(bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value)
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
 
