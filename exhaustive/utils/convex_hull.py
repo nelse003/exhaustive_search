@@ -156,7 +156,6 @@ def atom_points_within_states(pdb, bound_states, ground_states):
     for state in states:
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
-        all_selected_atoms.append(selected_atoms)
         sites_cart = selected_atoms.extract_xyz()
         atom_points = atom_points.concatenate(sites_cart)
 
@@ -168,7 +167,7 @@ def atom_points_from_sel_string(pdb, selection_string):
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
     atoms_sel = sel_cache.selection(selection_string)
     atoms_selected = pdb_in.hierarchy.select(atoms_sel)
-    atom_points = atoms_selected.extract_xyz()
+    atom_points = atoms_selected.atoms().extract_xyz()
 
     return atom_points
 
