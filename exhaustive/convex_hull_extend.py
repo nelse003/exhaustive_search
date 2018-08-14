@@ -8,13 +8,12 @@ params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x"
 
 params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/" \
-"FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.pdb"
+"NUDT7_covalent/NUDT7A-x1812/refine.pdb"
 params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/" \
-"FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.mtz"
+"NUDT7_covalent/NUDT7A-x1812/refine.mtz"
 
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT22A-x0955"
+
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT7A-x1812"
 params.settings.processes = 1
 
 # params.exhaustive.output.csv_name = "no_convex_hull.csv"
