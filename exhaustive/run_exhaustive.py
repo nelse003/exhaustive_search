@@ -107,7 +107,6 @@ for xtal_name in xtals:
         # submit job
         os.system("qsub {}".format(os.path.join(out_dir, xtal_name,xtal_name+"_exhaustive.sh")))
 
-    exit()
 
 # Get exhaustive search minima fofc
 # with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
