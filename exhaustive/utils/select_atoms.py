@@ -516,8 +516,6 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         else:
             ground_states += state
 
-        exit()
-
         # try:
         #     ground_states
         # except NameError:
