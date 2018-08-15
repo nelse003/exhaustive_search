@@ -437,6 +437,8 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
+    # For debugging
+
     if is_almost_equal(bound_occupancy,0.25) \
             and is_almost_equal(u_iso,0.5):
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
