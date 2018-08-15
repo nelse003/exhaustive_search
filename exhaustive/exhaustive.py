@@ -222,6 +222,9 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
             u_iso_occ.append((occupancy, u_iso))
 
+    logging.debug("U_ISO_OCC")
+    logging.debug(u_iso_occ)
+
     try:
         bound_states,\
         ground_states = process_refined_pdb_bound_ground_states(pdb, params)
