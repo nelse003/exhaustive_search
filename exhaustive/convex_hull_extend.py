@@ -30,13 +30,19 @@ params.settings.processes = 1
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
 params.exhaustive.options.convex_hull = False
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.generate_mtz= True
 params.exhaustive.options.convex_hull = True
 params.exhaustive.output.csv_name = "convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.ligand_atom_points = True
@@ -44,7 +50,10 @@ params.exhaustive.options.atom_points_sel_string = \
     "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
 params.exhaustive.output.csv_name = "lig_atom_points_convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.ligand_grid_points = True
@@ -52,7 +61,10 @@ params.exhaustive.options.atom_points_sel_string = \
     "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
 params.exhaustive.output.csv_name = "lig_grid_points_convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 for buffer in np.arange(0,4,0.5):
 
