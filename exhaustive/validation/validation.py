@@ -78,7 +78,7 @@ def check_validate_input_files(params, logging):
         raise
 
 
-def occ_loop_merge_confs_simulate(params, logging):
+def occ_loop_merge_confs_simulate(params):
 
     """ Simulate Experimental data using phenix f_model.
 
@@ -349,6 +349,9 @@ def run(params):
         python_object=params))
 
     params = modified_phil.extract()
+
+    params.validate.use_qsub = False
+
     logging = start_validate_logging(params)
     check_validate_input_files(params, logging)
 
