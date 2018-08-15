@@ -503,7 +503,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         print("XX {}".format(move_res))
 
-        for residue_chain, altlocs in d.iteritems():
+        for residue_chain, altlocs in move_res.iteritems():
 
             print(residue_chain, altlocs)
             continue
