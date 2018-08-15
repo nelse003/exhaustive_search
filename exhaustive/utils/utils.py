@@ -354,3 +354,9 @@ def remove_residues(input_pdb, output_pdb, residues_remove):
 
     f.close()
 
+def is_almost_equal(x,y, epsilon=1*10**(-8)):
+    """Return True if two values are close in numeric value
+        By default close is withing 1*10^-8 of each other
+        i.e. 0.00000001
+    """
+    return abs(x-y) <= epsilon

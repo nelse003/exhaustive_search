@@ -37,6 +37,7 @@ from mmtbx.command_line.mtz2map import run as mtz2map
 
 from utils.select_atoms import process_refined_pdb_bound_ground_states
 from utils.convex_hull import convex_hull_from_states, atom_points_from_sel_string
+from utils.utils import is_almost_equal
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -437,19 +438,23 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    if bound_occupancy == 0.25 and u_iso == 0.5:
+    if is_almost_equal(bound_occupancy,0.25) \
+            and is_almost_equal(u_iso,0.5):
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
         logging.debug(str(xrs_dc.as_pdb_file()))
 
-    if bound_occupancy == 0.25 and u_iso == 0.7:
+    if is_almost_equal(bound_occupancy,0.25) \
+            and is_almost_equal(u_iso,0.7):
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
         logging.debug(str(xrs_dc.as_pdb_file()))
 
-    if bound_occupancy == 0.5 and u_iso == 0.5:
+    if is_almost_equal(bound_occupancy,0.5) \
+            and is_almost_equal(u_iso,0.5):
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
         logging.debug(str(xrs_dc.as_pdb_file()))
 
-    if bound_occupancy == 0.95 and u_iso == 0.5:
+    if is_almost_equal(bound_occupancy,0.95) \
+            and is_almost_equal(u_iso,0.5):
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
         logging.debug(str(xrs_dc.as_pdb_file()))
 
