@@ -403,27 +403,25 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     bound_count_true = 0
     for bound_state in bound_states:
 
-        # logging.debug(str(bound_state))
-        # logging.debug(str(len(sites_frac)))
+        num_altlocs = bound_state[1]
+        set_bound_occupancy = bound_occupancy / num_altlocs
+        logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {}".format(
+            set_bound_occupancy,
+            bound_occupancy,
+            num_altlocs))
 
         for i, site_frac in enumerate(sites_frac):
-            num_altlocs = bound_state[1]
-            set_bound_occupancy = bound_occupancy / num_altlocs
-            logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {}".format(
-                set_bound_occupancy,
-                bound_occupancy,
-                num_altlocs))
-
-            #logging.debug(str(bound_state[0][i]))
             if (bound_state[0][i]):
                 bound_count_true += 1
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
     for ground_state in ground_states:
+
+        num_altlocs = ground_state[1]
+        set_ground_occupancy = ground_occupancy / num_altlocs
+
         for i, site_frac in enumerate(sites_frac):
-            num_altlocs = ground_state[1]
-            set_ground_occupancy = ground_occupancy / num_altlocs
             if (ground_state[0][i]):
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
