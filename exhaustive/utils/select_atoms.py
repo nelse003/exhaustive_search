@@ -332,6 +332,9 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     :return: 
     """
 
+    print(coincident_altloc_group)
+    print(coincident_altloc_group[0])
+
     num_altlocs =  len(coincident_altloc_group[0])
     selection_string = ""
     for altloc in coincident_altloc_group[0]:
