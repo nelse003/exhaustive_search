@@ -11,12 +11,12 @@ from giant.jiffies.merge_conformations import master_phil as merge_phil
 
 # Local imports
 
-from ..utils import set_b_fac_all_occupancy_groups, \
+from .utils.utils import set_b_fac_all_occupancy_groups, \
     wait_for_file_existence, get_csv_filepath, set_b_fac_all_atoms
 
-from plotting.plot import scatter_plot, plot_3d_fofc_occ
-from phil import master_phil, prepare_validate_phil, check_input_files
-from exhaustive import run as exhaustive
+from .plotting.plot import scatter_plot, plot_3d_fofc_occ
+from ..phil import master_phil, prepare_validate_phil, check_input_files
+from ..exhaustive import run as exhaustive
 
 
 # Logging
