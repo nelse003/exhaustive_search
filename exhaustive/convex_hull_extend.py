@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 params =  master_phil.extract()
-params.input.xtal_name = "NUDT7A-x1812"
+params.input.xtal_name = "NUDT22A-x0955"
 
 # params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
 # "NUDT7_covalent/NUDT7A-x1812/refine_0007/output.pdb"
