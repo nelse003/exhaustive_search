@@ -504,23 +504,23 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         print("XX {}".format(move_res))
         exit()
 
-            for residue_altloc in occupancy_group:
-
-                print(residue_altloc)
-                continue
-
-                altloc = residue_altloc.get('altloc')
-                chain = residue_altloc.get('chain')
-                resseq = residue_altloc.get('resseq')
-                logging.info("{} State: {}".format(state_string, (((altloc,), resseq, chain))))
-                state.append(get_bound_ground_selection(sel_cache, (((altloc,), resseq, chain))))
-                logging.debug("APPEND STATE")
-                logging.debug(state)
-
-            if bound_state_flag:
-                bound_states += state
-            else:
-                ground_states += state
+            # for residue_altloc in occupancy_group:
+            #
+            #     print(residue_altloc)
+            #     continue
+            #
+            #     altloc = residue_altloc.get('altloc')
+            #     chain = residue_altloc.get('chain')
+            #     resseq = residue_altloc.get('resseq')
+            #     logging.info("{} State: {}".format(state_string, (((altloc,), resseq, chain))))
+            #     state.append(get_bound_ground_selection(sel_cache, (((altloc,), resseq, chain))))
+            #     logging.debug("APPEND STATE")
+            #     logging.debug(state)
+            #
+            # if bound_state_flag:
+            #     bound_states += state
+            # else:
+            #     ground_states += state
 
         exit()
 
