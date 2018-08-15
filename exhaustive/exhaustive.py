@@ -23,7 +23,6 @@ from phil import master_phil
 import cctbx.miller
 import iotbx.ccp4_map
 import iotbx.pdb
-import libtbx.phil
 import mmtbx.f_model
 import mmtbx.masks
 import mmtbx.utils
@@ -49,9 +48,11 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
-# NOT SURE IF WORKS
+
 def start_exhaustive_logging(params):
     """Prepare logging.
+
+    NOT CURRENTLY USED
 
     Logging for exhaustive search using python logging module.
     Includes a description of parameters, and parameter different to default.
@@ -112,18 +113,20 @@ def compute_maps(fmodel, crystal_gridding, map_type):
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
                                     params, logging):
+
     """Produce cartesian points related to occupancy groups.
 
     Get cartesian points that correspond to atoms involved in the
     occupancy groups (as in multi-state.restraints.params)
 
     :param pdb: Input PDB file
-    :type path
+    :type 
     :param params: Working phil parameters
     :type
     :return: occupancy_group_cart_points: The cartesian points involved
     in the bound and ground states as a list
     """
+
     logging.info("For all bound and ground states, "
                 "select cartesian grid points for each altloc/residue \n"
                 "involved in occupancy groups. A buffer of {} Angstrom \n"

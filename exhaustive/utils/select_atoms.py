@@ -16,6 +16,7 @@ logging = logging.getLogger(__name__)
 # Shared Functions
 ##############################################################
 
+
 # Process pdb file to provide occupancy groups
 def get_occupancy_groups(pdb, params):
     """
@@ -25,7 +26,6 @@ def get_occupancy_groups(pdb, params):
     that generates hierarchy from pdb file path
     
     :param pdb: 
-    :type path
     :param params: 
     :return: 
     """
@@ -68,6 +68,7 @@ def powerset(iterable, min_len=0):
 # Selection by residue  with conicident altlocs
 ######################################################################
 
+
 def get_residue_altloc_dict(occupancy_groups):
     """
     Return a dictionary of the format
@@ -76,13 +77,12 @@ def get_residue_altloc_dict(occupancy_groups):
     :param occupancy_groups: 
     :return: 
     """
-
     residue_altloc_dict = {}
 
     residues = get_parameter_from_occupancy_groups(occupancy_groups, "resseq")
     chains = get_parameter_from_occupancy_groups(occupancy_groups, "chain")
 
-    for residue_chain in zip(residues,chains):
+    for residue_chain in zip(residues, chains):
         residue_altloc_set = set()
         for occupancy_group in occupancy_groups:
             for group in occupancy_group:
@@ -91,12 +91,13 @@ def get_residue_altloc_dict(occupancy_groups):
                             and residue_chain[1] == residue_altloc.get("chain"):
                         residue_altloc_set.add(residue_altloc.get("altloc"))
                         residue_altloc_dict.update({residue_chain:
-                                                        residue_altloc_set})
+                                                    residue_altloc_set})
 
     logging.info("The residues defined in the occupancy group"
                 " have atlocs:\n {}".format(residue_altloc_dict))
 
     return residue_altloc_dict
+
 
 def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
     """
@@ -127,6 +128,7 @@ def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
 
     return parameters
 
+
 def within_rmsd_cutoff(atoms1, atoms2, params):
     """
     Given two groups of atoms determine within a given cutoff
@@ -147,6 +149,7 @@ def within_rmsd_cutoff(atoms1, atoms2, params):
         else:
             return False
     return True
+
 
 def get_altloc_groups_coincident(hier, residue_chain, altloc_group, params):
     """
@@ -175,11 +178,13 @@ def get_altloc_groups_coincident(hier, residue_chain, altloc_group, params):
         compare_altloc_selection = sel_cache.selection(compare_selection_string)
         compare_altloc_atoms = pdb_atoms.select(compare_altloc_selection)
 
-        if within_rmsd_cutoff(altloc_atoms,compare_altloc_atoms, params):
+        if within_rmsd_cutoff(altloc_atoms, compare_altloc_atoms, params):
             continue
         else:
             return (altloc_group, residue, chain, False)
+
     return (altloc_group, residue, chain, True)
+
 
 def get_coincident_residue_powersets(hier, residue_altloc_dict, params):
     """
@@ -210,7 +215,7 @@ def get_coincident_residue_powersets(hier, residue_altloc_dict, params):
         yield residue_powerset
 
 
-def get_largest_coincident(coincident,occupancy_groups):
+def get_largest_coincident(coincident, occupancy_groups):
 
     """ Take a powerset of coincident altlocs with residue and chain. Return the largest set(s) of altlocs.
      
@@ -243,14 +248,15 @@ def get_largest_coincident(coincident,occupancy_groups):
         for altloc_set in list_all_coincident_altlocs:
             difference_set = altloc_set.symmetric_difference(all_altocs_res_chain)
             if difference_set == set():
-                largest_coincident.append((tuple(altloc_set),residue_chain[0], residue_chain[1]))
+                largest_coincident.append((tuple(altloc_set), residue_chain[0], residue_chain[1]))
                 break
             elif difference_set in list_all_coincident_altlocs:
-                largest_coincident.append((tuple(altloc_set),residue_chain[0], residue_chain[1]))
+                largest_coincident.append((tuple(altloc_set), residue_chain[0], residue_chain[1]))
                 largest_coincident.append((tuple(difference_set), residue_chain[0], residue_chain[1]))
                 break
             else:
-                logging.info("The set of altlocs do not correspond to a two state system. Trying a shorter set of altlocs")
+                logging.info("The set of altlocs do not correspond to a two state system."
+                             "Trying a shorter set of altlocs")
 
     return largest_coincident
 
@@ -298,7 +304,7 @@ def get_state_selection(hier, coincident, occupancy_groups, params):
                 ground_states.append(get_bound_ground_selection(sel_cache, coincident_altloc_group))
                 continue
         if coincident:
-            logging.info("These altlocs do not follow the ground bound split: \n {}\n".format(coincident) + \
+            logging.info("These altlocs do not follow the ground bound split: \n {}\n".format(coincident) +
                         "Using ligand altloc {} we presume these states to be bound\n".format(lig_altloc_group[0]))
 
             for coincident_altloc_group in coincident:
@@ -325,7 +331,8 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     
     Given a coincident altloc group in format (('C', 'D'), ' 121', 'A') return a selection, 
     using a supplied selection cache.
-    Also returns number of altlocs in that selection. In the format: [altloc_selection, num_altlocs]
+    Also returns number of altlocs in that selection. 
+    In the format: [altloc_selection, num_altlocs]
     
     :param sel_cache: 
     :param coincident_altloc_group: 
@@ -351,6 +358,7 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     altloc_selection = sel_cache.selection(selection_string)
 
     return [altloc_selection, num_altlocs]
+
 
 def get_coincident_group(hier, residue_altloc_dict, params):
     """
@@ -439,6 +447,7 @@ def get_ligand_coincident_altloc_group(hier, coincident, params):
     # If no matching coinicdent cases have been made return just the ligand altlocs
     return tuple(lig_altlocs)
 
+
 def process_refined_pdb_bound_ground_states(pdb, params):
     """
     Main Function that returns bound and ground states from occupancy group of the supplied PDB file.
@@ -473,8 +482,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         # (altloc_group, residue, chain)
         # (('C', 'D'), ' 121', 'A')
-        #[altloc_selection, num_altlocs]
-        #{'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
+        # [altloc_selection, num_altlocs]
+        # {'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
 
         bound_states = []
         ground_states = []
@@ -496,10 +505,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
-                if move_res.has_key((chain,resseq)):
-                    move_res[(chain,resseq)].append(altloc)
+                if move_res.has_key((chain, resseq)):
+                    move_res[(chain, resseq)].append(altloc)
                 else:
-                    move_res[(chain,resseq)] = [altloc]
+                    move_res[(chain, resseq)] = [altloc]
 
         for residue_chain, altlocs in move_res.iteritems():
 
@@ -535,7 +544,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         return bound_states, ground_states
 
-    #TODO Add more appropritate elif to catch other more complex cases (> two states/ other ways to get to two states) #63
+    # TODO Add more appropritate elif to catch other more complex cases
+    # (> two states/ other ways to get to two states) #63
     else:
 
         print("ACTUALLY this is probably a untested piece of code, only come here if desperate")
@@ -544,7 +554,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         residue_altloc_dict = get_residue_altloc_dict(occupancy_groups)
         coincident = get_coincident_group(hier, residue_altloc_dict, params)
         logging.debug("Coincident: {}".format(coincident))
-        largest_coincident = get_largest_coincident(coincident,occupancy_groups)
+        largest_coincident = get_largest_coincident(coincident, occupancy_groups)
         bound_states, ground_states = get_state_selection(hier, largest_coincident, occupancy_groups, params)
         return bound_states, ground_states
 
@@ -553,15 +563,15 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 # Helper functions
 #######################################################################
 
-def print_hier_atoms(hierarchy):
+def print_hier_atoms(hier):
     """
     Basic printing of an iotbx.pdb.hierarchy
     
-    :param hierarchy: 
+    :param hier: 
     :return: 
     """
 
-    for model in hierarchy.models():
+    for model in hier.models():
         print("Model: {}".format(model.id))
 
         for chain in model.chains():

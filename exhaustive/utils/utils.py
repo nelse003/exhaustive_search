@@ -93,8 +93,7 @@ def get_minimum_fofc(csv_name, b_fac=None):
         u_iso = data[:, 1]
         fo_fc = data[:, 2]
     else:
-        print("Data is not in correct format")
-        exit()
+        raise ValueError("|Fo-Fc| data is not in correct format")
 
     if b_fac is not None:
         set_u_iso = b_to_u_iso(b_fac)
@@ -164,7 +163,7 @@ def get_csv_filepath(params):
                            params.exhaustive.output.csv_prefix +
                            "_occ_{}_b_{}.csv".format(
                                str(occupancy).replace(".", "_"),
-                    str(params.validate.options.set_b).replace(".", "_")))
+                               str(params.validate.options.set_b).replace(".", "_")))
 
 
 def get_random_starting_occ_from_folder_name(occupancy, out_path,
@@ -218,9 +217,9 @@ def get_pdbs(refinement_dir, pdb_name="refine.pdb"):
 
     pdbs = []
     for root, dirs, files in os.walk(refinement_dir):
-        for file in files:
-            if file == pdb_name:
-                pdbs.append(os.path.join(root, file))
+        for f in files:
+            if f == pdb_name:
+                pdbs.append(os.path.join(root, f))
 
     print("# of pdbs", len(pdbs))
     return pdbs
@@ -260,10 +259,11 @@ def get_occ_b(refinement_dir, lig_chain,
 
     return occ_df
 
+
 def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
 
-    occupancy = round_step(occupancy,base=step)
-    u_iso = round_step(u_iso,base=step)
+    occupancy = round_step(occupancy, base=step)
+    u_iso = round_step(u_iso, base=step)
 
     #TODO Remove this dual .csv by cleaning up csv name: issue 59
 
@@ -286,6 +286,7 @@ def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
 
     return fo_fc
 
+
 def datasets_from_compound(protein_prefix,compound_folder):
 
     """ Loop over datasets with prefix in folder."""
@@ -295,6 +296,7 @@ def datasets_from_compound(protein_prefix,compound_folder):
                           and os.path.isdir(os.path.join(compound_folder, x)),
                                 os.listdir(compound_folder)):
         yield dataset
+
 
 def collate_edstats_scores(protein_prefix, compound_folder):
 
@@ -326,6 +328,7 @@ def collate_edstats_scores(protein_prefix, compound_folder):
 
     return compound_edstats
 
+
 def remove_residues(input_pdb, output_pdb, residues_remove):
 
     pdb_in = hierarchy.input(file_name = input_pdb)
@@ -347,12 +350,13 @@ def remove_residues(input_pdb, output_pdb, residues_remove):
     remove_atoms_sel = sel_cache.selection(not_selection_string)
     removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
 
-    f = open(os.path.join(output_pdb),"w+")
+    f = open(os.path.join(output_pdb), "w+")
 
     f.write(removed_hier.as_pdb_string(
         crystal_symmetry=pdb_in.input.crystal_symmetry()))
 
     f.close()
+
 
 def is_almost_equal(x,y, epsilon=1*10**(-8)):
     """Return True if two values are close in numeric value
