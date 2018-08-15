@@ -501,13 +501,13 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 else:
                     move_res[(chain,resseq)] = [altloc]
 
-        for residue_chain, altloc in move_res.iteritems():
+        for residue_chain, altlocs in move_res.iteritems():
 
             resseq = residue_chain[1]
             chain = residue_chain[0]
 
-            logging.info("{} State: {}".format(state_string, (((altloc,), resseq, chain))))
-            state.append(get_bound_ground_selection(sel_cache, (((altloc,), resseq, chain))))
+            logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
+            state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
             logging.debug("APPEND STATE")
             logging.debug(state)
 
