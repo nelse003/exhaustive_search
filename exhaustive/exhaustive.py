@@ -407,6 +407,11 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     bound_count_true = 0
     for bound_state in bound_states:
 
+        print(bound_state)
+        print(bound_state[0])
+        print(bound_state[1])
+        exit()
+
         num_altlocs = bound_state[1]
         set_bound_occupancy = bound_occupancy / num_altlocs
         logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {}".format(
