@@ -35,11 +35,11 @@ prefix = "NUDT7A-x"
 qsub = True
 
 # # copy data to new folder
-#
-# if not os.path.exists(out_dir):
-#     os.mkdir(out_dir)
-#     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
-#
+
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+
 xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
     xtal_name = prefix + "{0:0>4}".format(num)
