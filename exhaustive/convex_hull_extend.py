@@ -7,13 +7,21 @@ import os
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT7A-x1812"
 
-params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1812/refine_0007/output.pdb"
-params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1812/refine_0007/output.mtz"
+# params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+# "NUDT7_covalent/NUDT7A-x1812/refine_0007/output.pdb"
+# params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+# "NUDT7_covalent/NUDT7A-x1812/refine_0007/output.mtz"
 
+params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/repeat_soaks/2018-05-28/" \
+                   "NUDT22_from_occ_group_with_refinement/" \
+                   "FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.pdb"
+params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/repeat_soaks/2018-05-28/" \
+                   "NUDT22_from_occ_group_with_refinement/" \
+                   "FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.mtz"
 
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT7A-x1812-ligand-grid"
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT22A-x0955-after-select
 params.settings.processes = 1
 
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
