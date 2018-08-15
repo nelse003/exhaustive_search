@@ -21,7 +21,10 @@ params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                    "NUDT22_from_occ_group_with_refinement/" \
                    "FMOPL000622a_DSI_poised/NUDT22A-x0955/refine.mtz"
 
-params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/convex_buffer_tests/NUDT22A-x0955-after-select
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/convex_buffer_tests/" \
+                        "NUDT22A-x0955-after-select"
+
 params.settings.processes = 1
 
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
