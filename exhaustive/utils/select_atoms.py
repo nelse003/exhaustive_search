@@ -490,6 +490,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                     state_string = "Ground"
 
             for residue_altloc in occupancy_group:
+
+                print(residue_altloc)
+                continue
+
                 altloc = residue_altloc.get('altloc')
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
@@ -502,6 +506,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 bound_states += state
             else:
                 ground_states += state
+
+        exit()
 
         # try:
         #     ground_states
