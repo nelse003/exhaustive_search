@@ -489,6 +489,17 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 else:
                     state_string = "Ground"
 
+            move_res = dict()
+            for residue_altloc in occupancy_group:
+
+                altloc = residue_altloc.get('altloc')
+                chain = residue_altloc.get('chain')
+                resseq = residue_altloc.get('resseq')
+
+                move_res[(chain,resseq)] += altloc
+
+            print(move_res)
+
             for residue_altloc in occupancy_group:
 
                 print(residue_altloc)
