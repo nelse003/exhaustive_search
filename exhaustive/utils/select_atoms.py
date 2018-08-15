@@ -496,7 +496,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
-                move_res[(chain,resseq)].append(altloc)
+                if move_res.has_key((chain,resseq)):
+                    move_res[(chain,resseq)].append(altloc)
+                else:
+                    move_res[(chain,resseq)] = [altloc]
 
             print(move_res)
 
