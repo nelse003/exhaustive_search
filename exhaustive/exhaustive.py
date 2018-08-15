@@ -225,14 +225,13 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
     try:
         bound_states,\
         ground_states = process_refined_pdb_bound_ground_states(pdb, params)
+
     except UnboundLocalError:
         logging.info("Insufficient state information for pdb file %s", pdb)
         logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-    # cart_points = atom_points_from_sel_string(pdb,
-    #                                           selection_string=
-    #                                           "(chain E and altid C and resid 1) or (chain E and altid D resid 1)")
+
 
     if params.exhaustive.options.convex_hull:
 
@@ -240,6 +239,22 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                               bound_states,
                                               ground_states,
                                               params)
+
+    elif params.exhaustive.options.ligand_atom_points:
+
+        cart_points = atom_points_from_sel_string(pdb,
+                                                  selection_string =
+                                                  params.exhaustive.options.atom_points_sel_string)
+
+    elif params.exhaustive.options.ligand_grid_points:
+
+        atom_points = atom_points_from_sel_string(pdb,
+                                                  selection_string =
+                                                  params.exhaustive.options.atom_points_sel_string)
+
+        cart_points = convex_hull_grid_points(atom_points,
+                                              params)
+
     else:
         cart_points = get_occupancy_group_grid_points(pdb,
                                                       bound_states,
