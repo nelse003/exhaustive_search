@@ -49,7 +49,7 @@ import datetime
 logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/groups/i04-1/elliot-dev/Work/' \
                                                               'exhaustive_search/logs/exhaustive_search_%H_%M_%d_%m_%Y.log'),
                     level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logging = logging.getLogger(__name__)
 
 
 # # This is used to allow any excpetion, such as a failed assert statement to be logged, doesn't also go to sysout.
@@ -119,19 +119,19 @@ def run(params):
 
 
     if not os.path.exists(params.output.out_dir):
-        logger.info('Creating output directory {}'.format(params.output.out_dir))
+        logging.info('Creating output directory {}'.format(params.output.out_dir))
         os.mkdir(params.output.out_dir)
     else:
-        logger.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+        logging.info('Output directory {} exists and is being used'.format(params.output.out_dir))
 
-    logger.info('Looping over all files that are \'in refinement\' '
+    logging.info('Looping over all files that are \'in refinement\' '
                 'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
 
 
     for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
 
-        logger.info(xtal_name)
+        logging.info(xtal_name)
 
         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
@@ -144,7 +144,7 @@ def run(params):
         try:
             exhaustive_search(args, xtal_name)
         except UnboundLocalError:
-            logger.info("Skipping onto the next crystal")
+            logging.info("Skipping onto the next crystal")
             continue
 
         if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
@@ -154,7 +154,7 @@ def run(params):
             os.chdir(os.path.join(params.output.out_dir, xtal_name))
         #scatter_plot(params.input.csv_name)
 
-        logger.info('Completed: {}'.format(xtal_name))
+        logging.info('Completed: {}'.format(xtal_name))
         #
 
 

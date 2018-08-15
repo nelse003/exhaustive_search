@@ -55,11 +55,30 @@ exhaustive{
             .type = bool
         generate_map = False
             .type = bool
+        convex_hull = True
+            .type = bool
+        convex_hull_ignore_nearest = False
+            .type = bool
+            .help = "Default behaviour is to consider the buffer to be 
+            at most half the distance to the nearest atom. If this is 
+            set the buffer is applied regardless, should still be in
+            the direction of the nearest atom"
+        ligand_atom_points = False
+            .type = bool
+            .help = "Select only atom points to average |fo-fc| on"
+        ligand_grid_points = False
+            .type = bool
+            .help = "Select convex hull points around ligand atoms only"
+        atom_points_sel_string = "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
+            .type = str
+            .help = selection algebra (iotbx) to get only ligand atoms
     }
 }
 select{
     resnames = DRG,FRG,LIG,UNK,UNL
-        .help = 'Residues to generate constraint groups around for occupancy refinement (comma separated list of residue identifiers, i.e. resname=LIG or resname=LIG,UNL)'
+        .help = 'Residues to generate constraint groups around for occupancy 
+                refinement (comma separated list of residue identifiers, 
+                i.e. resname=LIG or resname=LIG,UNL)'
         .type = str
 
     group_dist = 5
@@ -75,7 +94,8 @@ select{
         .type = str
 
     complete_groups = True
-        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. Generate a set of weaker constraints for overlapping atoms when False.'
+        .help = 'Generate a set of fully constrained groups (that sum to unitary occupancy) when True. 
+                 Generate a set of weaker constraints for overlapping atoms when False.'
         .type = bool
 
     verbose = True
@@ -137,8 +157,14 @@ repeat{
         database_path = None
             .type = path
             .help = 'Database path for sqlite databse from xce'
-    }
+        }
 }
+testing{
+    testing = False
+    .type = bool
+    .help = flag for running enclosed test code
+}
+
 """, process_includes=True)
 
 def prepare_validate_phil(master_phil):

@@ -41,12 +41,12 @@ def get_all_minima(params):
                     try:
                         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
                     except AssertionError:
-                        logger.exception('PDB File does not exist: %s', pdb)
+                        logging.exception('PDB File does not exist: %s', pdb)
                         raise
                     try:
                         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
                     except AssertionError:
-                        logger.exception('MTZ File does not exist: %s', mtz)
+                        logging.exception('MTZ File does not exist: %s', mtz)
                         raise
 
                     os.chdir(os.path.join(params.output.out_dir, xtal_name))

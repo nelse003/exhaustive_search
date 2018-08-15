@@ -154,3 +154,100 @@ def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_pat
                 os.path.join(out_path, sh_file)))
 
             out_path = os.path.dirname(os.path.dirname(out_path))
+
+# Extra refinement for covalent ratios
+
+start_xtal_num = 1905
+end_xtal_num = 2005
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_phenix"
+prefix = "NUDT7A-x"
+qsub = False
+
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+#
+
+xtals = []
+for num in range(start_xtal_num, end_xtal_num + 1):
+    xtal_name = prefix + "{0:0>4}".format(num)
+    xtals.append(xtal_name)
+
+for xtal_name in xtals:
+
+    input_pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
+    input_mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
+
+    # if os.path.exists(os.path.join(out_dir, xtal_name,"refine_0002")):
+    #     continue
+
+    if not os.path.exists(os.path.join(out_dir, xtal_name,"dimple.pdb")):
+        continue
+
+    if not os.path.exists(os.path.join(out_dir, xtal_name, "multi-state-restraints.refmac.params")):
+        continue
+
+    print(xtal_name)
+
+    # f = open(os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"),"r")
+    # lines=f.readlines()
+    # f.close()
+    # # while lines[-1].startswith("NCYC"):
+    # #     lines.pop()
+    # # if lines[-1].startswith("occupancy refine"):
+    # #     lines.pop()
+    # f = open(os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"),"w")
+    # f.writelines(lines)
+    # f.write("strategy=occupancies")
+    # f.close()
+
+    refine_folders = [name for name in os.listdir(os.path.join(out_dir, xtal_name))
+                        if os.path.isdir(name) and name.startswith('refine')]
+
+    refine_fol_nums = [num[-4:] for num in refine_folders]
+    final_refine = max([int(i) for i in refine_fol_nums])
+
+    out_prefix="refine_{0:0>4}".format(final_refine)
+
+    cmds = "source /dls/science/groups/i04-1/software/" \
+           "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
+
+    cmds += "cd {}\n".format(os.path.join(out_dir,xtal_name))
+
+    #output.out_prefix =\"{}\"
+    # cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
+    #         "{} {} {} params={} program=phenix\n".format(
+    #     input_pdb,
+    #     input_mtz,
+    #     os.path.join(out_dir, xtal_name, "*.cif"),
+    #     os.path.join(out_dir, xtal_name,
+    #                  "multi-state-restraints.phenix.params"))
+    #
+
+    cmds += "ccp4-python /dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/exhaustive/utils/quick_refine.py " \
+            "{} {} {} params={} program=phenix args=\"main.number_of_macro_cycles=1\" \n".format(
+        input_pdb,
+        input_mtz,
+        os.path.join(out_dir, xtal_name, "*.cif"),
+        os.path.join(out_dir, xtal_name,
+                     "multi-state-restraints.phenix.params"))
+
+
+    if qsub:
+        f = open(
+            os.path.join(out_dir,
+                         xtal_name,
+                         "{}_quick_refine.sh".format(xtal_name)),"w")
+
+        f.write(cmds)
+        f.close()
+
+        os.system('qsub {}'.format(os.path.join(out_dir, xtal_name, "{}_quick_refine.sh".format(xtal_name))))
+    else:
+        print(cmds)
+        os.system(cmds)
+
+    exit()
