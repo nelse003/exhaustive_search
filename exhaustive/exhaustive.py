@@ -432,8 +432,23 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    #logging.debug(str(xrs_dc.as_pdb_file()))
-    logging.debug("Bound atom count:{}".format(bound_count_true))
+    if bound_occupancy = 0.25 and u_iso = 0.5:
+        logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
+        logging.debug(str(xrs_dc.as_pdb_file()))
+
+    if bound_occupancy = 0.25 and u_iso = 0.7:
+        logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
+        logging.debug(str(xrs_dc.as_pdb_file()))
+
+    if bound_occupancy = 0.5 and u_iso = 0.5:
+        logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
+        logging.debug(str(xrs_dc.as_pdb_file()))
+
+    if bound_occupancy = 0.95 and u_iso = 0.5:
+        logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
+        logging.debug(str(xrs_dc.as_pdb_file()))
+
+    #logging.debug("Bound atom count:{}".format(bound_count_true))
 
     if params.exhaustive.options.generate_mtz:
 
