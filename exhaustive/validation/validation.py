@@ -365,7 +365,7 @@ def run(params):
         os.mkdir(params.output.out_dir)
 
     logging.info("Running exhaustive search many times across simulated data")
-    occ_loop_merge_confs_simulate(params, logging)
+    occ_loop_merge_confs_simulate(params)
 
     logging.info("Checking for files existence : "
                 "wait for jobs submitted to the cluster")
