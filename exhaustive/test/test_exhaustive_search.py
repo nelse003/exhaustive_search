@@ -1,6 +1,6 @@
 import unittest
-from exhaustive.phil import master_phil
-from exhaustive.exhaustive import run as exhaustive
+from ..exhaustive.phil import master_phil
+from ..exhaustive.exhaustive import run as exhaustive
 import os
 
 # TODO Write TestComputeMaps
