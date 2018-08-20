@@ -131,6 +131,9 @@ with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
+def cats():
+    print "cats"
+
 #refine minima
 
 # with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
