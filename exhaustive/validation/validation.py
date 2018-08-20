@@ -16,8 +16,6 @@ from phil import master_phil, prepare_validate_phil, check_input_files
 from ..exhaustive import run as exhaustive
 
 
-# Local imports
-
 # Logging
 def start_validate_logging(params):
 

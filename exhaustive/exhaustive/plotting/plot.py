@@ -7,7 +7,7 @@ import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from utils.utils import (get_fofc_from_csv,
+from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
 get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
 from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns

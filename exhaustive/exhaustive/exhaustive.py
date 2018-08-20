@@ -45,6 +45,7 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
+
 def compute_maps(fmodel, crystal_gridding, map_type):
     """Compute electron density maps for a given model.
 
