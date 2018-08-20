@@ -359,7 +359,7 @@ def run(params):
                             params.validate.output.log_name + log_time)
     logging.basicConfig(filename=log_path, level=logging.DEBUG)
 
-    check_validate_input_files(params, logging)
+    check_validate_input_files(params)
 
     if not os.path.exists(params.output.out_dir):
 
