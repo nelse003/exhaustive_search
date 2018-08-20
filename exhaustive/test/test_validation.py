@@ -41,7 +41,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         if not os.path.exists(self.params.output.out_dir):
             os.mkdir(self.params.output.out_dir)
 
-        if not os.path.exists(params.output.log_dir):
+        if not os.path.exists(self.params.output.log_dir):
             os.mkdir(self.params.output.log_dir)
 
 
