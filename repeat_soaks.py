@@ -11,7 +11,6 @@ from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
 from exhaustive.exhaustive import run as exhaustive
-from exhaustive.exhaustive.phil import master_phil, check_input_files
 from exhaustive.exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
 from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 from exhaustive.exhaustive.plotting.plot import plot_edstats_across_soaks
@@ -19,6 +18,7 @@ from exhaustive.exhaustive.utils import collate_edstats_scores
 from exhaustive.exhaustive.utils import get_minimum_fofc, get_occ_b
 from exhaustive.exhaustive.utils import u_iso_to_b_fac, datasets_from_compound
 from exhaustive.process.minima import write_minima_pdb
+from phil import master_phil, check_input_files
 
 params =  master_phil.extract()
 

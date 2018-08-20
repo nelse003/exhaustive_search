@@ -3,9 +3,9 @@ import os
 import numpy as np
 import pytest
 
-from exhaustive.exhaustive.phil import master_phil
 from exhaustive.exhaustive.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 from exhaustive.validation.validation import run as validate
+from phil import master_phil
 
 
 @pytest.fixture

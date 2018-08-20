@@ -1,7 +1,7 @@
 import os
 
-from exhaustive.exhaustive.phil import master_phil
 from exhaustive.validation.validation import run as validate
+from phil import master_phil
 
 params =  master_phil.extract()
 
