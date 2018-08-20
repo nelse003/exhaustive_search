@@ -18,12 +18,12 @@ class TestComputeMaps(unittest.TestCase):
 class TestExhaustiveSearch(unittest.TestCase):
     """
     Test the main loop of exhaustive search.
-    
-    What mock objects does this need?
     """
     def setUp(self):
 
-        """Provide a """
+        """Provide the minimal number of parameters to test exhaustive search"""
+
+        #TODO Convert to relative import of test resources
 
         self.params = master_phil.extract()
         self.params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
@@ -38,6 +38,8 @@ class TestExhaustiveSearch(unittest.TestCase):
 
     def test_exhaustive_search(self):
 
+        """ Test with minimal number of parameters changed from default."""
+
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
         exhaustive(self.params)
         bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
@@ -45,7 +47,6 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.assertAlmostEqual(0.45,u_iso)
 
     def test_convex_hull_exhaustive_search(self):
-        self.assertEqual(True, False)
 
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
         exhaustive(self.params)

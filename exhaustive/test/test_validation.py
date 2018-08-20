@@ -84,7 +84,7 @@ class TestExhaustiveSearch(unittest.TestCase):
                                                  str(self.params.validate.options.set_b).replace(".","_")
                                              )))
         assert simul_occ - occ >= self.params.exhaustive.options.step*2,\
-            "Occupancy minima {} is too farfrom simulated occupancy {}".format(
+            "Occupancy minima {} is too far from simulated occupancy {}".format(
                 occ,
                 simul_occ)
         assert u_iso - b_to_u_iso(self.params.validate.options.set_b) \

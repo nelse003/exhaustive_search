@@ -223,6 +223,7 @@ def occ_loop_merge_confs_simulate(params):
             fmodel_args = [merged_pdb, params.input.mtz,
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
+            print(fmodel_args)
 
             fmodel(args=fmodel_args)
 
