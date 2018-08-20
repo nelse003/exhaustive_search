@@ -74,12 +74,12 @@ class TestExhaustiveSearch(unittest.TestCase):
         Assert statements will give AssertionError if minima is too far
         (2* step size (default 0.02)) from
         """
-        occ, u_iso, fo_fc = get_minimum_fofc(self.params.output.out_dir,
+        occ, u_iso, fo_fc = get_minimum_fofc(csv_name=os.path.join(self.params.output.out_dir,
                                              self.params.exhaustive.output.csv_prefix
                                              + "_occ_{}_b_{}.csv".format(
                                                  str(simul_occ).replace(".","_"),
                                                  str(self.params.validate.options.set_b)
-                                             ))
+                                             )))
         assert simul_occ - occ >= self.params.exhaustive.options.step*2,\
             "Occupancy minima {} is too farfrom simulated occupancy {}".format(
                 occ,
