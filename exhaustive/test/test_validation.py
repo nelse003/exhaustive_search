@@ -21,7 +21,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.input.xtal_name = "FALZA-x0085"
         self.params.input.in_path = os.path.join(os.path.realpath(
             "./exhaustive/test/resources"), self.params.input.xtal_name)
-        self.params.input.mtz = os.path.join(self.params.input.in_path,
+        self.params.validate.base_mtz = os.path.join(self.params.input.in_path,
                                         "FALZA-x0085.free.mtz")
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
         self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
@@ -35,7 +35,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.validate.options.use_qsub = False
         self.params.validate.options.step_simulation = 0.1
         self.params.validate.options.overwrite = True
-        self.params.exhaustive.options.step = 0.4
+        self.params.exhaustive.options.step = 0.1
         self.params.settings.processes = 1
 
         if not os.path.exists(self.params.output.out_dir):

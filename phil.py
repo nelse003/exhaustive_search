@@ -115,6 +115,8 @@ validate{
             .type = str
         ground_state_pdb_name = "refine.output.ground-state.pdb"
             .type = str
+        base_mtz = None
+            .type = str
     }
     output{
         log_name = "validate"
