@@ -84,107 +84,107 @@ class TestExhaustiveSearch(unittest.TestCase):
                                                     self.params.validate.options.set_b)
 
 
-def check_validate_ouput_files(self):
+    def check_validate_ouput_files(self):
 
-    """
-    Check whether file output matches expected file output.
-    All files expected exist, and no extra files generated
+        """
+        Check whether file output matches expected file output.
+        All files expected exist, and no extra files generated
+    
+        :param params:
+        :return:
+        """
 
-    :param params:
-    :return:
-    """
+        files = []
+        merge_conf_logs = []
 
-    files = []
-    merge_conf_logs = []
+        for occ in np.arange(self.params.validate.options.start_simul_occ,
+                              self.params.validate.options.end_simul_occ,
+                              self.params.validate.options.step_simulation):
 
-    for occ in np.arange(self.params.validate.options.start_simul_occ,
-                          self.params.validate.options.end_simul_occ,
-                          self.params.validate.options.step_simulation):
+            os.chdir(self.params.output.out_dir)
 
-        os.chdir(self.params.output.out_dir)
+            # TODO Change filenames when Templating implemented #54
+            #csv
+            csv_filename = self.params.exhaustive.output + "_occ_{}_b_{}.csv".format(str(occ).replace(".","_"),
+                                                                                str(self.params.validate.options.set_b).replace(
+                                                                                    ".","_"))
+            files.append(csv_filename)
+            assert os.path.exists(csv_filename), "CSV file {} missing".format(csv_filename)
 
-        # TODO Change filenames when Templating implemented #54
-        #csv
-        csv_filename = self.params.exhaustive.output + "_occ_{}_b_{}.csv".format(str(occ).replace(".","_"),
-                                                                            str(self.params.validate.options.set_b).replace(
-                                                                                ".","_"))
-        files.append(csv_filename)
-        assert os.path.exists(csv_filename), "CSV file {} missing".format(csv_filename)
+            #png
+            png_filename = self.params.exhaustive.output + "_occ_{}_b_{}.png".format(str(occ).replace(".","_"),
+                                                                                str(self.params.validate.options.set_b).replace(
+                                                                                    ".", "_"))
+            files.append(png_filename)
+            assert os.path.exists(png_filename), "png file {} missing".format(png_filename)
 
-        #png
-        png_filename = self.params.exhaustive.output + "_occ_{}_b_{}.png".format(str(occ).replace(".","_"),
-                                                                            str(self.params.validate.options.set_b).replace(
-                                                                                ".", "_"))
-        files.append(png_filename)
-        assert os.path.exists(png_filename), "png file {} missing".format(png_filename)
+            #simul pdb
+            pdb_filename = self.params.input.xtal_name + "_refine_occ_{}.pdb".format(str(occ).replace(".","_"))
+            files.append(pdb_filename)
+            assert os.path.exists(pdb_filename), "pdb file {} missing".format(pdb_filename)
 
-        #simul pdb
-        pdb_filename = self.params.input.xtal_name + "_refine_occ_{}.pdb".format(str(occ).replace(".","_"))
-        files.append(pdb_filename)
-        assert os.path.exists(pdb_filename), "pdb file {} missing".format(pdb_filename)
+            #simul_pdb_set_b
+            if self.params.validate.options.set_b is not None:
 
-        #simul_pdb_set_b
-        if self.params.validate.options.set_b is not None:
+                set_b_pdb = pdb_filename.rstrip(".pdb") + "_set_b_{}".format(str(self.params.validate.options.set_b).replace(
+                                                                                    ".", "_"))
+                files.append(set_b_pdb)
+                assert os.path.exists(set_b_pdb), "pdb file {} missing".format(set_b_pdb)
+                pass
 
-            set_b_pdb = pdb_filename.rstrip(".pdb") + "_set_b_{}".format(str(self.params.validate.options.set_b).replace(
-                                                                                ".", "_"))
-            files.append(set_b_pdb)
-            assert os.path.exists(set_b_pdb), "pdb file {} missing".format(set_b_pdb)
-            pass
+                mtz_filename = set_b_pdb + ".mtz"
+            else:
+                mtz_filename = pdb_filename + ".mtz"
 
-            mtz_filename = set_b_pdb + ".mtz"
-        else:
-            mtz_filename = pdb_filename + ".mtz"
+            #mtz
+            files.append(mtz_filename)
+            assert os.path.exists(mtz_filename), "mtz file {} missing".format(mtz_filename)
 
-        #mtz
-        files.append(mtz_filename)
-        assert os.path.exists(mtz_filename), "mtz file {} missing".format(mtz_filename)
+            if self.params.validate.options.use_qsub():
+                pass
 
-        if self.params.validate.options.use_qsub():
-            pass
+            # merge-conf logs
+            merge_conf_log = "_occ_{}_b_{}_merge_conformations.log".format(str(occ).replace(".","_"),
+                                                       str(self.params.validate.options.set_b).replace(".", "_"))
+            merge_conf_logs.append(merge_conf_log)
+            assert os.path.exists(merge_conf_log), "Merge conformation log {} missing".format(merge_conf_log)
 
-        # merge-conf logs
-        merge_conf_log = "_occ_{}_b_{}_merge_conformations.log".format(str(occ).replace(".","_"),
-                                                   str(self.params.validate.options.set_b).replace(".", "_"))
-        merge_conf_logs.append(merge_conf_log)
-        assert os.path.exists(merge_conf_log), "Merge conformation log {} missing".format(merge_conf_log)
+        logs = [f for f in os.listdir(os.path.join(self.params.output.out_dir,self.params.output.log_dir))
+                if isfile(os.path.join(self.params.output.out_dir,self.params.output.log_dir, f))]
 
-    logs = [f for f in os.listdir(os.path.join(self.params.output.out_dir,self.params.output.log_dir))
-            if isfile(os.path.join(self.params.output.out_dir,self.params.output.log_dir, f))]
+        # es logs
+        es_logs =[]
+        for log in logs:
+            if log.startswith(self.params.exhaustive.output.log_name):
+                es_logs.append(log)
 
-    # es logs
-    es_logs =[]
-    for log in logs:
-        if log.startswith(self.params.exhaustive.output.log_name):
-            es_logs.append(log)
+        assert len(es_logs)== len(np.arange(self.params.validate.options.start_simul_occ,
+                              self.params.validate.options.end_simul_occ,
+                              self.params.validate.options.step_simulation)), "Incorrect number of " \
+                                                                         "Exhaustive Search Logs:\n{}\n".format(es_logs)
 
-    assert len(es_logs)== len(np.arange(self.params.validate.options.start_simul_occ,
-                          self.params.validate.options.end_simul_occ,
-                          self.params.validate.options.step_simulation)), "Incorrect number of " \
-                                                                     "Exhaustive Search Logs:\n{}\n".format(es_logs)
+        # validate log
+        validate_logs(log)
+        for log in logs:
+            if log.startswith(self.params.validate.output.log_name):
+                validate_logs.append(log)
 
-    # validate log
-    validate_logs(log)
-    for log in logs:
-        if log.startswith(self.params.validate.output.log_name):
-            validate_logs.append(log)
+        assert(len(validate_log) == 1), "Incorrect number of validation logs: \n{}\n".format(validate_log)
 
-    assert(len(validate_log) == 1), "Incorrect number of validation logs: \n{}\n".format(validate_log)
+        # summary png
+        summary_png = self.params.input.xtal_name()
 
-    # summary png
-    summary_png = self.params.input.xtal_name()
+        assert os.path.exists("multi-state-restraints.refmac.self.params"), "Missing: multi-state-restraints.refmac.params"
+        files.append("multi-state-restraints.refmac.params")
+        assert os.path.exists("multi-state-restraints.phenix.params"), "Missing: multi-state-restraints.phenix.params"
+        files.append("multi-state-restraints.refmac.params")
 
-    assert os.path.exists("multi-state-restraints.refmac.self.params"), "Missing: multi-state-restraints.refmac.params"
-    files.append("multi-state-restraints.refmac.params")
-    assert os.path.exists("multi-state-restraints.phenix.params"), "Missing: multi-state-restraints.phenix.params"
-    files.append("multi-state-restraints.refmac.params")
-
-    # Check no other files are generated
-    generated_files = [f for f in os.listdir(self.params.output.out_dir) if isfile(os.path.join(self.params.output.out_dir, f))]
+        # Check no other files are generated
+        generated_files = [f for f in os.listdir(self.params.output.out_dir) if isfile(os.path.join(self.params.output.out_dir, f))]
 
 
-    assert len(files) == len(generated_files), "There are {} extra files in the output folder".format(len(files) -
-                                                                                                      len(generated_files))
+        assert len(files) == len(generated_files), "There are {} extra files in the output folder".format(len(files) -
+                                                                                                          len(generated_files))
 
 if __name__ == '__main__':
     unittest.main()
