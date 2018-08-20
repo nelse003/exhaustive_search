@@ -224,9 +224,6 @@ def occ_loop_merge_confs_simulate(params):
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
 
-            print(fmodel_args)
-            exit()
-
             fmodel(args=fmodel_args)
 
         else:
