@@ -35,9 +35,9 @@ class TestExhaustiveSearch(unittest.TestCase):
                                 "exhaustive_search_data/tests/"
         self.params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                                 "exhaustive_search_data/tests/logs"
-        self.params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "test.csv")
-        exhaustive(params)
-        bound_occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
+        self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
+        exhaustive(self.params)
+        bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
         self.assertAlmostEqual(0.7,bound_occ)
         self.assertAlmostEqual(0.45,u_iso)
 
