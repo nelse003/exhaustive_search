@@ -110,7 +110,7 @@ def occ_loop_merge_confs_simulate(params):
     os.chdir(params.output.out_dir)
 
     logging.info("Checking validity of input files")
-    check_validate_input_files(params=params, logging=logging)
+    check_validate_input_files(params=params)
 
     logging.info("Looping over simulated occupancies "
                 "between {} and {} in steps of {}".format(
