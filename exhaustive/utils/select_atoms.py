@@ -2,20 +2,21 @@ from __future__ import print_function
 
 from copy import deepcopy
 
-import iotbx
 import itertools
+
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
+import giant.grid as grid
+
+import iotbx
+from scitbx.array_family import flex
 from iotbx.pdb import hierarchy
-
-
 ##############################################################
 import logging
 logging = logging.getLogger(__name__)
 ##############################################################
 # Shared Functions
 ##############################################################
-
 
 # Process pdb file to provide occupancy groups
 def get_occupancy_groups(pdb, params):
@@ -48,6 +49,61 @@ def get_occupancy_groups(pdb, params):
                                                     verbose=params.select.verbose)
 
     return occupancy_groups
+
+
+def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
+                                    params, logging):
+
+    """Produce cartesian points related to occupancy groups.
+
+    Get cartesian points that correspond to atoms involved in the
+    occupancy groups (as in multi-state.restraints.params)
+
+    :param pdb: Input PDB file
+    :type 
+    :param params: Working phil parameters
+    :type
+    :return: occupancy_group_cart_points: The cartesian points involved
+    in the bound and ground states as a list
+    """
+
+    logging.info("For all bound and ground states, "
+                "select cartesian grid points for each altloc/residue \n"
+                "involved in occupancy groups. A buffer of {} Angstrom \n"
+                "is applied to minimal and maximal grid points,"
+                "with a grid seperation of {}.\n".format(
+        params.exhaustive.options.buffer,
+        params.exhaustive.options.grid_spacing))
+
+    states = bound_states + ground_states
+
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms = pdb_in.hierarchy.atoms()
+
+    occupancy_group_cart_points = flex.vec3_double()
+    for state in states:
+
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        sites_cart = selected_atoms.extract_xyz()
+        grid_min = flex.double([s - params.exhaustive.options.buffer
+                                for s in sites_cart.min()])
+        grid_max = flex.double([s + params.exhaustive.options.buffer
+                                for s in sites_cart.max()])
+        grid_from_selection = grid.Grid(
+            grid_spacing=params.exhaustive.options.grid_spacing,
+            origin=tuple(grid_min),
+            approx_max=tuple(grid_max))
+
+        logging.debuf(grid_from_selection.summary())
+
+        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
+            grid_from_selection.cart_points())
+
+    logging.info("Number of cartesian points to calculate "
+                "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
+
+    return occupancy_group_cart_points
 
 
 def powerset(iterable, min_len=0):
