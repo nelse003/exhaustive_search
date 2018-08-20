@@ -1,6 +1,7 @@
 import unittest
 from exhaustive.phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
+from exhaustive.exhaustive.utils import get_minimum_fofc
 import os
 
 # TODO Write TestComputeMaps
@@ -35,6 +36,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "test.csv")
 
         exhaustive(params)
+        print(get_minimum_fofc(params.exhaustive.output.csv_name))
 
     def test_convex_hull_exhaustive_search(self):
         self.assertEqual(True, False)
