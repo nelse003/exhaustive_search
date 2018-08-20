@@ -65,7 +65,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         for simul_occ in np.arange(self.params.validate.options.start_simul_occ,
                               self.params.validate.options.end_simul_occ,
                               self.params.validate.options.step_simulation):
-            validate_occ_check(simul_occ)
+            self.validate_occ_check(simul_occ)
 
     def validate_occ_check(self, simul_occ):
 
