@@ -30,7 +30,7 @@ class TestExhaustiveSearch(unittest.TestCase):
             self.params.input.in_path, "refine.output.ground-state.pdb")
         self.params.validate.input.bound_state_pdb_path = os.path.join(
             self.params.input.in_path, "refine.output.bound-state.pdb")
-        self.params.validate.options.set_b = 40
+        self.params.validate.options.set_b = 40.0
         self.params.exhaustive.options.generate_mtz = False
         self.params.validate.options.use_qsub = False
         self.params.validate.options.step_simulation = 0.1
