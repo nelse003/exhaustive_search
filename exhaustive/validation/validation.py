@@ -347,7 +347,7 @@ def run(params):
 
     params = modified_phil.extract()
 
-    params.validate.use_qsub = False
+    params.validate.options.use_qsub = False
 
     logging = start_validate_logging(params)
     check_validate_input_files(params, logging)
