@@ -225,7 +225,15 @@ def occ_loop_merge_confs_simulate(params):
                            "output.file_name={}".format(simulated_mtz)]
             logging.warning(fmodel_args)
 
-            fmodel(args=fmodel_args)
+            print(params.output.out_dir)
+            exit()
+
+            fmodel(args=fmodel_args, log=os.path.join(params.output.out_dir,
+                                                      params.output.log_dir,
+                                                      "{}_occ_{}_b_{}_fmodel_log".format(
+                                                          params.input.xtal_name,
+                                                          str(lig_occupancy).replace(".", "_"),
+                                                          str(params.validate.options.set_b).replace(".", "_"))))
 
         else:
             logging.info("Skipping the generation of simulated data:"
