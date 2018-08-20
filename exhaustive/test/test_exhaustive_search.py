@@ -21,20 +21,21 @@ class TestExhaustiveSearch(unittest.TestCase):
     
     What mock objects does this need?
     """
+    def setUp(self):
+        self.params = master_phil.extract()
+
     def test_exhaustive_search(self):
 
-        params = master_phil.extract()
-        params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
+        self.params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
                            "initial_model/NUDT7A-x0299/refine.pdb"
-        params.input.mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
+        self.params.input.mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
                            "initial_model/NUDT7A-x0299/refine.mtz"
-        params.input.xtal_name = "NUDT7A-x0299"
-        params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+        self.params.input.xtal_name = "NUDT7A-x0299"
+        self.params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                                 "exhaustive_search_data/tests/"
-        params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+        self.params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                                 "exhaustive_search_data/tests/logs"
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "test.csv")
-
+        self.params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "test.csv")
         exhaustive(params)
         bound_occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
         self.assertAlmostEqual(0.7,bound_occ)
