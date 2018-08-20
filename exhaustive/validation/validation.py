@@ -349,7 +349,12 @@ def run(params):
 
     params.validate.options.use_qsub = False
 
-    logging = start_validate_logging(params)
+    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
+    log_path = os.path.join(params.output.out_dir,
+                            params.output.log_dir,
+                            params.validate.output.log_name + log_time)
+    logging.basicConfig(filename=log_path, level=logging.DEBUG)
+
     check_validate_input_files(params, logging)
 
     if not os.path.exists(params.output.out_dir):
