@@ -23,7 +23,8 @@ class TestExhaustiveSearch(unittest.TestCase):
             "./exhaustive/test/resources"), self.params.input.xtal_name)
         self.params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
                                         "FALZA-x0085.free.mtz")
-        self.params.input.mtz = self.params.validate.input.base_mtz
+        self.params.input.mtz = os.path.join(self.params.input.in_path,
+                                        "FALZA-x0085.free.mtz")
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
         self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
         self.params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
