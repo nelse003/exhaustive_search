@@ -36,7 +36,9 @@ class TestExhaustiveSearch(unittest.TestCase):
         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "test.csv")
 
         exhaustive(params)
-        print(get_minimum_fofc(params.exhaustive.output.csv_name))
+        bound_occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name))
+        self.assertAlmostEqual(0.7,bound_occ)
+        self.assertAlmostEqual(0.45,u_iso)
 
     def test_convex_hull_exhaustive_search(self):
         self.assertEqual(True, False)
