@@ -25,7 +25,7 @@ class TestExhaustiveSearch(unittest.TestCase):
                                         "FALZA-x0085.free.mtz")
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
         self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
-        self.params.output.log_dir = os.path.join(params.output.out_dir, "logs")
+        self.params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
         self.params.validate.input.ground_state_pdb_path = os.path.join(
             self.params.input.in_path, "refine.output.ground-state.pdb")
         self.params.validate.input.bound_state_pdb_path = os.path.join(
