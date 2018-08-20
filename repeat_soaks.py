@@ -1,28 +1,25 @@
 from __future__ import division, print_function
-import os
+
 import datetime
-import sqlite3
+import os
 import shutil
-import itertools
-import libtbx.phil
+
 import pandas as pd
+from giant.jiffies.score_model import master_phil as score_phil
+from giant.jiffies.score_model import run as score_model
+from giant.jiffies.split_conformations import master_phil as split_phil
+from giant.jiffies.split_conformations import run as split_conformations
 
 from exhaustive.exhaustive import run as exhaustive
-from exhaustive.phil import master_phil, check_input_files
-from exhaustive.utils.utils import get_minimum_fofc, get_occ_b
-from exhaustive.utils.utils import u_iso_to_b_fac, datasets_from_compound
-from exhaustive.utils.utils import collate_edstats_scores
-from exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
-from exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
-from exhaustive.plotting.plot import plot_edstats_across_soaks
+from exhaustive.exhaustive.phil import master_phil, check_input_files
+from exhaustive.exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
+from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
+from exhaustive.exhaustive.plotting.plot import plot_edstats_across_soaks
+from exhaustive.exhaustive.utils import collate_edstats_scores
+from exhaustive.exhaustive.utils import get_minimum_fofc, get_occ_b
+from exhaustive.exhaustive.utils import u_iso_to_b_fac, datasets_from_compound
 from exhaustive.process.minima import write_minima_pdb
 
-from giant.jiffies.split_conformations import run as split_conformations
-from giant.jiffies.split_conformations import master_phil as split_phil
-from giant.jiffies.merge_conformations import run as merge_conformations
-from giant.jiffies.merge_conformations import master_phil as merge_phil
-from giant.jiffies.score_model import run as score_model
-from giant.jiffies.score_model import master_phil as score_phil
 params =  master_phil.extract()
 
 def get_cif_file_from_dataset(dataset_dir, preferred_cif=None):

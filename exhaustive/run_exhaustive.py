@@ -1,10 +1,10 @@
-from exhaustive import run as exhaustive
-from phil import master_phil
-from plotting.plot import scatter_plot
-import os
-import pickle
 import csv
-from utils.utils import get_minimum_fofc, u_iso_to_b_fac, get_lig_occ
+import os
+
+from exhaustive.exhaustive.phil import master_phil
+from exhaustive.exhaustive.plotting.plot import scatter_plot
+from exhaustive.exhaustive.utils import get_minimum_fofc, u_iso_to_b_fac
+
 params =  master_phil.extract()
 
 # example for a single dataset

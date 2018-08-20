@@ -1,12 +1,12 @@
 import os
+
 import numpy as np
-import libtbx.phil
-import sys
 import pytest
 
+from exhaustive.exhaustive.phil import master_phil
+from exhaustive.exhaustive.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 from exhaustive.validation.validation import run as validate
-from exhaustive.phil import master_phil
-from exhaustive.utils.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
+
 
 @pytest.fixture
 def params():

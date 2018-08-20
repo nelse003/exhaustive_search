@@ -1,6 +1,7 @@
-from exhaustive.validation.validation import run as validate
-from exhaustive.phil import master_phil
 import os
+
+from exhaustive.exhaustive.phil import master_phil
+from exhaustive.validation.validation import run as validate
 
 params =  master_phil.extract()
 

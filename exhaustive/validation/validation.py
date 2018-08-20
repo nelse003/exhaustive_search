@@ -1,23 +1,22 @@
+import datetime
+import logging
 import os
 import sys
-import numpy as np
-import logging
-import datetime
 
+import numpy as np
+from giant.jiffies.merge_conformations import master_phil as merge_phil
+from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as map
-from giant.jiffies.merge_conformations import run as merge_conformations
-from giant.jiffies.merge_conformations import master_phil as merge_phil
 
-# Local imports
-
-from ..utils.utils import set_b_fac_all_occupancy_groups, \
+from exhaustive.exhaustive.phil import master_phil, prepare_validate_phil, check_input_files
+from exhaustive.exhaustive.plotting.plot import scatter_plot, plot_3d_fofc_occ
+from exhaustive.exhaustive.utils import set_b_fac_all_occupancy_groups, \
     wait_for_file_existence, get_csv_filepath, set_b_fac_all_atoms
-
-from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
-from ..phil import master_phil, prepare_validate_phil, check_input_files
 from ..exhaustive import run as exhaustive
 
+
+# Local imports
 
 # Logging
 def start_validate_logging(params):

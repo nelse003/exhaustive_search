@@ -1,8 +1,10 @@
-from exhaustive import run as exhaustive
-from phil import master_phil
-from plotting.plot import scatter_plot
-import numpy as np
 import os
+
+import numpy as np
+
+from exhaustive import run as exhaustive
+from exhaustive.exhaustive.phil import master_phil
+from exhaustive.exhaustive.plotting.plot import scatter_plot
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x0955"

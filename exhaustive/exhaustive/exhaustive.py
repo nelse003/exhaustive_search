@@ -10,30 +10,30 @@ from __future__ import division
 from __future__ import print_function
 
 import csv
+import datetime
+import logging
 import os
 import sys
-import numpy as np
-import logging
-import datetime
 from cStringIO import StringIO
 
-from phil import master_phil
 import cctbx.miller
 import iotbx.ccp4_map
 import iotbx.pdb
 import mmtbx.f_model
 import mmtbx.masks
 import mmtbx.utils
+import numpy as np
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from libtbx import easy_mp
 from mmtbx import map_tools
-from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
+from mmtbx.utils import data_and_flags_master_params
 
-from utils.select_atoms import process_refined_pdb_bound_ground_states, get_occupancy_group_grid_points
-from utils.convex_hull import convex_hull_from_states, atom_points_from_sel_string
-from utils.utils import is_almost_equal
+from exhaustive.exhaustive.phil import master_phil
+from exhaustive.exhaustive.utils import convex_hull_from_states, atom_points_from_sel_string
+from exhaustive.exhaustive.utils import is_almost_equal
+from exhaustive.exhaustive.utils import process_refined_pdb_bound_ground_states, get_occupancy_group_grid_points
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
