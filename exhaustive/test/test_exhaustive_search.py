@@ -23,6 +23,8 @@ class TestExhaustiveSearch(unittest.TestCase):
     """
     def setUp(self):
 
+        """Provide a """
+
         self.params = master_phil.extract()
         self.params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
                                 "initial_model/NUDT7A-x0299/refine.pdb"

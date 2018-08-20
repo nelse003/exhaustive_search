@@ -53,6 +53,9 @@ class TestExhaustiveSearch(unittest.TestCase):
 
 
     def test_validation(self):
+
+        """ Run the validation script. Check the result and number of files output"""
+
         validate(self.params)
         self.check_validate_result()
         self.check_validate_ouput_files()
@@ -78,7 +81,7 @@ class TestExhaustiveSearch(unittest.TestCase):
                                              self.params.exhaustive.output.csv_prefix
                                              + "_occ_{}_b_{}.csv".format(
                                                  str(simul_occ).replace(".","_"),
-                                                 str(self.params.validate.options.set_b)
+                                                 str(self.params.validate.options.set_b).replace(".","_")
                                              )))
         assert simul_occ - occ >= self.params.exhaustive.options.step*2,\
             "Occupancy minima {} is too farfrom simulated occupancy {}".format(
