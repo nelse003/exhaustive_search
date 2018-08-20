@@ -22,8 +22,8 @@ def start_validate_logging(params):
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.log_dir,
                             params.validate.output.log_name + log_time)
-    hdlr = logging.FileHandler(log_path)
     logging = logging.getLogger(__name__)
+    hdlr = logging.FileHandler(log_path)
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     hdlr.setFormatter(formatter)
     logging.addHandler(hdlr)
