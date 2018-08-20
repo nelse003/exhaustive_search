@@ -223,7 +223,7 @@ def occ_loop_merge_confs_simulate(params):
             fmodel_args = [merged_pdb, params.input.mtz,
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
-            logging.warning(fmodel_args)
+            logging.debug(fmodel_args)
 
             fmodel_log = open(os.path.join(params.output.out_dir,
                                            params.output.log_dir,
@@ -256,6 +256,9 @@ def occ_loop_merge_confs_simulate(params):
         sh_file = "{}_occ_{}_b_{}.sh".format(
             params.input.xtal_name, str(lig_occupancy).replace(".", "_"),
             str(params.validate.options.set_b).replace(".", "_"))
+
+        params.input.pdb = os.path.join(params.output.out_dir, merged_pdb)
+        params.input.mtz = simulated_mtz
 
         params.exhaustive.output.csv_name = \
             params.exhaustive.output.csv_prefix \
