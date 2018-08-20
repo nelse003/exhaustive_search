@@ -1,5 +1,5 @@
 import unittest
-from exhaustive.exhaustive.phil import master_phil
+from exhaustive.phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 import os
 
