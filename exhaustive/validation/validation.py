@@ -220,13 +220,16 @@ def occ_loop_merge_confs_simulate(params):
             # Talk to tobias- Frank suggests  a pre-selection filter: 32
             # TODO Allocate location of fmodel log/ generate log #56
 
-            fmodel_args = [merged_pdb, params.validate.base_mtz,
+            fmodel_args = [merged_pdb, params.validate.input.base_mtz,
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
             logging.debug(fmodel_args)
 
-            #os.system("phenix.fmodel data_column_label =\"F,SIGF\" {} {} type=real".format(merged_pdb, params.validate.base_mtz))
+            # print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
+            #                                                                                params.validate.input.base_mtz))
 
+            # os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
+            #                                                                                params.validate.input.base_mtz))
             fmodel_log = open(os.path.join(params.output.out_dir,
                                            params.output.log_dir,
                                            "{}_occ_{}_b_{}_fmodel.log".format(

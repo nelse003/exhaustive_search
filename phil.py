@@ -55,6 +55,9 @@ exhaustive{
             .type = bool
         generate_map = False
             .type = bool
+        column_type = "F,SIGF"
+            .type = str
+            .help = Column type expected from mtz file. FMODEL is needed for validation
         convex_hull = True
             .type = bool
         convex_hull_ignore_nearest = False

@@ -459,8 +459,7 @@ def run(params):
         err=StringIO())
     logging.debug("Processed reflection files using reflection file server")
 
-    # TODO Way to select appropriate labels? #55
-    column_type = "F,SIGF"
+    column_type = params.exhaustive.options.column_type
     logging.debug("Extracting a copy of data_and_flags_master_params "
                  "from mmtbx utils. Adding labels {} for mtz column type "
                  "to use".format(column_type))
