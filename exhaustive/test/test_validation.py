@@ -35,7 +35,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.validate.options.use_qsub = False
         self.params.validate.options.step_simulation = 0.1
         self.params.validate.options.overwrite = True
-        self.params.exhaustive.options.step = 0.1
+        self.params.exhaustive.options.step = 0.4
         self.params.settings.processes = 1
 
         if not os.path.exists(self.params.output.out_dir):
