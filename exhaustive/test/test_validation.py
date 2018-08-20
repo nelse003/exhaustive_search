@@ -44,6 +44,13 @@ class TestExhaustiveSearch(unittest.TestCase):
         if not os.path.exists(self.params.output.log_dir):
             os.mkdir(self.params.output.log_dir)
 
+        # Removal of existing output files for cctbx fmodel to run
+        if os.path.exists(self.params.output.out_dir):
+
+            for item in os.listdir(self.params.output.out_dir):
+                if item.endswith(".mtz"):
+                    os.remove(os.path.join(self.params.output.out_dir, item))
+
 
     def test_validation(self):
         validate(self.params)
@@ -60,7 +67,7 @@ class TestExhaustiveSearch(unittest.TestCase):
                               self.params.validate.options.step_simulation):
             validate_occ_check(simul_occ)
 
-    def validate_occ_check(simul_occ):
+    def validate_occ_check(self, simul_occ):
 
         """ Compare simulated occupancy to occupancy minima
     
