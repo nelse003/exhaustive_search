@@ -60,6 +60,9 @@ class TestExhaustiveSearch(unittest.TestCase):
     def test_step_size(self):
         self.assertEqual(True, False)
 
+    def test_multiprocess_exhaustive_search(self):
+        self.assertEqual(True, False)
+
 
 # TODO Write TestOccupancyCartPoints
 class TestOccupancyCartPoints(unittest.TestCase):

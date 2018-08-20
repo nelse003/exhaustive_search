@@ -8,47 +8,47 @@ from exhaustive.validation.validation import run as validate
 from phil import master_phil
 
 
-@pytest.fixture
-def params():
+class TestExhaustiveSearch(unittest.TestCase):
+    """
+    Test the main loop of exhaustive search.
 
-    params =  master_phil.extract()
-    params.input.xtal_name = "FALZA-x0085"
-    params.input.in_path = os.path.join(os.path.realpath(
-        "./exhaustive/test/resources"), params.input.xtal_name)
-    params.input.mtz = os.path.join(params.input.in_path,
-                                    "FALZA-x0085.free.mtz")
-    params.input.pdb = os.path.join(params.input.in_path,"refine.pdb")
-    params.output.out_dir = os.path.realpath("./exhaustive/test/output")
-    params.output.log_dir = os.path.join(params.output.out_dir, "logs")
-    params.validate.input.ground_state_pdb_path = os.path.join(
-        params.input.in_path, "refine.output.ground-state.pdb")
-    params.validate.input.bound_state_pdb_path = os.path.join(
-        params.input.in_path, "refine.output.bound-state.pdb")
-    params.validate.options.set_b = 40
-    params.exhaustive.options.generate_mtz = False
-    params.validate.options.use_qsub = False
-    params.validate.options.step_simulation = 0.1
-    params.validate.options.overwrite = True
-    params.exhaustive.options.step = 0.1
-    params.settings.processes = 20
+    What mock objects does this need?
+    """
 
-    if not os.path.exists(params.output.out_dir):
-        os.mkdir(params.output.out_dir)
+    def setUp(self):
 
-    if not os.path.exists(params.output.log_dir):
-        os.mkdir(params.output.log_dir)
+        self.params =  master_phil.extract()
+        self.params.input.xtal_name = "FALZA-x0085"
+        self.params.input.in_path = os.path.join(os.path.realpath(
+            "./exhaustive/test/resources"), params.input.xtal_name)
+        self.params.input.mtz = os.path.join(params.input.in_path,
+                                        "FALZA-x0085.free.mtz")
+        self.params.input.pdb = os.path.join(params.input.in_path,"refine.pdb")
+        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
+        self.params.output.log_dir = os.path.join(params.output.out_dir, "logs")
+        self.params.validate.input.ground_state_pdb_path = os.path.join(
+            self.params.input.in_path, "refine.output.ground-state.pdb")
+        self.params.validate.input.bound_state_pdb_path = os.path.join(
+            self.params.input.in_path, "refine.output.bound-state.pdb")
+        self.params.validate.options.set_b = 40
+        self.params.exhaustive.options.generate_mtz = False
+        self.params.validate.options.use_qsub = False
+        self.params.validate.options.step_simulation = 0.1
+        self.params.validate.options.overwrite = True
+        self.params.exhaustive.options.step = 0.1
+        self.params.settings.processes = 20
 
-    return params
+        if not os.path.exists(self.params.output.out_dir):
+            os.mkdir(self.params.output.out_dir)
+
+        if not os.path.exists(params.output.log_dir):
+            os.mkdir(self.params.output.log_dir)
 
 
-def teardown_module():
-    pass
-
-
-def test_validation(params):
-    validate(params)
-    check_validate_result(params)
-    check_output_files(params)
+    def test_validation(self):
+        validate(self.params)
+        check_validate_result(self.params)
+        check_output_files(self.params)
 
 
 def check_validate_result(params):
