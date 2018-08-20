@@ -10,10 +10,10 @@ from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as map
 
 from exhaustive.exhaustive.plotting.plot import scatter_plot, plot_3d_fofc_occ
-from exhaustive.exhaustive.utils import set_b_fac_all_occupancy_groups, \
+from exhaustive.exhaustive.utils.utils import set_b_fac_all_occupancy_groups, \
     wait_for_file_existence, get_csv_filepath, set_b_fac_all_atoms
 from phil import master_phil, prepare_validate_phil, check_input_files
-from ..exhaustive import run as exhaustive
+from exhaustive.exhaustive.exhaustive import run as exhaustive
 
 
 # Logging
