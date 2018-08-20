@@ -47,8 +47,8 @@ class TestExhaustiveSearch(unittest.TestCase):
 
     def test_validation(self):
         validate(self.params)
-        check_validate_result(self.params)
-        check_validate_ouput_files(self.params)
+        self.check_validate_result(self.params)
+        self.check_validate_ouput_files(self.params)
 
 
     def check_validate_result(self):
