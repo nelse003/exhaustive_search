@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-import pytest
+import unittest
 
 from exhaustive.exhaustive.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 from exhaustive.validation.validation import run as validate
@@ -186,3 +186,6 @@ def check_validate_ouput_files(params):
 
     assert len(files) == len(generated_files), "There are {} extra files in the output folder".format(len(files) -
                                                                                                       len(generated_files))
+
+if __name__ == '__main__':
+    unittest.main()
