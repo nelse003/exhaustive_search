@@ -38,7 +38,7 @@ def start_validate_logging(params):
     return logging
 
 
-def check_validate_input_files(params, logging):
+def check_validate_input_files(params):
 
     """Check existence of input files, needed for validation"""
 
