@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
 get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
 from mpl_toolkits.mplot3d import Axes3D
-import seaborn as sns
+#import seaborn as sns
 ##############################################################
 
 logging = logging.getLogger(__name__)
