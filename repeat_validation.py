@@ -50,6 +50,8 @@ for xtal_name in xtals:
     params.validate.input.base_mtz = os.path.join(os.path.join(out_dir,
                                                                xtal_name,
                                                                "refine.mtz"))
+    print(params.input.pdb)
+
     if not os.path.exists(params.input.pdb):
         continue
     if not os.path.exists(params.input.mtz):
