@@ -74,5 +74,5 @@ for xtal_name in xtals:
 
         for item in os.listdir(params.output.out_dir):
             if item.endswith(".mtz"):
-                if not item.startswith("refine")
+                if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
