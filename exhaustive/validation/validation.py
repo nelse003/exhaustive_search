@@ -9,7 +9,8 @@ from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as map
 
-from exhaustive.exhaustive.plotting.plot import scatter_plot, plot_3d_fofc_occ
+from exhaustive.exhaustive.plotting.plot import scatter_plot,\
+    plot_3d_fofc_occ, plot_2d_occ_b_validation
 from exhaustive.exhaustive.utils.utils import set_b_fac_all_occupancy_groups, \
     wait_for_file_existence, get_csv_filepath, set_b_fac_all_atoms
 from phil import master_phil, prepare_validate_phil, check_input_files
@@ -401,9 +402,17 @@ def run(params):
                      params.validate.options.end_simul_occ,
                      step=params.validate.options.step_simulation,
                      set_b=params.validate.options.set_b,
-                     dataset_prefix=params.input.xtal_name,
-                     out_dir=params.output.out_dir,
+                     set_b=params.validate.options.set_b,
+                     set_b=params.validate.options.set_br,
                      params=params)
+
+    plot_2d_occ_b_validation(start_occ=params.validate.options.start_simul_occ,
+                             end_occ=params.validate.options.end_simul_occ,
+                             step=params.validate.options.step_simulation,
+                             set_b=params.validate.options.set_b,
+                             set_b=params.validate.options.set_b,
+                             set_b=params.validate.options.set_br,
+                             params=params):
 
     logging.info("Plotting occupancy, bfactor and mean |Fobs-Fcalc| "
                 "for each simulated occupancy")

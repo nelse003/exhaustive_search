@@ -10,9 +10,6 @@ params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x0955"
 
 params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1813/refine_0003/output.pdb"
-params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1813/refine_0003/output.mtz"
 
 # params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
 #                    "exhaustive_search_data/repeat_soaks/2018-05-28/" \

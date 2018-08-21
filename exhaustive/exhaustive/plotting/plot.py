@@ -141,16 +141,13 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
 
 # TODO sort out params
-def plot_3d_fofc_occ(start_occ,
+
+def process_validation_csvs(start_occ,
                      end_occ,
                      step,
-                     dataset_prefix,
                      set_b,
                      out_dir,
                      params):
-
-    """ Plot the difference in occupancy & mean(|fo-fc|)
-    at the simulated occupancy and the minima. """
 
     min_fofcs = []
     min_occs = []
@@ -160,13 +157,12 @@ def plot_3d_fofc_occ(start_occ,
     b_facs = []
 
     for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
-
         # TODO Replace CSV naming #59
 
         csv_name = params.exhaustive.output.csv_prefix \
                    + "_occ_{}_b_{}.csv".format(
-                   str(lig_occupancy).replace(".", "_"),
-                   str(set_b).replace(".", "_"))
+            str(lig_occupancy).replace(".", "_"),
+            str(set_b).replace(".", "_"))
 
         csv_path = os.path.join(out_dir, csv_name)
 
@@ -180,6 +176,62 @@ def plot_3d_fofc_occ(start_occ,
         min_b_facs.append(u_iso_to_b_fac(min_u_iso))
         min_fofcs.append(fo_fc_at_min)
         min_occs.append(min_occ)
+
+    return min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs
+
+
+def plot_2d_occ_b_validation(start_occ,
+                             end_occ,
+                             step,
+                             set_b,
+                             dataset_prefix,
+                             out_dir,
+                             params):
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(start_occ, end_occ, step,
+                                set_b, out_dir, params)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    min_plot = ax.plot(min_occs, min_b_facs, 'k+')
+    occ_plot, = ax.plot(occs, b_facs, 'ro')
+
+    for i in np.arange(0, len(occs)):
+        connectpoints(occs, b_facs, min_occs, min_b_facs, i)
+
+    ax.set_xlabel("Occupancy")
+    ax.set_ylabel("B factor")
+
+    ax.legend((min_plot, occ_plot),
+              ('B factor & occupancy at Minima of mean |Fo-Fc|',
+               'B factor & occupancy at Mean |Fo-Fc| at simulated occupancy'),
+              prop={"size": 8},
+              numpoints=1,
+              bbox_to_anchor=(1, 1),
+              bbox_transform=plt.gcf().transFigure)
+
+    plt.title("{}: Delta Occupancy & B factor: Validation".format(
+        dataset_prefix), fontsize=10)
+
+    plt.savefig(os.path.join(out_dir,
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+
+
+def plot_3d_fofc_occ(start_occ,
+                     end_occ,
+                     step,
+                     dataset_prefix,
+                     set_b,
+                     out_dir,
+                     params):
+
+    """ Plot the difference in occupancy & mean(|fo-fc|)
+    at the simulated occupancy and the minima. """
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(start_occ, end_occ, step,
+                                set_b, out_dir, params)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
