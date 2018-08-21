@@ -32,9 +32,9 @@ params.settings.processes = 14
 
 # # copy data to new folder
 
-# if not os.path.exists(out_dir):
-#     os.mkdir(out_dir)
-#     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+    #os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
 xtals = ["NUDT22A-x0182"]
 for num in range(start_xtal_num, end_xtal_num + 1):
