@@ -367,8 +367,6 @@ def run(params):
 
     params = modified_phil.extract()
 
-    params.validate.options.use_qsub = False
-
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.out_dir,
                             params.output.log_dir,
@@ -402,17 +400,17 @@ def run(params):
                      params.validate.options.end_simul_occ,
                      step=params.validate.options.step_simulation,
                      set_b=params.validate.options.set_b,
-                     set_b=params.validate.options.set_b,
-                     set_b=params.validate.options.set_br,
+                     dataset_prefix=params.input.xtal_name,
+                     out_dir=params.output.out_dir,
                      params=params)
 
     plot_2d_occ_b_validation(start_occ=params.validate.options.start_simul_occ,
                              end_occ=params.validate.options.end_simul_occ,
                              step=params.validate.options.step_simulation,
                              set_b=params.validate.options.set_b,
-                             set_b=params.validate.options.set_b,
-                             set_b=params.validate.options.set_br,
-                             params=params):
+                             dataset_prefix=params.input.xtal_name,
+                             out_dir=params.output.out_dir,
+                             params=params)
 
     logging.info("Plotting occupancy, bfactor and mean |Fobs-Fcalc| "
                 "for each simulated occupancy")
