@@ -1,3 +1,7 @@
+""" Basic definiton of how to setup parameter to run the validation script.
+
+Similiar to the test_validation script, but quicker to edit"""
+
 import os
 
 from exhaustive.validation.validation import run as validate

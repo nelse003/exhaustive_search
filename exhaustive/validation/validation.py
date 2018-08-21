@@ -226,11 +226,12 @@ def occ_loop_merge_confs_simulate(params):
                            "output.file_name={}".format(simulated_mtz)]
             logging.debug(fmodel_args)
 
-            # print("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
-            #                                                                                params.validate.input.base_mtz))
+            # The below cctbx code is that called by phenix.fmodel
+            #
+            # os.system("phenix.fmodel
+            # data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
+            # params.validate.input.base_mtz))
 
-            # os.system("phenix.fmodel data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
-            #                                                                                params.validate.input.base_mtz))
             fmodel_log = open(os.path.join(params.output.out_dir,
                                            params.output.log_dir,
                                            "{}_occ_{}_b_{}_fmodel.log".format(
@@ -361,6 +362,16 @@ def occ_loop_merge_confs_simulate(params):
 
 
 def run(params):
+
+    """ Run the validation script.
+
+    Provides modified parameters to the occ_merge_loop_function
+    & plots the outcoming csv files as 2d and 3d plots comparing
+     the simualted occupancy in fmodel to the occupancy determined
+     with exhaustive search.
+
+     Limited to running validation a a single set B factor.
+     """
 
     modified_phil = prepare_validate_phil(master_phil.format(
         python_object=params))

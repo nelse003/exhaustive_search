@@ -29,7 +29,7 @@ params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.05
 params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.05
-params.settings.processes = 14
+params.settings.processes = 20
 
 # # copy data to new folder
 
@@ -95,9 +95,40 @@ for xtal_name in xtals:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
-    for set_b in np.arange(20,120,5):
-        params.validate.options.set_b = set_b
-        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
+    # Loop over set B
+
+    # for set_b in np.arange(20,120,5):
+    #     params.validate.options.set_b = set_b
+    #     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
+    #     validate(params)
+    params.exhaustive.options.convex_hull = False
+    atom_points_sel_string = "(chain B and altid C and resid 1) or (chain B and altid D resid 1)"
+    params.output.out_dir = os.path.join(
+        os.path.join(out_dir, xtal_name, "lig_atoms"))
+    params.exhaustive.options.ligand_atom_points = True
+    validate(params)
+
+    params.exhaustive.options.ligand_atom_points = False
+    params.exhaustive.options.ligand_grid_points = True
+    params.output.out_dir = os.path.join(
+        os.path.join(out_dir, xtal_name, "lig_grid"))
+    validate(params)
+
+    for set_b in np.arange(0, 3, 0.5):
+        params.exhaustive.options.convex_hull_ignore_nearest = False
+        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
+        params.exhaustive.options.convex_hull=True
+        params.exhaustive.options.buffer=buffer
+        validate(params)
+
+        params.exhaustive.options.convex_hull_ignore_nearest =True
+        params.output.out_dir = os.path.join(
+            os.path.join(out_dir, xtal_name, "convex_hull_ignore_nearest_buffer_{}".format(str(buffer).replace(".", "_"))))
+        validate(params)
+
+        params.output.out_dir = os.path.join(
+            os.path.join(out_dir, xtal_name, "buffer_{}".format(str(buffer).replace(".", "_"))))
+        params.exhaustive.options.convex_hull = False
         validate(params)
 
     exit()

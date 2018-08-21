@@ -1,3 +1,7 @@
+""" Testing different convex hull parameters
+
+Compare the output of the exhaustive search algorithm, """
+
 import os
 
 import numpy as np
