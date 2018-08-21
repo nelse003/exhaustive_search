@@ -8,14 +8,14 @@ params =  master_phil.extract()
 params = master_phil.extract()
 params.input.xtal_name = "FALZA-x0085"
 params.input.in_path = os.path.join(os.path.realpath(
-    "./exhaustive/test/resources"), self.params.input.xtal_name)
-params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
+    "./exhaustive/test/resources"), params.input.xtal_name)
+params.validate.input.base_mtz = os.path.join(params.input.in_path,
                                                    "FALZA-x0085.free.mtz")
-params.input.mtz = os.path.join(self.params.input.in_path,
+params.input.mtz = os.path.join(params.input.in_path,
                                      "FALZA-x0085.free.mtz")
-params.input.pdb = os.path.join(self.params.input.in_path, "refine.pdb")
+params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 params.output.out_dir = os.path.realpath("./exhaustive/test/output")
-params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
+params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 params.validate.input.ground_state_pdb_path = os.path.join(
     params.input.in_path, "refine.output.ground-state.pdb")
 params.validate.input.bound_state_pdb_path = os.path.join(
