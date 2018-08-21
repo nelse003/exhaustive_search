@@ -64,7 +64,7 @@ for xtal_name in xtals:
     if not os.path.exists(params.validate.input.ground_state_pdb_path):
         split_params = split_phil.extract()
         split_params.input.pdb = params.input.pdb
-        split_params.suffix_prefix = 'output'
+        split_params.output.suffix_prefix = 'output'
         split_conformations(split_params)
 
     os.system("ll -lrt {}".format(params.output.out_dir))
