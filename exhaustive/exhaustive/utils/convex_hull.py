@@ -169,7 +169,7 @@ def atom_points_from_sel_string(pdb, selection_string):
     atoms_selected = pdb_in.hierarchy.select(atoms_sel)
     atom_points = atoms_selected.atoms().extract_xyz()
 
-    print(atom_points)
+    print(atom_points.all())
     exit()
 
     return atom_points
