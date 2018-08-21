@@ -71,7 +71,7 @@ for xtal_name in xtals:
         params.input.in_path, "refine.output.ground-state.pdb")
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
-    params.validate.options.set_b = 40.0
+
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path):
         split_params = split_phil.extract()
@@ -85,7 +85,6 @@ for xtal_name in xtals:
     if not os.path.exists(params.output.log_dir):
         os.mkdir(params.output.log_dir)
 
-    validate(params)
 
     # Removal of existing output files for cctbx fmodel to run
     if os.path.exists(params.output.out_dir):
@@ -94,3 +93,10 @@ for xtal_name in xtals:
             if item.endswith(".mtz"):
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
+
+    for set_b in np.arange(20,120,5):
+        params.validate.options.set_b = set_b
+        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
+        validate(params)
+
+    exit()
