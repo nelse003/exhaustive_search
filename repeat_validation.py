@@ -67,9 +67,6 @@ for xtal_name in xtals:
         split_params.output.suffix_prefix = 'output'
         split_conformations(split_params)
 
-    os.system("ll -lrt {}".format(params.output.out_dir))
-    exit()
-
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
 
