@@ -117,7 +117,7 @@ for xtal_name in xtals:
     #     os.path.join(out_dir, xtal_name, "lig_grid"))
     # validate(params)
 
-    for set_b in np.arange(0, 3, 0.5):
+    for buffer in np.arange(0, 3, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
         params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
         params.exhaustive.options.convex_hull=True
