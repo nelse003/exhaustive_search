@@ -2,6 +2,8 @@ import os
 
 from exhaustive.validation.validation import run as validate
 from phil import master_phil
+from giant.jiffies.split_conformations import master_phil as split_phil
+from giant.jiffies.split_conformations import run as split_conformations
 
 params =  master_phil.extract()
 
@@ -51,8 +53,6 @@ for xtal_name in xtals:
     #params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
     params.input.in_path = os.path.join(os.path.join(out_dir, xtal_name))
-
-
     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name))
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
     params.validate.input.ground_state_pdb_path = os.path.join(
@@ -60,6 +60,15 @@ for xtal_name in xtals:
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
     params.validate.options.set_b = 40.0
+
+    if not os.path.exists(params.validate.input.ground_state_pdb_path):
+        split_params = split_phil.extract()
+        split_params.input.pdb = params.input.pdb
+        split_params.suffix_prefix = 'output'
+        split_conformations(split_params)
+
+    os.system("ll -lrt {}".format(params.output.out_dir))
+    exit()
 
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
