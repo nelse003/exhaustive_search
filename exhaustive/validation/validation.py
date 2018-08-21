@@ -306,7 +306,7 @@ def occ_loop_merge_confs_simulate(params):
                             "search via qsub".format(sh_file))
 
                 with open(os.path.join(params.output.out_dir,
-                                       sh_file), ' w') as file:
+                                       sh_file), 'w') as file:
 
                     file.write("#!/bin/bash\n")
                     file.write("export XChemExplorer_DIR=\"/dls/science/"
