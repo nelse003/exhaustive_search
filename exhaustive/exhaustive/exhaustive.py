@@ -165,6 +165,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                                                   selection_string =
                                                   params.exhaustive.options.atom_points_sel_string)
 
+
     elif params.exhaustive.options.ligand_grid_points:
 
         atom_points = atom_points_from_sel_string(pdb,
