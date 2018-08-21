@@ -214,6 +214,9 @@ def plot_2d_occ_b_validation(start_occ,
     plt.title("{}: Delta Occupancy & B factor: Validation".format(
         dataset_prefix), fontsize=10)
 
+    print(os.path.join(out_dir,
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+
     plt.savefig(os.path.join(out_dir,
         "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
 
