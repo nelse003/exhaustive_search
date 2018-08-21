@@ -32,6 +32,9 @@ params.settings.processes = 14
 
 # # copy data to new folder
 
+if not os.path.exists("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"):
+    os.mkdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/")
+
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
     #os.system('cp -a {}/. {}'.format(in_dir,out_dir))
