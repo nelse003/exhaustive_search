@@ -101,18 +101,21 @@ for xtal_name in xtals:
     #     params.validate.options.set_b = set_b
     #     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
     #     validate(params)
-    params.exhaustive.options.convex_hull = False
-    atom_points_sel_string = "(chain B and altid C and resid 1) or (chain B and altid D resid 1)"
-    params.output.out_dir = os.path.join(
-        os.path.join(out_dir, xtal_name, "lig_atoms"))
-    params.exhaustive.options.ligand_atom_points = True
-    validate(params)
 
-    params.exhaustive.options.ligand_atom_points = False
-    params.exhaustive.options.ligand_grid_points = True
-    params.output.out_dir = os.path.join(
-        os.path.join(out_dir, xtal_name, "lig_grid"))
-    validate(params)
+    # Atom selection isnt working? Something to do with merging in validate?
+
+    # params.exhaustive.options.convex_hull = False
+    # atom_points_sel_string = "(chain B and altid C and resid 1) or (chain B and altid D resid 1)"
+    # params.output.out_dir = os.path.join(
+    #     os.path.join(out_dir, xtal_name, "lig_atoms"))
+    # params.exhaustive.options.ligand_atom_points = True
+    # validate(params)
+    #
+    # params.exhaustive.options.ligand_atom_points = False
+    # params.exhaustive.options.ligand_grid_points = True
+    # params.output.out_dir = os.path.join(
+    #     os.path.join(out_dir, xtal_name, "lig_grid"))
+    # validate(params)
 
     for set_b in np.arange(0, 3, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
