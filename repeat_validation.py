@@ -7,11 +7,18 @@ from giant.jiffies.split_conformations import run as split_conformations
 
 params =  master_phil.extract()
 
-start_xtal_num = 1905
-end_xtal_num = 1915
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_covalent_ratios"
-prefix = "NUDT7A-x"
+# start_xtal_num = 1905
+# end_xtal_num = 1915
+# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+# out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_covalent_ratios"
+# prefix = "NUDT7A-x"
+
+start_xtal_num = 909
+end_xtal_num = 937
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/FMOPL000622a_DSPL"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/FMOPL000622a_DSPL"
+prefix = "NUDT22A-x"
+
 
 #validation based params
 
@@ -25,11 +32,11 @@ params.settings.processes = 14
 
 # # copy data to new folder
 
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
-    os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+# if not os.path.exists(out_dir):
+#     os.mkdir(out_dir)
+#     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
-xtals = []
+xtals = ["NUDT22A-x0182"]
 for num in range(start_xtal_num, end_xtal_num + 1):
     xtal_name = prefix + "{0:0>4}".format(num)
     xtals.append(xtal_name)
