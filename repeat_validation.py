@@ -65,8 +65,6 @@ for xtal_name in xtals:
         split_params = split_phil.extract()
         split_params.input.pdb = params.input.pdb
         split_params.output.suffix_prefix = 'output'
-        print(split_params.input.pdb)
-        exit()
         split_conformations(split_params)
 
     os.system("ll -lrt {}".format(params.output.out_dir))
