@@ -67,11 +67,12 @@ for xtal_name in xtals:
     if not os.path.exists(params.output.log_dir):
         os.mkdir(params.output.log_dir)
 
+    validate(params)
+
     # Removal of existing output files for cctbx fmodel to run
     if os.path.exists(params.output.out_dir):
 
         for item in os.listdir(params.output.out_dir):
             if item.endswith(".mtz"):
-                os.remove(os.path.join(params.output.out_dir, item))
-
-    validate(params)
+                if not item.startswith("refine")
+                    os.remove(os.path.join(params.output.out_dir, item))
