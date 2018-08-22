@@ -124,16 +124,40 @@ for xtal_name in xtals:
         params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
         params.exhaustive.options.convex_hull=True
         params.exhaustive.options.buffer=buffer
+
+        if os.path.exists(params.output.out_dir):
+
+            for item in os.listdir(params.output.out_dir):
+                if item.endswith(".mtz"):
+                    if not item.startswith("refine"):
+                        os.remove(os.path.join(params.output.out_dir, item))
+
         validate(params)
 
         params.exhaustive.options.convex_hull_ignore_nearest =True
         params.output.out_dir = os.path.join(
             os.path.join(out_dir, xtal_name, "convex_hull_ignore_nearest_buffer_{}".format(str(buffer).replace(".", "_"))))
+
+        if os.path.exists(params.output.out_dir):
+
+            for item in os.listdir(params.output.out_dir):
+                if item.endswith(".mtz"):
+                    if not item.startswith("refine"):
+                        os.remove(os.path.join(params.output.out_dir, item))
+
         validate(params)
 
         params.output.out_dir = os.path.join(
             os.path.join(out_dir, xtal_name, "buffer_{}".format(str(buffer).replace(".", "_"))))
         params.exhaustive.options.convex_hull = False
+
+        if os.path.exists(params.output.out_dir):
+
+            for item in os.listdir(params.output.out_dir):
+                if item.endswith(".mtz"):
+                    if not item.startswith("refine"):
+                        os.remove(os.path.join(params.output.out_dir, item))
+
         validate(params)
 
     exit()
