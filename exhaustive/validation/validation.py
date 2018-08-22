@@ -124,6 +124,9 @@ def occ_loop_merge_confs_simulate(params):
                                    + params.validate.options.step_simulation/5,
                                    params.validate.options.step_simulation):
 
+        print(lig_occupancy)
+        continue
+
         merged_pdb = os.path.join(
             params.output.out_dir,"{}_refine_occ_{}.pdb".format(
                 params.input.xtal_name, str(lig_occupancy).replace(".", "_")))
@@ -224,8 +227,8 @@ def occ_loop_merge_confs_simulate(params):
             fmodel_args = [merged_pdb, params.validate.input.base_mtz,
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
-            logging.debug(fmodel_args)
-
+            logging.debug("FMODEL:"fmodel_args)
+            print("FMODEL:"fmodel_arg()
             # The below cctbx code is that called by phenix.fmodel
             #
             # os.system("phenix.fmodel

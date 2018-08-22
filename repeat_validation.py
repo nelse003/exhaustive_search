@@ -121,7 +121,7 @@ for xtal_name in xtals:
 
     for buffer in np.arange(0, 3, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
-        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
+        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
         params.exhaustive.options.convex_hull=True
         params.exhaustive.options.buffer=buffer
 
@@ -133,6 +133,7 @@ for xtal_name in xtals:
                         os.remove(os.path.join(params.output.out_dir, item))
 
         validate(params)
+        exit()
 
         params.exhaustive.options.convex_hull_ignore_nearest =True
         params.output.out_dir = os.path.join(
