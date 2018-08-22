@@ -77,11 +77,17 @@ for xtal_name in xtals:
     print(params.validate.input.ground_state_pdb_path)
     exit()
 
-    if not os.path.exists(params.validate.input.ground_state_pdb_path):
+    if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
+
+        print("AAAAAAA")
+
         split_params = split_phil.extract()
         split_params.input.pdb = [params.input.pdb]
         split_params.output.suffix_prefix = 'output'
+
         split_conformations(split_params)
+
+    exit()
 
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
