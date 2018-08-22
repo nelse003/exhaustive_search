@@ -27,7 +27,7 @@ params.exhaustive.options.column_type = "FMODEL"
 params.exhaustive.options.generate_mtz = False
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.05
-params.validate.options.overwrite = False
+params.validate.options.overwrite = True
 params.exhaustive.options.step = 0.05
 params.settings.processes = 20
 
@@ -116,6 +116,8 @@ for xtal_name in xtals:
     # params.output.out_dir = os.path.join(
     #     os.path.join(out_dir, xtal_name, "lig_grid"))
     # validate(params)
+
+    params.validate.options.set_b = 40
 
     for buffer in np.arange(0, 3, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
