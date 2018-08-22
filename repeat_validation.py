@@ -75,7 +75,6 @@ for xtal_name in xtals:
 
 
     print(params.validate.input.ground_state_pdb_path)
-    exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
 
