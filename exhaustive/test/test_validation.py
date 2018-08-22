@@ -17,6 +17,14 @@ class TestValidation(unittest.TestCase):
 
     def setUp(self):
 
+        """ Setup parameters
+                
+        Provides the parameters to validate 
+        and the underlying calls to exhaustive search.
+        
+        Test is on single dataset stored in the test/resources folder
+        """
+
         self.params =  master_phil.extract()
         self.params.input.xtal_name = "FALZA-x0085"
         self.params.input.in_path = os.path.join(os.path.realpath(
