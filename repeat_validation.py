@@ -78,7 +78,7 @@ for xtal_name in xtals:
         split_params = split_phil.extract()
         split_params.input.pdb = [params.input.pdb]
         split_params.output.suffix_prefix = 'output'
-        split_params.reset_occupancies = True
+        split_params.options.reset_occupancies = True
         split_conformations(split_params)
 
     if not os.path.exists(params.output.out_dir):
