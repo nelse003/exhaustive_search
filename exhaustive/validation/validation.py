@@ -226,7 +226,7 @@ def occ_loop_merge_confs_simulate(params):
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
             logging.debug("FMODEL:", fmodel_args)
-            print("FMODEL:", fmodel_arg)
+            print("FMODEL:", fmodel_args)
             # The below cctbx code is that called by phenix.fmodel
             #
             # os.system("phenix.fmodel
