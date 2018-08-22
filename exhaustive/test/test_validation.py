@@ -8,7 +8,7 @@ from exhaustive.validation.validation import run as validate
 from phil import master_phil
 
 
-class TestExhaustiveSearch(unittest.TestCase):
+class TestValidation(unittest.TestCase):
     """
     Test the main loop of exhaustive search.
 
@@ -38,6 +38,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.validate.options.use_qsub = False
         self.params.validate.options.step_simulation = 0.1
         self.params.validate.options.overwrite = True
+        params.validate.options.generate_ccp4 = True
         self.params.exhaustive.options.step = 0.02
         self.params.settings.processes = 24
 
