@@ -143,7 +143,7 @@ def occ_loop_merge_confs_simulate(params):
                 params.validate.input.bound_state_pdb_path
             merge_params.options.major_occupancy = 1 - lig_occupancy
             merge_params.options.minor_occupancy = lig_occupancy
-            merge_params.options.reset_all_occupancies = True
+            merge_params.options.reset_all_occupancies = False
             merge_params.output.pdb = merged_pdb
 
             merge_params.output.log = os.path.join(

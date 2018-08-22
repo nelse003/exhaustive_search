@@ -74,6 +74,9 @@ for xtal_name in xtals:
         params.input.in_path, "refine.output.bound-state.pdb")
 
 
+    print(params.validate.input.ground_state_pdb_path)
+    exit()
+
     if not os.path.exists(params.validate.input.ground_state_pdb_path):
         split_params = split_phil.extract()
         split_params.input.pdb = [params.input.pdb]
