@@ -96,20 +96,20 @@ for xtal_name in xtals:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
-    # Loop over set B
+    # Loop over set B. Fails at setB =100
 
-    for set_b in np.arange(20,120,5):
-        params.validate.options.set_b = set_b
-        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
-
-        if os.path.exists(params.output.out_dir):
-
-            for item in os.listdir(params.output.out_dir):
-                if item.endswith(".mtz"):
-                    if not item.startswith("refine"):
-                        os.remove(os.path.join(params.output.out_dir, item))
-
-        validate(params)
+    # for set_b in np.arange(20,120,5):
+    #     params.validate.options.set_b = set_b
+    #     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
+    #
+    #     if os.path.exists(params.output.out_dir):
+    #
+    #         for item in os.listdir(params.output.out_dir):
+    #             if item.endswith(".mtz"):
+    #                 if not item.startswith("refine"):
+    #                     os.remove(os.path.join(params.output.out_dir, item))
+    #
+    #     validate(params)
 
     # Atom selection isnt working? Something to do with merging in validate?
 

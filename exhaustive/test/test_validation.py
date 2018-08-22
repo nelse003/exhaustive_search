@@ -34,7 +34,13 @@ class TestValidation(unittest.TestCase):
         self.params.input.mtz = os.path.join(self.params.input.in_path,
                                         "FALZA-x0085.free.mtz")
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
-        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
+        #self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
+
+        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output/atom_points")
+        self.params.exhaustive.options.convex_hull = False
+        self.params.exhaustive.options.atom_points_sel_string = "(chain D and altid C and resid 1) or (chain D and altid D resid 1)"
+        self.params.exhaustive.options.ligand_atom_points = True
+
         self.params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
         self.params.validate.input.ground_state_pdb_path = os.path.join(
             self.params.input.in_path, "refine.output.ground-state.pdb")
@@ -46,7 +52,7 @@ class TestValidation(unittest.TestCase):
         self.params.validate.options.use_qsub = False
         self.params.validate.options.step_simulation = 0.1
         self.params.validate.options.overwrite = True
-        self.params.validate.options.generate_ccp4 = True
+        self.params.validate.options.generate_ccp4 = False
         self.params.exhaustive.options.step = 0.02
         self.params.settings.processes = 24
 
