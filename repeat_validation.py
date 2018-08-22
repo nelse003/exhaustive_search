@@ -98,10 +98,10 @@ for xtal_name in xtals:
 
     # Loop over set B
 
-    # for set_b in np.arange(20,120,5):
-    #     params.validate.options.set_b = set_b
-    #     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
-    #     validate(params)
+    for set_b in np.arange(20,120,5):
+        params.validate.options.set_b = set_b
+        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "set_b_{}".format(str(set_b).replace(".","_"))))
+        validate(params)
 
     # Atom selection isnt working? Something to do with merging in validate?
 
@@ -134,7 +134,6 @@ for xtal_name in xtals:
                         os.remove(os.path.join(params.output.out_dir, item))
 
         validate(params)
-        exit()
 
         params.exhaustive.options.convex_hull_ignore_nearest =True
         params.output.out_dir = os.path.join(
