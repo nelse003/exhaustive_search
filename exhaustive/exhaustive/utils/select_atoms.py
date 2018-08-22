@@ -95,7 +95,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
             origin=tuple(grid_min),
             approx_max=tuple(grid_max))
 
-        logging.debuf(grid_from_selection.summary())
+        logging.debug(grid_from_selection.summary())
 
         occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
             grid_from_selection.cart_points())
