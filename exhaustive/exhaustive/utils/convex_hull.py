@@ -186,8 +186,6 @@ def convex_hull_per_residue(pdb, bound_states, ground_states, params):
         convex_hull_points = convex_hull_points.concatenate(convex_hull_grid_points(buffered_points, params))
 
     states_buffered_points = np.concatenate(states_buffered_points_list)
-    print(len(states_buffered_points))
-    print(len(np.unique(states_buffered_points.round(decimals=4),axis=0)))
 
     return convex_hull_points
 
