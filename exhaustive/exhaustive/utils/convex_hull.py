@@ -163,6 +163,7 @@ def convex_hull_per_residue(pdb, bound_states, ground_states, params):
     pdb_atoms = pdb_in.hierarchy.atoms()
     convex_hull_points = flex.vec3_double()
 
+    states_buffered_points_list= []
     for state in states:
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
@@ -180,8 +181,13 @@ def convex_hull_per_residue(pdb, bound_states, ground_states, params):
             buffered_points_list.append(buffered_site_points)
 
         buffered_points = np.concatenate(buffered_points_list)
+        states_buffered_points_list.append(buffered_points)
         print(buffered_points.shape)
         convex_hull_points = convex_hull_points.concatenate(convex_hull_grid_points(buffered_points, params))
+
+    states_buffered_points = np.concatenate(states_buffered_points_list)
+    print(len(states_buffered_points))
+    print(len(np.unique(states_buffered_points.round(decimals=4),axis=0)))
 
     return convex_hull_points
 

@@ -111,6 +111,8 @@ for xtal_name in xtals:
     #
     #     validate(params)
 
+    params.validate.options.set_b = 40
+
     params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "per_residue"))
     if os.path.exists(params.output.out_dir):
         for item in os.listdir(params.output.out_dir):
