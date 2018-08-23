@@ -7,6 +7,16 @@ from iotbx.pdb import hierarchy
 
 from select_atoms import get_occupancy_groups
 
+def sample_spherical(npoints, ndim=3):
+    """Sample a ndimensional sphere using gaussians
+    
+    Is used to generate points within a sphere from which 
+    a convex hull around atoms can be generated
+    """
+
+    vec = np.random.randn(ndim, npoints)
+    vec /= np.linalg.norm(vec, axis=0)
+    return vec
 
 def b_to_u_iso(b_fac):
     """ Convert isotropic B factor to u iso"""

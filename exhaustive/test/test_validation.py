@@ -36,11 +36,8 @@ class TestValidation(unittest.TestCase):
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
         #self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
 
-        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output/lig_grid_points")
-        self.params.exhaustive.options.convex_hull = False
-        self.params.exhaustive.options.atom_points_sel_string = "(chain D and altid C and resid 1) or (chain D and altid D resid 1)"
-        self.params.exhaustive.options.ligand_atom_points = False
-        self.params.exhaustive.options.ligand_grid_points = True
+        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output/per_res")
+        self.params.exhaustive.options.per_residue = True
 
         self.params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
         self.params.validate.input.ground_state_pdb_path = os.path.join(

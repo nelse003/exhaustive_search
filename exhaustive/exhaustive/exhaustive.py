@@ -152,7 +152,14 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
 
 
-    if params.exhaustive.options.convex_hull:
+    if params.exhaustive.option.per_residue:
+
+        cart_points = convex_hull_per_residue(pdb,
+                                              bound_states,
+                                              ground_states,
+                                              params)
+
+    elif params.exhaustive.options.convex_hull:
 
         cart_points = convex_hull_from_states(pdb,
                                               bound_states,
@@ -179,8 +186,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         cart_points = get_occupancy_group_grid_points(pdb,
                                                       bound_states,
                                                       ground_states,
-                                                      params,
-                                                      logging)
+                                                      params)
 
 
     logging.debug(cart_points)

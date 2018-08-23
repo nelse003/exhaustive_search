@@ -52,7 +52,7 @@ def get_occupancy_groups(pdb, params):
 
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
-                                    params, logging):
+                                    params):
 
     """Produce cartesian points related to occupancy groups.
 

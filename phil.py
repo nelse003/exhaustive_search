@@ -75,6 +75,13 @@ exhaustive{
         atom_points_sel_string = "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
             .type = str
             .help = selection algebra (iotbx) to get only ligand atoms
+        atom_buffer = 0.77
+            .type = float
+            .help = ' Minimum radius sphere [Angstrom] around an atom is created 
+            for generation of point cloud, when convex hull fails at a residue' 
+        per_residue = True
+            .bool
+            .help = 'Flag to run with per residue generation of convex hulls'
     }
 }
 select{
