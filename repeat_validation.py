@@ -111,6 +111,18 @@ for xtal_name in xtals:
     #
     #     validate(params)
 
+    params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "per_residue"))
+        if os.path.exists(params.output.out_dir):
+
+            for item in os.listdir(params.output.out_dir):
+                if item.endswith(".mtz"):
+                    if not item.startswith("refine"):
+                        os.remove(os.path.join(params.output.out_dir, item))
+
+    self.params.exhaustive.options.per_residue = True
+    validate(params)
+    exit()
+
     # Atom selection isnt working? Something to do with merging in validate?
 
     # params.exhaustive.options.convex_hull = False
@@ -169,4 +181,4 @@ for xtal_name in xtals:
 
         validate(params)
 
-    exit()
+
