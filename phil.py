@@ -80,7 +80,7 @@ exhaustive{
             .help = ' Minimum radius sphere [Angstrom] around an atom is created 
             for generation of point cloud, when convex hull fails at a residue' 
         per_residue = True
-            .bool
+            .type = bool
             .help = 'Flag to run with per residue generation of convex hulls'
     }
 }

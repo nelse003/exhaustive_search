@@ -30,7 +30,10 @@ from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
 from mmtbx.utils import data_and_flags_master_params
 
-from utils.convex_hull import convex_hull_from_states, atom_points_from_sel_string, convex_hull_grid_points
+from utils.convex_hull import convex_hull_from_states, \
+    atom_points_from_sel_string, convex_hull_grid_points, \
+    convex_hull_per_residue
+
 from utils.utils import is_almost_equal
 from utils.select_atoms import process_refined_pdb_bound_ground_states, get_occupancy_group_grid_points
 from phil import master_phil
@@ -152,7 +155,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
 
 
-    if params.exhaustive.option.per_residue:
+    if params.exhaustive.options.per_residue:
 
         cart_points = convex_hull_per_residue(pdb,
                                               bound_states,
