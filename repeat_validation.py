@@ -118,7 +118,7 @@ for xtal_name in xtals:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
-    self.params.exhaustive.options.per_residue = True
+    params.exhaustive.options.per_residue = True
     validate(params)
     exit()
 
