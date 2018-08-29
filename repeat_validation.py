@@ -24,6 +24,9 @@ params =  master_phil.extract()
 out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"
 loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+
 compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
                  if os.path.isdir(os.path.join(loop_dir, compound_dir))]
 
@@ -41,6 +44,12 @@ for compound_dir in compound_dirs:
         refine_pdb = os.path.join(xtal_dir,"refine.pdb")
         refine_mtz = os.path.join(xtal_dir,"refine.mtz")
         xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
+
+        if not os.path.exists(os.path.join(out_dir, compound_name)):
+            os.mkdir(os.path.join(out_dir, compound_name))
+
+        if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
+            os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
 
         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
             datasets.append((xtal_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
