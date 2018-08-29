@@ -6,6 +6,7 @@ from phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
+from exhaustive.exhaustive.utils.utils import process_validation_csvs
 
 def repeat_validate(params):
 
