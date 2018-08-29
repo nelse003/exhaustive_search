@@ -6,6 +6,48 @@ from phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
+def repeat_validate(params):
+
+    print(atom_points_from_sel_string(params,"resname LIG"))
+    exit()
+
+    # Ligand grid (by convex hull of ligand atoms)
+    params.exhaustive.options.ligand_grid_points = True
+    validate(params)
+    # Add plotting of residue selection
+
+    # Reset
+    params.exhaustive.options.ligand_grid_points = False
+
+
+    # Per residue selection of atoms
+    params.exhaustive.options.per_residue = True
+    params.output.out_dir = os.path.join(params.output.out_dir, "per_residue")
+    if os.path.exists(params.output.out_dir):
+        for item in os.listdir(params.output.out_dir):
+            if item.endswith(".mtz"):
+                if not item.startswith("refine"):
+                    os.remove(os.path.join(params.output.out_dir, item))
+    validate(params)
+    # Add plotting of residue selection
+
+
+    # Buffer range (convex hull around occupancy group)
+    for buffer in np.arange(0, 2, 0.5):
+        params.exhaustive.options.convex_hull_ignore_nearest = False
+        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
+        params.exhaustive.options.convex_hull=True
+        params.exhaustive.options.buffer=buffer
+
+        if os.path.exists(params.output.out_dir):
+
+            for item in os.listdir(params.output.out_dir):
+                if item.endswith(".mtz"):
+                    if not item.startswith("refine"):
+                        os.remove(os.path.join(params.output.out_dir, item))
+
+        validate(params)
+
 params =  master_phil.extract()
 
 out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"
@@ -95,47 +137,7 @@ for dataset in datasets:
     repeat_validate(params)
     exit()
 
-def repeat_validate(params):
 
-    print(atom_points_from_sel_string(params,"resname LIG"))
-    exit()
-
-    # Ligand grid (by convex hull of ligand atoms)
-    params.exhaustive.options.ligand_grid_points = True
-    validate(params)
-    # Add plotting of residue selection
-
-    # Reset
-    params.exhaustive.options.ligand_grid_points = False
-
-
-    # Per residue selection of atoms
-    params.exhaustive.options.per_residue = True
-    params.output.out_dir = os.path.join(params.output.out_dir, "per_residue")
-    if os.path.exists(params.output.out_dir):
-        for item in os.listdir(params.output.out_dir):
-            if item.endswith(".mtz"):
-                if not item.startswith("refine"):
-                    os.remove(os.path.join(params.output.out_dir, item))
-    validate(params)
-    # Add plotting of residue selection
-
-
-    # Buffer range (convex hull around occupancy group)
-    for buffer in np.arange(0, 2, 0.5):
-        params.exhaustive.options.convex_hull_ignore_nearest = False
-        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
-        params.exhaustive.options.convex_hull=True
-        params.exhaustive.options.buffer=buffer
-
-        if os.path.exists(params.output.out_dir):
-
-            for item in os.listdir(params.output.out_dir):
-                if item.endswith(".mtz"):
-                    if not item.startswith("refine"):
-                        os.remove(os.path.join(params.output.out_dir, item))
-
-        validate(params)
 
 
 
