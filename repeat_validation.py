@@ -43,7 +43,7 @@ for compound_dir in compound_dirs:
         xtal_out_dir = os.path.join(out_dir, compound_name, xtal_dir)
 
         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
-            datasets.append((xtal_name,refine_pdb,refine_mtz,xtal_out_dir))
+            datasets.append((xtal_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
         else:
             continue
 
@@ -76,32 +76,30 @@ params.settings.processes = 20
 
 for dataset in datasets:
 
-    (xtal_name, refine_pdb, refine_mtz, xtal_out_dir) = dataset
-
+    (params.input.xtal_name, params.input.in_path,  params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
+    params.validate.input.base_mtz = params.validate.input.base_mtz
+    params.output.log_dir = os.path.join(params.output.out_dir, "logs")
     print(xtal_name)
     exit()
 
-    params.input.xtal_name = xtal_name
-    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
-    params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
+    # params.input.xtal_name = xtal_name
+    # params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
+    # params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
+    #
+    # params.validate.input.base_mtz = os.path.join(os.path.join(in_dir,
+    #                                                            xtal_name,
+    #                                                            "refine.mtz"))
+    # print(params.input.pdb)
+    #
+    # if not os.path.exists(params.input.pdb):
+    #     continue
+    # if not os.path.exists(params.input.mtz):
+    #     continue
 
-    params.validate.input.base_mtz = os.path.join(os.path.join(in_dir,
-                                                               xtal_name,
-                                                               "refine.mtz"))
-    print(params.input.pdb)
-
-    if not os.path.exists(params.input.pdb):
-        continue
-    if not os.path.exists(params.input.mtz):
-        continue
-
-    params.output.out_dir = os.path.join(out_dir, xtal_name)
-    params.output.log_dir = os.path.join(out_dir, xtal_name, "logs")
+    # params.output.out_dir = os.path.join(out_dir, xtal_name)
+    # params.output.log_dir = os.path.join(out_dir, xtal_name, "logs")
     #params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
-    params.input.in_path = os.path.join(os.path.join(in_dir, xtal_name))
-    params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name))
-    params.output.log_dir = os.path.join(params.output.out_dir, "logs")
     params.validate.input.ground_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.ground-state.pdb")
     params.validate.input.bound_state_pdb_path = os.path.join(
