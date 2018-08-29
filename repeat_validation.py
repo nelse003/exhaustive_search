@@ -153,6 +153,9 @@ for dataset in datasets:
     #                 os.remove(os.path.join(params.output.out_dir, item))
     #params.exhaustive.options.per_residue = True
 
+    print(params.output.out_dir)
+    exit()
+
     validate(params)
     exit()
 
