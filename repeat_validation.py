@@ -33,7 +33,9 @@ for compound_dir in compound_dirs:
 
     for xtal_dir in xtal_dirs:
 
-        print(xtal_dir)
+        if os.path.exists(os.path.join(xtal_dir,"refine.pdb")):
+
+            print(os.path.join(xtal_dir,"refine.pdb"))
 
 exit()
 
