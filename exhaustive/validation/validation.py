@@ -240,6 +240,9 @@ def occ_loop_merge_confs_simulate(params):
                                                str(lig_occupancy).replace(".", "_"),
                                                str(params.validate.options.set_b).replace(".", "_"))),'w+')
 
+            print(fmodel_args)
+            exit()
+
             fmodel(args=fmodel_args, log=fmodel_log)
 
             fmodel_log.close()
