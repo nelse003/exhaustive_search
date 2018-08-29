@@ -47,8 +47,6 @@ for compound_dir in compound_dirs:
         else:
             continue
 
-print datasets
-exit()
 
 #validation based params
 
@@ -60,21 +58,28 @@ params.validate.options.overwrite = True
 params.exhaustive.options.step = 0.05
 params.settings.processes = 20
 
-# # copy data to new folder
+# # # copy data to new folder
+#
+# if not os.path.exists("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"):
+#     os.mkdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/")
+#
+# if not os.path.exists(out_dir):
+#     os.mkdir(out_dir)
+#     #os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+#
+# xtals = ["NUDT22A-x0182"]
+# for num in range(start_xtal_num, end_xtal_num + 1):
+#     xtal_name = prefix + "{0:0>4}".format(num)
+#     xtals.append(xtal_name)
+#
+# for xtal_name in xtals:
 
-if not os.path.exists("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"):
-    os.mkdir("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/")
+for dataset in datasets:
 
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
-    #os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+    xtal_name, refine_pdb, refine_mtz, xtal_out_dir = *dataset
 
-xtals = ["NUDT22A-x0182"]
-for num in range(start_xtal_num, end_xtal_num + 1):
-    xtal_name = prefix + "{0:0>4}".format(num)
-    xtals.append(xtal_name)
-
-for xtal_name in xtals:
+    print( xtal_name, refine_pdb, refine_mtz, xtal_out_dir)
+    exit()
 
     params.input.xtal_name = xtal_name
     params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
