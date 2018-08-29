@@ -41,8 +41,6 @@ for compound_dir in compound_dirs:
         refine_pdb = os.path.join(xtal_dir,"refine.pdb")
         refine_mtz = os.path.join(xtal_dir,"refine.mtz")
         xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
-        print(xtal_out_dir)
-        exit()
 
         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
             datasets.append((xtal_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
@@ -84,8 +82,6 @@ for dataset in datasets:
     params.validate.input.base_mtz = params.validate.input.base_mtz
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 
-    print(params.output.out_dir)
-    exit()
 
     # params.input.xtal_name = xtal_name
     # params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
