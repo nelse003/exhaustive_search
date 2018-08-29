@@ -21,6 +21,15 @@ out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/vali
 prefix = "NUDT22A-x"
 
 
+loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/
+
+for compound_dir in os.listdir(loop_dir):
+    print(compound_dir)
+    for xtal_dir in os.listdir(compound_dir):
+        print(xtal_dir)
+
+exit()
+
 #validation based params
 
 params.exhaustive.options.column_type = "FMODEL"

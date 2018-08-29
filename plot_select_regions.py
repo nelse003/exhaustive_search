@@ -30,13 +30,12 @@ def sample_spherical(npoints, ndim=3):
 
 
 params =  master_phil.extract()
-params.input.xtal_name = "FALZA-x0085"
-params.input.in_path = os.path.join(os.path.realpath(
-    "./exhaustive/test/resources"), params.input.xtal_name)
-params.input.mtz = os.path.join(params.input.in_path, "FALZA-x0085.free.mtz")
+params.input.xtal_name = "NUDT22A-x0182"
+params.input.in_path = os.path.join("/hdlocal/home/enelson/exhaustive_search_data/validation_NUDT22/FMOPL000622a_DSPL/NUDT22A-x0182")
+params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
 params.input.pdb = os.path.join(params.input.in_path,"refine.pdb")
-params.output.out_dir = os.path.realpath("./exhaustive/test/output/plot_points")
-params.exhaustive.options.atom_points_sel_string = "(chain D and altid C and resid 1) or (chain D and altid D resid 1)"
+params.output.out_dir = os.path.realpath("/hdlocal/home/enelson/exhaustive_search_data/validation_NUDT22/FMOPL000622a_DSPL/NUDT22A-x0182")
+params.exhaustive.options.atom_points_sel_string = "(chain B and altid C and resid 1) or (chain B and altid D resid 1)"
 
 
 bound_states, \
@@ -85,18 +84,17 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 plt.axis('equal')
 
-
-# Ligand grid points
-x,y,z = expand_array(lig_grid_point_array)
-ax.scatter(x,y,z, marker='.', color='k')
+# # Ligand grid points
+# x,y,z = expand_array(lig_grid_point_array)
+# ax.scatter(x,y,z, marker='.', color='k')
 
 # Convex Hull per residue
-x,y,z = expand_array(per_residue_convex_hulls_array)
-ax.scatter(x,y,z, marker='.', color='m')
+# x,y,z = expand_array(per_residue_convex_hulls_array)
+# ax.scatter(x,y,z, marker='.', color='m')
 
-# # Convex_hull
-# x,y,z = expand_array(convex_hull_array)
-# ax.scatter(x,y,z, marker='.', color='g')
+# Convex_hull
+x,y,z = expand_array(convex_hull_array)
+ax.scatter(x,y,z, marker='.', color='g')
 
 # # Boxes around lig of interest
 # x,y,z = expand_array(box_array)
@@ -106,8 +104,8 @@ ax.scatter(x,y,z, marker='.', color='m')
 x,y,z = expand_array(np.array(list(all_atoms)))
 ax.scatter(x,y,z, marker='.', color='y')
 
-# Ligand atom points
-x,y,z = expand_array(lig_atom_array)
-ax.scatter(x,y,z, marker='o', color='r')
+# # Ligand atom points
+# x,y,z = expand_array(lig_atom_array)
+# ax.scatter(x,y,z, marker='o', color='r')
 
-plt.show()
+plt.savefig(filename=os.path.join(params.output.out_dir,"convex_hull.png"), dpi=300)
