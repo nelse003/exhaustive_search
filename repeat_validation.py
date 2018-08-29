@@ -40,7 +40,9 @@ for compound_dir in compound_dirs:
         xtal_name = os.path.basename(xtal_dir)
         refine_pdb = os.path.join(xtal_dir,"refine.pdb")
         refine_mtz = os.path.join(xtal_dir,"refine.mtz")
-        xtal_out_dir = os.path.join(out_dir, compound_name, xtal_dir)
+        xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
+        print(xtal_out_dir)
+        exit()
 
         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
             datasets.append((xtal_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
