@@ -76,9 +76,9 @@ params.settings.processes = 20
 
 for dataset in datasets:
 
-    xtal_name, refine_pdb, refine_mtz, xtal_out_dir = *dataset
+    (xtal_name, refine_pdb, refine_mtz, xtal_out_dir) = dataset
 
-    print( xtal_name, refine_pdb, refine_mtz, xtal_out_dir)
+    print(xtal_name)
     exit()
 
     params.input.xtal_name = xtal_name
