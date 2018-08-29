@@ -25,14 +25,11 @@ loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repe
 
 compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
                  if os.path.isdir(os.path.join(loop_dir, compound_dir))]
-print(compound_dirs)
-exit()
+
 for compound_dir in compound_dirs:
 
-    xtal_dirs = [xtal_dir for xtal_dir in os.listdir(os.path.join(loop_dir,compound_dir))
-                 if os.path.isdir(os.path.join(loop_dir, compound_dir, xtal_dir))]
-
-    print(xtal_dirs)
+    xtal_dirs = [os.path.join(compound_dir,xtal_dir) for xtal_dir in os.listdir(compound_dir)
+                 if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
 
     for xtal_dir in xtal_dirs:
 
