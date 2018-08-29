@@ -29,7 +29,7 @@ compound_dirs = [compound_dir for compound_dir in os.listdir(loop_dir)
 for compound_dir in compound_dirs:
 
     xtal_dirs = [xtal_dir for xtal_dir in os.listdir(os.path.join(loop_dir,compound_dir))
-                 if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
+                 if os.path.isdir(os.path.join(loop_dir, compound_dir, xtal_dir))]
 
     print(xtal_dirs)
 
