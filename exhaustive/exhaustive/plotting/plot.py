@@ -8,7 +8,7 @@ import pandas as pd
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
-get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
+get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac, process_validation_csvs)
 from mpl_toolkits.mplot3d import Axes3D
 #import seaborn as sns
 ##############################################################
@@ -141,43 +141,6 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
 
 # TODO sort out params
-
-def process_validation_csvs(start_occ,
-                     end_occ,
-                     step,
-                     set_b,
-                     out_dir,
-                     params):
-
-    min_fofcs = []
-    min_occs = []
-    min_b_facs = []
-    fofcs = []
-    occs = []
-    b_facs = []
-
-    for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
-        # TODO Replace CSV naming #59
-
-        csv_name = params.exhaustive.output.csv_prefix \
-                   + "_occ_{}_b_{}.csv".format(
-            str(lig_occupancy).replace(".", "_"),
-            str(set_b).replace(".", "_"))
-
-        csv_path = os.path.join(out_dir, csv_name)
-
-        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_path)
-        fofc = get_fofc_from_csv(csv_name, lig_occupancy,
-                                 round_step(b_to_u_iso(set_b)),
-                                 step)
-        fofcs.append(fofc)
-        occs.append(lig_occupancy)
-        b_facs.append(set_b)
-        min_b_facs.append(u_iso_to_b_fac(min_u_iso))
-        min_fofcs.append(fo_fc_at_min)
-        min_occs.append(min_occ)
-
-    return min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs
 
 
 def plot_2d_occ_b_validation(start_occ,

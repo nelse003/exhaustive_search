@@ -5,6 +5,7 @@ from exhaustive.validation.validation import run as validate
 from phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
+from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 
 def repeat_validate(params):
 
@@ -13,6 +14,7 @@ def repeat_validate(params):
 
     # Ligand grid (by convex hull of ligand atoms)
     params.exhaustive.options.ligand_grid_points = True
+    params.output.out_dir = os.path.join(params.output.out_dir, "lig_grid")
     validate(params)
     # Add plotting of residue selection
 
@@ -98,6 +100,16 @@ params.settings.processes = 20
 params.validate.options.set_b = 40
 
 for dataset in datasets:
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(params.validate.options.start_simul_occ,
+                     params.validate.options.end_simul_occ,
+                     step=params.validate.options.step_simulation,
+                     set_b=params.validate.options.set_b,
+                     out_dir=params.output.out_dir,
+                     params=params)
+
+    exit()
 
     print(dataset)
 
