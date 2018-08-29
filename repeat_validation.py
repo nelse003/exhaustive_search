@@ -23,9 +23,10 @@ prefix = "NUDT22A-x"
 
 loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 
-compound_dirs = [compound_dir for compound_dir in os.listdir(loop_dir)
-                 if os.path.isdir(os.path.join(loop_dir,compound_dir))]
-
+compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
+                 if os.path.isdir(os.path.join(loop_dir, compound_dir))]
+print(compound_dirs)
+exit()
 for compound_dir in compound_dirs:
 
     xtal_dirs = [xtal_dir for xtal_dir in os.listdir(os.path.join(loop_dir,compound_dir))
