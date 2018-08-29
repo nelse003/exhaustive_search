@@ -13,6 +13,8 @@ def repeat_validate(params):
     print(atom_points_from_sel_string(params,"resname LIG"))
     exit()
 
+    # Issue: Can't do selection of lig atoms for each case, can we do it by LIG naming
+
     # Ligand grid (by convex hull of ligand atoms)
     params.exhaustive.options.ligand_grid_points = True
     params.output.out_dir = os.path.join(params.output.out_dir, "lig_grid")
