@@ -76,6 +76,9 @@ params.settings.processes = 20
 
 for dataset in datasets:
 
+    print(dataset)
+    exit()
+
     (params.input.xtal_name, params.input.in_path,  params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
     params.validate.input.base_mtz = params.validate.input.base_mtz
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
