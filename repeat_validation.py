@@ -116,6 +116,7 @@ for dataset in datasets:
             python_file.write('file = open(os.path.join(\'{}\',"params.txt"))\n'.format(params.output.out_dir))
             python_file.write('params_string = file.read()\n')
             python_file.write('file.close()\n')
+            python_file.write('print(params_string)\n')
             python_file.write('master_phil=parse(params_string)\n')
             python_file.write('params =  master_phil.extract()\n')
             python_file.write('print(params.output.out_dir)\n')
