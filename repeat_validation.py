@@ -47,9 +47,9 @@ def repeat_validate(params):
     bound_states, \
     ground_states = process_refined_pdb_bound_ground_states(pdb, params)
     per_residue_points = convex_hull_per_residue(pdb=params.input.pdb,
-                                          bound_states,
-                                          ground_states,
-                                          params)
+                                          bound_states=bound_states,
+                                          ground_states=ground_states,
+                                          params=params)
     plot_protein_and_selection(pdb=params.input.pdb,
                                atom_points=per_residue_points,
                                plot_filename=os.path.join(
@@ -74,10 +74,10 @@ def repeat_validate(params):
 
         validate(params)
 
-        buffered_points = convex_hull_from_states(pdb,
-                                              bound_states,
-                                              ground_states,
-                                              params)
+        buffered_points = convex_hull_from_states(pdb=params.input.pdb,
+                                              bound_states=bound_states,
+                                              ground_states=ground_states,
+                                              params=params)
 
         plot_protein_and_selection(pdb=params.input.pdb,
                                atom_points=buffered_points,
