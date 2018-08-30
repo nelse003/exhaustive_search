@@ -20,7 +20,7 @@ def repeat_validate(params):
     validate(params)
 
     # Add plotting of residue selection
-    atom_points = atom_points_from_sel_string(pdb,
+    atom_points = atom_points_from_sel_string(pdb=params.input.pdb,
                                               selection_string=
                                               params.exhaustive.options.atom_points_sel_string)
 
@@ -47,7 +47,8 @@ def repeat_validate(params):
 
     # Add plotting of residue selection
     bound_states, \
-    ground_states = process_refined_pdb_bound_ground_states(pdb, params)
+    ground_states = process_refined_pdb_bound_ground_states(pdb=params.input.pdb,
+                                                            params=params)
 
     per_residue_points = convex_hull_per_residue(pdb=params.input.pdb,
                                           bound_states=bound_states,
@@ -155,13 +156,17 @@ for dataset in datasets:
 
     # Turn into function, move to after repeat_validate
 
-    # min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
-    #     process_validation_csvs(params.validate.options.start_simul_occ,
-    #                  params.validate.options.end_simul_occ,
-    #                  step=params.validate.options.step_simulation,
-    #                  set_b=params.validate.options.set_b,
-    #                  out_dir=params.output.out_dir,
-    #                  params=params)
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(params.validate.options.start_simul_occ,
+                     params.validate.options.end_simul_occ,
+                     step=params.validate.options.step_simulation,
+                     set_b=params.validate.options.set_b,
+                     out_dir=params.output.out_dir,
+                     params=params)
+
+    print()
+
+    exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
 
