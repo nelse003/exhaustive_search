@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from scipy.spatial import distance
+import csv
 
 from exhaustive.validation.validation import run as validate
 from phil import master_phil
