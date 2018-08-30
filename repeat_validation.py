@@ -169,7 +169,7 @@ for dataset in datasets:
     mean_b_delta =  np.mean(np.abs(np.array(min_b_facs) - np.array(b_facs)))
     occ_b_array = np.array(zip(occs,b_facs))
     min_occ_b_array = np.array(zip(min_occs, min_b_facs))
-    dst = distance.pdist(occ_b_array,min_occ_b_array)
+    dst = np.linalg.norm(occ_b_array - min_occ_b_array)
     print(dst)
     exit()
 
