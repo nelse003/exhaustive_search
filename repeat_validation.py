@@ -32,7 +32,8 @@ def repeat_validate(params):
                                atom_points=lig_grid_points,
                                plot_filename=os.path.join(
                                    params.output.out_dir,
-                                   "lig_grid_points.png"))
+                                   "lig_grid_points.png"),
+                               params=params)
 
     # Reset
     params.exhaustive.options.ligand_grid_points = False
@@ -62,7 +63,8 @@ def repeat_validate(params):
                                atom_points=per_residue_points,
                                plot_filename=os.path.join(
                                    params.output.out_dir,
-                                   "per_residue_points.png"))
+                                   "per_residue_points.png"),
+                               params=params)
 
     # Buffer range (convex hull around occupancy group)
     for buffer in np.arange(0, 2, 0.5):
@@ -93,7 +95,8 @@ def repeat_validate(params):
                                plot_filename=os.path.join(
                                    params.output.out_dir,
                                    "buffer_{}_points.png".format(
-                                       str(params.validate.options.set_b).replace('.','_'))))
+                                       str(params.validate.options.set_b).replace('.','_'))),
+                               params=params)
 
 
 def summary_validation(params):

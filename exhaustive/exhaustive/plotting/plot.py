@@ -408,8 +408,6 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
 
     #pairplot
 
-
-
     cols = [c for c in edstats_df.columns if c.lower()[-2:] == '-2']
     cols_1 = [col.rstrip('-2') for col in cols]
     metric_df = edstats_df.drop(cols, axis=1)
@@ -433,7 +431,7 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
     plt.savefig(os.path.join(compound_folder, "reduced_pairplot.png"))
 
 
-def plot_protein_and_selection(pdb, atom_points, plot_filename):
+def plot_protein_and_selection(pdb, atom_points, plot_filename, params):
     """ Plot protein atoms & selection atoms on 3d scatter plot"""
 
     fig = plt.figure()
