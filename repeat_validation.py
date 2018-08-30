@@ -172,7 +172,7 @@ for dataset in datasets:
                             - u_iso_to_b_fac(
         params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
         params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso)))
+        params.exhaustive.options.lower_u_iso))
 
     normalised_b_fac = (np.array(b_facs)
                             - u_iso_to_b_fac(
