@@ -100,6 +100,8 @@ for dataset in datasets:
 
     params.validate.options.repeat_validate_qsub = True
 
+    print(params.output.out_dir)
+
     if params.validate.options.repeat_validate_qsub:
         modified_phil = master_phil.format(python_object=params)
 
