@@ -7,7 +7,7 @@ from phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
-from exhaustive.exhaustive.utils.utils import process_validation_csvs
+from exhaustive.exhaustive.utils.utils import process_validation_csvs, u_iso_to_b_fac
 from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 
@@ -167,12 +167,31 @@ for dataset in datasets:
 
     occ_delta = np.abs(np.array(min_occs) - np.array(occs))
     b_delta = np.abs(np.array(min_b_facs) - np.array(b_facs))
+
+    normalised_min_b_fac = (np.array(min_b_facs)
+                            - u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))/
+    (u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso)))
+
+    normalised_b_fac = (np.array(b_facs)
+                            - u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))/
+    (u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))
+
+    norm_b_delta = np.abs(normalised_min_b_fac - normalised_b_fac)
+
     mean_occ_delta =  np.mean(occ_delta)
     mean_b_delta =  np.mean(b_delta)
     occ_b_array = np.array(zip(occs,b_facs))
     min_occ_b_array = np.array(zip(min_occs, min_b_facs))
-    dst = np.sqrt(occ_delta**2 + (b_delta/100)**2)
+    dst = np.sqrt(occ_delta**2 + norm_b_delta**2 )
+    mean_dst = np.mean(dst)
     print(dst)
+    print(mean_dst)
     exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
