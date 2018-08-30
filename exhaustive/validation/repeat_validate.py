@@ -13,6 +13,7 @@ def repeat_validate(params):
 
     # Ligand grid (by convex hull of ligand atoms)
     params.exhaustive.options.ligand_grid_points = True
+    print(params.output.out_dir)
     params.output.out_dir = os.path.join(params.output.out_dir, "lig_grid")
     validate(params)
     summary_validation(params)
