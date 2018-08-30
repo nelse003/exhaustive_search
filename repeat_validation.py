@@ -164,7 +164,7 @@ for dataset in datasets:
                      out_dir=params.output.out_dir,
                      params=params)
 
-    print()
+    print(min_fofcs)
 
     exit()
 
