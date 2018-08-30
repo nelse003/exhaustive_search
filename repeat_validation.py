@@ -143,7 +143,6 @@ for dataset in datasets:
     else:
         repeat_validate(params)
 
-    exit()
 
 
 
