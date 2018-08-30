@@ -119,7 +119,7 @@ for dataset in datasets:
             # python_file.write('file.close()\n')
             # python_file.write('print(params_string)\n')
             python_file.write('user_phil=parse(file_name=os.path.join(\'{}\',"params.txt"))\n'.format(params.output.out_dir))
-            python_file.write('working_phil = master_phil.fetch(sources=[user_phil]\n')
+            python_file.write('working_phil = master_phil.fetch(sources=[user_phil])\n')
             python_file.write('params =  working_phil.extract()\n')
             python_file.write('print(params.output.out_dir)\n')
             python_file.write('repeat_validate(params)\n')
