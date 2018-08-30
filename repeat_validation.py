@@ -127,7 +127,7 @@ for dataset in datasets:
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.sh"), 'w') as file:
             file.write("#!/bin/bash\n")
             file.write("source /dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n")
-            file.write("$CCP4/bin/ccp4-python {}".format(
+            file.write("/dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4-python {}".format(
                 os.path.join(params.output.out_dir, "run_repeat_validation.py")))
 
         os.system('qsub {}'.format("$CCP4/bin/ccp4-python {}".format(
