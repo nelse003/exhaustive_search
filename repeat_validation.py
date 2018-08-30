@@ -6,7 +6,7 @@ from exhaustive.validation.validation import run as validate
 from phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
-from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
+from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string, convex_hull_grid_points
 from exhaustive.exhaustive.utils.utils import process_validation_csvs, u_iso_to_b_fac
 from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
