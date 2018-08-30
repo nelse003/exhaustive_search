@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string, convex_hull_grid_points, \
     convex_hull_per_residue, convex_hull_from_states
@@ -6,6 +7,7 @@ from exhaustive.exhaustive.utils.utils import process_validation_csvs, u_iso_to_
 from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 from exhaustive.validation.validation import run as validate
+
 
 def repeat_validate(params):
 
