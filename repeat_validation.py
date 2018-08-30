@@ -60,7 +60,7 @@ params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.05
 params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.05
-params.settings.processes = 20
+params.settings.processes = 14
 params.validate.options.set_b = 40.0
 
 for dataset in datasets:
