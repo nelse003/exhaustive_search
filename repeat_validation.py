@@ -38,6 +38,7 @@ def repeat_validate(params):
 
     # Reset
     params.exhaustive.options.ligand_grid_points = False
+    params.output.out_dir = os.path.split(params.output.out_dir)[0]
 
     # Per residue selection of atoms
     params.exhaustive.options.per_residue = True
