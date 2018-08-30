@@ -67,6 +67,10 @@ def repeat_validate(params):
                                    "per_residue_points.png"),
                                params=params)
 
+    #Reset
+    print(params.output.out_dir.split())
+    exit()
+
     # Buffer range (convex hull around occupancy group)
     for buffer in np.arange(0, 2, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
