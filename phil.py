@@ -159,6 +159,8 @@ validate{
             .type = str
         qsub_out_prefix = "qsub_output_"
             .type = str
+        repeat_validate_qsub= False
+            .type = bool
     }
 }
 repeat{

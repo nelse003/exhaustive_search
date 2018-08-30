@@ -72,7 +72,6 @@ def repeat_validate(params):
     params.exhaustive.options.per_residue = False
     params.output.out_dir = os.path.split(params.output.out_dir)[0]
     print(params.output.out_dir)
-    exit()
 
     # Buffer range (convex hull around occupancy group)
     for buffer in np.arange(0, 2, 0.5):
@@ -234,7 +233,17 @@ for dataset in datasets:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
-    repeat_validate(params)
+    if params.validate.options.repeat_validate_qsub:
+        modified_phil = master_phil.format(python_object=params)
+        with open(os.path.join(params.output.out_dir, "params.txt")) as param_file:
+            param_file.write(modified_phil.show())
+        with open(os.path.join(params.output.out_dir, "run_repeat_validation.py")) as python_file:
+            python_file.write('from repeat_validation import repeat_validate\n')
+            python_file.write('master_phil=parse(os.path.join(params.output.out_dir, "params.txt"))\n')
+            python_file.write('params =  master_phil.extract()\n')
+            python_file.write('repeat_valdiata.params\n')
+    else:
+        repeat_validate(params)
 
     exit()
 
