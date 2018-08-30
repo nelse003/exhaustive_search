@@ -72,7 +72,7 @@ exhaustive{
         ligand_grid_points = False
             .type = bool
             .help = "Select convex hull points around ligand atoms only"
-        atom_points_sel_string = "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
+        atom_points_sel_string = "resname LIG"
             .type = str
             .help = selection algebra (iotbx) to get only ligand atoms
         atom_buffer = 0.77

@@ -15,18 +15,8 @@ from exhaustive.exhaustive.utils.convex_hull import \
     convex_hull_from_states, atom_points_from_sel_string, \
     convex_hull_grid_points
 
-
-def expand_array(array):
-    x = array[:,0]
-    y = array[:,1]
-    z = array[:,2]
-
-    return x, y, z
-
-def sample_spherical(npoints, ndim=3):
-    vec = np.random.randn(ndim, npoints)
-    vec /= np.linalg.norm(vec, axis=0)
-    return vec
+from exhaustive.exhaustive.utils import expand_array, sample_spherical
+from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 
 
 params =  master_phil.extract()

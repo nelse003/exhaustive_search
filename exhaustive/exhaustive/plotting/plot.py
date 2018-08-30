@@ -432,5 +432,19 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
     plt.savefig(os.path.join(compound_folder, "reduced_pairplot.png"))
 
 
+def plot_protein_and_selection(pdb, atom_points, plot_filename):
+    """ Plot protein atoms & selection atoms on 3d scatter plot"""
 
+    all_atoms = atom_points_from_sel_string(pdb=pdb, selection_string='all')
+    x, y, z = expand_array(np.array(list(all_atoms)))
+    ax.scatter(x, y, z, marker='.', color='y')
+
+    point_array = np.array(list(atom_points))
+    x, y, z = expand_array(point_array)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.axis('equal')
+    ax.scatter(x, y, z, marker='.', color='y')
+    plt.savefig(filename=os.path.join(params.output.out_dir, plot_filename), dpi=300)
 

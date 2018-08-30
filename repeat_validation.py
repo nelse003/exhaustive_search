@@ -7,10 +7,9 @@ from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 from exhaustive.exhaustive.utils.utils import process_validation_csvs
+from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 
 def repeat_validate(params):
-
-    print(params.output.out_dir)
 
     # Issue: Can't do selection of lig atoms for each case, can we do it by LIG naming
 
@@ -18,7 +17,19 @@ def repeat_validate(params):
     params.exhaustive.options.ligand_grid_points = True
     params.output.out_dir = os.path.join(params.output.out_dir, "lig_grid")
     validate(params)
+
     # Add plotting of residue selection
+    atom_points = atom_points_from_sel_string(pdb,
+                                              selection_string=
+                                              params.exhaustive.options.atom_points_sel_string)
+
+    lig_grid_points = convex_hull_grid_points(atom_points,params)
+
+    plot_protein_and_selection(pdb=params.input.pdb,
+                               atom_points=lig_grid_points,
+                               plot_filename=os.path.join(
+                                   params.output.out_dir,
+                                   "lig_grid_points.png"))
 
     # Reset
     params.exhaustive.options.ligand_grid_points = False
@@ -33,12 +44,24 @@ def repeat_validate(params):
                     os.remove(os.path.join(params.output.out_dir, item))
     validate(params)
     # Add plotting of residue selection
-
+    bound_states, \
+    ground_states = process_refined_pdb_bound_ground_states(pdb, params)
+    per_residue_points = convex_hull_per_residue(pdb=params.input.pdb,
+                                          bound_states,
+                                          ground_states,
+                                          params)
+    plot_protein_and_selection(pdb=params.input.pdb,
+                               atom_points=per_residue_points,
+                               plot_filename=os.path.join(
+                                   params.output.out_dir,
+                                   "per_residue_points.png"))
 
     # Buffer range (convex hull around occupancy group)
     for buffer in np.arange(0, 2, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
-        params.output.out_dir = os.path.join(os.path.join(out_dir, xtal_name, "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
+        params.output.out_dir = os.path.join(out_dir,
+                                             xtal_name,
+                                             "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
         params.exhaustive.options.convex_hull=True
         params.exhaustive.options.buffer=buffer
 
@@ -50,6 +73,19 @@ def repeat_validate(params):
                         os.remove(os.path.join(params.output.out_dir, item))
 
         validate(params)
+
+        buffered_points = convex_hull_from_states(pdb,
+                                              bound_states,
+                                              ground_states,
+                                              params)
+
+        plot_protein_and_selection(pdb=params.input.pdb,
+                               atom_points=buffered_points,
+                               plot_filename=os.path.join(
+                                   params.output.out_dir,
+                                   "buffer_{}_points.png".format(
+                                       str(params.validate.options.set_b).replace('.','_'))))
+
 
 params =  master_phil.extract()
 
@@ -113,9 +149,6 @@ for dataset in datasets:
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
 
-    print(list(atom_points_from_sel_string(params.input.pdb, "resname LIG")))
-    exit()
-
     # Turn into function, move to after repeat_validate
 
     # min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
@@ -148,7 +181,6 @@ for dataset in datasets:
             if item.endswith(".mtz"):
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
-
 
     repeat_validate(params)
 

@@ -44,6 +44,16 @@ def process_validation_csvs(start_occ,
     return min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs
 
 
+def expand_array(array):
+    "Expand a 3d numpy array"
+
+    x = array[:, 0]
+    y = array[:, 1]
+    z = array[:, 2]
+
+    return x, y, z
+
+
 def sample_spherical(npoints, ndim=3):
     """Sample a ndimensional sphere using gaussians
     
