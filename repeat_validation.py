@@ -233,6 +233,8 @@ for dataset in datasets:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
+    params.validate.options.repeat_validate_qsub = True
+
     if params.validate.options.repeat_validate_qsub:
         modified_phil = master_phil.format(python_object=params)
         with open(os.path.join(params.output.out_dir, "params.txt")) as param_file:
