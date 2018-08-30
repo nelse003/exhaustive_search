@@ -238,7 +238,8 @@ for dataset in datasets:
     if params.validate.options.repeat_validate_qsub:
         modified_phil = master_phil.format(python_object=params)
 
-        print(modified_phil.extract())
+        print(modified_phil.as_str())
+        print(type(modified_phil.as_str()))
 
         with open(os.path.join(params.output.out_dir, "params.txt"),'w+') as param_file:
             param_file.write(modified_phil)
