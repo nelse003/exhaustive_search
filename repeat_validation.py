@@ -113,7 +113,7 @@ for dataset in datasets:
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
 
-    print(list(atom_points_from_sel_string(params.input.pdb, "resseq LIG")))
+    print(list(atom_points_from_sel_string(params.input.pdb, "resname LIG")))
     exit()
 
     # Turn into function, move to after repeat_validate
