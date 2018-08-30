@@ -129,9 +129,7 @@ for dataset in datasets:
             file.write("export XChemExplorer_DIR=\"/dls/science/"
                        "groups/i04-1/software/XChemExplorer_new/"
                        "XChemExplorer\"\n")
-            file.write("source /dls/science/groups/i04-1/software/"
-                       "XChemExplorer_new/XChemExplorer/"
-                       "setup-scripts/pandda.setup-sh\n")
+            file.write("source /dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n")
             file.write("$CCP4/bin/ccp4-python {}".format(
                 os.path.join(params.output.out_dir, "run_repeat_validation.py")))
 
@@ -140,8 +138,6 @@ for dataset in datasets:
 
     else:
         repeat_validate(params)
-
-    exit()
 
 
 
