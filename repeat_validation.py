@@ -237,9 +237,9 @@ for dataset in datasets:
 
     if params.validate.options.repeat_validate_qsub:
         modified_phil = master_phil.format(python_object=params)
-        with open(os.path.join(params.output.out_dir, "params.txt")) as param_file:
+        with open(os.path.join(params.output.out_dir, "params.txt"),'w+') as param_file:
             param_file.write(modified_phil.show())
-        with open(os.path.join(params.output.out_dir, "run_repeat_validation.py")) as python_file:
+        with open(os.path.join(params.output.out_dir, "run_repeat_validation.py").'w+') as python_file:
             python_file.write('from repeat_validation import repeat_validate\n')
             python_file.write('master_phil=parse(os.path.join(params.output.out_dir, "params.txt"))\n')
             python_file.write('params =  master_phil.extract()\n')
