@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import csv
 
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string, convex_hull_grid_points, \
     convex_hull_per_residue, convex_hull_from_states
