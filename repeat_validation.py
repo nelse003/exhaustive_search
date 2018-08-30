@@ -164,8 +164,9 @@ for dataset in datasets:
                      out_dir=params.output.out_dir,
                      params=params)
 
-    print(min_fofcs)
-
+    mean_occ_delta =  np.mean(np.abs(min_occs - occs))
+    mean_b_delta =  np.mean(np.abs(min_b_facs - b_facs))
+    print(zip(occs,b_facs))
     exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
