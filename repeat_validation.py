@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from scipy.spatial import distance
 
 from exhaustive.validation.validation import run as validate
 from phil import master_phil
@@ -166,7 +167,10 @@ for dataset in datasets:
 
     mean_occ_delta =  np.mean(np.abs(np.array(min_occs) - np.array(occs)))
     mean_b_delta =  np.mean(np.abs(np.array(min_b_facs) - np.array(b_facs)))
-    print(np.array(zip(occs,b_facs)))
+    occ_b_array = np.array(zip(occs,b_facs))
+    min_occ_b_array = np.array(zip(min_occs, min_b_facs))
+    dst = distance.euclidean(occ_b_array,min_occ_b_array)
+    print(dst)
     exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
