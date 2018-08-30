@@ -188,8 +188,13 @@ for dataset in datasets:
     min_occ_b_array = np.array(zip(min_occs, min_b_facs))
     dst = np.sqrt(occ_delta**2 + norm_b_delta**2 )
     mean_dst = np.mean(dst)
-    print(os.path.join(out_dir, "validation_summary.csv"))
-    with open(os.path.join(out_dir, "validation_summary.csv"), 'wb') as validation_csv:
+
+    print(os.path.join(params.output.out_dir, "validation_summary.csv"))
+
+    with open(os.path.join(params.output.out_dir,
+                           "validation_summary.csv"),
+              'wb') as validation_csv:
+
         minima_writer = csv.writer(validation_csv, delimiter=',')
         minima_writer.writerow(["mean_occ_delta", "mean_b_delta", "mean_dst"])
         minima_writer.writerow([mean_occ_delta,mean_b_delta,mean_dst])
