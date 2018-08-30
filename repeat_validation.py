@@ -10,6 +10,8 @@ from exhaustive.exhaustive.utils.utils import process_validation_csvs
 
 def repeat_validate(params):
 
+    print(params.output.out_dir)
+
     print(atom_points_from_sel_string(params,"resname LIG"))
     exit()
 
