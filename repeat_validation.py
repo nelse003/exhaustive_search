@@ -171,7 +171,7 @@ for dataset in datasets:
     mean_b_delta =  np.mean(b_delta)
     occ_b_array = np.array(zip(occs,b_facs))
     min_occ_b_array = np.array(zip(min_occs, min_b_facs))
-    dst = np.sqrt(occ_delta**2 + b_delta**2)
+    dst = np.sqrt(occ_delta**2 + (b_delta/100)**2)
     print(dst)
     exit()
 
