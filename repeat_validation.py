@@ -8,6 +8,7 @@ from giant.jiffies.split_conformations import run as split_conformations
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 from exhaustive.exhaustive.utils.utils import process_validation_csvs
 from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
+from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 
 def repeat_validate(params):
 
@@ -43,13 +44,16 @@ def repeat_validate(params):
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
     validate(params)
+
     # Add plotting of residue selection
     bound_states, \
     ground_states = process_refined_pdb_bound_ground_states(pdb, params)
+
     per_residue_points = convex_hull_per_residue(pdb=params.input.pdb,
                                           bound_states=bound_states,
                                           ground_states=ground_states,
                                           params=params)
+
     plot_protein_and_selection(pdb=params.input.pdb,
                                atom_points=per_residue_points,
                                plot_filename=os.path.join(
@@ -172,7 +176,6 @@ for dataset in datasets:
 
     if not os.path.exists(params.output.log_dir):
         os.mkdir(params.output.log_dir)
-
 
     # Removal of existing output files for cctbx fmodel to run
     if os.path.exists(params.output.out_dir):
