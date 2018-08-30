@@ -106,16 +106,6 @@ params.validate.options.set_b = 40
 
 for dataset in datasets:
 
-    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
-        process_validation_csvs(params.validate.options.start_simul_occ,
-                     params.validate.options.end_simul_occ,
-                     step=params.validate.options.step_simulation,
-                     set_b=params.validate.options.set_b,
-                     out_dir=params.output.out_dir,
-                     params=params)
-
-    exit()
-
     print(dataset)
 
     (params.input.xtal_name, params.input.in_path,  params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
@@ -126,6 +116,15 @@ for dataset in datasets:
         params.input.in_path, "refine.output.ground-state.pdb")
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(params.validate.options.start_simul_occ,
+                     params.validate.options.end_simul_occ,
+                     step=params.validate.options.step_simulation,
+                     set_b=params.validate.options.set_b,
+                     out_dir=params.output.out_dir,
+                     params=params)
+    exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
 
