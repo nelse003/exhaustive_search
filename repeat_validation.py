@@ -61,7 +61,7 @@ def repeat_validate(params):
         params.exhaustive.options.convex_hull_ignore_nearest = False
         params.output.out_dir = os.path.join(out_dir,
                                              xtal_name,
-                                             "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_"))))
+                                             "test_convex_hull_buffer_{}".format(str(buffer).replace(".","_")))
         params.exhaustive.options.convex_hull=True
         params.exhaustive.options.buffer=buffer
 
