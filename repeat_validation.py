@@ -164,8 +164,8 @@ for dataset in datasets:
                      out_dir=params.output.out_dir,
                      params=params)
 
-    mean_occ_delta =  np.mean(np.abs(min_occs - occs))
-    mean_b_delta =  np.mean(np.abs(min_b_facs - b_facs))
+    mean_occ_delta =  np.mean(np.abs(np.array(min_occs) - np.array(occs)))
+    mean_b_delta =  np.mean(np.abs(np.array(min_b_facs) - np.array(b_facs)))
     print(zip(occs,b_facs))
     exit()
 
