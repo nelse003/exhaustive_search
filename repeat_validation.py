@@ -123,6 +123,9 @@ for dataset in datasets:
             python_file.write('params =  working_phil.extract()\n')
             python_file.write('print(params.output.out_dir)\n')
             python_file.write('repeat_validate(params)\n')
+
+        os.system('qsub ccp4-python {}'.format(os.path.join(params.output.out_dir, "run_repeat_validation.py")))
+
     else:
         repeat_validate(params)
 
