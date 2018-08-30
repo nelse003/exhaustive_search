@@ -93,6 +93,50 @@ def repeat_validate(params):
                                        str(params.validate.options.set_b).replace('.','_'))))
 
 
+def summary_validation(params):
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(params.validate.options.start_simul_occ,
+                     params.validate.options.end_simul_occ,
+                     step=params.validate.options.step_simulation,
+                     set_b=params.validate.options.set_b,
+                     out_dir=params.output.out_dir,
+                     params=params)
+
+    occ_delta = np.abs(np.array(min_occs) - np.array(occs))
+    b_delta = np.abs(np.array(min_b_facs) - np.array(b_facs))
+
+    normalised_min_b_fac = (np.array(min_b_facs)
+                            - u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))
+
+    normalised_b_fac = (np.array(b_facs)
+                            - u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+        params.exhaustive.options.lower_u_iso))
+
+    norm_b_delta = np.abs(normalised_min_b_fac - normalised_b_fac)
+
+    mean_occ_delta =  np.mean(occ_delta)
+    mean_b_delta =  np.mean(b_delta)
+    dst = np.sqrt(occ_delta**2 + norm_b_delta**2 )
+    mean_dst = np.mean(dst)
+
+    print(os.path.join(params.output.out_dir, "validation_summary.csv"))
+
+    with open(os.path.join(params.output.out_dir,
+                           "validation_summary.csv"),
+              'wb') as validation_csv:
+
+        validation_writer = csv.writer(validation_csv, delimiter=',')
+        validation_writer.writerow(["mean_occ_delta", "mean_b_delta", "mean_dst"])
+        validation_writer.writerow([mean_occ_delta,mean_b_delta,mean_dst])
+
+
+
 params =  master_phil.extract()
 
 out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"
@@ -155,50 +199,7 @@ for dataset in datasets:
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
 
-    # Turn into function, move to after repeat_validate
-
-    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
-        process_validation_csvs(params.validate.options.start_simul_occ,
-                     params.validate.options.end_simul_occ,
-                     step=params.validate.options.step_simulation,
-                     set_b=params.validate.options.set_b,
-                     out_dir=params.output.out_dir,
-                     params=params)
-
-    occ_delta = np.abs(np.array(min_occs) - np.array(occs))
-    b_delta = np.abs(np.array(min_b_facs) - np.array(b_facs))
-
-    normalised_min_b_fac = (np.array(min_b_facs)
-                            - u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
-        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))
-
-    normalised_b_fac = (np.array(b_facs)
-                            - u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
-        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))
-
-    norm_b_delta = np.abs(normalised_min_b_fac - normalised_b_fac)
-
-    mean_occ_delta =  np.mean(occ_delta)
-    mean_b_delta =  np.mean(b_delta)
-    occ_b_array = np.array(zip(occs,b_facs))
-    min_occ_b_array = np.array(zip(min_occs, min_b_facs))
-    dst = np.sqrt(occ_delta**2 + norm_b_delta**2 )
-    mean_dst = np.mean(dst)
-
-    print(os.path.join(params.output.out_dir, "validation_summary.csv"))
-
-    with open(os.path.join(params.output.out_dir,
-                           "validation_summary.csv"),
-              'wb') as validation_csv:
-
-        minima_writer = csv.writer(validation_csv, delimiter=',')
-        minima_writer.writerow(["mean_occ_delta", "mean_b_delta", "mean_dst"])
-        minima_writer.writerow([mean_occ_delta,mean_b_delta,mean_dst])
-
+    summary_validation(params)
     exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
