@@ -106,7 +106,6 @@ for dataset in datasets:
         with open(os.path.join(params.output.out_dir, "params.txt"),'w+') as param_file:
             param_file.write(modified_phil.as_str())
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.py"),'w+') as python_file:
-            python_file.write('print("AAAAAAAAAAAAAAAAAA")\n')
             python_file.write('import os, sys\n')
             python_file.write('from libtbx.phil import parse\n')
             python_file.write('scriptpath=\'/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search\'\n')
@@ -117,9 +116,7 @@ for dataset in datasets:
             python_file.write('file.close()\n')
             python_file.write('master_phil=parse(params_string)\n')
             python_file.write('params =  master_phil.extract()\n')
-            python_file.write('print("BBBBBBBBBBBBBBBBB")\n')
-            python_file.write('print(params.output.out_dir)\n')
-            #python_file.write('repeat_validate.py(params)\n')
+            python_file.write('repeat_validate.py(params)\n')
     else:
         repeat_validate(params)
 
