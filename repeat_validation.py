@@ -12,9 +12,6 @@ def repeat_validate(params):
 
     print(params.output.out_dir)
 
-    print(atom_points_from_sel_string(params,"resname LIG"))
-    exit()
-
     # Issue: Can't do selection of lig atoms for each case, can we do it by LIG naming
 
     # Ligand grid (by convex hull of ligand atoms)
@@ -98,7 +95,7 @@ params.exhaustive.options.column_type = "FMODEL"
 params.exhaustive.options.generate_mtz = False
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.05
-params.validate.options.overwrite = True
+params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.05
 params.settings.processes = 20
 params.validate.options.set_b = 40.0
@@ -115,6 +112,9 @@ for dataset in datasets:
         params.input.in_path, "refine.output.ground-state.pdb")
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
+
+    print(atom_points_from_sel_string(params, "resseq LIG"))
+    exit()
 
     # Turn into function, move to after repeat_validate
 
