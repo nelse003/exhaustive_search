@@ -112,7 +112,7 @@ for dataset in datasets:
             python_file.write('from libtbx.phil import parse\n')
             python_file.write('scriptpath=\'/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search\'\n')
             python_file.write('sys.path.insert(0, os.path.abspath(scriptpath))\n')
-            python_file.write('from phil import master_phil')
+            python_file.write('from phil import master_phil\n')
             python_file.write('from exhaustive.validation.repeat_validate import repeat_validate\n')
             # python_file.write('file = open(os.path.join(\'{}\',"params.txt"))\n'.format(params.output.out_dir))
             # python_file.write('params_string = file.read()\n')
