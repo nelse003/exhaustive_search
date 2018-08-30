@@ -68,8 +68,8 @@ def repeat_validate(params):
                                params=params)
 
     #Reset
-    print(os.path.split(params.output.out_dir))
-    exit()
+    params.exhaustive.options.per_residue = False
+    params.output.out_dir = os.path.split(params.output.out_dir)[0]
 
     # Buffer range (convex hull around occupancy group)
     for buffer in np.arange(0, 2, 0.5):
