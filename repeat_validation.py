@@ -26,7 +26,6 @@ def repeat_validate(params):
     # Reset
     params.exhaustive.options.ligand_grid_points = False
 
-
     # Per residue selection of atoms
     params.exhaustive.options.per_residue = True
     params.output.out_dir = os.path.join(params.output.out_dir, "per_residue")
@@ -117,14 +116,15 @@ for dataset in datasets:
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
 
-    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
-        process_validation_csvs(params.validate.options.start_simul_occ,
-                     params.validate.options.end_simul_occ,
-                     step=params.validate.options.step_simulation,
-                     set_b=params.validate.options.set_b,
-                     out_dir=params.output.out_dir,
-                     params=params)
-    exit()
+    # Turn into function, move to after repeat_validate
+
+    # min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+    #     process_validation_csvs(params.validate.options.start_simul_occ,
+    #                  params.validate.options.end_simul_occ,
+    #                  step=params.validate.options.step_simulation,
+    #                  set_b=params.validate.options.set_b,
+    #                  out_dir=params.output.out_dir,
+    #                  params=params)
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
 
@@ -151,6 +151,7 @@ for dataset in datasets:
 
 
     repeat_validate(params)
+
     exit()
 
 
