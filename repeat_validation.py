@@ -68,7 +68,7 @@ def repeat_validate(params):
                                params=params)
 
     #Reset
-    print(params.output.out_dir.split())
+    print(os.path.split(params.output.out_dir))
     exit()
 
     # Buffer range (convex hull around occupancy group)
