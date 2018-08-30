@@ -130,8 +130,15 @@ for dataset in datasets:
             file.write("/dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4-python {}".format(
                 os.path.join(params.output.out_dir, "run_repeat_validation.py")))
 
-        os.system('qsub {}'.format("$CCP4/bin/ccp4-python {}".format(
+        # This qsub is failing becuase it can't import libtbx.
+        # However libtbx should be provided by ccp4-python call
+        # non-qsub submission of
+
+        print('qsub {}'.format("$CCP4/bin/ccp4-python {}".format(
             os.path.join(params.output.out_dir, "run_repeat_validation.py"))))
+
+        # os.system('qsub {}'.format("$CCP4/bin/ccp4-python {}".format(
+        #     os.path.join(params.output.out_dir, "run_repeat_validation.py"))))
 
     else:
         repeat_validate(params)
