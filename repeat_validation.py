@@ -243,7 +243,7 @@ for dataset in datasets:
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.py"),'w+') as python_file:
             python_file.write('import os, sys\n')
             python_file.write('scriptpath=\'/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search\'\n')
-            python_file.write('syspath.path.append(os.path.abspath(scriptpath)')
+            python_file.write('syspath.path.append(os.path.abspath(scriptpath)\n')
             python_file.write('from exhaustive.repeat_validation import repeat_validate\n')
             python_file.write('master_phil=parse(os.path.join(params.output.out_dir, "params.txt"))\n')
             python_file.write('params =  mater_phil.extract()\n')
