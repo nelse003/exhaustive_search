@@ -191,7 +191,7 @@ for dataset in datasets:
 
     with open(os.path.join(out_dir, "validation_summary.csv"), 'wb') as validation_csv:
         minima_writer = csv.writer(validation_csv, delimiter=',')
-        minima_writer.writerow("mean_occ_delta", "mean_b_delta", "mean_dst")
+        minima_writer.writerow(["mean_occ_delta", "mean_b_delta", "mean_dst"])
         minima_writer.writerow([mean_occ_delta,mean_b_delta,mean_dst])
 
     exit()
