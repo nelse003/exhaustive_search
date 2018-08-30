@@ -31,6 +31,9 @@ def process_validation_csvs(start_occ,
 
         csv_path = os.path.join(out_dir, csv_name)
 
+        print(csv_path)
+        exit()
+
         min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_path)
         fofc = get_fofc_from_csv(csv_name, lig_occupancy,
                                  round_step(b_to_u_iso(set_b)),
