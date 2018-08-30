@@ -19,6 +19,7 @@ def repeat_validate(params):
     params.exhaustive.options.ligand_grid_points = True
     params.output.out_dir = os.path.join(params.output.out_dir, "lig_grid")
     validate(params)
+    summary_validation(params)
 
     # Add plotting of residue selection
     atom_points = atom_points_from_sel_string(pdb=params.input.pdb,
@@ -45,6 +46,7 @@ def repeat_validate(params):
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
     validate(params)
+    summary_validation(params)
 
     # Add plotting of residue selection
     bound_states, \
@@ -79,6 +81,7 @@ def repeat_validate(params):
                         os.remove(os.path.join(params.output.out_dir, item))
 
         validate(params)
+        summary_validation(params)
 
         buffered_points = convex_hull_from_states(pdb=params.input.pdb,
                                               bound_states=bound_states,
@@ -198,9 +201,6 @@ for dataset in datasets:
         params.input.in_path, "refine.output.ground-state.pdb")
     params.validate.input.bound_state_pdb_path = os.path.join(
         params.input.in_path, "refine.output.bound-state.pdb")
-
-    summary_validation(params)
-    exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
 
