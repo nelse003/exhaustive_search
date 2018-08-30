@@ -108,7 +108,7 @@ for dataset in datasets:
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.py"),'w+') as python_file:
             python_file.write('print("AAAAAAAAAAAAAAAAAA")\n')
             python_file.write('import os, sys\n')
-            python_file.write('from libtbx.phil import parse')
+            python_file.write('from libtbx.phil import parse\n')
             python_file.write('scriptpath=\'/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search\'\n')
             python_file.write('sys.path.insert(0, os.path.abspath(scriptpath))\n')
             python_file.write('from exhaustive.validation.repeat_validate import repeat_validate\n')
