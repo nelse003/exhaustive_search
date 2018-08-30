@@ -98,7 +98,7 @@ for dataset in datasets:
                 if not item.startswith("refine"):
                     os.remove(os.path.join(params.output.out_dir, item))
 
-    params.validate.options.repeat_validate_qsub = True
+    params.validate.options.repeat_validate_qsub = False
 
     print(params.output.out_dir)
 
