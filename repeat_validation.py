@@ -238,8 +238,6 @@ for dataset in datasets:
     if params.validate.options.repeat_validate_qsub:
         modified_phil = master_phil.format(python_object=params)
 
-        print(type(modified_phil.show()))
-
         with open(os.path.join(params.output.out_dir, "params.txt"),'w+') as param_file:
             param_file.write(str(modified_phil.show()))
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.py"),'w+') as python_file:
