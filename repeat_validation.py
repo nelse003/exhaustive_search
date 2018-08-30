@@ -124,7 +124,19 @@ for dataset in datasets:
             python_file.write('print(params.output.out_dir)\n')
             python_file.write('repeat_validate(params)\n')
 
-        os.system('qsub ccp4-python {}'.format(os.path.join(params.output.out_dir, "run_repeat_validation.py")))
+        with open(os.path.join(params.output.out_dir, "run_repeat_validation.sh"), 'w') as file:
+            file.write("#!/bin/bash\n")
+            file.write("export XChemExplorer_DIR=\"/dls/science/"
+                       "groups/i04-1/software/XChemExplorer_new/"
+                       "XChemExplorer\"\n")
+            file.write("source /dls/science/groups/i04-1/software/"
+                       "XChemExplorer_new/XChemExplorer/"
+                       "setup-scripts/pandda.setup-sh\n")
+            file.write("$CCP4/bin/ccp4-python {}".format(
+                os.path.join(params.output.out_dir, "run_repeat_validation.py")))
+
+        os.system('qsub {}'.format("$CCP4/bin/ccp4-python {}".format(
+            os.path.join(params.output.out_dir, "run_repeat_validation.py"))))
 
     else:
         repeat_validate(params)
