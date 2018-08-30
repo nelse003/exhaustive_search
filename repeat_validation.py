@@ -243,7 +243,7 @@ for dataset in datasets:
         with open(os.path.join(params.output.out_dir, "run_repeat_validation.py"),'w+') as python_file:
             python_file.write('from repeat_validation import repeat_validate\n')
             python_file.write('master_phil=parse(os.path.join(params.output.out_dir, "params.txt"))\n')
-            python_file.write('params =  modified_phil.extract()\n')
+            python_file.write('params =  mater_phil.extract()\n')
             python_file.write('modified_phil.show()\n')
             #python_file.write('repeat_validate(params)\n')
     else:
