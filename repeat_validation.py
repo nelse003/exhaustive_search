@@ -166,7 +166,7 @@ for dataset in datasets:
 
     mean_occ_delta =  np.mean(np.abs(np.array(min_occs) - np.array(occs)))
     mean_b_delta =  np.mean(np.abs(np.array(min_b_facs) - np.array(b_facs)))
-    print(zip(occs,b_facs))
+    print(np.array(zip(occs,b_facs)))
     exit()
 
     if not os.path.exists(params.validate.input.ground_state_pdb_path) or params.validate.options.overwrite:
