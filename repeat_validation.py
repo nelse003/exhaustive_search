@@ -70,14 +70,14 @@ for dataset in datasets:
     (params.input.xtal_name, params.input.in_path, params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
     csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
     try:
-        df = pd.read_csv(csv_path,)
+        df = pd.read_csv(csv_path)
         validation_summary_dfs.append(df)
     except IOError:
         print("{}: Not done".format(params.input.xtal_name))
 
 df = pd.concat(validation_summary_dfs)
 print(df)
-df.to_csv(os.path.join(params.output.out_dir,"validation_summary_all.csv", index=False))
+df.to_csv(os.path.join(params.output.out_dir,"validation_summary_all.csv"), index=False))
 
 
 
