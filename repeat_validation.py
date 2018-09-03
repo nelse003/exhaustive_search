@@ -67,6 +67,7 @@ params.validate.options.set_b = 40.0
 validation_summary_dfs = []
 for dataset in datasets:
 
+    (params.input.xtal_name, params.input.in_path, params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
     csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
     df = pd.read_csv(csv_path,)
     validation_summary_dfs.append(df)
