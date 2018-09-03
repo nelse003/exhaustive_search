@@ -72,7 +72,7 @@ for dataset in datasets:
     try:
         df = pd.read_csv(csv_path)
         print(df)
-        df = df.reindex(index=[params.input.xtal_name])
+        df = df.rename(index={0: params.input.xtal_name})
         validation_summary_dfs.append(df)
         print(df)
     except IOError:
