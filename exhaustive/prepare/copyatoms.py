@@ -421,7 +421,7 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
 
 # To be used for Jose's covalent dose data:
 
-copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/analysis/initial_model",
+copy_covalent_ratios(path="/dls/labxchem/data/2018/lb18145-68/processing/analysis/initial_model",
                      prefix='NUDT7A-x',
                      start_xtal_num=6192,
                      end_xtal_num=6251,
