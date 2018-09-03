@@ -419,6 +419,18 @@ copy_titration(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/init
 #                    "exhaustive_search_data/covalent_ratios",
 #                      qsub = True)
 
+# To be used for Jose's covalent dose data:
+
+copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/analysis/initial_model",
+                     prefix='NUDT7A-x',
+                     start_xtal_num=6192,
+                     end_xtal_num=6251,
+                     new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
+                     atoms_new=[['E','1']],
+                     out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+                   "exhaustive_search_data/covalent_ratios",
+                     qsub = True)
+
 # Commented out for testing of new dimple based function
 # copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"
 #                 "initial_model",
