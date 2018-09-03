@@ -218,6 +218,8 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                 os.path.join(out_dir, xtal_name,
                              "dimple_with_lig.pdb")))
 
+            exit()
+
             with open(os.path.join(out_dir, xtal_name,"multi-state-model.pdb"),"r") as original:
                 multi_model = original.read()
             with open(os.path.join(out_dir, xtal_name,"multi-state-model.pdb"),"w") as modified:
@@ -368,7 +370,6 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                              "dimple.pdb"),
                 os.path.join(out_dir, xtal_name,
                              "dimple_with_lig.pdb")))
-
 
             cmds = "source /dls/science/groups/i04-1/software/" \
                    "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n"
