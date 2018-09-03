@@ -218,8 +218,6 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                 os.path.join(out_dir, xtal_name,
                              "dimple_with_lig.pdb")))
 
-            exit()
-
             with open(os.path.join(out_dir, xtal_name,"multi-state-model.pdb"),"r") as original:
                 multi_model = original.read()
             with open(os.path.join(out_dir, xtal_name,"multi-state-model.pdb"),"w") as modified:
