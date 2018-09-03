@@ -71,6 +71,7 @@ for dataset in datasets:
     csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
     try:
         df = pd.read_csv(csv_path)
+        print(df)
         df = df.reindex(index=[params.input.xtal_name])
         validation_summary_dfs.append(df)
         print(df)
