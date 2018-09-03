@@ -77,7 +77,7 @@ for dataset in datasets:
 
 df = pd.concat(validation_summary_dfs)
 print(df)
-df.to_csv(os.path.join(params.output.out_dir,"validation_summary_all.csv"), index=False))
+df.to_csv(os.path.join(params.output.out_dir,"validation_summary_all.csv"), index=False)
 
 
 
