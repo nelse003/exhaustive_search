@@ -106,6 +106,15 @@ def repeat_validate(params):
 
 def summary_validation(params):
 
+    """ Generate a summary csv with validation output
+
+    Output:
+
+    Distance normalised between aimed occupancy and u_iso (b factor)
+    - euclidean
+    Non normalised distance in B factor and Occ
+    """
+
     min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
         process_validation_csvs(params.validate.options.start_simul_occ,
                      params.validate.options.end_simul_occ,

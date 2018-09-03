@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import csv
+import pandas as pd
 
 from exhaustive.validation.validation import run as validate
 from phil import master_phil
@@ -62,6 +63,21 @@ params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.05
 params.settings.processes = 14
 params.validate.options.set_b = 40.0
+
+validation_summary_dfs = []
+for dataset in datasets:
+
+    csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
+    df = pd.read_csv(csv_path,)
+    validation_summary_dfs.append(df)
+
+df = pd.concat(validation_summary_dfs)
+print(df)
+df.to_csv(os.path.join(params.output.out_dir,"validation_summary_all.csv"))
+
+
+
+exit()
 
 for dataset in datasets:
 
