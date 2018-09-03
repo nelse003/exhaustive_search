@@ -71,13 +71,10 @@ for dataset in datasets:
     csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
     try:
         df = pd.read_csv(csv_path)
-        print(df)
         df = df.rename(index={0: params.input.xtal_name})
         validation_summary_dfs.append(df)
-        print(df)
     except IOError:
-        #print(os.path.join(params.output.out_dir, "validation_summary.csv"))
-        #print("{}: Not done".format(params.input.xtal_name))
+        print("{}: Not done".format(params.input.xtal_name))
         continue
 
 df = pd.concat(validation_summary_dfs)
