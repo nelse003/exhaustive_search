@@ -76,8 +76,9 @@ for dataset in datasets:
         validation_summary_dfs.append(df)
         print(df)
     except IOError:
-        print(os.path.join(params.output.out_dir, "validation_summary.csv"))
-        print("{}: Not done".format(params.input.xtal_name))
+        #print(os.path.join(params.output.out_dir, "validation_summary.csv"))
+        #print("{}: Not done".format(params.input.xtal_name))
+        continue
 
 df = pd.concat(validation_summary_dfs)
 print(df)
