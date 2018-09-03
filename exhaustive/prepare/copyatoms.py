@@ -428,7 +428,7 @@ copy_covalent_ratios(path="/dls/labxchem/data/2018/lb18145-68/processing/analysi
                      new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
                      atoms_new=[['E','1']],
                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-                   "exhaustive_search_data/covalent_ratios",
+                   "exhaustive_search_data/covalent_ratios_dose",
                      qsub = True)
 
 # Commented out for testing of new dimple based function
