@@ -116,6 +116,9 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     Needs to be trimmed and turned into reusable code
     """,
 
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
     pdb_in = hierarchy.input(file_name=new_ground_structure_path)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
