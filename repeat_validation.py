@@ -73,7 +73,7 @@ for dataset in datasets:
         df = pd.read_csv(csv_path)
         df.reindex(index=[params.input.xtal_name])
         validation_summary_dfs.append(df)
-
+        print(df)
     except IOError:
         print(os.path.join(params.output.out_dir, "validation_summary.csv"))
         print("{}: Not done".format(params.input.xtal_name))
