@@ -67,17 +67,23 @@ params.validate.options.set_b = 40.0
 validation_summary_dfs = []
 for dataset in datasets:
 
-    (params.input.xtal_name, params.input.in_path, params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
-    csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
-    print(csv_path)
-    continue
-    try:
-        df = pd.read_csv(csv_path)
-        df = df.rename(index={0: params.input.xtal_name})
-        validation_summary_dfs.append(df)
-    except IOError:
-        print("{}: Not done".format(params.input.xtal_name))
-        continue
+    for ext in ['lig_grid','per_residue','convex_hull_buffer_0_0']:
+
+        (params.input.xtal_name, params.input.in_path,
+         params.input.pdb, params.input.mtz,
+         params.output.out_dir) = dataset
+
+        csv_path = os.path.join(params.output.out_dir, ext, "validation_summary.csv")
+        try:
+            df = pd.read_csv(csv_path)
+            df['method'] = ext
+            df = df.rename(index={0: params.input.xtal_name})
+            print(df)
+            continue
+            validation_summary_dfs.append(df)
+        except IOError:
+            print("{}: Not done".format(params.input.xtal_name))
+            continue
 
 df = pd.concat(validation_summary_dfs)
 print(df)
