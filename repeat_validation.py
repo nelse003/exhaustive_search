@@ -41,7 +41,7 @@ for compound_dir in compound_dirs:
 
         xtal_name = os.path.basename(xtal_dir)
 
-        if xtal_name is in xtals:
+        if xtal_name in xtals:
 
             refine_pdb = os.path.join(xtal_dir,"refine.pdb")
             refine_mtz = os.path.join(xtal_dir,"refine.mtz")
