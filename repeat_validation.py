@@ -48,7 +48,7 @@ for compound_dir in compound_dirs:
             os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
 
         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
-            datasets.append((xtal_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
+            datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
         else:
             continue
 
@@ -69,14 +69,15 @@ for dataset in datasets:
 
     for ext in ['lig_grid','per_residue','convex_hull_buffer_0_0']:
 
-        (params.input.xtal_name, params.input.in_path,
-         params.input.pdb, params.input.mtz,
-         params.output.out_dir) = dataset
+        (params.input.xtal_name, compound_name,
+         params.input.in_path,params.input.pdb,
+         params.input.mtz, params.output.out_dir) = dataset
 
         csv_path = os.path.join(params.output.out_dir, ext, "validation_summary.csv")
         try:
             df = pd.read_csv(csv_path)
             df['method'] = ext
+            df['compound'] =compound_name
             df = df.rename(index={0: params.input.xtal_name})
             print(df)
             validation_summary_dfs.append(df)
@@ -94,7 +95,10 @@ for dataset in datasets:
 
     print(dataset)
 
-    (params.input.xtal_name, params.input.in_path,  params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
+    (params.input.xtal_name, compound_name,
+     params.input.in_path,  params.input.pdb,
+     params.input.mtz, params.output.out_dir) = dataset
+
     params.validate.input.base_mtz = params.input.mtz
     params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 
