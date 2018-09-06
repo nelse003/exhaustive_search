@@ -77,7 +77,7 @@ for dataset in datasets:
         try:
             df = pd.read_csv(csv_path)
             df['method'] = ext
-            df['compound'] =compound_name
+            df['compound'] = compound_name
             df = df.rename(index={0: params.input.xtal_name})
             print(df)
             validation_summary_dfs.append(df)
