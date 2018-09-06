@@ -79,7 +79,6 @@ for dataset in datasets:
             df['method'] = ext
             df = df.rename(index={0: params.input.xtal_name})
             print(df)
-            continue
             validation_summary_dfs.append(df)
         except IOError:
             print("{}: Not done".format(params.input.xtal_name))
