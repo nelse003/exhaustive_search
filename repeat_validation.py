@@ -17,9 +17,9 @@ from exhaustive.validation.repeat_validate import repeat_validate
 
 params =  master_phil.extract()
 
-out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_NUDT22/"
-loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
-
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_FALZA/"
+#loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
+loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
 
@@ -27,6 +27,9 @@ compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.lis
                  if os.path.isdir(os.path.join(loop_dir, compound_dir))]
 
 datasets = []
+
+xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
+
 for compound_dir in compound_dirs:
 
     xtal_dirs = [os.path.join(compound_dir,xtal_dir) for xtal_dir in os.listdir(compound_dir)
@@ -37,21 +40,50 @@ for compound_dir in compound_dirs:
     for xtal_dir in xtal_dirs:
 
         xtal_name = os.path.basename(xtal_dir)
-        refine_pdb = os.path.join(xtal_dir,"refine.pdb")
-        refine_mtz = os.path.join(xtal_dir,"refine.mtz")
-        xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
 
-        if not os.path.exists(os.path.join(out_dir, compound_name)):
-            os.mkdir(os.path.join(out_dir, compound_name))
+        if xtal_name is in xtals:
 
-        if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
-            os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
+            refine_pdb = os.path.join(xtal_dir,"refine.pdb")
+            refine_mtz = os.path.join(xtal_dir,"refine.mtz")
+            xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
 
-        if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
-            datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
-        else:
-            continue
+            if not os.path.exists(os.path.join(out_dir, compound_name)):
+                os.mkdir(os.path.join(out_dir, compound_name))
 
+            if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
+                os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
+
+            if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
+                datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
+            else:
+                continue
+
+
+# datasets = []
+# for compound_dir in compound_dirs:
+#
+#     xtal_dirs = [os.path.join(compound_dir,xtal_dir) for xtal_dir in os.listdir(compound_dir)
+#                  if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
+#
+#     compound_name = os.path.basename(compound_dir)
+#
+#     for xtal_dir in xtal_dirs:
+#
+#         xtal_name = os.path.basename(xtal_dir)
+#         refine_pdb = os.path.join(xtal_dir,"refine.pdb")
+#         refine_mtz = os.path.join(xtal_dir,"refine.mtz")
+#         xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
+#
+#         if not os.path.exists(os.path.join(out_dir, compound_name)):
+#             os.mkdir(os.path.join(out_dir, compound_name))
+#
+#         if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
+#             os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
+#
+#         if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
+#             datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
+#         else:
+#             continue
 
 #validation based params
 
@@ -63,33 +95,6 @@ params.validate.options.overwrite = False
 params.exhaustive.options.step = 0.05
 params.settings.processes = 14
 params.validate.options.set_b = 40.0
-
-validation_summary_dfs = []
-for dataset in datasets:
-
-    for ext in ['lig_grid','per_residue','convex_hull_buffer_0_0']:
-
-        (params.input.xtal_name, compound_name,
-         params.input.in_path,params.input.pdb,
-         params.input.mtz, params.output.out_dir) = dataset
-
-        csv_path = os.path.join(params.output.out_dir, ext, "validation_summary.csv")
-        try:
-            df = pd.read_csv(csv_path)
-            df['method'] = ext
-            df['compound'] = compound_name
-            df = df.rename(index={0: params.input.xtal_name})
-            print(df)
-            validation_summary_dfs.append(df)
-        except IOError:
-            print("{}: Not done".format(params.input.xtal_name))
-            continue
-
-df = pd.concat(validation_summary_dfs)
-print(df)
-df.to_csv(os.path.join(out_dir,"validation_summary_all.csv"))
-
-exit()
 
 for dataset in datasets:
 
@@ -174,7 +179,30 @@ for dataset in datasets:
     else:
         repeat_validate(params)
 
+validation_summary_dfs = []
+for dataset in datasets:
 
+    for ext in ['lig_grid','per_residue','convex_hull_buffer_0_0']:
+
+        (params.input.xtal_name, compound_name,
+         params.input.in_path,params.input.pdb,
+         params.input.mtz, params.output.out_dir) = dataset
+
+        csv_path = os.path.join(params.output.out_dir, ext, "validation_summary.csv")
+        try:
+            df = pd.read_csv(csv_path)
+            df['method'] = ext
+            df['compound'] = compound_name
+            df = df.rename(index={0: params.input.xtal_name})
+            print(df)
+            validation_summary_dfs.append(df)
+        except IOError:
+            print("{}: Not done".format(params.input.xtal_name))
+            continue
+
+df = pd.concat(validation_summary_dfs)
+print(df)
+df.to_csv(os.path.join(out_dir,"validation_summary_all.csv"))
 
 
 
