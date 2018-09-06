@@ -69,6 +69,8 @@ for dataset in datasets:
 
     (params.input.xtal_name, params.input.in_path, params.input.pdb, params.input.mtz, params.output.out_dir) = dataset
     csv_path = os.path.join(params.output.out_dir, "validation_summary.csv")
+    print(csv_path)
+    continue
     try:
         df = pd.read_csv(csv_path)
         df = df.rename(index={0: params.input.xtal_name})
