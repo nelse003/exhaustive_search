@@ -46,7 +46,8 @@ for xtal_dir in xtal_dirs:
 
     if xtal_name in xtals:
 
-        print([list_files(xtal_dir,".cif")])
+        print(xtal_dir)
+        print(list_files(xtal_dir,".cif"))
 
         #compound_name = os.path.basename([list_files(xtal_dir,".cif")][0])
 
