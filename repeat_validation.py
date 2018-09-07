@@ -16,7 +16,7 @@ from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_g
 from exhaustive.validation.repeat_validate import repeat_validate
 
 def list_files(directory, extension):
-    return (f for f in os.listdir(directory) if f.endswith('.' + extension))
+    return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
 
 params =  master_phil.extract()
 
