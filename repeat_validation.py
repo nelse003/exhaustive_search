@@ -58,6 +58,8 @@ for compound_dir in compound_dirs:
             else:
                 continue
 
+print(datasets)
+exit()
 
 # datasets = []
 # for compound_dir in compound_dirs:
