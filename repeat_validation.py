@@ -46,14 +46,7 @@ for xtal_dir in xtal_dirs:
 
     if xtal_name in xtals:
 
-        print(xtal_dir)
-        print(list_files(xtal_dir,"cif"))
         compounds = list_files(xtal_dir,"cif")
-        print(compounds)
-        print(type(compounds))
-        print(len(compounds))
-        print(compounds[0])
-
         compound_name = (list_files(xtal_dir,"cif")[0]).split(".")[0]
 
         refine_pdb = os.path.join(xtal_dir,"refine.pdb")
@@ -72,7 +65,7 @@ for xtal_dir in xtal_dirs:
             continue
 
 print(datasets)
-exit()
+
 
 # datasets = []
 # for compound_dir in compound_dirs:
