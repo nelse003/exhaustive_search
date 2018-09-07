@@ -15,6 +15,9 @@ from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_g
 
 from exhaustive.validation.repeat_validate import repeat_validate
 
+def list_files(directory, extension):
+    return (f for f in os.listdir(directory) if f.endswith('.' + extension))
+
 params =  master_phil.extract()
 
 out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/validation_FALZA/"
@@ -23,40 +26,42 @@ loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
 
-compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
-                 if os.path.isdir(os.path.join(loop_dir, compound_dir))]
+# compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
+#                  if os.path.isdir(os.path.join(loop_dir, compound_dir))]
 
 datasets = []
 
 xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
 
-for compound_dir in compound_dirs:
+# for compound_dir in compound_dirs:
 
-    xtal_dirs = [os.path.join(compound_dir,xtal_dir) for xtal_dir in os.listdir(compound_dir)
-                 if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
+xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
+             if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
 
-    compound_name = os.path.basename(compound_dir)
+#compound_name = os.path.basename(compound_dir)
 
-    for xtal_dir in xtal_dirs:
+for xtal_dir in xtal_dirs:
 
-        xtal_name = os.path.basename(xtal_dir)
+    xtal_name = os.path.basename(xtal_dir)
 
-        if xtal_name in xtals:
+    if xtal_name in xtals:
 
-            refine_pdb = os.path.join(xtal_dir,"refine.pdb")
-            refine_mtz = os.path.join(xtal_dir,"refine.mtz")
-            xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
+        compound_name = os.path.basename(list_files(xtal_dir,".cif")[0])
 
-            if not os.path.exists(os.path.join(out_dir, compound_name)):
-                os.mkdir(os.path.join(out_dir, compound_name))
+        refine_pdb = os.path.join(xtal_dir,"refine.pdb")
+        refine_mtz = os.path.join(xtal_dir,"refine.mtz")
+        xtal_out_dir = os.path.join(out_dir, compound_name, xtal_name)
 
-            if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
-                os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
+        if not os.path.exists(os.path.join(out_dir, compound_name)):
+            os.mkdir(os.path.join(out_dir, compound_name))
 
-            if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
-                datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
-            else:
-                continue
+        if not os.path.exists(os.path.join(out_dir, compound_name, xtal_name)):
+            os.mkdir(os.path.join(out_dir, compound_name, xtal_name))
+
+        if os.path.exists(refine_pdb) and os.path.exists(refine_mtz):
+            datasets.append((xtal_name, compound_name, xtal_dir, refine_pdb, refine_mtz, xtal_out_dir))
+        else:
+            continue
 
 print(datasets)
 exit()
