@@ -9,16 +9,14 @@ params =  master_phil.extract()
 
 # example for a single dataset
 
-# params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
-#                    "initial_model/NUDT7A-x0299/refine.pdb"
-# params.input.mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
-#                    "initial_model/NUDT7A-x0299/refine.mtz"
-# params.input.xtal_name = "NUDT7A-x0299"
-# params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-#                         "exhaustive_search_data/convex_hull"
-# params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-#                         "exhaustive_search_data/convex_hull/logs"
-# params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "result_convex_buffer.csv")
+params.input.pdb = "/dls/labxchem/data/2018/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.pdb"
+params.input.mtz = "/dls/labxchem/data/2018/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.pdb"
+params.input.xtal_name = "NUDT22A-x0927"
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/test_occ_group_states"
+params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/test_occ_group_states/logs"
+params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "NUDT22A-x0927_test_occ_group.csv")
 
 #Running exhaustive search for covalent ratios/ titration series
 
@@ -31,11 +29,11 @@ params =  master_phil.extract()
 
 #Running exhaustive search for covalent ratios dose experiements
 
-start_xtal_num = 6192
-end_xtal_num = 6251
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
-prefix = "NUDT7A-x"
-qsub = False
+# start_xtal_num = 6192
+# end_xtal_num = 6251
+# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
+# prefix = "NUDT7A-x"
+# qsub = False
 
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
@@ -47,6 +45,9 @@ params.exhaustive.options.convex_hull = True
 # if not os.path.exists(out_dir):
 #     os.mkdir(out_dir)
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
+
+
+exit()
 
 xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
@@ -72,7 +73,6 @@ for xtal_name in xtals:
     if not qsub:
         exhaustive(params=params)
         scatter_plot(params.exhaustive.output.csv_name)
-exit()
 
     if qsub:
 
