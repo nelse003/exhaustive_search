@@ -2,6 +2,13 @@ import libtbx.phil
 import os
 
 master_phil = libtbx.phil.parse("""
+testing{
+    testing = False
+        .type = bool
+        .help = flag for running enclosed test code
+    magic_bunnies = False
+        .type = bool
+}
 input{
     pdb = None
         .type = path
@@ -173,13 +180,7 @@ repeat{
             .help = 'Database path for sqlite databse from xce'
         }
 }
-testing{
-    testing = False
-        .type = bool
-        .help = flag for running enclosed test code
-    magic_bunnies = False
-        .type = bool
-}
+
 
 """, process_includes=True)
 
