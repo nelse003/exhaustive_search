@@ -4,7 +4,7 @@ import os
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.plotting.plot import scatter_plot
 from exhaustive.utils.utils import get_minimum_fofc, u_iso_to_b_fac
-from phil import master_phil
+from ..phil import master_phil
 
 params =  master_phil.extract()
 
