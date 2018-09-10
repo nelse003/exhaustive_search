@@ -1,7 +1,7 @@
 import csv
 import os
 
-from exhaustive.exhaustive.plotting.plot import scatter_plot
+from exhaustive.plotting.plot import scatter_plot
 from exhaustive.exhaustive.utils import get_minimum_fofc, u_iso_to_b_fac
 from phil import master_phil
 
