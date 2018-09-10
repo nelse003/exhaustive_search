@@ -7,7 +7,7 @@ import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
+from exhaustive.utils.utils import (get_fofc_from_csv,
 get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac, process_validation_csvs, expand_array)
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 from mpl_toolkits.mplot3d import Axes3D
