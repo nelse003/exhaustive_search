@@ -10,8 +10,8 @@ params =  master_phil.extract()
 
 # example for a single dataset
 
-params.input.pdb = "/dls/labxchem/data/2017/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.pdb"
-params.input.mtz = "/dls/labxchem/data/2017/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.mtz"
+params.input.pdb = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x0927/refine.pdb"
+params.input.mtz = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x0927/refine.mtz"
 params.input.xtal_name = "NUDT22A-x0927"
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                         "exhaustive_search_data/test_occ_group_states"
