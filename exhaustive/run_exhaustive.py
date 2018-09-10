@@ -48,8 +48,8 @@ params.exhaustive.options.convex_hull = True
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
 # Single dataset
-print(params.exhaustive.options.column_type)
-
+modified_phil = master_phil.format(python_object=params)
+print(master_phil.format(python_object=params).as_str())
 params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 exhaustive(params=params)
 scatter_plot(params.exhaustive.output.csv_name)
