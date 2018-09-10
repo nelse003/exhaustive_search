@@ -153,7 +153,6 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     except UnboundLocalError:
         logging.info("Insufficient state information for pdb file %s", pdb)
-        logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
 
