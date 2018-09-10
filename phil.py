@@ -6,8 +6,6 @@ testing{
     testing = False
         .type = bool
         .help = flag for running enclosed test code
-    magic_bunnies = False
-        .type = bool
 }
 input{
     pdb = None

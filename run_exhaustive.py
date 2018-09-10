@@ -11,7 +11,7 @@ params =  master_phil.extract()
 # example for a single dataset
 
 params.input.pdb = "/dls/labxchem/data/2018/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.pdb"
-params.input.mtz = "/dls/labxchem/data/2018/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.pdb"
+params.input.mtz = "/dls/labxchem/data/2018/lb18145-55/processing/anaylsis/initial_model/NUDT22A-x0927/refine.mtz"
 params.input.xtal_name = "NUDT22A-x0927"
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                         "exhaustive_search_data/test_occ_group_states"
@@ -48,8 +48,6 @@ params.exhaustive.options.convex_hull = True
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
 # Single dataset
-modified_phil = master_phil.format(python_object=params)
-print(master_phil.format(python_object=params).as_str())
 params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 exhaustive(params=params)
 scatter_plot(params.exhaustive.output.csv_name)
