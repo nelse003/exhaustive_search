@@ -26,7 +26,7 @@ params.validate.input.bound_state_pdb_path = os.path.join(
     params.input.in_path, "refine.output.bound-state.pdb")
 params.validate.options.set_b = 40.0
 params.exhaustive.options.column_type = "FMODEL"
-params.exhaustive.options.generate_mtz = False
+params.exhaustive.options.generate_mtz = True
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.1
 params.validate.options.overwrite = False
