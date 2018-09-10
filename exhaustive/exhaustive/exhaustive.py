@@ -155,7 +155,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
-
+    exit()
 
     if params.exhaustive.options.per_residue:
 
