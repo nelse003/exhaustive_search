@@ -29,7 +29,7 @@ params.exhaustive.options.column_type = "FMODEL"
 params.exhaustive.options.generate_mtz = True
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.1
-params.validate.options.overwrite = False
+params.validate.options.overwrite = True
 params.exhaustive.options.step = 0.02
 params.settings.processes = 24
 
