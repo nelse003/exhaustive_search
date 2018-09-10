@@ -268,7 +268,7 @@ def occ_loop_merge_confs_simulate(params):
         params.input.mtz = simulated_mtz
 
         params.exhaustive.options.mtz_prefix = "simul_{}_".format(
-            str(lig_occupancy).replace(".","_")
+            str(lig_occupancy).replace(".","_"))
 
         params.exhaustive.output.csv_name = \
             params.exhaustive.output.csv_prefix \
