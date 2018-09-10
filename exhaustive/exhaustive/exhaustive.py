@@ -386,6 +386,9 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
             str(bound_occupancy).replace(".", "_"),
             str(u_iso).replace(".", "_"))
 
+        if params.exhaustive.options.mtz_prefix is not None:
+            output_mtz =  params.exhaustive.options.mtz_prefix + output_mtz
+
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
         mtz_object.write(file_name=output_mtz)

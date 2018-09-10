@@ -58,6 +58,9 @@ exhaustive{
             .type = float
         generate_mtz = False
             .type = bool
+        mtz_prefix = None
+            .type = bool
+            .help = prefix to name the mtz files, useful for validation, so they are not overwritten
         generate_map = False
             .type = bool
         convex_hull = True

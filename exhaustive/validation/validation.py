@@ -267,6 +267,9 @@ def occ_loop_merge_confs_simulate(params):
         params.input.pdb = os.path.join(params.output.out_dir, merged_pdb)
         params.input.mtz = simulated_mtz
 
+        params.exhaustive.options.mtz_prefix = "simul_{}_".format(
+            str(lig_occupancy).replace(".","_")
+
         params.exhaustive.output.csv_name = \
             params.exhaustive.output.csv_prefix \
             + "_occ_{}_b_{}.csv".format(str(lig_occupancy).replace(".", "_"),
