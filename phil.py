@@ -55,9 +55,6 @@ exhaustive{
             .type = bool
         generate_map = False
             .type = bool
-        column_type = "F,SIGF"
-            .type = str
-            .help = Column type expected from mtz file. FMODEL is needed for validation
         convex_hull = True
             .type = bool
         convex_hull_ignore_nearest = False
@@ -75,6 +72,9 @@ exhaustive{
         atom_points_sel_string = "resname LIG"
             .type = str
             .help = selection algebra (iotbx) to get only ligand atoms
+        column_type = "F,SIGF"
+            .type = str
+            .help = Column type expected from mtz file. FMODEL is needed for validation
         atom_buffer = 0.77
             .type = float
             .help = ' Minimum radius sphere [Angstrom] around an atom is created 
