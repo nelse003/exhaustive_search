@@ -30,7 +30,7 @@ params.exhaustive.options.generate_mtz = True
 params.validate.options.use_qsub = False
 params.validate.options.step_simulation = 0.1
 params.validate.options.overwrite = True
-params.exhaustive.options.step = 0.02
+params.exhaustive.options.step = 0.05
 params.settings.processes = 24
 
 if not os.path.exists(params.output.out_dir):
