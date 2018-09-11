@@ -572,7 +572,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 else:
                     move_res[(chain, resseq)] = [altloc]
 
-                print(move_res)
+            print(move_res)
 
         for residue_chain, altlocs in move_res.iteritems():
 
