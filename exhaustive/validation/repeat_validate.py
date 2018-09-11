@@ -103,6 +103,7 @@ def repeat_validate(params):
                                        str(params.validate.options.set_b).replace('.','_'))),
                                params=params)
 
+        params.output.out_dir = os.path.split(params.output.out_dir)[0]
 
 def summary_validation(params):
 
