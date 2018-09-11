@@ -555,11 +555,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 print(residue_altloc)
                 continue
 
-                if residue_altloc.get('resname') in params.select.resnames:
-                    state_string = "Bound"
-                elif:
-
-                    state_string = "Ground"
+                # if residue_altloc.get('resname') in params.select.resnames:
+                #     state_string = "Bound"
+                # elif:
+                #     state_string = "Ground"
 
                 print("{} : {}".format(state_string, residue_altloc))
 
