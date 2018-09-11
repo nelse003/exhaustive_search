@@ -344,7 +344,7 @@ def occ_loop_merge_confs_simulate(params):
             else:
                 logging.info("Running exhaustive search locally")
                 exhaustive(params=params)
-        exit()
+            exit()
         else:
             logging.info("Skipping exhaustive search")
 
