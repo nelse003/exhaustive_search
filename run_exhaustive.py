@@ -32,7 +32,7 @@ params =  master_phil.extract()
 
 start_xtal_num = 6192
 end_xtal_num = 6251
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
 prefix = "NUDT7A-x"
 qsub = False
 
