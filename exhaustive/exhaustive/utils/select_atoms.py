@@ -561,36 +561,32 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
                 print("{} : {}".format(state_string, residue_altloc))
 
-            for residue_altloc in occupancy_group:
-
                 altloc = residue_altloc.get('altloc')
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
                 if move_res.has_key((chain, resseq)):
-                    move_res[(chain, resseq)].append(altloc)
+                    move_res[(chain, resseq, state_string)].append(altloc)
                 else:
-                    move_res[(chain, resseq)] = [altloc]
+                    move_res[(chain, resseq, state_string)] = [altloc]
 
             print(move_res)
 
-        print("move_res_final: {}".format(move_res))
+            for residue_chain, altlocs in move_res.iteritems():
 
-        for residue_chain, altlocs in move_res.iteritems():
+                resseq = residue_chain[1]
+                chain = residue_chain[0]
 
-            resseq = residue_chain[1]
-            chain = residue_chain[0]
+                logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
+                print("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
+                state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+                logging.debug("APPEND STATE")
+                logging.debug(state)
 
-            logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-            print("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-            state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
-            logging.debug("APPEND STATE")
-            logging.debug(state)
-
-        if bound_state_flag:
-            bound_states += state
-        else:
-            ground_states += state
+            if bound_state_flag:
+                bound_states += state
+            else:
+                ground_states += state
 
         # try:
         #     ground_states
