@@ -571,40 +571,39 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         print("move_res: {}".format(move_res))
 
-            # print("MOVE RES FINAL : {}".format(move_res))
-            #
-            # for residue_chain, altlocs in move_res.iteritems():
-            #
-            #     resseq = residue_chain[1]
-            #     chain = residue_chain[0]
-            #
-            #     logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-            #     print("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-            #     state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
-            #     logging.debug("APPEND STATE")
-            #     logging.debug(state)
+        for residue_chain, altlocs in move_res.iteritems():
 
-            # if bound_state_flag:
-            #     bound_states += state
-            # else:
-            #     ground_states += state
+            resseq = residue_chain[1]
+            chain = residue_chain[0]
+            state = residue_chain[2]
 
-        # try:
-        #     ground_states
-        # except NameError:
-        #     logging.info("There is no ground state. Try remodelling ground state")
-        # try:
-        #     bound_states
-        # except NameError:
-        #     logging.info("There is no bound state.")
+            logging.info("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            print("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            logging.debug("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            if state == "Bound":
+                bound_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+            elif state == "Ground":
+                ground_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+            else:
+                raise ValueError("{} states is undefined".format(state))
 
-        # logging.info("len occ_groups {}".format(len(occupancy_groups)))
-        #
-        # logging.info("BOUND")
-        # logging.info(bound_states)
-        #
-        # logging.info("GROUND")
-        # logging.info(ground_states)
+
+        try:
+            ground_states
+        except NameError:
+            logging.info("There is no ground state. Try remodelling ground state")
+        try:
+            bound_states
+        except NameError:
+            logging.info("There is no bound state.")
+
+        logging.info("len occ_groups {}".format(len(occupancy_groups)))
+
+        logging.info("BOUND")
+        logging.info(bound_states)
+
+        logging.info("GROUND")
+        logging.info(ground_states)
 
         exit()
 
