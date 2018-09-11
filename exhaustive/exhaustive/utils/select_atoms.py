@@ -545,31 +545,31 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         bound_states = []
         ground_states = []
         move_res = dict()
-
+        bound_altlocs = []
         for occupancy_group in occupancy_groups[0]:
-
-            print(occupancy_group)
-            state = []
             for residue_altloc in occupancy_group:
 
-                print(residue_altloc)
-                continue
+                if residue_altloc.get('resname') in params.select.resnames:
+                    bound_altlocs += residue_altloc.get('altloc')
 
-                # if residue_altloc.get('resname') in params.select.resnames:
-                #     state_string = "Bound"
-                # elif:
-                #     state_string = "Ground"
-
-                print("{} : {}".format(state_string, residue_altloc))
+        for occupancy_group in occupancy_groups[0]:
+            for residue_altloc in occupancy_group:
 
                 altloc = residue_altloc.get('altloc')
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
-                if move_res.has_key((chain, resseq)):
+                if altloc is in bound_altlocs:
+                    state_string = "Bound"
+                else:
+                    state_string - "Ground"
+
+                if move_res.has_key((chain, resseq, state_string)):
                     move_res[(chain, resseq, state_string)].append(altloc)
                 else:
                     move_res[(chain, resseq, state_string)] = [altloc]
+
+        print("move_res: {}".format(move_res))
 
             # print("MOVE RES FINAL : {}".format(move_res))
             #
