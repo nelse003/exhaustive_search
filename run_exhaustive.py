@@ -39,7 +39,8 @@ qsub = False
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
 params.exhaustive.options.step = 0.05
-params.exhaustive.options.convex_hull = True
+params.exhaustive.options.convex_hull = False
+params.exhaustive.options.per_residue = True
 
 # # copy data to new folder
 
