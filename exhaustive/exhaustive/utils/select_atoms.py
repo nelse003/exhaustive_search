@@ -605,8 +605,6 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         logging.info("GROUND")
         logging.info(ground_states)
 
-        exit()
-
         return bound_states, ground_states
 
     # TODO Add more appropriate elif to catch other more complex cases
