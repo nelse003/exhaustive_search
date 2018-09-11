@@ -522,6 +522,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
     occupancy_groups = get_occupancy_groups(pdb, params)
 
+    print(occupancy_groups)
     logging.debug(occupancy_groups)
 
     pdb_inp = iotbx.pdb.input(pdb)
@@ -544,7 +545,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         bound_states = []
         ground_states = []
         move_res = dict()
+
         for occupancy_group in occupancy_groups[0]:
+
+            print(occupancy_group)
 
             bound_state_flag = False
             state = []
@@ -554,6 +558,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                     state_string = "Bound"
                 else:
                     state_string = "Ground"
+
+                print("{} : {}".format(state_string, residue_altloc))
 
             for residue_altloc in occupancy_group:
 
@@ -565,6 +571,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                     move_res[(chain, resseq)].append(altloc)
                 else:
                     move_res[(chain, resseq)] = [altloc]
+
+                print(move_res)
 
         for residue_chain, altlocs in move_res.iteritems():
 
@@ -598,9 +606,11 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         logging.info("GROUND")
         logging.info(ground_states)
 
+        exit()
+
         return bound_states, ground_states
 
-    # TODO Add more appropritate elif to catch other more complex cases
+    # TODO Add more appropriate elif to catch other more complex cases
     # (> two states/ other ways to get to two states) #63
     else:
 
