@@ -549,14 +549,16 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         for occupancy_group in occupancy_groups[0]:
 
             print(occupancy_group)
-
-            bound_state_flag = False
             state = []
             for residue_altloc in occupancy_group:
+
+                print(residue_altloc)
+                continue
+
                 if residue_altloc.get('resname') in params.select.resnames:
-                    bound_state_flag = True
                     state_string = "Bound"
-                else:
+                elif:
+
                     state_string = "Ground"
 
                 print("{} : {}".format(state_string, residue_altloc))
@@ -583,10 +585,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 logging.debug("APPEND STATE")
                 logging.debug(state)
 
-            if bound_state_flag:
-                bound_states += state
-            else:
-                ground_states += state
+            # if bound_state_flag:
+            #     bound_states += state
+            # else:
+            #     ground_states += state
 
         # try:
         #     ground_states
