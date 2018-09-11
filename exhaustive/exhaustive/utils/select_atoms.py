@@ -571,18 +571,18 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 else:
                     move_res[(chain, resseq, state_string)] = [altloc]
 
-            print("MOVE RES FINAL : {}".format(move_res))
-
-            for residue_chain, altlocs in move_res.iteritems():
-
-                resseq = residue_chain[1]
-                chain = residue_chain[0]
-
-                logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-                print("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-                state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
-                logging.debug("APPEND STATE")
-                logging.debug(state)
+            # print("MOVE RES FINAL : {}".format(move_res))
+            #
+            # for residue_chain, altlocs in move_res.iteritems():
+            #
+            #     resseq = residue_chain[1]
+            #     chain = residue_chain[0]
+            #
+            #     logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
+            #     print("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
+            #     state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+            #     logging.debug("APPEND STATE")
+            #     logging.debug(state)
 
             # if bound_state_flag:
             #     bound_states += state
@@ -598,13 +598,13 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         # except NameError:
         #     logging.info("There is no bound state.")
 
-        logging.info("len occ_groups {}".format(len(occupancy_groups)))
-
-        logging.info("BOUND")
-        logging.info(bound_states)
-
-        logging.info("GROUND")
-        logging.info(ground_states)
+        # logging.info("len occ_groups {}".format(len(occupancy_groups)))
+        #
+        # logging.info("BOUND")
+        # logging.info(bound_states)
+        #
+        # logging.info("GROUND")
+        # logging.info(ground_states)
 
         exit()
 
