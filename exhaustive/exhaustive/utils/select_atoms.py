@@ -562,7 +562,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 if altloc in bound_altlocs:
                     state_string = "Bound"
                 else:
-                    state_string - "Ground"
+                    state_string = "Ground"
 
                 if move_res.has_key((chain, resseq, state_string)):
                     move_res[(chain, resseq, state_string)].append(altloc)
