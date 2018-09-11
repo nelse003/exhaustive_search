@@ -559,7 +559,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
-                if altloc is in bound_altlocs:
+                if altloc in bound_altlocs:
                     state_string = "Bound"
                 else:
                     state_string - "Ground"
