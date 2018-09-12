@@ -163,8 +163,6 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
             #remove atoms
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
 
-            print(not_selection_string)
-            exit()
             remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
             removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
 
@@ -188,6 +186,9 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                 "w+")
 
             #f.write("LINKR        C   LIG E   1                 SG ACYS A  73                LIG-CYS\n")
+
+            print(acceptor_hier.as_pdb_string(crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
+            exit()
             f.write(acceptor_hier.as_pdb_string(
                 crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
 
