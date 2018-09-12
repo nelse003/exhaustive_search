@@ -169,7 +169,7 @@ def copy_atoms(copy_params):
                          xtal_name,
                          copy_params.input.cif),
             os.path.join(copy_params.output.out_dir,
-                         xtal_name, copy_params.settings.param))
+                         xtal_name, copy_params.settings.param_file))
 
         if copy_params.settings.qsub:
             f = open(
