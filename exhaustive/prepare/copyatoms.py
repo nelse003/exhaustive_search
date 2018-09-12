@@ -436,7 +436,7 @@ copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/analysi
                      start_xtal_num=6192,
                      end_xtal_num=6251,
                      new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
-                     atoms_new=[['E','1']]
+                     atoms_new=[['E','1']],
                      atoms_remove = [['A','196']]
                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
                    "exhaustive_search_data/covalent_ratios_dose",
