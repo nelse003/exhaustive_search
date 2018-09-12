@@ -55,7 +55,7 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     for xtal_name in xtals:
 
         #for quick rerun
-        if os.path.exists(os.path.join(out_dir, xtal_name, refine_pdb)) and
+        if os.path.exists(os.path.join(out_dir, xtal_name, refine_pdb)) and \
             not overwrite:
             continue
 
