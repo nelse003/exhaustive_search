@@ -109,7 +109,7 @@ def copy_atoms(copy_params):
         # Copy the input pdb to output directory
         os.chdir(os.path.join(copy_params.output.out_dir, xtal_name))
         os.system('cp {} {}'.format(
-            os.path.join(copy_params.input.pdb,
+            os.path.join(copy_params.input.path,
                          xtal_name, copy_params.input.pdb_style),
             os.path.join(copy_params.output.out_dir,
                          xtal_name, copy_params.input.pdb_style)))
