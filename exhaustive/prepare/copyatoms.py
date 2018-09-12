@@ -132,13 +132,15 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     new_atoms_hier = pdb_in.hierarchy.select(new_atoms_sel)
 
     selection_string_list = []
-    for atom_remove in atoms_remove:
-        selection_string = "(resid {} and chain {})".format(atom_remove[1],
-                                                            atom_remove[0])
-        selection_string_list.append(selection_string)
 
-    selection_string = "or".join(selection_string_list)
-    not_selection_string ="not ({})".format(selection_string)
+    if atoms_remove is not None:
+        for atom_remove in atoms_remove:
+            selection_string = "(resid {} and chain {})".format(atom_remove[1],
+                                                                atom_remove[0])
+            selection_string_list.append(selection_string)
+
+        selection_string = "or".join(selection_string_list)
+        not_selection_string ="not ({})".format(selection_string)
 
     xtals = []
     for num in range(start_xtal_num, end_xtal_num + 1):
@@ -147,9 +149,10 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
 
     for xtal_name in xtals:
 
-        # for quick rerun
-        # if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")):
-        #     continue
+        #for quick rerun
+        if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")) and
+            not overwrite:
+            continue
 
         if os.path.exists(os.path.join(path, xtal_name,
                                        "dimple.pdb")):
@@ -160,18 +163,21 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
 
 
             acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
-            #remove atoms
-            refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
 
-            remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
-            removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
+            #remove atoms
+            if atoms_remove is not None:
+                refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
+                remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
+                removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
+                working_hier = removed_hier
+            else:
+                working_hier = acceptor_hierarchy
 
             # Add atoms
             donor_hierarchy = new_atoms_hier
             acceptor_hier = transfer_residue_groups_from_other(
-                removed_hier, donor_hierarchy, in_place=False,
+                working_hier, donor_hierarchy, in_place=False,
                 verbose=False)
-
 
             if not os.path.exists(out_dir):
                 os.mkdir(out_dir)
@@ -179,34 +185,12 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
             if not os.path.exists(os.path.join(out_dir, xtal_name)):
                 os.mkdir(os.path.join(out_dir, xtal_name))
 
-            f = open(
-                os.path.join(out_dir,
-                             xtal_name,
-                             "dimple_with_lig.pdb"),
-                "w+")
-
-            #f.write("LINKR        C   LIG E   1                 SG ACYS A  73                LIG-CYS\n")
+            f = open(os.path.join(out_dir,xtal_name,output_pdb),"w+")
 
             f.write(acceptor_hier.as_pdb_string(
                 crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
-
-
-            # # Add Link record to dimple_with_lig
-            # for line in f:
-            #     if line.startswith("HEADER"):
-            #         continue
-            #     if line.startswith("COMPND"):
-            #         continue
-            #     if line.startswith("REMARK"):
-            #         continue
-            #     else:
-            #         f.write("LINKR        C   LIG E   1                 SG ACYS A  73                LIG-CYS")
-            #         break
-
             f.close()
 
-
-            print(os.getcwd())
             os.chdir(os.path.join(out_dir, xtal_name))
             os.system('cp {} {}'.format(
                 os.path.join(path, xtal_name, "dimple.pdb"),
@@ -439,7 +423,10 @@ copy_covalent_ratios(path="/dls/labxchem/data/2018/lb18145-68/processing/analysi
                      atoms_remove = [['B','196']],
                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
                    "exhaustive_search_data/covalent_ratios_dose",
-                     qsub = True)
+                     qsub = True,
+                     overwrite = overwrite,
+                     input_pdb = "dimple.pdb",
+                     output_pdb = "dimple_with_lig.pdb")
 
 # Commented out for testing of new dimple based function
 # copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"
