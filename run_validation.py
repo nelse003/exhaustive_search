@@ -28,7 +28,7 @@ params.input.in_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_sea
 params.output.out_dir = params.input.in_path
 params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
-
+params.validate.input.base_mtz = os.path.join(params.input.in_path,"refine.mtz")
 params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 params.validate.options.set_b = 40.0
 params.exhaustive.options.column_type = "FMODEL"
