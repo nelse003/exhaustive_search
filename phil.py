@@ -185,6 +185,20 @@ repeat{
 
 """, process_includes=True)
 
+copy_phil = libtbx.phil.parse("""
+input{
+    path = None
+        .type = str
+        .help = "Input path where input pdb & mtz files are stored" 
+    pdb = "dimple.pdb"
+        .type = str
+}
+output{
+}
+settings{
+}
+""", process_includes=True)
+
 def prepare_validate_phil(master_phil):
 
     """ Add bound state and ground state paths if they do not exist"""

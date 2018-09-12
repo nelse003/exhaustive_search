@@ -6,9 +6,10 @@ from iotbx.pdb import hierarchy
 def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                          new_ground_structure_path, atoms_new,
                          atoms_remove, out_dir, qsub,
-                         overwrite, input_pdb, output_pdb,
+                         overwrite, input_pdb, output_pdb, refine_pdb,
                          input_cif, output_cif_suffix, input_mtz,
-                         multi_state_model_pdb, ccp4_path, param_file):
+                         multi_state_model_pdb, link_record_list,
+                         ccp4_path, param_file):
 
     """ Script that works only with covalent ratio data for initial refinement 
     
