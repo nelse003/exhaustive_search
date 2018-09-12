@@ -65,7 +65,7 @@ def copy_atoms(copy_params):
             continue
 
         # Run only if sufficent input data
-        if not os.path.exists(os.path.join(copy_params.input.pdb,
+        if not os.path.exists(os.path.join(copy_params.input.path,
                                            xtal_name,
                                            copy_params.input.pdb_style)):
 
