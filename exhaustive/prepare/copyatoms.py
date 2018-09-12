@@ -186,10 +186,7 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                 "w+")
 
             #f.write("LINKR        C   LIG E   1                 SG ACYS A  73                LIG-CYS\n")
-            print(removed_hier.as_pdb_string(crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
-            print("_____________________________________________________________________________________")
-            print(acceptor_hier.as_pdb_string(crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
-            exit()
+
             f.write(acceptor_hier.as_pdb_string(
                 crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
 
