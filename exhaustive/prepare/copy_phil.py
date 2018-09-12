@@ -27,7 +27,7 @@ input{
         .type = strings
         .help = "Extra input xtal folders not covered by number range"
     atoms_new = []
-        .type = list
+        .type = strings
         .help = "Residue id and chain of atoms to copy from base_pdb 
                 to xtals in xtal list. in form ['E','1']"
     atoms_remove = []
