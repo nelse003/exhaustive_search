@@ -2,7 +2,7 @@ import os
 
 from giant.structure.utils import transfer_residue_groups_from_other
 from iotbx.pdb import hierarchy
-from phil import copy_phil
+from copy_phil import copy_phil
 
 def copy_atoms(copy_params):
 
