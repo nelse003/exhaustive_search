@@ -140,7 +140,6 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     selection_string = "or".join(selection_string_list)
     not_selection_string ="not ({})".format(selection_string)
 
-    # xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
     xtals = []
     for num in range(start_xtal_num, end_xtal_num + 1):
         xtal_name = prefix + "{0:0>4}".format(num)
@@ -160,7 +159,7 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                                        "dimple.pdb"))
 
 
-            acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
+            acceptor_hierarchy = pdb_in_refine.hierarchy()
             #remove atoms
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
 
@@ -437,7 +436,7 @@ copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/initial
                      start_xtal_num=6192,
                      end_xtal_num=6251,
                      new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
-                     atoms_new=[['E','1'],['A','196']],
+                     atoms_new=[['E','1'],
                      atoms_remove = [['A','196']]
                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
                    "exhaustive_search_data/covalent_ratios_dose",
