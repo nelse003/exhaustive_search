@@ -103,7 +103,7 @@ def copy_atoms(path, prefix, start_xtal_num, end_xtal_num,
 
 
 def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
-                         new_ground_structure_path, atoms_new, out_dir, qsub):
+                         new_ground_structure_path, atoms_new, atoms_remove, out_dir, qsub):
 
     """ Script that works only with covalent ratio data for initial refinement 
     
@@ -131,6 +131,15 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     new_atoms_sel = sel_cache.selection(selection_string)
     new_atoms_hier = pdb_in.hierarchy.select(new_atoms_sel)
 
+    selection_string_list = []
+    for atom_remove in atoms_remove:
+        selection_string = "(resid {} and chain {})".format(atom_remove[1],
+                                                            atom_remove[0])
+        selection_string_list.append(selection_string)
+
+    selection_string = "or".join(selection_string_list)
+    not_selection_string ="not ({})".format(selection_string)
+
     # xtals = ['NUDT22A-x0243', 'NUDT22A-x0421','NUDT22A-x0391']
     xtals = []
     for num in range(start_xtal_num, end_xtal_num + 1):
@@ -140,8 +149,8 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
     for xtal_name in xtals:
 
         # for quick rerun
-        if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")):
-            continue
+        # if os.path.exists(os.path.join(out_dir,xtal_name,"refine.pdb")):
+        #     continue
 
         if os.path.exists(os.path.join(path, xtal_name,
                                        "dimple.pdb")):
@@ -150,11 +159,20 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                 file_name=os.path.join(path, xtal_name,
                                        "dimple.pdb"))
 
-            # Add atoms
+
             acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
+            #remove atoms
+            refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
+
+            print(not_selection_string)
+
+            remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
+            removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
+
+            # Add atoms
             donor_hierarchy = new_atoms_hier
             acceptor_hier = transfer_residue_groups_from_other(
-                acceptor_hierarchy, donor_hierarchy, in_place=False,
+                removed_hier, donor_hierarchy, in_place=False,
                 verbose=False)
 
 
@@ -349,9 +367,14 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                 os.path.join(out_dir, xtal_name,
                              "dimple.pdb")))
 
-            os.system('cp {} {}'.format(os.path.join("/dls/labxchem/data/2017/lb18145-3/processing/"
-                                                     "analysis/initial_model/NUDT7A-x1237/NUOOA000181a.cif"),
-                                        os.path.join(out_dir, xtal_name, "NUOOA000181a.cif".format(xtal_name))))
+            # os.system('cp {} {}'.format(os.path.join("/dls/labxchem/data/2017/lb18145-3/processing/"
+            #                                          "analysis/initial_model/NUDT7A-x1237/NUOOA000181a.cif"),
+            #                             os.path.join(out_dir, xtal_name, "NUOOA000181a.cif".format(xtal_name))))
+
+            os.system('cp {} {}'.format(os.path.join("/dls/science/groups/i04-1/elliot-dev/Work/"
+                                                     "exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/"
+                                                     "NUDT7A-x1812LIG-CYS.cif"),
+                                        os.path.join(out_dir, xtal_name, "{}_LIG_CYS.cif".format(xtal_name))))
 
             print(os.listdir(os.path.join(out_dir, xtal_name)))
 
@@ -414,7 +437,8 @@ copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/initial
                      start_xtal_num=6192,
                      end_xtal_num=6251,
                      new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
-                     atoms_new=[['E','1']],
+                     atoms_new=[['E','1'],['A','196']],
+                     atoms_remove = [['A','196']]
                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
                    "exhaustive_search_data/covalent_ratios_dose",
                      qsub = True)
