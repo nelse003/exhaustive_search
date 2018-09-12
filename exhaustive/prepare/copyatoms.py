@@ -2,45 +2,43 @@ import os
 
 from giant.structure.utils import transfer_residue_groups_from_other
 from iotbx.pdb import hierarchy
+from phil import copy_phil
 
-def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
-                         new_ground_structure_path, atoms_new,
-                         atoms_remove, out_dir, qsub,
-                         overwrite, input_pdb, output_pdb, refine_pdb,
-                         input_cif, output_cif_suffix, input_mtz,
-                         multi_state_model_pdb, link_record_list,
-                         ccp4_path, param_file):
+def copy_atoms(copy_params):
 
-    """ Script that works only with covalent ratio data for initial refinement 
+    """ Copy atoms from one pdb file to many, then refine.
     
     Copy dimple pdb, mtz and cif with cys bond
-    Copy ligand atoms from existing coordinates (NUDT7A-x1812)
+    Copy ligand atoms from existing coordinates 
     Run giant.merge_conformations to generate a multi state model
     Copy link records suitable for both conformers of the ligand
     Run quick refine to generate refined ligand 
-    
-    Needs to be trimmed and turned into reusable code
     """,
 
-    pdb_in = hierarchy.input(file_name=new_ground_structure_path)
+    # generate output directory if it doesn't exist
+    if not os.path.exists(copy_params.output.out_dir):
+        os.mkdir(copy_params.output.out_dir)
+
+    # read in PDB file from which atoms are to be taken from (ground structure)
+    pdb_in = hierarchy.input(file_name=copy_params.input.base_pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
+    # produce a hierarchy with atoms to copied
     selection_string_list = []
     chains_new = set()
-    for atom_new in atoms_new:
+    for atom_new in copy_params.input.atoms_new:
         selection_string = "(resid {} and chain {})".format(atom_new[1],
                                                             atom_new[0])
         selection_string_list.append(selection_string)
         chains_new.add(atom_new[0])
-
     selection_string = "or".join(selection_string_list)
     new_atoms_sel = sel_cache.selection(selection_string)
     new_atoms_hier = pdb_in.hierarchy.select(new_atoms_sel)
 
+    # Produce a selection string to determine which atoms are removed
     selection_string_list = []
-
-    if atoms_remove is not None:
-        for atom_remove in atoms_remove:
+    if copy_params.input.atoms_remove is not None:
+        for atom_remove in copy_params.input.atoms_remove:
             selection_string = "(resid {} and chain {})".format(atom_remove[1],
                                                                 atom_remove[0])
             selection_string_list.append(selection_string)
@@ -48,99 +46,145 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
         selection_string = "or".join(selection_string_list)
         not_selection_string ="not ({})".format(selection_string)
 
-    xtals = []
-    for num in range(start_xtal_num, end_xtal_num + 1):
-        xtal_name = prefix + "{0:0>4}".format(num)
+    # Define xtals to loop over
+    xtals = copy_params.input.xtal_list
+    for num in range(copy_params.input.start_xtal_number,
+                     copy_params.input.end_xtal_number + 1):
+
+        xtal_name = copy_params.input.prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
 
+    # Loop over all xtals
     for xtal_name in xtals:
 
-        #for quick rerun
-        if os.path.exists(os.path.join(out_dir, xtal_name, refine_pdb)) and \
-            not overwrite:
+        # For quick rerun
+        if os.path.exists(os.path.join(copy_params.output.out_dir,
+                                       xtal_name,
+                                       copy_params.output.refine_pdb)) and \
+            not copy_params.settings.overwrite:
             continue
 
-        if not os.path.exists(os.path.join(path, xtal_name,input_pdb)):
-            print("pdb does not exist: {}".format(os.path.join(path, xtal_name, input_pdb)))
+        # Run only if sufficent input data
+        if not os.path.exists(os.path.join(copy_params.input.pdb,
+                                           xtal_name,
+                                           copy_params.input.pdb_style)):
 
+            print("pdb does not exist: {}".format(
+                os.path.join(copy_params.input.path,
+                             xtal_name, copy_params.input.pdb_style)))
+            continue
+
+        pdb_in_refine = hierarchy.input(
+            file_name=os.path.join(copy_params.input.pdb, xtal_name, copy_params.input.pdb_style))
+
+        acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
+
+        #remove atoms from xtal
+        if copy_params.input.atoms_remove is not None:
+            refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
+            remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
+            removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
+            working_hier = removed_hier
         else:
+            working_hier = acceptor_hierarchy
 
-            pdb_in_refine = hierarchy.input(
-                file_name=os.path.join(path, xtal_name, input_pdb))
+        # Add atoms from base_pdb
+        donor_hierarchy = new_atoms_hier
+        acceptor_hier = transfer_residue_groups_from_other(
+            working_hier, donor_hierarchy, in_place=False,
+            verbose=False)
 
-            acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
+        # Generate output xtal directories
+        if not os.path.exists(os.path.join(
+                copy_params.output.out_dir, xtal_name)):
+            os.mkdir(os.path.join(copy_params.output.out_dir, xtal_name))
 
-            #remove atoms
-            if atoms_remove is not None:
-                refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
-                remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
-                removed_hier = acceptor_hierarchy.select(remove_atoms_sel)
-                working_hier = removed_hier
-            else:
-                working_hier = acceptor_hierarchy
+        # Write output pdb with changed atoms
+        f = open(os.path.join(copy_params.output.out_dir,xtal_name,
+                              copy_params.output.pdb),"w+")
+        f.write(acceptor_hier.as_pdb_string(
+            crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
+        f.close()
 
-            # Add atoms
-            donor_hierarchy = new_atoms_hier
-            acceptor_hier = transfer_residue_groups_from_other(
-                working_hier, donor_hierarchy, in_place=False,
-                verbose=False)
+        # Copy the input pdb to output directory
+        os.chdir(os.path.join(copy_params.output.out_dir, xtal_name))
+        os.system('cp {} {}'.format(
+            os.path.join(copy_params.input.pdb,
+                         xtal_name, copy_params.input.pdb_style),
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name, copy_params.input.pdb_style)))
 
-            if not os.path.exists(out_dir):
-                os.mkdir(out_dir)
+        # Copy the input cif to output_directory
+        os.system('cp {} {}'.format(copy_params.input.cif,
+                                    os.path.join(copy_params.output.out_dir,
+                                                 xtal_name,
+                                                 os.path.basename(copy_params.input.cif))
 
-            if not os.path.exists(os.path.join(out_dir, xtal_name)):
-                os.mkdir(os.path.join(out_dir, xtal_name))
+        # Copy the input mtz to output directory
+        os.system('cp -rL {} {}'.format(os.path.join(copy_params.input.pdb,
+                                                     xtal_name,
+                                                     copy_params.input.mtz_style),
+                                    os.path.join(copy_params.output.out_dir,
+                                                 xtal_name,
+                                                 copy_params.input.mtz_style)))
+        # Run giant.merge_conforamtions
+        os.system('giant.merge_conformations major={} minor={}'.format(
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name, copy_params.input.pdb_style),
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name, copy_params.output.pdb)))
 
-            f = open(os.path.join(out_dir,xtal_name, output_pdb),"w+")
 
-            f.write(acceptor_hier.as_pdb_string(
-                crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
+        # Add link record strings into multimodel pdb file, prior to refinement
+        if copy_params.input.link_record_list is not None:
+
+            with open(os.path.join(
+                    copy_params.output.out_dir,
+                    xtal_name,
+                    copy_params.output.multi_state_model_pdb),
+                    "r") as original:
+
+                multi_model = original.read()
+
+            with open(os.path.join(
+                    copy_params.output.out_dir,
+                    xtal_name,
+                    copy_params.output.multi_state_model_pdb),"w") as modified:
+
+                for link_record in copy_params.input.link_record_list:
+                    modified.write(link_record)
+
+                modified.write(multi_model)
+
+        # Run giant.quick_refine
+        cmds = "source {}".format(copy_params.settings.ccp4_path)
+
+        cmds += "giant.quick_refine {} {} {} params={} \n".format(
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name,
+                         copy_params.output.multi_state_model_pdb),
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name, copy_params.input.mtz_style),
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name,
+                         "{}_{}".format(xtal_name,
+                                        output_cif_suffix)),
+            os.path.join(copy_params.output.out_dir,
+                         xtal_name, copy_params.settings.param))
+
+        if copy_params.settings.qsub:
+            f = open(
+                os.path.join(copy_params.output.out_dir,xtal_name,
+                             "{}_quick_refine.sh".format(xtal_name)),"w")
+
+            f.write(cmds)
             f.close()
 
-            os.chdir(os.path.join(out_dir, xtal_name))
-            os.system('cp {} {}'.format(
-                os.path.join(path, xtal_name, input_pdb),
-                os.path.join(out_dir, xtal_name, input_pdb)))
-
-            os.system('cp {} {}'.format(input_cif, os.path.join(out_dir,
-                    xtal_name, "{}_{}".format(xtal_name,
-                                              output_cif_suffix))))
-
-            os.system('cp -rL {} {}'.format(os.path.join(path, xtal_name,
-                                                         input_mtz),
-                                        os.path.join(out_dir, xtal_name,
-                                                     input_mtz)))
-
-            os.system('giant.merge_conformations major={} minor={}'.format(
-                os.path.join(out_dir, xtal_name, input_pdb),
-                os.path.join(out_dir, xtal_name, output_pdb)))
-
-            if link_record_list is not None:
-                with open(os.path.join(out_dir, xtal_name, multi_state_model_pdb),"r") as original:
-                    multi_model = original.read()
-                with open(os.path.join(out_dir, xtal_name, multi_state_model_pdb),"w") as modified:
-                    for link_record in link_record_list:
-                        modified.write(link_record)
-                    modified.write(multi_model)
-
-            cmds = "source {}".format(ccp4_path)
-
-            cmds += "giant.quick_refine {} {} {} params={} \n".format(
-                os.path.join(out_dir, xtal_name, multi_state_model_pdb),
-                os.path.join(out_dir, xtal_name, input_mtz),
-                os.path.join(out_dir, xtal_name, "{}_{}".format(xtal_name, output_cif_suffix)),
-                os.path.join(out_dir, xtal_name, param_file))
-            if qsub:
-                f = open(
-                    os.path.join(out_dir,xtal_name,
-                                 "{}_quick_refine.sh".format(xtal_name)),"w")
-
-                f.write(cmds)
-                f.close()
-
-                os.system('qsub {}'.format(os.path.join(out_dir,xtal_name,"{}_quick_refine.sh".format(xtal_name))))
-            else:
-                os.system(cmds)
+            os.system('qsub {}'.format(os.path.join(copy_params.output.out_dir,
+                                                    xtal_name,
+                                                    "{}_quick_refine.sh".format(xtal_name))))
+        else:
+            os.system(cmds)
 
 
 #titration
@@ -157,31 +201,28 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
 
 # To be used for covalent atoms
 
-copy_covalent_ratios(path="/dls/labxchem/data/2018/lb18145-68/processing/analysis/initial_model",
-                     prefix='NUDT7A-x',
-                     start_xtal_num=6192,
-                     end_xtal_num=6251,
-                     new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
-                     atoms_new=[['E','1']],
-                     atoms_remove = [['B','196']],
-                     out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-                   "exhaustive_search_data/test_copy_atoms",
-                     qsub = True,
-                     overwrite = True,
-                     input_pdb = "dimple.pdb",
-                     output_pdb = "dimple_with_lig.pdb",
-                     refine_pdb = "refine.pdb",
-                     input_cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                                 "exhaustive_search_data/NUDT7_covalent" \
-                                 "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif",
-                     output_cif_suffix = "LIG_CYS.cif",
-                     input_mtz = "dimple.mtz",
-                     multi_state_model_pdb = "multi-state-model.pdb",
-                     link_record_list = ["LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
-                                         "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"],
-                     ccp4_path="/dls/science/groups/i04-1/software/" \
-            "pandda-update/ccp4/ccp4-7.0/setup-scripts/ccp4.setup-sh \n",
-                     param_file = "multi-state-restraints.refmac.params")
+copy_params = copy_phil.extract()
+
+copy_params.input.path = "/dls/labxchem/data/2018/lb18145-68/processing/analysis/initial_model"
+copy_params.input.prefix = 'NUDT7A-x'
+copy_params.input.start_xtal_number = 6192
+copy_params.input.end_xtal_number = 6251
+copy_params.input.base_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+                             "NUDT7_covalent/NUDT7A-x1812/refine.pdb"
+copy_params.input.atoms_new = [['E','1']]
+copy_params.input.atoms_remove = [['B','196']]
+copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/NUDT7_covalent" \
+                        "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif"
+copy_params.input.link_record_list =["LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
+                                     "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
+
+copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/test_copy_atoms"
+
+copy_params.settings.overwrite = True
+
+copy_atoms(copy_params)
 
 # Commented out for testing of new dimple based function
 # copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"

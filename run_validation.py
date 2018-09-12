@@ -11,8 +11,6 @@ from giant.jiffies.split_conformations import run as split_conformations
 
 params =  master_phil.extract()
 
-params = master_phil.extract()
-
 #params.input.xtal_name = "FALZA-x0085"
 # params.input.in_path = os.path.join(os.path.realpath(
 #     "./exhaustive/test/resources"), params.input.xtal_name)
