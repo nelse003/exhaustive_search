@@ -2,6 +2,11 @@ import libtbx.phil
 import os
 
 master_phil = libtbx.phil.parse("""
+testing{
+    testing = False
+        .type = bool
+        .help = flag for running enclosed test code
+}
 input{
     pdb = None
         .type = path
@@ -53,6 +58,9 @@ exhaustive{
             .type = float
         generate_mtz = False
             .type = bool
+        mtz_prefix = None
+            .type = bool
+            .help = prefix to name the mtz files, useful for validation, so they are not overwritten
         generate_map = False
             .type = bool
         convex_hull = True
@@ -69,9 +77,19 @@ exhaustive{
         ligand_grid_points = False
             .type = bool
             .help = "Select convex hull points around ligand atoms only"
-        atom_points_sel_string = "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
+        atom_points_sel_string = "resname LIG"
             .type = str
             .help = selection algebra (iotbx) to get only ligand atoms
+        column_type = "F,SIGF"
+            .type = str
+            .help = Column type expected from mtz file. FMODEL is needed for validation
+        atom_buffer = 0.77
+            .type = float
+            .help = ' Minimum radius sphere [Angstrom] around an atom is created 
+            for generation of point cloud, when convex hull fails at a residue' 
+        per_residue = True
+            .type = bool
+            .help = 'Flag to run with per residue generation of convex hulls'
     }
 }
 select{
@@ -115,6 +133,8 @@ validate{
             .type = str
         ground_state_pdb_name = "refine.output.ground-state.pdb"
             .type = str
+        base_mtz = None
+            .type = str
     }
     output{
         log_name = "validate"
@@ -147,6 +167,8 @@ validate{
             .type = str
         qsub_out_prefix = "qsub_output_"
             .type = str
+        repeat_validate_qsub= False
+            .type = bool
     }
 }
 repeat{
@@ -159,11 +181,7 @@ repeat{
             .help = 'Database path for sqlite databse from xce'
         }
 }
-testing{
-    testing = False
-    .type = bool
-    .help = flag for running enclosed test code
-}
+
 
 """, process_includes=True)
 

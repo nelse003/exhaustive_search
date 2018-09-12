@@ -1,22 +1,20 @@
+import datetime
+import logging
 import os
 import sys
-import numpy as np
-import logging
-import datetime
 
+import numpy as np
+from giant.jiffies.merge_conformations import master_phil as merge_phil
+from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as map
-from giant.jiffies.merge_conformations import run as merge_conformations
-from giant.jiffies.merge_conformations import master_phil as merge_phil
 
-# Local imports
-
-from ..utils.utils import set_b_fac_all_occupancy_groups, \
+from exhaustive.exhaustive.plotting.plot import scatter_plot,\
+    plot_3d_fofc_occ, plot_2d_occ_b_validation
+from exhaustive.exhaustive.utils.utils import set_b_fac_all_occupancy_groups, \
     wait_for_file_existence, get_csv_filepath, set_b_fac_all_atoms
-
-from ..plotting.plot import scatter_plot, plot_3d_fofc_occ
-from ..phil import master_phil, prepare_validate_phil, check_input_files
-from ..exhaustive import run as exhaustive
+from phil import master_phil, prepare_validate_phil, check_input_files
+from exhaustive.exhaustive.exhaustive import run as exhaustive
 
 
 # Logging
@@ -25,8 +23,8 @@ def start_validate_logging(params):
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.log_dir,
                             params.validate.output.log_name + log_time)
-    hdlr = logging.FileHandler(log_path)
     logging = logging.getLogger(__name__)
+    hdlr = logging.FileHandler(log_path)
     formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
     hdlr.setFormatter(formatter)
     logging.addHandler(hdlr)
@@ -41,7 +39,7 @@ def start_validate_logging(params):
     return logging
 
 
-def check_validate_input_files(params, logging):
+def check_validate_input_files(params):
 
     """Check existence of input files, needed for validation"""
 
@@ -78,7 +76,7 @@ def check_validate_input_files(params, logging):
         raise
 
 
-def occ_loop_merge_confs_simulate(params, logging):
+def occ_loop_merge_confs_simulate(params):
 
     """ Simulate Experimental data using phenix f_model.
 
@@ -113,7 +111,7 @@ def occ_loop_merge_confs_simulate(params, logging):
     os.chdir(params.output.out_dir)
 
     logging.info("Checking validity of input files")
-    check_validate_input_files(params=params, logging=logging)
+    check_validate_input_files(params=params)
 
     logging.info("Looping over simulated occupancies "
                 "between {} and {} in steps of {}".format(
@@ -145,6 +143,7 @@ def occ_loop_merge_confs_simulate(params, logging):
                 params.validate.input.bound_state_pdb_path
             merge_params.options.major_occupancy = 1 - lig_occupancy
             merge_params.options.minor_occupancy = lig_occupancy
+            merge_params.options.reset_all_occupancies = False
             merge_params.output.pdb = merged_pdb
 
             merge_params.output.log = os.path.join(
@@ -223,10 +222,26 @@ def occ_loop_merge_confs_simulate(params, logging):
             # Talk to tobias- Frank suggests  a pre-selection filter: 32
             # TODO Allocate location of fmodel log/ generate log #56
 
-            fmodel_args = [merged_pdb, params.input.mtz,
+            fmodel_args = [merged_pdb, params.validate.input.base_mtz,
                            "data_column_label=\"F,SIGF\"", "type=real",
                            "output.file_name={}".format(simulated_mtz)]
-            fmodel(args=fmodel_args)
+            logging.debug("FMODEL:", fmodel_args)
+            print("FMODEL:", fmodel_args)
+            # The below cctbx code is that called by phenix.fmodel
+            #
+            # os.system("phenix.fmodel
+            # data_column_label=\"F,SIGF\" {} {} type=real".format(merged_pdb,
+            # params.validate.input.base_mtz))
+
+            fmodel_log = open(os.path.join(params.output.out_dir,
+                                           params.output.log_dir,
+                                           "{}_occ_{}_b_{}_fmodel.log".format(
+                                               params.input.xtal_name,
+                                               str(lig_occupancy).replace(".", "_"),
+                                               str(params.validate.options.set_b).replace(".", "_"))),'w+')
+
+            fmodel(args=fmodel_args, log=fmodel_log)
+            fmodel_log.close()
 
         else:
             logging.info("Skipping the generation of simulated data:"
@@ -248,6 +263,12 @@ def occ_loop_merge_confs_simulate(params, logging):
         sh_file = "{}_occ_{}_b_{}.sh".format(
             params.input.xtal_name, str(lig_occupancy).replace(".", "_"),
             str(params.validate.options.set_b).replace(".", "_"))
+
+        params.input.pdb = os.path.join(params.output.out_dir, merged_pdb)
+        params.input.mtz = simulated_mtz
+
+        params.exhaustive.options.mtz_prefix = "simul_{}_".format(
+            str(lig_occupancy).replace(".","_"))
 
         params.exhaustive.output.csv_name = \
             params.exhaustive.output.csv_prefix \
@@ -289,7 +310,7 @@ def occ_loop_merge_confs_simulate(params, logging):
                             "search via qsub".format(sh_file))
 
                 with open(os.path.join(params.output.out_dir,
-                                       sh_file), ' w') as file:
+                                       sh_file), 'w') as file:
 
                     file.write("#!/bin/bash\n")
                     file.write("export XChemExplorer_DIR=\"/dls/science/"
@@ -323,7 +344,6 @@ def occ_loop_merge_confs_simulate(params, logging):
             else:
                 logging.info("Running exhaustive search locally")
                 exhaustive(params=params)
-
         else:
             logging.info("Skipping exhaustive search")
 
@@ -345,12 +365,28 @@ def occ_loop_merge_confs_simulate(params, logging):
 
 def run(params):
 
+    """ Run the validation script.
+
+    Provides modified parameters to the occ_merge_loop_function
+    & plots the outcoming csv files as 2d and 3d plots comparing
+     the simualted occupancy in fmodel to the occupancy determined
+     with exhaustive search.
+
+     Limited to running validation a a single set B factor.
+     """
+
     modified_phil = prepare_validate_phil(master_phil.format(
         python_object=params))
 
     params = modified_phil.extract()
-    logging = start_validate_logging(params)
-    check_validate_input_files(params, logging)
+
+    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
+    log_path = os.path.join(params.output.out_dir,
+                            params.output.log_dir,
+                            params.validate.output.log_name + log_time)
+    logging.basicConfig(filename=log_path, level=logging.DEBUG)
+
+    check_validate_input_files(params)
 
     if not os.path.exists(params.output.out_dir):
 
@@ -360,7 +396,7 @@ def run(params):
         os.mkdir(params.output.out_dir)
 
     logging.info("Running exhaustive search many times across simulated data")
-    occ_loop_merge_confs_simulate(params, logging)
+    occ_loop_merge_confs_simulate(params)
 
     logging.info("Checking for files existence : "
                 "wait for jobs submitted to the cluster")
@@ -380,6 +416,14 @@ def run(params):
                      dataset_prefix=params.input.xtal_name,
                      out_dir=params.output.out_dir,
                      params=params)
+
+    plot_2d_occ_b_validation(start_occ=params.validate.options.start_simul_occ,
+                             end_occ=params.validate.options.end_simul_occ,
+                             step=params.validate.options.step_simulation,
+                             set_b=params.validate.options.set_b,
+                             dataset_prefix=params.input.xtal_name,
+                             out_dir=params.output.out_dir,
+                             params=params)
 
     logging.info("Plotting occupancy, bfactor and mean |Fobs-Fcalc| "
                 "for each simulated occupancy")

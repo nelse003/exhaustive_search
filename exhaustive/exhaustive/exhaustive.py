@@ -10,33 +10,33 @@ from __future__ import division
 from __future__ import print_function
 
 import csv
+import datetime
+import logging
 import os
 import sys
-import numpy as np
-import logging
-import datetime
 from cStringIO import StringIO
 
-import giant.grid as grid
-
-from phil import master_phil
 import cctbx.miller
 import iotbx.ccp4_map
 import iotbx.pdb
 import mmtbx.f_model
 import mmtbx.masks
 import mmtbx.utils
+import numpy as np
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from libtbx import easy_mp
 from mmtbx import map_tools
-from scitbx.array_family import flex
-from mmtbx.utils import data_and_flags_master_params
 from mmtbx.command_line.mtz2map import run as mtz2map
+from mmtbx.utils import data_and_flags_master_params
 
-from utils.select_atoms import process_refined_pdb_bound_ground_states
-from utils.convex_hull import convex_hull_from_states, atom_points_from_sel_string
+from utils.convex_hull import convex_hull_from_states, \
+    atom_points_from_sel_string, convex_hull_grid_points, \
+    convex_hull_per_residue
+
 from utils.utils import is_almost_equal
+from utils.select_atoms import process_refined_pdb_bound_ground_states, get_occupancy_group_grid_points
+from phil import master_phil
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -47,35 +47,6 @@ DESCRIPTION = """
 """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
-
-
-def start_exhaustive_logging(params):
-    """Prepare logging.
-
-    NOT CURRENTLY USED
-
-    Logging for exhaustive search using python logging module.
-    Includes a description of parameters, and parameter different to default.
-    """
-    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
-    log_path = os.path.join(params.output.out_dir,
-                            params.output.log_dir,
-                            params.exhaustive.output.log_name + log_time)
-    hdlr = logging.FileHandler(log_path)
-    logging = logging.getLogger(__name__)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
-    hdlr.setFormatter(formatter)
-    logging.addHandler(hdlr)
-    logging.setLevel(0)
-    logging.info("Running Exhaustive Search \n\n")
-
-    modified_phil = master_phil.format(python_object=params)
-    logging.info("Current Parameters")
-    logging.info(master_phil.format(python_object=params).as_str())
-    logging.info("Parameters Different from default")
-    logging.info(master_phil.fetch_diff(source=modified_phil).as_str())
-
-    return logging
 
 
 def compute_maps(fmodel, crystal_gridding, map_type):
@@ -109,62 +80,6 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     fft_map.apply_volume_scaling()
 
     return fft_map, fft_map.real_map_unpadded(), map_coefficients
-
-
-def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
-                                    params, logging):
-
-    """Produce cartesian points related to occupancy groups.
-
-    Get cartesian points that correspond to atoms involved in the
-    occupancy groups (as in multi-state.restraints.params)
-
-    :param pdb: Input PDB file
-    :type 
-    :param params: Working phil parameters
-    :type
-    :return: occupancy_group_cart_points: The cartesian points involved
-    in the bound and ground states as a list
-    """
-
-    logging.info("For all bound and ground states, "
-                "select cartesian grid points for each altloc/residue \n"
-                "involved in occupancy groups. A buffer of {} Angstrom \n"
-                "is applied to minimal and maximal grid points,"
-                "with a grid seperation of {}.\n".format(
-        params.exhaustive.options.buffer,
-        params.exhaustive.options.grid_spacing))
-
-    states = bound_states + ground_states
-
-    pdb_in = iotbx.pdb.hierarchy.input(pdb)
-    pdb_atoms = pdb_in.hierarchy.atoms()
-
-    occupancy_group_cart_points = flex.vec3_double()
-    for state in states:
-
-        selection = state[0]
-        selected_atoms = pdb_atoms.select(selection)
-        sites_cart = selected_atoms.extract_xyz()
-        grid_min = flex.double([s - params.exhaustive.options.buffer
-                                for s in sites_cart.min()])
-        grid_max = flex.double([s + params.exhaustive.options.buffer
-                                for s in sites_cart.max()])
-        grid_from_selection = grid.Grid(
-            grid_spacing=params.exhaustive.options.grid_spacing,
-            origin=tuple(grid_min),
-            approx_max=tuple(grid_max))
-
-        # TODO Move to logging
-        print(grid_from_selection.summary())
-
-        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
-            grid_from_selection.cart_points())
-
-    logging.info("Number of cartesian points to calculate "
-                "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
-
-    return occupancy_group_cart_points
 
 
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
@@ -235,12 +150,16 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     except UnboundLocalError:
         logging.info("Insufficient state information for pdb file %s", pdb)
-        logging.info("Insufficient state information for pdb file %s", pdb)
         raise
 
+    if params.exhaustive.options.per_residue:
 
+        cart_points = convex_hull_per_residue(pdb,
+                                              bound_states,
+                                              ground_states,
+                                              params)
 
-    if params.exhaustive.options.convex_hull:
+    elif params.exhaustive.options.convex_hull:
 
         cart_points = convex_hull_from_states(pdb,
                                               bound_states,
@@ -252,6 +171,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         cart_points = atom_points_from_sel_string(pdb,
                                                   selection_string =
                                                   params.exhaustive.options.atom_points_sel_string)
+
 
     elif params.exhaustive.options.ligand_grid_points:
 
@@ -266,8 +186,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
         cart_points = get_occupancy_group_grid_points(pdb,
                                                       bound_states,
                                                       ground_states,
-                                                      params,
-                                                      logging)
+                                                      params)
 
 
     logging.debug(cart_points)
@@ -404,21 +323,21 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     xrs_dc = xrs.deep_copy_scatterers()
 
-    # logging.debug(type(sites_frac))
-    # logging.debug(sites_frac.size())
+    logging.debug("Number of fractional sites (atoms), {}".format(sites_frac.size()))
 
     bound_count_true = 0
     for bound_state in bound_states:
         num_altlocs = bound_state[1]
         set_bound_occupancy = bound_occupancy / num_altlocs
-        logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {}".format(
-            set_bound_occupancy,
-            bound_occupancy,
-            num_altlocs))
 
         for i, site_frac in enumerate(sites_frac):
             if (bound_state[0][i]):
                 bound_count_true += 1
+                logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {} site_frac {}".format(
+                    set_bound_occupancy,
+                    bound_occupancy,
+                    num_altlocs,
+                    site_frac))
                 xrs_dc.scatterers()[i].occupancy = set_bound_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
@@ -429,6 +348,11 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
         for i, site_frac in enumerate(sites_frac):
             if (ground_state[0][i]):
+                logging.debug("set_bound_occ: {} bound_occ: {} num_altlocs: {} site_frac {}".format(
+                    set_bound_occupancy,
+                    bound_occupancy,
+                    num_altlocs,
+                    site_frac))
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
@@ -440,7 +364,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         crystal_gridding=crystal_gridding,
         map_type="mFo-DFc")
 
-    # For debugging
+    # For debugging the pdb file, for correct number of altlocs at correct occupancies
 
     if is_almost_equal(bound_occupancy,0.25) \
             and is_almost_equal(u_iso,0.5):
@@ -462,13 +386,14 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
         logging.debug("Bound occ {}, u_iso {}".format(bound_occupancy, u_iso))
         logging.debug(str(xrs_dc.as_pdb_file()))
 
-    #logging.debug("Bound atom count:{}".format(bound_count_true))
-
     if params.exhaustive.options.generate_mtz:
 
         output_mtz = "testing_{}_{}.mtz".format(
             str(bound_occupancy).replace(".", "_"),
             str(u_iso).replace(".", "_"))
+
+        if params.exhaustive.options.mtz_prefix is not None:
+            output_mtz =  params.exhaustive.options.mtz_prefix + output_mtz
 
         mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
         mtz_object = mtz_dataset.mtz_object()
@@ -521,12 +446,6 @@ def run(params):
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
     logging.basicConfig(filename=log_path, level=logging.DEBUG)
-    # hdlr = logging.FileHandler(log_path)
-    # logging = logging.getLogger(__name__)
-    # formatter = logging.Formatter('%(asctime)s %(levelname)s \n %(message)s')
-    # hdlr.setFormatter(formatter)
-    # logging.addHandler(hdlr)
-    # logging.setLevel(0)
     logging.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
@@ -556,8 +475,7 @@ def run(params):
         err=StringIO())
     logging.debug("Processed reflection files using reflection file server")
 
-    # TODO Way to select appropriate labels? #55
-    column_type = "F,SIGF"
+    column_type = params.exhaustive.options.column_type
     logging.debug("Extracting a copy of data_and_flags_master_params "
                  "from mmtbx utils. Adding labels {} for mtz column type "
                  "to use".format(column_type))
@@ -598,9 +516,6 @@ def run(params):
 
     # TODO To log as string #68
     xrs.show_summary()
-    # summary_str = ""
-    # xrs.show_summary(f = summary_str)
-    # print(summary_str)
 
     logging.info("Extract Fobs and free-r flags")
 
