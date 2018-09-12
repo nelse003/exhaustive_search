@@ -75,7 +75,7 @@ def copy_atoms(copy_params):
             continue
 
         pdb_in_refine = hierarchy.input(
-            file_name=os.path.join(copy_params.input.pdb, xtal_name, copy_params.input.pdb_style))
+            file_name=os.path.join(copy_params.input.path, xtal_name, copy_params.input.pdb_style))
 
         acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
 
