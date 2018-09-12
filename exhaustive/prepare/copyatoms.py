@@ -396,28 +396,28 @@ def copy_titration(path, prefix, start_xtal_num, end_xtal_num,
                              "dimple.pdb")))
 
 
-copy_titration(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
-                     prefix='NUDT7A-x',
-                     start_xtal_num=2006,
-                     end_xtal_num=2073,
-                     new_ground_structure_path="/dls/labxchem/data/2017/lb18145-3/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb",
-                     atoms_new=[['E','1']],
-                     atoms_remove=[['B','60'],['B','151'],['B','189'],['B','33'],['B','11'],['B','40'],['B','196']],
-                     out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-                   "exhaustive_search_data/titration_series",
-                     qsub = True)
+# copy_titration(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
+#                      prefix='NUDT7A-x',
+#                      start_xtal_num=2006,
+#                      end_xtal_num=2073,
+#                      new_ground_structure_path="/dls/labxchem/data/2017/lb18145-3/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb",
+#                      atoms_new=[['E','1']],
+#                      atoms_remove=[['B','60'],['B','151'],['B','189'],['B','33'],['B','11'],['B','40'],['B','196']],
+#                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+#                    "exhaustive_search_data/titration_series",
+#                      qsub = True)
 
 # To be used for covalent atoms
 
-# copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
-#                      prefix='NUDT7A-x',
-#                      start_xtal_num=1906,
-#                      end_xtal_num=2005,
-#                      new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
-#                      atoms_new=[['E','1']],
-#                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-#                    "exhaustive_search_data/covalent_ratios",
-#                      qsub = True)
+copy_covalent_ratios(path="/dls/labxchem/data/2017/lb18145-68/processing/initial_model",
+                     prefix='NUDT7A-x',
+                     start_xtal_num=6192,
+                     end_xtal_num=6251,
+                     new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT7_covalent/NUDT7A-x1812/refine.pdb",
+                     atoms_new=[['E','1']],
+                     out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+                   "exhaustive_search_data/covalent_ratios_dose",
+                     qsub = True)
 
 # Commented out for testing of new dimple based function
 # copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"
