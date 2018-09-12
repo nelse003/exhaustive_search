@@ -159,7 +159,7 @@ def copy_covalent_ratios(path, prefix, start_xtal_num, end_xtal_num,
                                        "dimple.pdb"))
 
 
-            acceptor_hierarchy = pdb_in_refine.hierarchy()
+            acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
             #remove atoms
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
 
