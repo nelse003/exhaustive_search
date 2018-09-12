@@ -1,16 +1,19 @@
-from exhaustive import run as exhaustive
-from phil import master_phil
-from plotting.plot import scatter_plot
-import numpy as np
+""" Testing different convex hull parameters
+
+Compare the output of the exhaustive search algorithm, """
+
 import os
+
+import numpy as np
+
+from exhaustive import run as exhaustive
+from exhaustive.exhaustive.plotting.plot import scatter_plot
+from phil import master_phil
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x0955"
 
 params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1813/refine_0003/output.pdb"
-params.input.mtz = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-"NUDT7_covalent/NUDT7A-x1813/refine_0003/output.mtz"
 
 # params.input.pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
 #                    "exhaustive_search_data/repeat_soaks/2018-05-28/" \
@@ -30,13 +33,19 @@ params.settings.processes = 1
 params.exhaustive.output.csv_name = "no_convex_hull.csv"
 params.exhaustive.options.convex_hull = False
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.generate_mtz= True
 params.exhaustive.options.convex_hull = True
 params.exhaustive.output.csv_name = "convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.ligand_atom_points = True
@@ -44,7 +53,10 @@ params.exhaustive.options.atom_points_sel_string = \
     "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
 params.exhaustive.output.csv_name = "lig_atom_points_convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.ligand_grid_points = True
@@ -52,7 +64,10 @@ params.exhaustive.options.atom_points_sel_string = \
     "(chain E and altid C and resid 1) or (chain E and altid D resid 1)"
 params.exhaustive.output.csv_name = "lig_grid_points_convex_hull.csv"
 exhaustive(params = params)
-scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name), three_dim_plot=True)
+scatter_plot(os.path.join(
+    params.output.out_dir,
+    params.exhaustive.output.csv_name),
+    three_dim_plot=True)
 
 for buffer in np.arange(0,4,0.5):
 

@@ -50,14 +50,9 @@ logging.basicConfig(filename=datetime.datetime.now().strftime('/dls/science/grou
                                                               'exhaustive_search/logs/exhaustive_search_%H_%M_%d_%m_%Y.log'),
                     level=logging.DEBUG)
 logging = logging.getLogger(__name__)
-
-
-# # This is used to allow any excpetion, such as a failed assert statement to be logged, doesn't also go to sysout.
-# def excepthook(*args):
-#   logging.getLogger().error('Uncaught exception:', exc_info=args)
-# sys.excepthook = excepthook
-
 ########################################################################
+
+
 def parse_repeat_soak_csv(params):
 
     input_df = pd.read_csv(params.input.csv)

@@ -2,20 +2,21 @@ from __future__ import print_function
 
 from copy import deepcopy
 
-import iotbx
 import itertools
+
 from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
+import giant.grid as grid
+
+import iotbx
+from scitbx.array_family import flex
 from iotbx.pdb import hierarchy
-
-
 ##############################################################
 import logging
 logging = logging.getLogger(__name__)
 ##############################################################
 # Shared Functions
 ##############################################################
-
 
 # Process pdb file to provide occupancy groups
 def get_occupancy_groups(pdb, params):
@@ -48,6 +49,61 @@ def get_occupancy_groups(pdb, params):
                                                     verbose=params.select.verbose)
 
     return occupancy_groups
+
+
+def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
+                                    params):
+
+    """Produce cartesian points related to occupancy groups.
+
+    Get cartesian points that correspond to atoms involved in the
+    occupancy groups (as in multi-state.restraints.params)
+
+    :param pdb: Input PDB file
+    :type 
+    :param params: Working phil parameters
+    :type
+    :return: occupancy_group_cart_points: The cartesian points involved
+    in the bound and ground states as a list
+    """
+
+    logging.info("For all bound and ground states, "
+                "select cartesian grid points for each altloc/residue \n"
+                "involved in occupancy groups. A buffer of {} Angstrom \n"
+                "is applied to minimal and maximal grid points,"
+                "with a grid seperation of {}.\n".format(
+        params.exhaustive.options.buffer,
+        params.exhaustive.options.grid_spacing))
+
+    states = bound_states + ground_states
+
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms = pdb_in.hierarchy.atoms()
+
+    occupancy_group_cart_points = flex.vec3_double()
+    for state in states:
+
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        sites_cart = selected_atoms.extract_xyz()
+        grid_min = flex.double([s - params.exhaustive.options.buffer
+                                for s in sites_cart.min()])
+        grid_max = flex.double([s + params.exhaustive.options.buffer
+                                for s in sites_cart.max()])
+        grid_from_selection = grid.Grid(
+            grid_spacing=params.exhaustive.options.grid_spacing,
+            origin=tuple(grid_min),
+            approx_max=tuple(grid_max))
+
+        logging.debug(grid_from_selection.summary())
+
+        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
+            grid_from_selection.cart_points())
+
+    logging.info("Number of cartesian points to calculate "
+                "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
+
+    return occupancy_group_cart_points
 
 
 def powerset(iterable, min_len=0):
@@ -466,6 +522,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
     occupancy_groups = get_occupancy_groups(pdb, params)
 
+    print(occupancy_groups)
     logging.debug(occupancy_groups)
 
     pdb_inp = iotbx.pdb.input(pdb)
@@ -488,51 +545,57 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         bound_states = []
         ground_states = []
         move_res = dict()
+        bound_altlocs = []
         for occupancy_group in occupancy_groups[0]:
-
-            bound_state_flag = False
-            state = []
             for residue_altloc in occupancy_group:
-                if residue_altloc.get('resname') in params.select.resnames:
-                    bound_state_flag = True
-                    state_string = "Bound"
-                else:
-                    state_string = "Ground"
 
+                if residue_altloc.get('resname') in params.select.resnames:
+                    bound_altlocs += residue_altloc.get('altloc')
+
+        for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
 
                 altloc = residue_altloc.get('altloc')
                 chain = residue_altloc.get('chain')
                 resseq = residue_altloc.get('resseq')
 
-                if move_res.has_key((chain, resseq)):
-                    move_res[(chain, resseq)].append(altloc)
+                if altloc in bound_altlocs:
+                    state_string = "Bound"
                 else:
-                    move_res[(chain, resseq)] = [altloc]
+                    state_string = "Ground"
+
+                if move_res.has_key((chain, resseq, state_string)):
+                    move_res[(chain, resseq, state_string)].append(altloc)
+                else:
+                    move_res[(chain, resseq, state_string)] = [altloc]
+
+        print("move_res: {}".format(move_res))
 
         for residue_chain, altlocs in move_res.iteritems():
 
             resseq = residue_chain[1]
             chain = residue_chain[0]
+            state = residue_chain[2]
 
-            logging.info("{} State: {}".format(state_string, ((tuple(altlocs), resseq, chain))))
-            state.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
-            logging.debug("APPEND STATE")
-            logging.debug(state)
+            logging.info("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            print("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            logging.debug("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
+            if state == "Bound":
+                bound_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+            elif state == "Ground":
+                ground_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+            else:
+                raise ValueError("{} states is undefined".format(state))
 
-        if bound_state_flag:
-            bound_states += state
-        else:
-            ground_states += state
 
-        # try:
-        #     ground_states
-        # except NameError:
-        #     logging.info("There is no ground state. Try remodelling ground state")
-        # try:
-        #     bound_states
-        # except NameError:
-        #     logging.info("There is no bound state.")
+        try:
+            ground_states
+        except NameError:
+            logging.info("There is no ground state. Try remodelling ground state")
+        try:
+            bound_states
+        except NameError:
+            logging.info("There is no bound state.")
 
         logging.info("len occ_groups {}".format(len(occupancy_groups)))
 
@@ -544,7 +607,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         return bound_states, ground_states
 
-    # TODO Add more appropritate elif to catch other more complex cases
+    # TODO Add more appropriate elif to catch other more complex cases
     # (> two states/ other ways to get to two states) #63
     else:
 

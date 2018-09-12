@@ -7,11 +7,11 @@ import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from utils.utils import (get_fofc_from_csv,
-get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac)
+from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
+get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac, process_validation_csvs, expand_array)
+from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 from mpl_toolkits.mplot3d import Axes3D
-from utils.utils import u_iso_to_b_fac
-import seaborn as sns
+#import seaborn as sns
 ##############################################################
 
 logging = logging.getLogger(__name__)
@@ -142,6 +142,49 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
 
 # TODO sort out params
+
+
+def plot_2d_occ_b_validation(start_occ,
+                             end_occ,
+                             step,
+                             set_b,
+                             dataset_prefix,
+                             out_dir,
+                             params):
+
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(start_occ, end_occ, step,
+                                set_b, out_dir, params)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    min_plot = ax.plot(min_occs, min_b_facs, 'k+')
+    occ_plot, = ax.plot(occs, b_facs, 'ro')
+
+    for i in np.arange(0, len(occs)):
+        connectpoints(occs, b_facs, min_occs, min_b_facs, i)
+
+    ax.set_xlabel("Occupancy")
+    ax.set_ylabel("B factor")
+
+    ax.legend((min_plot, occ_plot),
+              ('B factor & occupancy at Minima of mean |Fo-Fc|',
+               'B factor & occupancy at Mean |Fo-Fc| at simulated occupancy'),
+              prop={"size": 8},
+              numpoints=1,
+              bbox_to_anchor=(1, 1),
+              bbox_transform=plt.gcf().transFigure)
+
+    plt.title("{}: Delta Occupancy & B factor: Validation".format(
+        dataset_prefix), fontsize=10)
+
+    print(os.path.join(out_dir,
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+
+    plt.savefig(os.path.join(out_dir,
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+
+
 def plot_3d_fofc_occ(start_occ,
                      end_occ,
                      step,
@@ -153,34 +196,9 @@ def plot_3d_fofc_occ(start_occ,
     """ Plot the difference in occupancy & mean(|fo-fc|)
     at the simulated occupancy and the minima. """
 
-    min_fofcs = []
-    min_occs = []
-    min_b_facs = []
-    fofcs = []
-    occs = []
-    b_facs = []
-
-    for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
-
-        # TODO Replace CSV naming #59
-
-        csv_name = params.exhaustive.output.csv_prefix \
-                   + "_occ_{}_b_{}.csv".format(
-                   str(lig_occupancy).replace(".", "_"),
-                   str(set_b).replace(".", "_"))
-
-        csv_path = os.path.join(out_dir, csv_name)
-
-        min_occ, min_u_iso, fo_fc_at_min = get_minimum_fofc(csv_path)
-        fofc = get_fofc_from_csv(csv_name, lig_occupancy,
-                                 round_step(b_to_u_iso(set_b)),
-                                 step)
-        fofcs.append(fofc)
-        occs.append(lig_occupancy)
-        b_facs.append(set_b)
-        min_b_facs.append(u_iso_to_b_fac(min_u_iso))
-        min_fofcs.append(fo_fc_at_min)
-        min_occs.append(min_occ)
+    min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
+        process_validation_csvs(start_occ, end_occ, step,
+                                set_b, out_dir, params)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -390,8 +408,6 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
 
     #pairplot
 
-
-
     cols = [c for c in edstats_df.columns if c.lower()[-2:] == '-2']
     cols_1 = [col.rstrip('-2') for col in cols]
     metric_df = edstats_df.drop(cols, axis=1)
@@ -415,5 +431,20 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
     plt.savefig(os.path.join(compound_folder, "reduced_pairplot.png"))
 
 
+def plot_protein_and_selection(pdb, atom_points, plot_filename, params):
+    """ Plot protein atoms & selection atoms on 3d scatter plot"""
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.axis('equal')
+
+    all_atoms = atom_points_from_sel_string(pdb=pdb, selection_string='all')
+    x, y, z = expand_array(np.array(list(all_atoms)))
+    ax.scatter(x, y, z, marker='.', color='y')
+
+    point_array = np.array(list(atom_points))
+    x, y, z = expand_array(point_array)
+
+    ax.scatter(x, y, z, marker='.', color='y')
+    plt.savefig(filename=os.path.join(params.output.out_dir, plot_filename), dpi=300)
 

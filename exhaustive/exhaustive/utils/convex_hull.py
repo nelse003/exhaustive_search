@@ -9,6 +9,7 @@ from scitbx.array_family import flex
 import giant.grid as grid
 
 from select_atoms import get_occupancy_groups
+from utils import sample_spherical
 
 def convex_hull_from_states(pdb, bound_states, ground_states, params):
 
@@ -136,6 +137,57 @@ def convex_hull_grid_points(atom_points,params):
 
     return flex.vec3_double(list(np.stack(points_in_hull)))
 
+def convex_hull_per_residue(pdb, bound_states, ground_states, params):
+    """ Convex hull per residue involded in bound and ground states
+    
+    Generate a convex hull around the ligand, 
+    and any involved residues in the bound and ground states.
+    
+    For any residue/ water/ ligand sample the local space to 
+    that atom in sphere with radius of 
+    params.exhaustive.options.atom_buffer. 
+    Then generate a convex hull around those spheres 
+    
+    This sphere method could be ignored for residues 
+    large enough to generate a convex hull, 
+    but wouldn't work for single waters
+
+    :param pdb: 
+    :param bound_states: 
+    :param ground_states: 
+    :return: flex.vec3_double
+    """
+
+    states = bound_states + ground_states
+    pdb_in = iotbx.pdb.hierarchy.input(pdb)
+    pdb_atoms = pdb_in.hierarchy.atoms()
+    convex_hull_points = flex.vec3_double()
+
+    states_buffered_points_list= []
+    for state in states:
+        selection = state[0]
+        selected_atoms = pdb_atoms.select(selection)
+        sites_cart = selected_atoms.extract_xyz()
+
+        print(len(sites_cart))
+
+        buffered_points_list = []
+        for site in sites_cart:
+            print(site)
+            xi, yi, zi = sample_spherical(100, ndim=3)
+            buffered_site_points = np.stack((params.exhaustive.options.atom_buffer*xi + site[0],
+                      params.exhaustive.options.atom_buffer*yi + site[1],
+                      params.exhaustive.options.atom_buffer*zi + site[2]),axis=-1)
+            buffered_points_list.append(buffered_site_points)
+
+        buffered_points = np.concatenate(buffered_points_list)
+        states_buffered_points_list.append(buffered_points)
+        print(buffered_points.shape)
+        convex_hull_points = convex_hull_points.concatenate(convex_hull_grid_points(buffered_points, params))
+
+    states_buffered_points = np.concatenate(states_buffered_points_list)
+
+    return convex_hull_points
 
 def atom_points_within_states(pdb, bound_states, ground_states):
 
