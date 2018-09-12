@@ -19,23 +19,23 @@ input{
         .help = "Prefix of xtal-name directory"
     start_xtal_number = None
         .type = int
-        .help = "First xtal number "
+        .help = "First xtal number"
     end_xtal_number = None
         .type = int
         .help = "Last xtal number"
     xtal_list = []
-        .type = list
+        .type = strings
         .help = "Extra input xtal folders not covered by number range"
     atoms_new = []
         .type = list
         .help = "Residue id and chain of atoms to copy from base_pdb 
                 to xtals in xtal list. in form ['E','1']"
     atoms_remove = []
-        .type = list
+        .type = strings
         .help = "Residue id and chain of atoms to remvoe from xtals 
                 in xtal list"
     link_record_list= []
-        .type = list
+        .type = strings
         .help = "List of strings, formatted to PDB file 
                 standard line format for a LINKR record.
                 Use when copying a covalent ligand"
