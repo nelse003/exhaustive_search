@@ -121,7 +121,7 @@ def copy_atoms(copy_params):
                                                  os.path.basename(copy_params.input.cif))))
 
         # Copy the input mtz to output directory
-        os.system('cp -rL {} {}'.format(os.path.join(copy_params.input.pdb,
+        os.system('cp -rL {} {}'.format(os.path.join(copy_params.input.path,
                                                      xtal_name,
                                                      copy_params.input.mtz_style),
                                     os.path.join(copy_params.output.out_dir,
