@@ -1,3 +1,5 @@
+import os
+
 pandda_input = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-pandda-input.pdb"
 pandda_model = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-pandda-model.pdb"
 
