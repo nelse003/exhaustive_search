@@ -45,8 +45,8 @@ params.exhaustive.options.ligand_grid_points = False
 
 # # copy data to new folder
 
-# if not os.path.exists(out_dir):
-#     os.mkdir(out_dir)
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
 # Single dataset
@@ -64,8 +64,8 @@ print(xtals)
 for xtal_name in xtals:
 
     params.input.xtal_name = xtal_name
-    params.input.pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
-    params.input.mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
+    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
+    params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
 
     if not os.path.exists(params.input.pdb):
         continue
