@@ -21,27 +21,27 @@ params =  master_phil.extract()
 
 #Running exhaustive search for covalent ratios/ titration series
 
-# start_xtal_num = 1905
-# end_xtal_num = 2005
-# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-# out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_aug"
-# prefix = "NUDT7A-x"
-# qsub = False
+start_xtal_num = 1905
+end_xtal_num = 2005
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+prefix = "NUDT7A-x"
+qsub = False
 
 #Running exhaustive search for covalent ratios dose experiements
 
-start_xtal_num = 6192
-end_xtal_num = 6251
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
-prefix = "NUDT7A-x"
-qsub = False
+# start_xtal_num = 6192
+# end_xtal_num = 6251
+# out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
+# prefix = "NUDT7A-x"
+# qsub = False
 
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
 params.exhaustive.options.step = 0.05
 params.exhaustive.options.convex_hull = False
-params.exhaustive.options.per_residue = False
-params.exhaustive.options.ligand_grid_points = True
+params.exhaustive.options.per_residue = True
+params.exhaustive.options.ligand_grid_points = False
 
 # # copy data to new folder
 
