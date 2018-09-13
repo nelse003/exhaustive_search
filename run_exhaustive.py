@@ -24,7 +24,7 @@ params =  master_phil.extract()
 start_xtal_num = 1812
 end_xtal_num = 1812
 #in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-in_dir = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
 prefix = "NUDT7A-x"
 qsub = False
@@ -66,7 +66,7 @@ print(xtals)
 for xtal_name in xtals:
 
     params.input.xtal_name = xtal_name
-    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "{}-ensemble-model.pdb".format(xtal_name)))
+    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb".format(xtal_name)))
     params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
 
     if not os.path.exists(params.input.pdb):
