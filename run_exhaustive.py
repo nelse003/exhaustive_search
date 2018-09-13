@@ -66,7 +66,7 @@ print(xtals)
 for xtal_name in xtals:
 
     params.input.xtal_name = xtal_name
-    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "refine.pdb"))
+    params.input.pdb = os.path.join(os.path.join(in_dir, xtal_name, "{}-ensemble-model.pdb".format(xtal_name)))
     params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
 
     if not os.path.exists(params.input.pdb):

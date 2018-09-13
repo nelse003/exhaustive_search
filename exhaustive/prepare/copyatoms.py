@@ -206,8 +206,7 @@ copy_params.input.path = "/dls/labxchem/data/2017/lb18145-49/processing/analysis
 copy_params.input.prefix = 'NUDT7A-x'
 copy_params.input.start_xtal_number = 6192
 copy_params.input.end_xtal_number = 6251
-copy_params.input.base_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-                             "NUDT7_covalent/NUDT7A-x1812/refine.pdb"
+copy_params.input.base_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-ensemble-model.pdb"
 copy_params.input.atoms_new = [['E','1']]
 copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                         "exhaustive_search_data/NUDT7_covalent" \
