@@ -21,8 +21,9 @@ params =  master_phil.extract()
 # params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 #params.output.out_dir = os.path.realpath("./exhaustive/test/output")
 
-params.input.xtal_name = "NUDT7A-x6206"
-params.input.in_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose/NUDT7A-x6206"
+params.input.xtal_name = "NUDT7A-x6192"
+params.input.in_path = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_search_data/covalent_ratios_exhaus_sep_18/NUDT7A-x6192"
 params.output.out_dir = params.input.in_path
 params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
