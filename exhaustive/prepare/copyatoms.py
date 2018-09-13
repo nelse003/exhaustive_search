@@ -215,7 +215,7 @@ copy_params.input.link_record_list =["LINKR        C  CLIG E   1                
                                      "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
 
 copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                   "exhaustive_search_data/covalent_1812_test"
+                   "exhaustive_search_data/covalent_ratios_exhaus_sep_18"
 
 copy_params.settings.overwrite = True
 
