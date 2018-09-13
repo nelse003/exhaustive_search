@@ -58,13 +58,14 @@ xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
     xtal_name = prefix + "{0:0>4}".format(num)
     xtals.append(xtal_name)
-#
+
+print(xtals)
+
 for xtal_name in xtals:
 
     params.input.xtal_name = xtal_name
     params.input.pdb = os.path.join(os.path.join(out_dir, xtal_name, "refine.pdb"))
     params.input.mtz = os.path.join(os.path.join(out_dir, xtal_name, "refine.mtz"))
-
 
     if not os.path.exists(params.input.pdb):
         continue
