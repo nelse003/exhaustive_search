@@ -40,7 +40,8 @@ qsub = False
 params.settings.processes = 14
 params.exhaustive.options.step = 0.05
 params.exhaustive.options.convex_hull = False
-params.exhaustive.options.per_residue = True
+params.exhaustive.options.per_residue = False
+params.exhaustive.options.ligand_grid_points = True
 
 # # copy data to new folder
 
