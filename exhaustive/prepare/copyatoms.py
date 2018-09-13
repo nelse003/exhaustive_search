@@ -202,14 +202,13 @@ def copy_atoms(copy_params):
 
 copy_params = copy_phil.extract()
 
-copy_params.input.path = "/dls/labxchem/data/2018/lb18145-68/processing/analysis/initial_model"
+copy_params.input.path = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
 copy_params.input.prefix = 'NUDT7A-x'
 copy_params.input.start_xtal_number = 6192
 copy_params.input.end_xtal_number = 6251
 copy_params.input.base_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
                              "NUDT7_covalent/NUDT7A-x1812/refine.pdb"
 copy_params.input.atoms_new = [['E','1']]
-copy_params.input.atoms_remove = [['B','196']]
 copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                         "exhaustive_search_data/NUDT7_covalent" \
                         "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif"
@@ -217,7 +216,7 @@ copy_params.input.link_record_list =["LINKR        C  CLIG E   1                
                                      "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
 
 copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                   "exhaustive_search_data/test_copy_atoms"
+                   "exhaustive_search_data/covalent_ratios_dose"
 
 copy_params.settings.overwrite = True
 
