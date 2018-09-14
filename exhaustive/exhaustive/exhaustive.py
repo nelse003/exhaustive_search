@@ -110,11 +110,7 @@ def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
 
     f = open(params.input.pdb)
-
-    f.close()
-
-    f_out = open("sites_cart.pdb", "w")
-    for line in f_out:
+    for line in f:
         if line.startswith("CRYST1"):
             cryst = line
         if line.startswith("SCALE1"):
@@ -123,6 +119,10 @@ def write_pdb_HOH_site_cart(params, sites_cart):
             scale2 = line
         if line.startswith("SCALE3"):
             scale3 = line
+
+    f.close()
+
+    f_out = open("sites_cart.pdb", "w")
 
     for i,site in enumerate(sites_cart):
         f_out.write(cryst)
