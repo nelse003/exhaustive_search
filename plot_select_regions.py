@@ -15,7 +15,7 @@ from exhaustive.exhaustive.utils.convex_hull import \
     convex_hull_from_states, atom_points_from_sel_string, \
     convex_hull_grid_points
 
-from exhaustive.exhaustive.utils import expand_array, sample_spherical
+from exhaustive.exhaustive.utils.utils import expand_array, sample_spherical
 from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
 
 
