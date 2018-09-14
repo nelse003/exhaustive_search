@@ -105,6 +105,25 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
+def write_pdb_HOH_site_cart(params, sites_cart):
+    pdb_in = hierarchy.input(file_name=params.input.pdb)
+    hierarchy = iotbx.pdb.hierarchy.root()
+    # hierarchy.insert_model()
+    #
+    # for model in hierarchy.models():
+    #     model.insert_chain('M')
+    #     for chain in model:
+    #         chain.insert()
+
+    f = open("sites_cart.pdb", "w")
+    f.write(pdb_in.hierarchy.as_pdb_string(
+        crystal_symmetry=pdb_in.input.crystal_symmetry()))
+
+    for site in sites_cart:
+        print(site)
+        print(type(site))
+
+    f.close()
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                         pdb, logging):
@@ -190,6 +209,9 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
 
     logging.debug(cart_points)
+
+    write_pdb_HOH_site_cart(params=params,sites_cart=cart_points)
+    exit()
 
     logging.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "
