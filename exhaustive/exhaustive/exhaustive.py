@@ -24,11 +24,12 @@ import mmtbx.masks
 import mmtbx.utils
 import numpy as np
 from cctbx import maptbx
-from iotbx import reflection_file_utils
+from iotbx import reflection_file_utils,
 from libtbx import easy_mp
 from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
 from mmtbx.utils import data_and_flags_master_params
+from iotbx.pdb import hierarchy
 
 from utils.convex_hull import convex_hull_from_states, \
     atom_points_from_sel_string, convex_hull_grid_points, \
@@ -107,7 +108,7 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
 def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
-    hierarchy = iotbx.pdb.hierarchy.root()
+    # hierarchy = iotbx.pdb.hierarchy.root()
     # hierarchy.insert_model()
     #
     # for model in hierarchy.models():
