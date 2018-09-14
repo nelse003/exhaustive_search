@@ -106,6 +106,17 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
+def chunks(l, n):
+
+    alphabet = []
+    for letter in range(65, 91):
+        alphabet.append(chr(letter))
+
+    # For item i in a range that is a length of l,
+    for i in range(0, len(l), n):
+        # Create an index range for l of n items:
+        yield l[i:i+n], alphabet[i]
+
 def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
 
@@ -127,10 +138,14 @@ def write_pdb_HOH_site_cart(params, sites_cart):
     f_out.write(scale1)
     f_out.write(scale2)
     f_out.write(scale3)
-    for i,site in enumerate(sites_cart):
-        f_out.write("HETATM{:>5}  O   HOH A{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
-            i+1,i+1,site[0], site[1], site[2]))
 
+    for sites, chain in chunks(sites_cart, 9999):
+        print(chain, len(sites))
+        continue
+        for i,site in enumerate(sites):
+            f_out.write("HETATM{:>5}  O   HOH {}{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
+                chain,i+1,i+1,site[0], site[1], site[2]))
+    exit()
     f_out.close()
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
@@ -444,7 +459,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
 
 def run(params):
-    """Load protein model and run exhaustive search.
+    """ 
 
     Load in pdb and mtz file.
     Process pdb and mtz to produce:
@@ -459,9 +474,28 @@ def run(params):
     are part of a bound ligand, or the changed protein that the bound
     atom is nearby.
 
-    :param args:
-    :param xtal_name:
-    :return:
+    Parameters
+    ----------------
+    params: 
+        A extracted python object from the master phil file. 
+        This defines the settings of the settings and I/O. 
+
+    Returns
+    ----------------
+    None:
+        Function directly returns nothing
+        
+    Notes
+    ----------------
+    A CSV file containing the exhaustive search output:
+    > Occupancy of Bound State
+    > Occupancy of Ground State
+    > U_iso of state (Isotropic B factor)
+    > Mean |Fo-Fc| value over selected points
+    
+    is output. It is stored under filename provided in:
+    params.exhaustive.options.csv_name
+    
     """
 
     if not os.path.exists(params.output.out_dir):
