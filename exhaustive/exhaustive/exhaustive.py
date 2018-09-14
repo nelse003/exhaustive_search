@@ -146,7 +146,7 @@ def write_pdb_HOH_site_cart(params, sites_cart):
 
         for i,site in enumerate(sites):
             f_out.write("HETATM{:>5}  O   HOH {}{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
-                chain,i+1,i+1,site[0], site[1], site[2]))
+               i+1, chain, i+1,site[0], site[1], site[2]))
 
     f_out.close()
 
