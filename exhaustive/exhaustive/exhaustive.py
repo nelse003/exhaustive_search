@@ -113,9 +113,11 @@ def chunks(l, n):
         alphabet.append(chr(letter))
 
     # For item i in a range that is a length of l,
+    pos = 0
     for i in range(0, len(l), n):
         # Create an index range for l of n items:
-        yield l[i:i+n], alphabet[i]
+        yield l[i:i+n], alphabet[pos]
+        pos += 1
 
 def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
