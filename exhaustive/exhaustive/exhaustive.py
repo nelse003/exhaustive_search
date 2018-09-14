@@ -108,20 +108,14 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
 def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
-    # hierarchy = iotbx.pdb.hierarchy.root()
-    # hierarchy.insert_model()
-    #
-    # for model in hierarchy.models():
-    #     model.insert_chain('M')
-    #     for chain in model:
-    #         chain.insert()
 
     f = open("sites_cart.pdb", "w")
     f.write(pdb_in.hierarchy.as_pdb_string(
         crystal_symmetry=pdb_in.input.crystal_symmetry()))
 
     for i,site in enumerate(sites_cart):
-        f.write("HETATM{:>5}  O   HOH A  {:>4}    {:>6.3f} {:>6.3f} {:>6.3f}  1.00 10.00           O\n".format(
+        #
+        f.write("HETATM{:>5}  O   HOH A  {:>4}    {:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
             i+1,i+1,site[0], site[1], site[2]))
 
     f.close()
