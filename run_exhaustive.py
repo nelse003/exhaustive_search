@@ -56,14 +56,15 @@ params.exhaustive.options.generate_mtz = True
 
 # # copy data to new folder
 
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
+# if not os.path.exists(out_dir):
+#     os.mkdir(out_dir)
 #     os.system('cp -a {}/. {}'.format(in_dir,out_dir))
 
 # Single dataset
 # params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
-# exhaustive(params=params)
-# scatter_plot(params.exhaustive.output.csv_name)
+exhaustive(params=params)
+scatter_plot(params.exhaustive.output.csv_name)
+exit()
 
 xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
