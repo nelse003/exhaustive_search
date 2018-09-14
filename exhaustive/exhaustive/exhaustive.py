@@ -121,7 +121,7 @@ def write_pdb_HOH_site_cart(params, sites_cart):
         crystal_symmetry=pdb_in.input.crystal_symmetry()))
 
     for i,site in enumerate(sites_cart):
-        f.write("HETATM{:>5}  O   HOH A  {:>4}    {:>6.3f} {:>6.3f} {:>6.3f}  1.00 10.00            O\n".format(
+        f.write("HETATM{:>5}  O   HOH A  {:>4}    {:>6.3f} {:>6.3f} {:>6.3f}  1.00 10.00           O\n".format(
             i+1,i+1,site[0], site[1], site[2]))
 
     f.close()
