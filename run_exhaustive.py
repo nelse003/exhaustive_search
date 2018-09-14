@@ -91,7 +91,6 @@ for xtal_name in xtals:
 
     if not qsub:
         exhaustive(params=params)
-        exit()
         scatter_plot(params.exhaustive.output.csv_name)
 
     if qsub:
