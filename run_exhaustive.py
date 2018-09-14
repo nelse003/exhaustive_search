@@ -5,6 +5,7 @@ from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc, u_iso_to_b_fac
 from phil import master_phil
+from plot_select_regions import plot_protein_region
 
 params =  master_phil.extract()
 
@@ -62,6 +63,8 @@ params.exhaustive.options.generate_mtz = True
 
 # Single dataset
 # params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+plot_protein_region(params)
+exit()
 exhaustive(params=params)
 scatter_plot(params.exhaustive.output.csv_name)
 exit()
