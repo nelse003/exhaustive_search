@@ -109,16 +109,30 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 def write_pdb_HOH_site_cart(params, sites_cart):
     pdb_in = hierarchy.input(file_name=params.input.pdb)
 
-    f = open("sites_cart.pdb", "w")
-    f.write(pdb_in.hierarchy.as_pdb_string(
-        crystal_symmetry=pdb_in.input.crystal_symmetry()))
-
-    for i,site in enumerate(sites_cart):
-        #
-        f.write("HETATM{:>5}  O   HOH A{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
-            i+1,i+1,site[0], site[1], site[2]))
+    f = open(params.input.pdb)
 
     f.close()
+
+    f_out = open("sites_cart.pdb", "w")
+    for line in f_out:
+        if line.startswith("CRYST1"):
+            cryst = line
+        if line.startswith("SCALE1"):
+            scale1 = line
+        if line.startswith("SCALE2"):
+            scale2 = line
+        if line.startswith("SCALE3"):
+            scale3 = line
+
+    for i,site in enumerate(sites_cart):
+        f_out.write(cryst)
+        f_out.write(scale1)
+        f_out.write(scale2)
+        f_out.write(scale3)
+        f_out.write("HETATM{:>5}  O   HOH A{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
+            i+1,i+1,site[0], site[1], site[2]))
+
+    f_out.close()
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                         pdb, logging):
