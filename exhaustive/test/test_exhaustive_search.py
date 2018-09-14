@@ -36,6 +36,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                                      "exhaustive_search_data/tests/logs"
 
+
     def test_exhaustive_search(self):
 
         """ Test with minimal number of parameters changed from default."""

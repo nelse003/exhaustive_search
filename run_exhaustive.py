@@ -19,16 +19,24 @@ params =  master_phil.extract()
 #                         "exhaustive_search_data/test_occ_group_states/logs"
 # params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "NUDT22A-x0927_test_occ_group.csv")
 
+params.input.pdb = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085/refine.pdb"
+params.input.mtz = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model/FALZA-x0085/refine.mtz"
+params.input.xtal_name = "FALZA-x0085"
+params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                         "exhaustive_search_data/FALZA_exhaus_18_09_14"
+params.output.log_dir = os.path.join(params.output.out_dir, "logs")
+params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+
 #Running exhaustive search for covalent ratios/ titration series
 
-start_xtal_num = 6192
-end_xtal_num = 6251
-#in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
-prefix = "NUDT7A-x"
-qsub = False
+# start_xtal_num = 6192
+# end_xtal_num = 6251
+# #in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+# # in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
+# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+# out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+# prefix = "NUDT7A-x"
+# qsub = False
 
 #Running exhaustive search for covalent ratios dose experiements
 

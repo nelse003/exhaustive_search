@@ -24,7 +24,7 @@ params =  master_phil.extract()
 params.input.xtal_name = "NUDT7A-x6192"
 params.input.in_path = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                    "exhaustive_search_data/covalent_ratios_exhaus_sep_18/NUDT7A-x6192"
-params.output.out_dir = os.path.join(params.input.in_path,"validation")
+params.output.out_dir = os.path.join(params.input.in_path,"validation")fire
 params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
 params.validate.input.base_mtz = os.path.join(params.input.in_path,"refine.mtz")
