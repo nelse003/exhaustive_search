@@ -63,10 +63,9 @@ params.exhaustive.options.generate_mtz = True
 
 # Single dataset
 # params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
-exhaustive(params=params)
-scatter_plot(params.exhaustive.output.csv_name)
-plot_protein_region(params)
-exit()
+# exhaustive(params=params)
+# scatter_plot(params.exhaustive.output.csv_name)
+# plot_protein_region(params)
 
 xtals = []
 for num in range(start_xtal_num, end_xtal_num + 1):
