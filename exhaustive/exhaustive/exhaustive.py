@@ -24,7 +24,7 @@ import mmtbx.masks
 import mmtbx.utils
 import numpy as np
 from cctbx import maptbx
-from iotbx import reflection_file_utils,
+from iotbx import reflection_file_utils
 from libtbx import easy_mp
 from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
