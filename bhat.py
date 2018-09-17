@@ -1,3 +1,7 @@
+import os
+
+import mmtbx.utils
+
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from phil import master_phil
