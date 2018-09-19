@@ -90,6 +90,8 @@ xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir
 for xtal_dir in xtal_dirs:
 
     xtal_name = os.path.basename(xtal_dir)
+    print(xtal_name)
+
 
     if xtal_name in xtals:
 
