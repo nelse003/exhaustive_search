@@ -88,6 +88,9 @@ params.exhaustive.options.generate_mtz = True
 
 xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
              if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
+
+csv_paths = []
+
 for xtal_dir in xtal_dirs:
 
     xtal_name = os.path.basename(xtal_dir)
@@ -120,8 +123,10 @@ for xtal_dir in xtal_dirs:
 
         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
-        exhaustive(params=params)
-        scatter_plot(params.exhaustive.output.csv_name)
+        csv_paths += params.exhaustive.output.csv_name
+
+        # exhaustive(params=params)
+        # scatter_plot(params.exhaustive.output.csv_name)
 
 
 
@@ -191,29 +196,37 @@ for xtal_dir in xtal_dirs:
 
 
 # Get exhaustive search minima fofc
+# with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
+#
+#     minima_writer = csv.writer(minima_csv, delimiter=',')
+#
+#     for xtal_name in xtals:
+#
+#         params.output.out_dir = os.path.join(out_dir, xtal_name)
+#         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+#         if os.path.exists(params.exhaustive.output.csv_name):
+#             os.chdir(os.path.join(out_dir, xtal_name))
+#             scatter_plot(params.exhaustive.output.csv_name)
+#         else:
+#             continue
+#
+#         if os.path.exists(params.exhaustive.output.csv_name):
+#             occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
+#             b_fac=u_iso_to_b_fac(u_iso)
+#
+#             print([xtal_name, occ, b_fac, fofc])
+#
+#             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
+
+
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
     minima_writer = csv.writer(minima_csv, delimiter=',')
 
-    for xtal_name in xtals:
-
-        params.output.out_dir = os.path.join(out_dir, xtal_name)
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
-        if os.path.exists(params.exhaustive.output.csv_name):
-            os.chdir(os.path.join(out_dir, xtal_name))
-            scatter_plot(params.exhaustive.output.csv_name)
-        else:
-            continue
-
-        if os.path.exists(params.exhaustive.output.csv_name):
-            occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
-            b_fac=u_iso_to_b_fac(u_iso)
-
-            print([xtal_name, occ, b_fac, fofc])
-
-            minima_writer.writerow([xtal_name, occ, b_fac, fofc])
-
-
+    for path in csv_paths:
+        occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
+        b_fac = u_iso_to_b_fac(u_iso)
+        minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 #refine minima
 
 # with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
