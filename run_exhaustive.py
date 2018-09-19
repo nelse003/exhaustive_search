@@ -91,8 +91,10 @@ for xtal_name in xtals:
     params.input.mtz = os.path.join(os.path.join(in_dir, xtal_name, "refine.mtz"))
 
     if not os.path.exists(params.input.pdb):
+        print("input pdb doesn't exist: {}".format(params.input.pdb))
         continue
     if not os.path.exists(params.input.mtz):
+        print("input mtz doesn't exsit: {}".format(params.input.mtz))
         continue
 
     params.output.out_dir = os.path.join(out_dir, xtal_name)
