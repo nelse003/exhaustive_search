@@ -44,6 +44,7 @@ class TestValidation(unittest.TestCase):
             self.params.input.in_path, "refine.output.ground-state.pdb")
         self.params.validate.input.bound_state_pdb_path = os.path.join(
             self.params.input.in_path, "refine.output.bound-state.pdb")
+        self.params.exhaustive.options.lower_u_iso = 0.0
         self.params.validate.options.set_b = 40.0
         self.params.exhaustive.options.column_type = "FMODEL"
         self.params.exhaustive.options.generate_mtz = False

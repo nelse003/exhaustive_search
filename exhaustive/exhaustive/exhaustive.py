@@ -542,12 +542,11 @@ def run(params):
         err=StringIO())
     logging.debug("Processed reflection files using reflection file server")
 
-    column_type = params.exhaustive.options.column_type
     logging.debug("Extracting a copy of data_and_flags_master_params "
                  "from mmtbx utils. Adding labels {} for mtz column type "
-                 "to use".format(column_type))
+                 "to use".format(params.exhaustive.options.column_type))
     data_flags_params = data_and_flags_master_params().extract()
-    data_flags_params.labels = column_type
+    data_flags_params.labels = params.exhaustive.options.column_type
 
     logging.debug("Default parameters supplied to "
                  "mmtbx.utils.determine_data_and_flags")
