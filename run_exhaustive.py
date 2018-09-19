@@ -45,7 +45,7 @@ params =  master_phil.extract()
 # end_xtal_num = 6251
 # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
 # prefix = "NUDT7A-x"
-# qsub = False
+qsub = False
 
 #FALZA exhaustive search
 
