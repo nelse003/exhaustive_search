@@ -74,7 +74,7 @@ xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FA
 
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
-params.exhaustive.options.step = 0.05
+params.exhaustive.options.step = 0.01
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.per_residue = True
 params.exhaustive.options.ligand_grid_points = False
@@ -227,7 +227,6 @@ with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
         occ, u_iso, fofc = get_minimum_fofc(path)
         b_fac = u_iso_to_b_fac(u_iso)
 
-        print(os.path.split(path))
         xtal_name = os.path.split(os.path.split(path)[0])[1]
 
         minima_writer.writerow([xtal_name, occ, b_fac, fofc])
