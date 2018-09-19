@@ -9,6 +9,9 @@ from plot_select_regions import plot_protein_region
 
 params =  master_phil.extract()
 
+def list_files(directory, extension):
+    return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
+
 # example for a single dataset
 
 # params.input.pdb = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x0927/refine.pdb"
