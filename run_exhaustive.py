@@ -77,8 +77,6 @@ params.exhaustive.options.per_residue = True
 params.exhaustive.options.ligand_grid_points = False
 params.exhaustive.options.generate_mtz = True
 
-
-xtals = []
 # for num in range(start_xtal_num, end_xtal_num + 1):
 #     xtal_name = prefix + "{0:0>4}".format(num)
 #     xtals.append(xtal_name)
