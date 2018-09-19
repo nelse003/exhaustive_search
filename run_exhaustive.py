@@ -228,8 +228,7 @@ with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
         b_fac = u_iso_to_b_fac(u_iso)
 
         print(os.path.split(path))
-        xtal_name = os.path.split(path)[-2]
-        exit()
+        xtal_name = os.path.split(os.path.split(path)[0])[1]
 
         minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 #refine minima
