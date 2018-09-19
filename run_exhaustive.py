@@ -103,6 +103,9 @@ for xtal_dir in xtal_dirs:
         params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
         params.output.out_dir = os.path.join(out_dir, compound_name, xtal_name)
 
+        if not os.path.exists(os.path.join(out_dir, compound_name)):
+            os.mkdir(os.path.join(out_dir, compound_name))
+
         if not os.path.exists(params.output.out_dir):
             os.mkdir(params.output.out_dir)
 
