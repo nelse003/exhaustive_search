@@ -62,7 +62,7 @@ def compute_maps(fmodel, crystal_gridding, map_type):
 
     :param fmodel: fmodel is a class that contains the
     :type fmodel:
-    :param crystal_gridding: Seperation of crystal grid
+    :param crystal_gridding: Separation of crystal grid
     :type crystal_gridding: ????????????
     :param map_type: Specify the type of map to be generate i.e mFo-DFc
     :type map_type: str
@@ -574,7 +574,7 @@ def run(params):
     pdb_inp = iotbx.pdb.input(file_name=inputs.pdb_file_names[0])
 
     logging.debug("Constructing hierarchy from input PDB: "
-                 + inputs.pdb_file_names[0])
+               + inputs.pdb_file_names[0])
 
     ph = pdb_inp.construct_hierarchy()
     xrs = ph.extract_xray_structure(

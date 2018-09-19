@@ -1,9 +1,13 @@
+from __future__ import division
+from __future__ import print_function
+
 import os
 from cStringIO import StringIO
 
 import mmtbx.utils
 import iotbx.pdb
 
+from scitbx.array_family import flex
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from phil import master_phil
@@ -61,7 +65,14 @@ fmodel = mmtbx.f_model.manager(
     mask_params=mask_params,
     xray_structure=xrs)
 
-print(fmodel.f_obs_work().d_spacings().data())
+d_spacings = fmodel.f_obs_work().d_spacings().data()
+
+s_sqrd = fmodel.f_obs_work().sin_theta_over_lambda_sq().data()
+
+print(fmodel.f_obs_work().d_max_min())
+
+
+#print(fmodel.f_obs_work().structure_factors_from_scatterers(xray_structure=xrs))
 
 # print(fmodel.f_obs_work().structure_factors_from_scatterers(
 #     xray_structure=xrs).f_calc().size())
