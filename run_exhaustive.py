@@ -219,13 +219,12 @@ for xtal_dir in xtal_dirs:
 #             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
 
-
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
     minima_writer = csv.writer(minima_csv, delimiter=',')
 
     for path in csv_paths:
-        occ, u_iso, fofc = get_minimum_fofc(params.exhaustive.output.csv_name)
+        occ, u_iso, fofc = get_minimum_fofc(path)
         b_fac = u_iso_to_b_fac(u_iso)
         minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 #refine minima
