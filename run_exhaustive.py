@@ -103,6 +103,9 @@ for xtal_dir in xtal_dirs:
         params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
         params.output.out_dir = os.path.join(out_dir, compound_name, xtal_name)
 
+        if not os.path.exists(params.output.out_dir):
+            os.mkdir(params.output.out_dir)
+
         if not os.path.exists(params.input.pdb):
             print("input pdb doesn't exist: {}".format(params.input.pdb))
             continue
