@@ -64,7 +64,7 @@ qsub = False
 
 #FALZA exhaustive search
 
-out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18/"
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01/"
 #loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
 if not os.path.exists(out_dir):
@@ -125,8 +125,8 @@ for xtal_dir in xtal_dirs:
 
         csv_paths.append(params.exhaustive.output.csv_name)
 
-        # exhaustive(params=params)
-        # scatter_plot(params.exhaustive.output.csv_name)
+        exhaustive(params=params)
+        scatter_plot(params.exhaustive.output.csv_name)
 
 
 
