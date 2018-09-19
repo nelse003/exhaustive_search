@@ -30,14 +30,14 @@ params =  master_phil.extract()
 
 #Running exhaustive search for covalent ratios/ titration series
 
-start_xtal_num = 6192
-end_xtal_num = 6251
-#in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
-prefix = "NUDT7A-x"
-qsub = False
+# start_xtal_num = 6192
+# end_xtal_num = 6251
+# #in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+# # in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
+# in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+# out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+# prefix = "NUDT7A-x"
+# qsub = False
 
 #Running exhaustive search for covalent ratios dose experiements
 
@@ -46,6 +46,16 @@ qsub = False
 # out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios_dose"
 # prefix = "NUDT7A-x"
 # qsub = False
+
+#FALZA exhaustive search
+
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18/"
+#loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
+loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
+if not os.path.exists(out_dir):
+    os.mkdir(out_dir)
+
+xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
 
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
