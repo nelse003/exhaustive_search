@@ -123,7 +123,7 @@ for xtal_dir in xtal_dirs:
 
         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
-        csv_paths += params.exhaustive.output.csv_name
+        csv_paths.append(params.exhaustive.output.csv_name)
 
         # exhaustive(params=params)
         # scatter_plot(params.exhaustive.output.csv_name)
