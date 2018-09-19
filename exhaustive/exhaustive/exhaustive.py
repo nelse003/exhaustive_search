@@ -237,7 +237,6 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
     logging.debug(cart_points)
 
     write_pdb_HOH_site_cart(params=params,sites_cart=cart_points)
-    return
 
     logging.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "
