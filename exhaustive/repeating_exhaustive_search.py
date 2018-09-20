@@ -8,7 +8,7 @@ import libtbx.phil
 import pandas as pd
 
 from exhaustive.exhaustive import run as exhaustive_search
-
+from phil import master_phil
 ##############################################################
 
 PROGRAM = 'Repeat Exhaustive Search'
@@ -18,30 +18,6 @@ DESCRIPTION = """
 """
 blank_arg_prepend = {'.pdb': 'pdb=','.mtz': 'mtz=','.csv': 'csv='}
 
-##############################################################
-master_phil = libtbx.phil.parse("""
-input{
-    pdb = None
-        .type = path
-    mtz = None
-        .type = path
-    csv = None
-        .type = path
-    database_path = None
-        .type = path
-    csv_name = 'u_iso_occupancy_vary_new_atoms'
-        .type = str
-}
-output{
-    out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/occupancy_group_with_refinement"
-        .type = str
-    minima_csv_name = "min_occ_u_iso_all"
-        .type = str
-}
-options{
-
-}
-""", process_includes=True)
 ########################################################################
 import logging
 import datetime
@@ -88,33 +64,9 @@ def get_xtals_from_db(params,
         yield xtal_name, pdb, mtz
 
 
-def run(params):
+def run():
 
-    #get_all_minima(params)
-
-    # Repeat soaks of DCP2B; run over all
-
-    # if not os.path.exists(params.input.csv):
-    #     assert os.path.exists(params.input.pdb), 'PDB File does not exist: {}'.foramt(params.input.pdb)
-    #     assert os.path.exists(params.input.mtz), 'MTZ File does not exist: {}'.format(params.input.mtz)
-    #     exhaustive_search(args, xtal_name)
-    #
-    # elif os.path.exists(params.input.csv):
-    #     for xtal_name, pdb, mtz in parse_repeat_soak_csv(params):
-    #         if pdb and mtz is not None:
-    #             try:
-    #                 assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-    #                 assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-    #                 args = [pdb, mtz]
-    #                 exhaustive_search(args, xtal_name)
-    #             except:
-    #                 print "Skipping"
-    #                 continue
-    #         else:
-    #             print "No pdb/mtz combo for this repeat, contuining"
-    #             continue
-    # else:
-    #     print ("Please supply a pdb and mtz, or a csv file")
+    params = master_phil.extract()
 
     params.settings.processes = 14
     params.exhaustive.options.step = 0.01
