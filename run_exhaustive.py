@@ -1,6 +1,7 @@
 import csv
 import os
 import logging
+import sqlite3
 
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
