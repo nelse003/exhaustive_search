@@ -13,6 +13,41 @@ params =  master_phil.extract()
 def list_files(directory, extension):
     return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
 
+def parse_repeat_soak_csv(params):
+
+    input_df = pd.read_csv(params.input.csv)
+    for index, row in input_df.iterrows():
+        yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
+
+def get_xtals_from_db(params,
+                      refinement_outcomes="'3 - In Refinement',"
+                                          "'4 - CompChem ready', "
+                                          "'5 - Deposition ready',"
+                                          "'6 - Deposited'"):
+
+    assert os.path.isfile(params.input.database_path), \
+        "The database file: \n {} \n does not exist".format(params.input.database_path)
+
+    # Open connection to sqlite database
+    conn = sqlite3.connect(params.input.database_path)
+    cur = conn.cursor()
+
+    cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
+                "FROM mainTable WHERE RefinementOutcome in ({})" 
+                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
+
+    refinement_xtals = cur.fetchall()
+
+    # Close connection to the database
+    cur.close()
+
+    for xtal_name, pdb, mtz in refinement_xtals:
+        pdb = pdb.encode('ascii')
+        mtz = mtz.encode('ascii')
+        xtal_name = xtal_name.encode('ascii')
+        yield xtal_name, pdb, mtz
+
+
 # example for a single dataset
 
 # params.input.pdb = "/dls/labxchem/data/2018/lb18145-55/processing/analysis/initial_model/NUDT22A-x0927/refine.pdb"
@@ -73,7 +108,17 @@ qsub = False
 
 # xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
 
-# Multiprocessing using libtbx.easy_mp seems to be failing
+# for num in range(start_xtal_num, end_xtal_num + 1):
+#     xtal_name = prefix + "{0:0>4}".format(num)
+#     xtals.append(xtal_name)
+#
+# print(xtals)
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_sep_exhaus"
+
+
+
+params = master_phil.extract()
+
 params.settings.processes = 14
 params.exhaustive.options.step = 0.01
 params.exhaustive.options.convex_hull = False
@@ -82,99 +127,47 @@ params.exhaustive.options.ligand_grid_points = False
 params.exhaustive.options.generate_mtz = False
 params.exhaustive.options.lower_u_iso = 0.00
 
-# for num in range(start_xtal_num, end_xtal_num + 1):
-#     xtal_name = prefix + "{0:0>4}".format(num)
-#     xtals.append(xtal_name)
-#
-# print(xtals)
+params.output.out_dir = os.path.join(out_dir,xtal_name)
 
+if not os.path.exists(params.output.out_dir):
+    logging.info('Creating output directory {}'.format(params.output.out_dir))
+    os.mkdir(params.output.out_dir)
+else:
+    logging.info('Output directory {} exists and is being used'.format(params.output.out_dir))
 
-def parse_repeat_soak_csv(params):
+logging.info('Looping over all files that are \'in refinement\' '
+            'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
-    input_df = pd.read_csv(params.input.csv)
-    for index, row in input_df.iterrows():
-        yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
+for xtal_name, pdb, mtz in get_xtals_from_db(params,
+                                             refinement_outcomes="'4 - CompChem ready', "
+                                                                 "'5 - Deposition ready',"
+                                                                 "'6 - Deposited'" ):
 
-def get_xtals_from_db(params,
-                      refinement_outcomes="'3 - In Refinement',"
-                                          "'4 - CompChem ready', "
-                                          "'5 - Deposition ready',"
-                                          "'6 - Deposited'"):
+    logging.info(xtal_name)
 
-    assert os.path.isfile(params.input.database_path), \
-        "The database file: \n {} \n does not exist".format(params.input.database_path)
+    assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+    assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
-    # Open connection to sqlite database
-    conn = sqlite3.connect(params.input.database_path)
-    cur = conn.cursor()
+    params.input.xtal_name = xtal_name
+    params.input.pdb = pdb
+    params.input.mtz = mtz
 
-    cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
-                "FROM mainTable WHERE RefinementOutcome in ({})" 
-                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
+    os.chdir(os.path.join(params.output.out_dir))
 
-    refinement_xtals = cur.fetchall()
+    try:
+        exhaustive_search(params)
+    except UnboundLocalError:
+        logging.info("Skipping onto the next crystal")
+        continue
 
-    # Close connection to the database
-    cur.close()
-
-    for xtal_name, pdb, mtz in refinement_xtals:
-        pdb = pdb.encode('ascii')
-        mtz = mtz.encode('ascii')
-        xtal_name = xtal_name.encode('ascii')
-        yield xtal_name, pdb, mtz
-
-
-def run():
-
-    params = master_phil.extract()
-
-    params.settings.processes = 14
-    params.exhaustive.options.step = 0.01
-    params.exhaustive.options.convex_hull = False
-    params.exhaustive.options.per_residue = True
-    params.exhaustive.options.ligand_grid_points = False
-    params.exhaustive.options.generate_mtz = False
-    params.exhaustive.options.lower_u_iso = 0.00
-
-    if not os.path.exists(params.output.out_dir):
-        logging.info('Creating output directory {}'.format(params.output.out_dir))
-        os.mkdir(params.output.out_dir)
+    if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+        os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+        os.chdir(os.path.join(params.output.out_dir, xtal_name))
     else:
-        logging.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+        os.chdir(os.path.join(params.output.out_dir, xtal_name))
+    #scatter_plot(params.input.csv_name)
 
-    logging.info('Looping over all files that are \'in refinement\' '
-                'or better in the supplied datafile: \n {}'.format(params.input.database_path))
-
-    for xtal_name, pdb, mtz in get_xtals_from_db(params,
-                                                 refinement_outcomes="'4 - CompChem ready', "
-                                                                     "'5 - Deposition ready',"
-                                                                     "'6 - Deposited'" ):
-
-        logging.info(xtal_name)
-
-        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
-        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
-
-        params.input.xtal_name = xtal_name
-        params.input.pdb = pdb
-        params.input.mtz = mtz
-
-        os.chdir(os.path.join(params.output.out_dir))
-
-        try:
-            exhaustive_search(params)
-        except UnboundLocalError:
-            logging.info("Skipping onto the next crystal")
-            continue
-
-        if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
-            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        else:
-            os.chdir(os.path.join(params.output.out_dir, xtal_name))
-        #scatter_plot(params.input.csv_name)
-
-        logging.info('Completed: {}'.format(xtal_name))
+    logging.info('Completed: {}'.format(xtal_name))
 
 
 # xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
