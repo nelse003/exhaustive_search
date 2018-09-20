@@ -59,7 +59,12 @@ def parse_repeat_soak_csv(params):
     for index, row in input_df.iterrows():
         yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
 
-def get_in_refinement_or_better(params):
+def get_xtals_from_db(params,
+                      refinement_outcomes="'3 - In Refinement',"
+                                          "'4 - CompChem ready', "
+                                          "'5 - Deposition ready',"
+                                          "'6 - Deposited'"):
+
     assert os.path.isfile(params.input.database_path), \
         "The database file: \n {} \n does not exist".format(params.input.database_path)
 
@@ -68,9 +73,8 @@ def get_in_refinement_or_better(params):
     cur = conn.cursor()
 
     cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
-                "FROM mainTable WHERE RefinementOutcome in ('3 - In Refinement',"
-                "'4 - CompChem ready','5 - Deposition ready','6 - Deposited')" 
-                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL")
+                "FROM mainTable WHERE RefinementOutcome in ({})" 
+                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
 
     refinement_xtals = cur.fetchall()
 
@@ -112,6 +116,13 @@ def run(params):
     # else:
     #     print ("Please supply a pdb and mtz, or a csv file")
 
+    params.settings.processes = 14
+    params.exhaustive.options.step = 0.01
+    params.exhaustive.options.convex_hull = False
+    params.exhaustive.options.per_residue = True
+    params.exhaustive.options.ligand_grid_points = False
+    params.exhaustive.options.generate_mtz = False
+    params.exhaustive.options.lower_u_iso = 0.00
 
     if not os.path.exists(params.output.out_dir):
         logging.info('Creating output directory {}'.format(params.output.out_dir))
@@ -122,22 +133,24 @@ def run(params):
     logging.info('Looping over all files that are \'in refinement\' '
                 'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
-
-
-    for xtal_name, pdb, mtz in get_in_refinement_or_better(params):
+    for xtal_name, pdb, mtz in get_xtals_from_db(params,
+                                                 refinement_outcomes="'4 - CompChem ready', "
+                                                                     "'5 - Deposition ready',"
+                                                                     "'6 - Deposited'" ):
 
         logging.info(xtal_name)
 
         assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
         assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
+        params.input.xtal_name = xtal_name
+        params.input.pdb = pdb
+        params.input.mtz = mtz
+
         os.chdir(os.path.join(params.output.out_dir))
 
-        #### For Exhaustive search run ####
-        args = [pdb, mtz]
-
         try:
-            exhaustive_search(args, xtal_name)
+            exhaustive_search(params)
         except UnboundLocalError:
             logging.info("Skipping onto the next crystal")
             continue

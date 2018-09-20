@@ -64,13 +64,13 @@ qsub = False
 
 #FALZA exhaustive search
 
-out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01_low_U_iso_0/"
-#loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
-loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
-if not os.path.exists(out_dir):
-    os.mkdir(out_dir)
+# out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01_low_U_iso_0/"
+# #loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
+# loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
+# if not os.path.exists(out_dir):
+#     os.mkdir(out_dir)
 
-xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
+# xtals=['FALZA-x0079','FALZA-x0085','FALZA-x0172','FALZA-x0177','FALZA-x0271','FALZA-x0309','FALZA-x0402','FALZA-x0438']
 
 # Multiprocessing using libtbx.easy_mp seems to be failing
 params.settings.processes = 14
@@ -86,6 +86,8 @@ params.exhaustive.options.lower_u_iso = 0.00
 #     xtals.append(xtal_name)
 #
 # print(xtals)
+
+
 
 xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
              if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
