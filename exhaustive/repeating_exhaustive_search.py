@@ -8,7 +8,7 @@ import libtbx.phil
 import pandas as pd
 
 from exhaustive.exhaustive import run as exhaustive_search
-from phil import master_phil
+from ..phil import master_phil
 ##############################################################
 
 PROGRAM = 'Repeat Exhaustive Search'
