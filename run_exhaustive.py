@@ -113,7 +113,7 @@ qsub = False
 #     xtals.append(xtal_name)
 #
 # print(xtals)
-out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_sep_exhaus"
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
 
 
 
@@ -126,7 +126,7 @@ params.exhaustive.options.per_residue = True
 params.exhaustive.options.ligand_grid_points = False
 params.exhaustive.options.generate_mtz = False
 params.exhaustive.options.lower_u_iso = 0.00
-
+params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 
 if not os.path.exists(params.output.out_dir):
     logging.info('Creating output directory {}'.format(params.output.out_dir))

@@ -16,6 +16,8 @@ input{
         .type = str
     in_path = None
         .type = str
+    database_path = None
+        .type =str
 }
 output{
     out_dir = "output"
