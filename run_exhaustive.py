@@ -1,5 +1,6 @@
 import csv
 import os
+import logging
 
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
@@ -88,48 +89,135 @@ params.exhaustive.options.lower_u_iso = 0.00
 # print(xtals)
 
 
+def parse_repeat_soak_csv(params):
 
-xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
-             if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
+    input_df = pd.read_csv(params.input.csv)
+    for index, row in input_df.iterrows():
+        yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
 
-csv_paths = []
+def get_xtals_from_db(params,
+                      refinement_outcomes="'3 - In Refinement',"
+                                          "'4 - CompChem ready', "
+                                          "'5 - Deposition ready',"
+                                          "'6 - Deposited'"):
 
-for xtal_dir in xtal_dirs:
+    assert os.path.isfile(params.input.database_path), \
+        "The database file: \n {} \n does not exist".format(params.input.database_path)
 
-    xtal_name = os.path.basename(xtal_dir)
-    print(xtal_name)
+    # Open connection to sqlite database
+    conn = sqlite3.connect(params.input.database_path)
+    cur = conn.cursor()
+
+    cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
+                "FROM mainTable WHERE RefinementOutcome in ({})" 
+                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
+
+    refinement_xtals = cur.fetchall()
+
+    # Close connection to the database
+    cur.close()
+
+    for xtal_name, pdb, mtz in refinement_xtals:
+        pdb = pdb.encode('ascii')
+        mtz = mtz.encode('ascii')
+        xtal_name = xtal_name.encode('ascii')
+        yield xtal_name, pdb, mtz
 
 
-    if xtal_name in xtals:
+def run():
+
+    params = master_phil.extract()
+
+    params.settings.processes = 14
+    params.exhaustive.options.step = 0.01
+    params.exhaustive.options.convex_hull = False
+    params.exhaustive.options.per_residue = True
+    params.exhaustive.options.ligand_grid_points = False
+    params.exhaustive.options.generate_mtz = False
+    params.exhaustive.options.lower_u_iso = 0.00
+
+    if not os.path.exists(params.output.out_dir):
+        logging.info('Creating output directory {}'.format(params.output.out_dir))
+        os.mkdir(params.output.out_dir)
+    else:
+        logging.info('Output directory {} exists and is being used'.format(params.output.out_dir))
+
+    logging.info('Looping over all files that are \'in refinement\' '
+                'or better in the supplied datafile: \n {}'.format(params.input.database_path))
+
+    for xtal_name, pdb, mtz in get_xtals_from_db(params,
+                                                 refinement_outcomes="'4 - CompChem ready', "
+                                                                     "'5 - Deposition ready',"
+                                                                     "'6 - Deposited'" ):
+
+        logging.info(xtal_name)
+
+        assert os.path.exists(pdb), 'PDB File does not exist: {}'.format(pdb)
+        assert os.path.exists(mtz), 'MTZ File does not exist: {}'.format(mtz)
 
         params.input.xtal_name = xtal_name
+        params.input.pdb = pdb
+        params.input.mtz = mtz
 
-        compounds = list_files(xtal_dir,"cif")
-        compound_name = (list_files(xtal_dir,"cif")[0]).split(".")[0]
+        os.chdir(os.path.join(params.output.out_dir))
 
-        params.input.pdb = os.path.join(xtal_dir,"refine.pdb")
-        params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
-        params.output.out_dir = os.path.join(out_dir, compound_name, xtal_name)
-
-        if not os.path.exists(os.path.join(out_dir, compound_name)):
-            os.mkdir(os.path.join(out_dir, compound_name))
-
-        if not os.path.exists(params.output.out_dir):
-            os.mkdir(params.output.out_dir)
-
-        if not os.path.exists(params.input.pdb):
-            print("input pdb doesn't exist: {}".format(params.input.pdb))
-            continue
-        if not os.path.exists(params.input.mtz):
-            print("input mtz doesn't exsit: {}".format(params.input.mtz))
+        try:
+            exhaustive_search(params)
+        except UnboundLocalError:
+            logging.info("Skipping onto the next crystal")
             continue
 
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+        if not os.path.exists(os.path.join(params.output.out_dir, xtal_name)):
+            os.mkdir(os.path.join(params.output.out_dir, xtal_name))
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        else:
+            os.chdir(os.path.join(params.output.out_dir, xtal_name))
+        #scatter_plot(params.input.csv_name)
 
-        csv_paths.append(params.exhaustive.output.csv_name)
+        logging.info('Completed: {}'.format(xtal_name))
 
-        exhaustive(params=params)
-        scatter_plot(params.exhaustive.output.csv_name)
+
+# xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
+#              if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
+#
+# csv_paths = []
+#
+# for xtal_dir in xtal_dirs:
+#
+#     xtal_name = os.path.basename(xtal_dir)
+#     print(xtal_name)
+#
+#
+#     if xtal_name in xtals:
+#
+#         params.input.xtal_name = xtal_name
+#
+#         compounds = list_files(xtal_dir,"cif")
+#         compound_name = (list_files(xtal_dir,"cif")[0]).split(".")[0]
+#
+#         params.input.pdb = os.path.join(xtal_dir,"refine.pdb")
+#         params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
+#         params.output.out_dir = os.path.join(out_dir, compound_name, xtal_name)
+#
+#         if not os.path.exists(os.path.join(out_dir, compound_name)):
+#             os.mkdir(os.path.join(out_dir, compound_name))
+#
+#         if not os.path.exists(params.output.out_dir):
+#             os.mkdir(params.output.out_dir)
+#
+#         if not os.path.exists(params.input.pdb):
+#             print("input pdb doesn't exist: {}".format(params.input.pdb))
+#             continue
+#         if not os.path.exists(params.input.mtz):
+#             print("input mtz doesn't exsit: {}".format(params.input.mtz))
+#             continue
+#
+#         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+#
+#         csv_paths.append(params.exhaustive.output.csv_name)
+#
+#         exhaustive(params=params)
+#         scatter_plot(params.exhaustive.output.csv_name)
 
 
 
