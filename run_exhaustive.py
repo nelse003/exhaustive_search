@@ -64,7 +64,7 @@ qsub = False
 
 #FALZA exhaustive search
 
-out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01/"
+out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01_low_U_iso_0/"
 #loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
 loop_dir = "/dls/labxchem/data/2016/lb13385-61/processing/analysis/initial_model"
 if not os.path.exists(out_dir):
@@ -78,7 +78,8 @@ params.exhaustive.options.step = 0.01
 params.exhaustive.options.convex_hull = False
 params.exhaustive.options.per_residue = True
 params.exhaustive.options.ligand_grid_points = False
-params.exhaustive.options.generate_mtz = True
+params.exhaustive.options.generate_mtz = False
+params.exhaustive.options.lower_u_iso = 0.00
 
 # for num in range(start_xtal_num, end_xtal_num + 1):
 #     xtal_name = prefix + "{0:0>4}".format(num)
