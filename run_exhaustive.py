@@ -155,7 +155,7 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
     os.chdir(os.path.join(params.output.out_dir))
 
     try:
-        exhaustive_search(params)
+        exhaustive(params)
     except UnboundLocalError:
         logging.info("Skipping onto the next crystal")
         continue
