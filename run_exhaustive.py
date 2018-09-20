@@ -127,7 +127,6 @@ params.exhaustive.options.ligand_grid_points = False
 params.exhaustive.options.generate_mtz = False
 params.exhaustive.options.lower_u_iso = 0.00
 
-params.output.out_dir = os.path.join(out_dir,xtal_name)
 
 if not os.path.exists(params.output.out_dir):
     logging.info('Creating output directory {}'.format(params.output.out_dir))
