@@ -21,5 +21,5 @@ print(pd.merge(edstats_df,es_minima_df, on='Dataset'))
 print(list(pd.merge(edstats_df,es_minima_df, on='Dataset')))
 
 pairplot = sns.pairplot(summary_df)
-sns_plot.savefig("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/pairplot.png",
+pairplot.savefig("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/pairplot.png",
                  dpi=600)
