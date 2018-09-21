@@ -8,6 +8,7 @@ from exhaustive.exhaustive.plotting.plot import scatter_plot
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc, u_iso_to_b_fac
 from phil import master_phil
 from plot_select_regions import plot_protein_region
+from exhaustive.exhaustive.utils.utils import get_xtals_from_db
 
 params =  master_phil.extract()
 
@@ -19,34 +20,6 @@ def parse_repeat_soak_csv(params):
     input_df = pd.read_csv(params.input.csv)
     for index, row in input_df.iterrows():
         yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
-
-def get_xtals_from_db(params,
-                      refinement_outcomes="'3 - In Refinement',"
-                                          "'4 - CompChem ready', "
-                                          "'5 - Deposition ready',"
-                                          "'6 - Deposited'"):
-
-    assert os.path.isfile(params.input.database_path), \
-        "The database file: \n {} \n does not exist".format(params.input.database_path)
-
-    # Open connection to sqlite database
-    conn = sqlite3.connect(params.input.database_path)
-    cur = conn.cursor()
-
-    cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
-                "FROM mainTable WHERE RefinementOutcome in ({})" 
-                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
-
-    refinement_xtals = cur.fetchall()
-
-    # Close connection to the database
-    cur.close()
-
-    for xtal_name, pdb, mtz in refinement_xtals:
-        pdb = pdb.encode('ascii')
-        mtz = mtz.encode('ascii')
-        xtal_name = xtal_name.encode('ascii')
-        yield xtal_name, pdb, mtz
 
 
 # example for a single dataset

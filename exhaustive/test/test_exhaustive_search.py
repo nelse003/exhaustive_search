@@ -26,16 +26,17 @@ class TestExhaustiveSearch(unittest.TestCase):
         #TODO Convert to relative import of test resources
 
         self.params = master_phil.extract()
-        self.params.input.pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
-                                "initial_model/NUDT7A-x0299/refine.pdb"
-        self.params.input.mtz = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/" \
-                                "initial_model/NUDT7A-x0299/refine.mtz"
-        self.params.input.xtal_name = "NUDT7A-x0299"
-        self.params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                                     "exhaustive_search_data/tests/"
-        self.params.output.log_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                                     "exhaustive_search_data/tests/logs"
 
+        self.params.input.xtal_name = "FALZA-x0085"
+        self.params.input.in_path = os.path.join(os.path.realpath(
+            "./exhaustive/test/resources"), self.params.input.xtal_name)
+        self.params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
+                                        "FALZA-x0085.free.mtz")
+        self.params.input.mtz = os.path.join(self.params.input.in_path,
+                                        "FALZA-x0085.free.mtz")
+        self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
+        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
+        self.params.output.log_dir = os.path.realpath(os.path.join("./exhaustive/test/output","logs"))
 
     def test_exhaustive_search(self):
 

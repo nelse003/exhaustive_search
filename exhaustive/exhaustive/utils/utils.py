@@ -7,6 +7,34 @@ from iotbx.pdb import hierarchy
 
 from select_atoms import get_occupancy_groups
 
+def get_xtals_from_db(params,
+                      refinement_outcomes="'3 - In Refinement',"
+                                          "'4 - CompChem ready', "
+                                          "'5 - Deposition ready',"
+                                          "'6 - Deposited'"):
+
+    assert os.path.isfile(params.input.database_path), \
+        "The database file: \n {} \n does not exist".format(params.input.database_path)
+
+    # Open connection to sqlite database
+    conn = sqlite3.connect(params.input.database_path)
+    cur = conn.cursor()
+
+    cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
+                "FROM mainTable WHERE RefinementOutcome in ({})" 
+                " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
+
+    refinement_xtals = cur.fetchall()
+
+    # Close connection to the database
+    cur.close()
+
+    for xtal_name, pdb, mtz in refinement_xtals:
+        pdb = pdb.encode('ascii')
+        mtz = mtz.encode('ascii')
+        xtal_name = xtal_name.encode('ascii')
+        yield xtal_name, pdb, mtz
+
 def chunks(l, n):
 
     """ Divide a list l into chunks of length n. Yield with consecutive letters

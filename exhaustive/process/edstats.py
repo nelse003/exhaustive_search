@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+from exhaustive.exhaustive.utils.utils import get_xtals_from_db
+
 # from giant.jiffies.score_model import run as score_model
 # from giant.jiffies.score_model import master_phil as score_phil
 # import libtbx.phil
@@ -14,19 +16,14 @@ import pandas as pd
 # score params stuff is only needed if changing to a different residue
 # such as GDP for janine
 
-for folder in os.listdir(ini_folder):
-    if os.path.exists(os.path.join(ini_folder,folder,"refine.pdb")):
-#         print(os.path.join(ini_folder,folder,"refine.pdb"))
-#         #score_params = score_phil.extract()
-#         #score_params.input.pdb1 = os.path.join(ini_folder,folder,"refine.pdb")
-#         #score_params.input.mtz1 = os.path.join(ini_folder,folder,"refine.mtz")
-#         #score_params.output.out_dir = os.path.join(ini_folder,folder,"edstats_on_refine")
-#         #score_params.selection.res_names= 'LIG'
-#         #score_model(score_params)
-        os.chdir(os.path.join(ini_folder,folder))
-        print(os.getcwd())
-        os.system("giant.score_model {} {}".format(os.path.join(ini_folder,folder,"refine.pdb"),
-                                                   os.path.join(ini_folder,folder,"refine.mtz")))
+params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite""
+
+for xtal_name, pdb, mtz in get_xtals_from_db(params,
+                                             refinement_outcomes="'4 - CompChem ready', "
+                                                                 "'5 - Deposition ready',"
+                                                                 "'6 - Deposited'" ):
+
+    os.system("giant.score_model {} {}".format(pdb, mtz)))
 
 # Currently pandas is failing to import in ccp4 python so this is done seperately in a conda env
 
