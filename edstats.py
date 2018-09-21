@@ -34,7 +34,9 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
     os.system("cp {} {}".format(pdb, os.path.join(params.output.out_dir,xtal_name,os.path.basename(pdb))))
     os.system("cp {} {}".format(mtz, os.path.join(params.output.out_dir, xtal_name, os.path.basename(mtz))))
     os.chdir(os.path.join(params.output.out_dir,xtal_name))
-    os.system("giant.score_model {} {}".format(pdb, mtz))
+
+    if not os.path.exists(os.path.join(params.output.out_dir,xtal_name,"residue_scores.csv")):
+        os.system("giant.score_model {} {}".format(pdb, mtz))
 
 # Currently pandas is failing to import in ccp4 python so this is done seperately in a conda env
 
