@@ -37,7 +37,7 @@ exhaustive{
             .type =str
         csv_prefix = 'exhaustive_search'
             .type = str
-        csv_name = None
+        csv_name = "exhaustive_search.csv"
             .type = str
     }
     options{

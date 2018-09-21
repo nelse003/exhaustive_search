@@ -151,7 +151,7 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
     params.input.xtal_name = xtal_name
     params.input.pdb = pdb
     params.input.mtz = mtz
-
+    params.exhaustive.output.csv_name = "exhaustive_search.csv"
     os.chdir(os.path.join(params.output.out_dir))
 
     try:
