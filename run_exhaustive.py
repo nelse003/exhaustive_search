@@ -280,9 +280,6 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
 #
 #             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
-print(csv_paths)
-exit()
-
 
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
