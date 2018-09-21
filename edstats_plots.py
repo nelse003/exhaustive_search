@@ -9,5 +9,8 @@ es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset','ES_occ','es_bfac''mi
 print(edstats_df)
 print(es_minima_df)
 
+print(edstats_df['Dataset'])
+print(es_minima_df['Dataset'])
+
 print(pd.merge(edstats_df,es_minima_df, on='Dataset'))
 
