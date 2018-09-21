@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from ..utils.utils import get_xtals_from_db
+from exhaustive.exhaustive.utils.utils import get_xtals_from_db
 from phil import master_phil
 
 # from giant.jiffies.score_model import run as score_model
