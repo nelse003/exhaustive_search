@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('agg')
 import seaborn as sns
 
 es_minima_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/es_minima.csv"
