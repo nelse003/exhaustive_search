@@ -1,5 +1,5 @@
 import unittest
-from exhaustive.phil import master_phil
+from phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc
 import os

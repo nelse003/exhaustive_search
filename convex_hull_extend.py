@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 
-from exhaustive import run as exhaustive
+from exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
 from phil import master_phil
 

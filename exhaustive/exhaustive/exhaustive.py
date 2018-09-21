@@ -35,7 +35,7 @@ from utils.convex_hull import convex_hull_from_states, \
     atom_points_from_sel_string, convex_hull_grid_points, \
     convex_hull_per_residue
 
-from utils.utils import is_almost_equal
+from utils.utils import is_almost_equal, write_pdb_HOH_site_cart
 from utils.select_atoms import process_refined_pdb_bound_ground_states, \
     get_occupancy_group_grid_points
 from phil import master_phil
@@ -107,49 +107,6 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
 
     return mean_abs_fofc_value
 
-def chunks(l, n):
-
-    alphabet = []
-    for letter in range(65, 91):
-        alphabet.append(chr(letter))
-
-    # For item i in a range that is a length of l,
-    pos = 0
-    for i in xrange(0, len(l), n):
-        # Create an index range for l of n items:
-        yield l[i:i+n], alphabet[pos]
-        pos += 1
-
-def write_pdb_HOH_site_cart(params, sites_cart):
-    pdb_in = hierarchy.input(file_name=params.input.pdb)
-
-    f = open(params.input.pdb)
-    for line in f:
-        if line.startswith("CRYST1"):
-            cryst = line
-        if line.startswith("SCALE1"):
-            scale1 = line
-        if line.startswith("SCALE2"):
-            scale2 = line
-        if line.startswith("SCALE3"):
-            scale3 = line
-
-    f.close()
-
-    f_out = open("sites_cart.pdb", "w")
-    f_out.write(cryst)
-    f_out.write(scale1)
-    f_out.write(scale2)
-    f_out.write(scale3)
-
-    for sites, chain in chunks(sites_cart, 9999):
-        print(chain, len(sites))
-
-        for i,site in enumerate(sites):
-            f_out.write("HETATM{:>5}  O   HOH {}{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
-               i+1, chain, i+1,site[0], site[1], site[2]))
-
-    f_out.close()
 
 def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
                         pdb, logging):
@@ -236,7 +193,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     logging.debug(cart_points)
 
-    write_pdb_HOH_site_cart(params=params,sites_cart=cart_points)
+    write_pdb_HOH_site_cart(pdb=params.input.pdb, sites_cart=cart_points)
 
     logging.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "

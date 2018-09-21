@@ -7,6 +7,82 @@ from iotbx.pdb import hierarchy
 
 from select_atoms import get_occupancy_groups
 
+def chunks(l, n):
+
+    """ Divide a list l into chunks of length n. Yield with consecutive letters
+    
+    Used for splitting a list of atomic points into breaks of 9999 for 
+    display in a pdb file. 
+    
+    Parameters
+    -------------------
+    l: list
+        list to be split into chunks
+    y: int
+        length to chunk list into
+    
+    Yields
+    ----------------------
+    list
+        slice of original list up to chunk size
+    str
+        A letter associated with chunk (A-Z)
+    """
+
+    alphabet = []
+    for letter in range(65, 91):
+        alphabet.append(chr(letter))
+
+    # For item i in a range that is a length of l,
+    pos = 0
+    for i in xrange(0, len(l), n):
+        # Create an index range for l of n items:
+        yield l[i:i+n], alphabet[pos]
+        pos += 1
+
+def write_pdb_HOH_site_cart(pdb, sites_cart):
+
+    """ Write a PDB file containing waters at supplied cartesian sites
+     
+    Parameters
+    -------------------
+    pdb: str
+        Path to input PDB that contains the crystal record for the 
+        crystal symmertry
+    sites_cart:
+        
+    """
+
+    pdb_in = hierarchy.input(file_name=params.input.pdb)
+
+    f = open(params.input.pdb)
+    for line in f:
+        if line.startswith("CRYST1"):
+            cryst = line
+        if line.startswith("SCALE1"):
+            scale1 = line
+        if line.startswith("SCALE2"):
+            scale2 = line
+        if line.startswith("SCALE3"):
+            scale3 = line
+
+    f.close()
+
+    f_out = open("sites_cart.pdb", "w")
+    f_out.write(cryst)
+    f_out.write(scale1)
+    f_out.write(scale2)
+    f_out.write(scale3)
+
+    for sites, chain in chunks(sites_cart, 9999):
+        print(chain, len(sites))
+
+        for i,site in enumerate(sites):
+            f_out.write("HETATM{:>5}  O   HOH {}{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
+               i+1, chain, i+1,site[0], site[1], site[2]))
+
+    f_out.close()
+
 def process_validation_csvs(start_occ,
                      end_occ,
                      step,
