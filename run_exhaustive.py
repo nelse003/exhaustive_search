@@ -111,6 +111,7 @@ else:
 logging.info('Looping over all files that are \'in refinement\' '
             'or better in the supplied datafile: \n {}'.format(params.input.database_path))
 
+csv_paths = []
 for xtal_name, pdb, mtz in get_xtals_from_db(params,
                                              refinement_outcomes="'4 - CompChem ready', "
                                                                  "'5 - Deposition ready',"
@@ -132,16 +133,18 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
 
     os.chdir(os.path.join(params.output.out_dir))
 
-    try:
-        exhaustive(params)
-    except UnboundLocalError:
-        logging.info("Skipping onto the next crystal")
-        continue
+    # try:
+    #     exhaustive(params)
+    # except UnboundLocalError:
+    #     logging.info("Skipping onto the next crystal")
+    #     continue
 
 
     scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name))
 
     logging.info('Completed: {}'.format(xtal_name))
+    csv_paths.append(params.exhaustive.output.csv_name)
+
 
 
 # xtal_dirs = [os.path.join(loop_dir,xtal_dir) for xtal_dir in os.listdir(loop_dir)
