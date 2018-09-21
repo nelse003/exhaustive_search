@@ -153,6 +153,10 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
     params.input.mtz = mtz
     params.exhaustive.output.csv_name = "exhaustive_search.csv"
     params.output.out_dir = os.path.join(out_dir, xtal_name)
+
+    if not os.path.exists(params.output.out_dir):
+        os.mkdir(os.path.join(params.output.out_dir))
+
     os.chdir(os.path.join(params.output.out_dir))
 
     try:
@@ -161,8 +165,6 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
         logging.info("Skipping onto the next crystal")
         continue
 
-    if not os.path.exists(params.output.out_dir):
-        os.mkdir(os.path.join(params.output.out_dir))
 
     scatter_plot(params.input.csv_name)
 
