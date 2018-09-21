@@ -166,7 +166,7 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
         continue
 
 
-    scatter_plot(params.input.csv_name)
+    scatter_plot(params.exhaustive.output.csv_name)
 
     logging.info('Completed: {}'.format(xtal_name))
 
