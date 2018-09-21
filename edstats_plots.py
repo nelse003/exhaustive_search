@@ -9,5 +9,5 @@ es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset','ES_occ','es_bfac''mi
 print(edstats_df)
 print(es_minima_df)
 
-print(pd.concat([edstats_df,es_minima_df], axis=0))
+print(pd.concat([edstats_df,es_minima_df], axis=1))
 
