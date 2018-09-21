@@ -1,5 +1,4 @@
-import pytest
-from easy_mp_example import try_easy_mp, try_f_caller
+from exhaustive.depreceated.easy_mp_example import try_easy_mp, try_f_caller
 
 def test_try_easy_mp():
     result = try_easy_mp()
