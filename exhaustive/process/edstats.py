@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from ..phil import master_phil
+from ../../phil import master_phil
 
 def get_xtals_from_db(params,
                       refinement_outcomes="'3 - In Refinement',"
