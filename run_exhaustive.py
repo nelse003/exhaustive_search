@@ -143,7 +143,8 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
     #scatter_plot(os.path.join(params.output.out_dir,params.exhaustive.output.csv_name))
 
     logging.info('Completed: {}'.format(xtal_name))
-    csv_paths.append(params.exhaustive.output.csv_name)
+    csv_paths.append(os.path.join(params.output.out_dir,
+                                  params.exhaustive.output.csv_name)
 
 
 
