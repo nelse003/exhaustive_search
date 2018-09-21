@@ -129,9 +129,9 @@ params.exhaustive.options.generate_mtz = False
 params.exhaustive.options.lower_u_iso = 0.00
 params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 
-if not os.path.exists(params.output.out_dir):
-    logging.info('Creating output directory {}'.format(params.output.out_dir))
-    os.mkdir(params.output.out_dir)
+if not os.path.exists(out_dir):
+    logging.info('Creating output directory {}'.format(out_dir))
+    os.mkdir(out_dir)
 else:
     logging.info('Output directory {} exists and is being used'.format(params.output.out_dir))
 
