@@ -21,7 +21,7 @@ from exhaustive.exhaustive.utils.utils import get_xtals_from_db
 # such as GDP for janine
 
 #params.input.in_path = "/dls/labxchem/data/2016/lb13385-64/processing/analysis/initial_model"
-# params = master_phil.extract()
+params = master_phil.extract()
 #
 params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
@@ -47,7 +47,7 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
                                                                  "'5 - Deposition ready',"
                                                                  "'6 - Deposited'" ):
 
-    edstats_csv = os.path.join(params.output.out_dir, xtal_name, "residue_scores.csv")
+    edstats_csv = os.path.join(params.output.out_dir, xtal_name,d "residue_scores.csv")
     edstats_df = pd.read_csv(edstats_csv)
     edstats_df['Dataset'] = xtal_name
     dfs.append(edstats_df)
