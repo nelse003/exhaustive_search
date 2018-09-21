@@ -47,7 +47,7 @@ for xtal_name, pdb, mtz in get_xtals_from_db(params,
                                                                  "'5 - Deposition ready',"
                                                                  "'6 - Deposited'" ):
 
-    edstats_csv = os.path.join(params.output.out_dir, xtal_name "residue_scores.csv")
+    edstats_csv = os.path.join(params.output.out_dir, xtal_name, "residue_scores.csv")
     edstats_df = pd.read_csv(edstats_csv)
     edstats_df['Dataset'] = xtal_name
     dfs.append(edstats_df)
