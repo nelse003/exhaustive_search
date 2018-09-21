@@ -1,6 +1,7 @@
 import os
 import pandas as pd
-from exhaustive.exhaustive.utils.utils import get_xtals_from_db
+from exhaustive.utils.utils import get_xtals_from_db
+from phil import master_phil
 
 # from giant.jiffies.score_model import run as score_model
 # from giant.jiffies.score_model import master_phil as score_phil
@@ -17,6 +18,8 @@ from exhaustive.exhaustive.utils.utils import get_xtals_from_db
 # such as GDP for janine
 
 #params.input.in_path = "/dls/labxchem/data/2016/lb13385-64/processing/analysis/initial_model"
+params = master_phil.extract()
+
 params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
 
