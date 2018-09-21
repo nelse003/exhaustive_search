@@ -69,6 +69,9 @@ d_spacings = fmodel.f_obs_work().d_spacings().data()
 
 s_sqrd = fmodel.f_obs_work().sin_theta_over_lambda_sq().data()
 
+print(len(d_spacings))
+print(len(s_sqrd))
+
 print(fmodel.f_obs_work().d_max_min())
 
 
