@@ -6,12 +6,19 @@ from cStringIO import StringIO
 
 import mmtbx.utils
 import iotbx.pdb
+import numpy as np
 
 from scitbx.array_family import flex
 from cctbx import maptbx
 from iotbx import reflection_file_utils
 from phil import master_phil
 from mmtbx.utils import data_and_flags_master_params
+
+import cctbx.eltbx
+
+def dump(obj):
+  for attr in dir(obj):
+    print("obj.%s = %r" % (attr, getattr(obj, attr)))
 
 params = master_phil.extract()
 params.input.xtal_name = "FALZA-x0085"
@@ -72,9 +79,58 @@ s_sqrd = fmodel.f_obs_work().sin_theta_over_lambda_sq().data()
 print(len(d_spacings))
 print(len(s_sqrd))
 
+for i in xrange(0,100):
+    print(d_spacings[i], s_sqrd[i])
+
 print(fmodel.f_obs_work().d_max_min())
 
+print(xrs.scattering_type_registry())
 
+dump(xrs.scattering_type_registry())
+
+print("----------------------------------------------")
+
+xrs.scattering_type_registry().show_summary()
+
+print("----------------------------------------------")
+
+print(xrs.scattering_dictionary_as_string())
+
+print("----------------------------------------------")
+
+dump(xrs)
+
+print("----------------------------------------------")
+
+dump(xrs.structure_factors)
+
+print("----------------------------------------------")
+
+print(xrs.scattering_type_registry().last_table())
+
+print("----------------------------------------------")
+
+print(cctbx.eltbx.xray_scattering.best_approximation("O"))
+dump(cctbx.eltbx.xray_scattering.best_approximation("O"))
+
+print("----------------------------------------------")
+
+print(cctbx.eltbx.xray_scattering.best_approximation("O").show())
+
+# Below is incorrect see https://onlinelibrary.wiley.com/doi/pdf/10.1107/S0021889801017824
+# https://github.com/cctbx/cctbx_project/blob/master/cctbx/eltbx/xray_scattering/__init__.py
+# and look at the
+for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
+
+    f0 = cctbx.eltbx.xray_scattering.best_approximation("O").at_stol_sq(stol_sq)
+
+    occ = 0.9
+    R_list = []
+    for B in xrange(0,100):
+        R = (occ * f0 - f0*np.exp(B*stol_sq))/(occ * f0)
+        R_list.append(R)
+
+    print(R_list)
 #print(fmodel.f_obs_work().structure_factors_from_scatterers(xray_structure=xrs))
 
 # print(fmodel.f_obs_work().structure_factors_from_scatterers(
