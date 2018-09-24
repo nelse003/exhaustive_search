@@ -16,6 +16,10 @@ from mmtbx.utils import data_and_flags_master_params
 
 import cctbx.eltbx
 
+import matplotlib
+#matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 def dump(obj):
   for attr in dir(obj):
     print("obj.%s = %r" % (attr, getattr(obj, attr)))
@@ -120,17 +124,33 @@ print(cctbx.eltbx.xray_scattering.best_approximation("O").show())
 # Below is incorrect see https://onlinelibrary.wiley.com/doi/pdf/10.1107/S0021889801017824
 # https://github.com/cctbx/cctbx_project/blob/master/cctbx/eltbx/xray_scattering/__init__.py
 # and look at the
-for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
 
-    f0 = cctbx.eltbx.xray_scattering.best_approximation("O").at_stol_sq(stol_sq)
 
-    occ = 0.9
-    R_list = []
-    for B in xrange(0,100):
-        R = (occ * f0 - f0*np.exp(B*stol_sq))/(occ * f0)
-        R_list.append(R)
+jet= plt.get_cmap('jet')
+colors = iter(jet(np.linspace(0.1,1,10)))
 
-    print(R_list)
+for occ in np.linspace(0.1,1,10):
+
+    R_top_sum = np.zeros(400)
+    R_bot_sum = np.zeros(400)
+
+    for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
+
+        f0 = cctbx.eltbx.xray_scattering.best_approximation("O").at_stol_sq(stol_sq)
+
+        B = np.linspace(0,50,400)
+
+        R_top = np.abs(occ * f0 - f0*np.exp(-B*stol_sq))
+        R_bot = occ * f0
+        R_top_sum += R_top
+        R_bot_sum += R_bot
+
+    R = R_top_sum/R_bot_sum
+    plt.scatter(B,R, c=next(colors))
+plt.show()
+
+
+
 #print(fmodel.f_obs_work().structure_factors_from_scatterers(xray_structure=xrs))
 
 # print(fmodel.f_obs_work().structure_factors_from_scatterers(
