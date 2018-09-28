@@ -19,10 +19,33 @@ import cctbx.eltbx
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+from matplotlib.legend import Legend
 
 def dump(obj):
   for attr in dir(obj):
     print("obj.%s = %r" % (attr, getattr(obj, attr)))
+
+def calc_bhat_R(occ, atom_type):
+
+    R_top_sum = np.zeros(700)
+    R_bot_sum = np.zeros(700)
+
+    for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
+
+        f0 = cctbx.eltbx.xray_scattering.best_approximation(atom_type).at_stol_sq(stol_sq)
+
+        B = np.linspace(0,70,700)
+
+        R_top = np.abs(occ * f0 - f0*np.exp(-B*stol_sq))
+        R_bot = occ * f0
+        R_top_sum += R_top
+        R_bot_sum += R_bot
+
+    R = R_top_sum/R_bot_sum
+
+    return B, R
+
 
 params = master_phil.extract()
 params.input.xtal_name = "FALZA-x0085"
@@ -83,7 +106,7 @@ s_sqrd = fmodel.f_obs_work().sin_theta_over_lambda_sq().data()
 print(len(d_spacings))
 print(len(s_sqrd))
 
-for i in xrange(0,100):
+for i in xrange(0, 100):
     print(d_spacings[i], s_sqrd[i])
 
 print(fmodel.f_obs_work().d_max_min())
@@ -121,33 +144,50 @@ print("----------------------------------------------")
 
 print(cctbx.eltbx.xray_scattering.best_approximation("O").show())
 
-# Below is incorrect see https://onlinelibrary.wiley.com/doi/pdf/10.1107/S0021889801017824
-# https://github.com/cctbx/cctbx_project/blob/master/cctbx/eltbx/xray_scattering/__init__.py
-# and look at the
-
 
 jet= plt.get_cmap('jet')
 colors = iter(jet(np.linspace(0.1,1,10)))
 
-for occ in np.linspace(0.1,1,10):
+fig, ax =plt.subplots(figsize=(8,12))
+ax_top = plt.axes([0.4, 0.4, 0.35, 0.35])
+ax_top.set_xlim(0, 20)
+ax_top.set_ylim(0,1)
+ax_top.set_xlabel("B")
+ax_top.set_ylabel("R")
+ax.set_xlabel("B")
+ax.set_ylabel("R")
+ax.set_title("Bhat 1989: R value for atoms")
 
-    R_top_sum = np.zeros(400)
-    R_bot_sum = np.zeros(400)
+for occ in np.linspace(0.1, 1, 10):
 
-    for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
+    colour = next(colors)
 
-        f0 = cctbx.eltbx.xray_scattering.best_approximation("O").at_stol_sq(stol_sq)
+    B_ox, R_ox = calc_bhat_R(occ=occ, atom_type="O")
+    ax.plot(B_ox,R_ox, c=colour, label = '{}'.format(occ))
+    ax_top.plot(B_ox, R_ox, c=colour)
 
-        B = np.linspace(0,50,400)
+    B_cl, R_cl = calc_bhat_R(occ=occ, atom_type="CL")
+    ax.plot(B_cl,R_cl, c=colour, linestyle = 'dashed')
+    ax_top.plot(B_cl, R_cl, c=colour, linestyle = 'dashed')
 
-        R_top = np.abs(occ * f0 - f0*np.exp(-B*stol_sq))
-        R_bot = occ * f0
-        R_top_sum += R_top
-        R_bot_sum += R_bot
+    B_h, R_h = calc_bhat_R(occ=occ, atom_type="H")
+    ax.plot(B_h,R_h, c=colour, linestyle = ':')
+    ax_top.plot(B_h, R_h, c=colour, linestyle=':')
 
-    R = R_top_sum/R_bot_sum
-    plt.scatter(B,R, c=next(colors))
-plt.show()
+dashed = mlines.Line2D([], [], color='k', linestyle='dashed', label="CL")
+solid = mlines.Line2D([], [], color='k', label="O")
+dotted = mlines.Line2D([], [], color='k', linestyle =':',label="H")
+
+ax.legend(loc='best', title="Occupancy", frameon=False)
+
+leg = Legend(parent=ax,
+             handles=[dashed, solid, dotted],
+             labels=["CL","O","H"],
+             loc='upper center',
+             frameon= False)
+
+ax.add_artist(leg)
+plt.savefig("bhat_o_cl_h.png", dpi=300)
 
 
 
