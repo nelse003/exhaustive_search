@@ -73,12 +73,12 @@ def repeat_validate(params):
     print(params.output.out_dir)
 
     # Buffer range (convex hull around occupancy group)
-    for buffer in np.arange(0, 1, 0.5):
+    for buffer_dist in np.arange(0, 1, 0.5):
         params.exhaustive.options.convex_hull_ignore_nearest = False
         params.output.out_dir = os.path.join(params.output.out_dir,
-                                             "convex_hull_buffer_{}".format(str(buffer).replace(".","_")))
-        params.exhaustive.options.convex_hull=True
-        params.exhaustive.options.buffer=buffer
+                                             "convex_hull_buffer_{}".format(str(buffer_dist).replace(".", "_")))
+        params.exhaustive.options.convex_hull = True
+        params.exhaustive.options.buffer = buffer_dist
 
         if os.path.exists(params.output.out_dir):
 

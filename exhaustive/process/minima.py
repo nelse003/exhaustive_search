@@ -45,8 +45,8 @@ def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
                             atom.set_b(u_iso_to_b_fac(min_u_iso))
 
 
-    with open(output_pdb,"w") as file:
-        file.write(hier.as_pdb_string(
+    with open(output_pdb,"w") as f:
+        f.write(hier.as_pdb_string(
             crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
 

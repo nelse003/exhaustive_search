@@ -168,10 +168,10 @@ for dataset in datasets:
             python_file.write('print(params.output.out_dir)\n')
             python_file.write('repeat_validate(params)\n')
 
-        with open(os.path.join(params.output.out_dir, "run_repeat_validation.sh"), 'w') as file:
-            file.write("#!/bin/bash\n")
-            file.write("source /dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n")
-            file.write("/dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4-python {}".format(
+        with open(os.path.join(params.output.out_dir, "run_repeat_validation.sh"), 'w') as f:
+            f.write("#!/bin/bash\n")
+            f.write("source /dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n")
+            f.write("/dls/science/groups/i04-1/software/pandda-update/ccp4/ccp4-7.0/bin/ccp4-python {}".format(
                 os.path.join(params.output.out_dir, "run_repeat_validation.py")))
 
         # This qsub is failing becuase it can't import libtbx.
