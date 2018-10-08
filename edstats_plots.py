@@ -51,6 +51,7 @@ summary_df = pd.merge(edstats_df,es_minima_df, on='Dataset')
 
 refinement_outcomes= "'4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
 
+print(database_path)
 conn = sqlite3.connect(database_path)
 main_table_df = pd.read_sql_query("select * from mainTable",conn)
 cur = conn.cursor()
