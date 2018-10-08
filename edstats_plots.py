@@ -93,7 +93,6 @@ if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
 
 summary_df.to_csv(os.path.join(out_dir, "DCP2B_edstats_summary.csv"))
 FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv"))
-
 duplicate_compound_df = pd.concat(g for _, g in summary_df.groupby("compound_code") if len(g) > 1)
 
 summary_duplicate_df_list = []
@@ -110,15 +109,5 @@ for duplicate_compound in duplicate_compound_df['compound_code'].unique():
                "Occ ES max": [duplicate_df['ES_occ'].max()]
                }
     summary_duplicate_df_list.append(pd.DataFrame(data=summary))
-
-    # print("{} length: {}".format(duplicate_compound, len(duplicate_df.index)))
-    # print("{} RSCC range: {} {}").format(duplicate_compound, duplicate_df['RSCC'].min(),
-    #         duplicate_df['RSCC'].max())
-    # print("{} refinement_occ range: {} {}").format(duplicate_compound,
-    #         duplicate_df['Occupancy'].min(), duplicate_df['Occupancy'].max())
-    # print("{} es_occ range: {} {}").format(duplicate_compound,
-    #         duplicate_df['ES_occ'].min(), duplicate_df['ES_occ'].max())
-    #
-    # print("_______________________________________________________________________")
 
 pd.concat(summary_duplicate_df_list).to_csv(os.path.join(out_dir, "DCP2B_edstats_duplicates.csv"))
