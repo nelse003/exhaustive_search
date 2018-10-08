@@ -25,7 +25,8 @@ params = master_phil.extract()
 #
 params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
-#
+
+
 for xtal_name, pdb, mtz in get_xtals_from_db(params,
                                              refinement_outcomes="'4 - CompChem ready', "
                                                                  "'5 - Deposition ready',"
