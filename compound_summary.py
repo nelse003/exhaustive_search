@@ -8,6 +8,8 @@ conn = sqlite3.connect(database_path)
 main_table_df = pd.read_sql_query("select * from mainTable",conn)
 cur = conn.cursor()
 
+refinement_outcomes= " '3 - In Refinement', '4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
+
 cur.execute("SELECT CrystalName, CompoundCode, RefinementResolution "
             "FROM mainTable WHERE RefinementOutcome in ({})"
             " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
