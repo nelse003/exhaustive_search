@@ -104,4 +104,20 @@ print("FMOPL000435a RSCC range: {} {}").format(FMOPL000435a_df['RSCC'].min(),
 print("FMOPL000435a refinement_occ range: {} {}").format(
     FMOPL000435a_df['Occupancy'].min(), FMOPL000435a_df['Occupancy'].max())
 
+# FMOPL000449a
 
+FMOPL000449a_df = summary_df[summary_df['compound_code'] == "FMOPL000449a"]
+
+if not os.path.exists(os.path.join(out_dir,"FMOPL000449a_pairplot.png")):
+    FMOPL000449a_pairplot = labelled_pairplot(FMOPL000449a_df)
+    fig = FMOPL000449a_pairplot.fig
+    fig.savefig(os.path.join(out_dir,"FMOPL000449a_pairplot.png"), dpi=300)
+
+print("_______________________________________________________________________")
+
+print("FMOPL000449a length: {}".format(len(FMOPL000449a_df.index)))
+print("FMOPL000449a RSCC range: {} {}").format(FMOPL000449a_df['RSCC'].min(),
+                                               FMOPL000449a_df['RSCC'].max())
+
+print("FMOPL000449a refinement_occ range: {} {}").format(
+    FMOPL000449a_df['Occupancy'].min(), FMOPL000449a_df['Occupancy'].max())
