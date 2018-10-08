@@ -24,4 +24,4 @@ for xtal_name, compound_code, resolution in refinement_xtals:
 comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName','compound_code'])
 duplicate_compound_df = pd.concat(g for _, g in comp_df.groupby("compound_code") if len(g) > 1)
 
-print(duplicate_compound_df)
+print(duplicate_compound_df['compound_code'].value_counts())
