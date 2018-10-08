@@ -94,6 +94,8 @@ if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
 summary_df.to_csv(os.path.join(out_dir, "DCP2B_edstats_summary.csv"))
 FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv"))
 
+print(summary_df["CompoundCode"].count())
+
 
 print("_______________________________________________________________________")
 
