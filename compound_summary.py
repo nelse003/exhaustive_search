@@ -21,4 +21,6 @@ compounds = {}
 for xtal_name, compound_code, resolution in refinement_xtals:
     compounds[xtal_name] = compound_code
 
-print(compounds)
+comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName','compound_code'])
+
+print(comp_df)
