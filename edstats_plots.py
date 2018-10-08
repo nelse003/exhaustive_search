@@ -126,7 +126,7 @@ FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv")
 # print("FMOPL000449a es_occ range: {} {}").format(
 #     FMOPL000449a_df['ES_occ'].min(), FMOPL000449a_df['ES_occ'].max())
 
-duplicate_compound_df = pd.concat(g for _, g in summary_df.groupby("compound_code") if len(g) > 1))
+duplicate_compound_df = pd.concat(g for _, g in summary_df.groupby("compound_code") if len(g) > 1)
 
 for duplicate_compound in duplicate_compound_df['compound_code'].unique():
     duplicate_df =  summary_df[summary_df['compound_code'] == duplicate_compound]
