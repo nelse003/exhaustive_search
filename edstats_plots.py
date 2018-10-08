@@ -94,36 +94,49 @@ if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
 summary_df.to_csv(os.path.join(out_dir, "DCP2B_edstats_summary.csv"))
 FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv"))
 
-print(pd.concat(g for _, g in summary_df.groupby("compound_code") if len(g) > 1))
+#
+#
+# print("FMOPL000435a length: {}".format(len(FMOPL000435a_df.index)))
+# print("FMOPL000435a RSCC range: {} {}").format(FMOPL000435a_df['RSCC'].min(),
+#                                                FMOPL000435a_df['RSCC'].max())
+#
+# print("FMOPL000435a refinement_occ range: {} {}").format(
+#     FMOPL000435a_df['Occupancy'].min(), FMOPL000435a_df['Occupancy'].max())
+# print("FMOPL000435a es_occ range: {} {}").format(
+#     FMOPL000435a_df['ES_occ'].min(), FMOPL000435a_df['ES_occ'].max())
+#
+# # FMOPL000449a
+#
+# FMOPL000449a_df = summary_df[summary_df['compound_code'] == "FMOPL000449a"]
+#
+# if not os.path.exists(os.path.join(out_dir,"FMOPL000449a_pairplot.png")):
+#     FMOPL000449a_pairplot = labelled_pairplot(FMOPL000449a_df)
+#     fig = FMOPL000449a_pairplot.fig
+#     fig.savefig(os.path.join(out_dir,"FMOPL000449a_pairplot.png"), dpi=300)
+#
+# print("_______________________________________________________________________")
+#
+# print("FMOPL000449a length: {}".format(len(FMOPL000449a_df.index)))
+# print("FMOPL000449a RSCC range: {} {}").format(FMOPL000449a_df['RSCC'].min(),
+#                                                FMOPL000449a_df['RSCC'].max())
+#
+#
+# print("FMOPL000449a refinement_occ range: {} {}").format(
+#     FMOPL000449a_df['Occupancy'].min(), FMOPL000449a_df['Occupancy'].max())
+# print("FMOPL000449a es_occ range: {} {}").format(
+#     FMOPL000449a_df['ES_occ'].min(), FMOPL000449a_df['ES_occ'].max())
 
-print("_______________________________________________________________________")
+duplicate_compound_df = pd.concat(g for _, g in summary_df.groupby("compound_code") if len(g) > 1))
 
-print("FMOPL000435a length: {}".format(len(FMOPL000435a_df.index)))
-print("FMOPL000435a RSCC range: {} {}").format(FMOPL000435a_df['RSCC'].min(),
-                                               FMOPL000435a_df['RSCC'].max())
+for duplicate_compound in duplicate_compound_df['compound_code'].unique():
+    duplicate_df =  summary_df[summary_df['compound_code'] == duplicate_compound]
 
-print("FMOPL000435a refinement_occ range: {} {}").format(
-    FMOPL000435a_df['Occupancy'].min(), FMOPL000435a_df['Occupancy'].max())
-print("FMOPL000435a es_occ range: {} {}").format(
-    FMOPL000435a_df['ES_occ'].min(), FMOPL000435a_df['ES_occ'].max())
+    print("{} length: {}".format(duplicate_compound, len(duplicate_df.index)))
+    print("{} RSCC range: {} {}").format(duplicate_compound, duplicate_df['RSCC'].min(),
+            duplicate_df['RSCC'].max())
+    print("{} refinement_occ range: {} {}").format(duplicate_compound,
+            duplicate_df['Occupancy'].min(), duplicate_df['Occupancy'].max())
+    print("{} es_occ range: {} {}").format(duplicate_compound,
+            duplicate_df['ES_occ'].min(), duplicate_df['ES_occ'].max())
 
-# FMOPL000449a
-
-FMOPL000449a_df = summary_df[summary_df['compound_code'] == "FMOPL000449a"]
-
-if not os.path.exists(os.path.join(out_dir,"FMOPL000449a_pairplot.png")):
-    FMOPL000449a_pairplot = labelled_pairplot(FMOPL000449a_df)
-    fig = FMOPL000449a_pairplot.fig
-    fig.savefig(os.path.join(out_dir,"FMOPL000449a_pairplot.png"), dpi=300)
-
-print("_______________________________________________________________________")
-
-print("FMOPL000449a length: {}".format(len(FMOPL000449a_df.index)))
-print("FMOPL000449a RSCC range: {} {}").format(FMOPL000449a_df['RSCC'].min(),
-                                               FMOPL000449a_df['RSCC'].max())
-
-
-print("FMOPL000449a refinement_occ range: {} {}").format(
-    FMOPL000449a_df['Occupancy'].min(), FMOPL000449a_df['Occupancy'].max())
-print("FMOPL000449a es_occ range: {} {}").format(
-    FMOPL000449a_df['ES_occ'].min(), FMOPL000449a_df['ES_occ'].max())
+    print("_______________________________________________________________________")
