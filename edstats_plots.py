@@ -36,7 +36,7 @@ def labelled_pairplot(df, hue_column=None):
 es_minima_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/es_minima.csv"
 edstats_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/edstats.csv"
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
-database_path = "/dls/labxchem/data/2016/lb13385-64/processing/data"
+database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDatafile.sqlite"
 
 # out_dir =  "/home/nelse003/Desktop/DCP2B_exhaus/"
 #
