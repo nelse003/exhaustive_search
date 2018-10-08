@@ -42,7 +42,7 @@ database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDa
 #
 # es_minima_csv = "/home/nelse003/Desktop/DCP2B_exhaus/es_minima.csv"
 # edstats_csv = "/home/nelse003/Desktop/DCP2B_exhaus/edstats.csv"
-database_path = "/home/nelse003/Desktop/DCP2B_exhaus/soakDBDataFile.sqlite"
+#database_path = "/home/nelse003/Desktop/DCP2B_exhaus/soakDBDataFile.sqlite"
 
 edstats_df = pd.read_csv(edstats_csv)
 es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset','ES_occ','es_bfac','min_fofc'])
