@@ -103,6 +103,8 @@ print("FMOPL000435a RSCC range: {} {}").format(FMOPL000435a_df['RSCC'].min(),
 
 print("FMOPL000435a refinement_occ range: {} {}").format(
     FMOPL000435a_df['Occupancy'].min(), FMOPL000435a_df['Occupancy'].max())
+print("FMOPL000435a es_occ range: {} {}").format(
+    FMOPL000435a_df['ES_occ'].min(), FMOPL000435a_df['ES_occ'].max())
 
 # FMOPL000449a
 
@@ -119,5 +121,8 @@ print("FMOPL000449a length: {}".format(len(FMOPL000449a_df.index)))
 print("FMOPL000449a RSCC range: {} {}").format(FMOPL000449a_df['RSCC'].min(),
                                                FMOPL000449a_df['RSCC'].max())
 
+
 print("FMOPL000449a refinement_occ range: {} {}").format(
     FMOPL000449a_df['Occupancy'].min(), FMOPL000449a_df['Occupancy'].max())
+print("FMOPL000449a es_occ range: {} {}").format(
+    FMOPL000449a_df['ES_occ'].min(), FMOPL000449a_df['ES_occ'].max())
