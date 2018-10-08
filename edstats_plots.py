@@ -90,7 +90,9 @@ if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
     fig = FMOPL000435a_pairplot.fig
     fig.savefig(os.path.join(out_dir,"FMOPL000435a_pairplot.png"), dpi=300)
 
-print(summary_df)
+summary_df.to_csv(os.path.join(out_dir, "DCP2B_edstats_summary.csv"))
+FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv"))
+
 
 print("_______________________________________________________________________")
 
