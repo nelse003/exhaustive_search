@@ -101,6 +101,7 @@ for duplicate_compound in duplicate_compound_df['compound_code'].unique():
     duplicate_df =  summary_df[summary_df['compound_code'] == duplicate_compound]
 
     summary = {"compound" : [duplicate_compound],
+               "number refined hits" : [len(duplicate_df.index)],
                "RSCC min" : [duplicate_df['RSCC'].min()],
                "RSCC max" : [duplicate_df['RSCC'].max()],
                "Occ refined min" : [duplicate_df['Occupancy'].min()],
