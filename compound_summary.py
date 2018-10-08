@@ -11,6 +11,9 @@ database_path = "/dls/labxchem/data/2017/lb18145-49/processing/database/soakDBDa
 # NUDT7 (Tobias)
 database_path = "/dls/labxchem/data/2017/lb18145-3/processing/database/soakDBDataFile.sqlite"
 
+# FALZA
+database_path = "/dls/labxchem/data/2016/lb13385-61/processing/database/soakDBDataFile.sqlite"
+
 conn = sqlite3.connect(database_path)
 main_table_df = pd.read_sql_query("select * from mainTable",conn)
 cur = conn.cursor()
