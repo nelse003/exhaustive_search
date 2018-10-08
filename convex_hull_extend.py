@@ -3,7 +3,6 @@
 Compare the output of the exhaustive search algorithm, """
 
 import os
-
 import numpy as np
 
 from exhaustive.exhaustive import run as exhaustive

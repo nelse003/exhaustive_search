@@ -33,13 +33,15 @@ def labelled_pairplot(df, hue_column=None):
     return g
 
 
-# es_minima_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/es_minima.csv"
-# edstats_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/edstats.csv"
-#out_dir ="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
-out_dir =  "/home/nelse003/Desktop/DCP2B_exhaus/"
+es_minima_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/es_minima.csv"
+edstats_csv = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus/edstats.csv"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+database_path = "/dls/labxchem/data/2016/lb13385-64/processing/data"
 
-es_minima_csv = "/home/nelse003/Desktop/DCP2B_exhaus/es_minima.csv"
-edstats_csv = "/home/nelse003/Desktop/DCP2B_exhaus/edstats.csv"
+# out_dir =  "/home/nelse003/Desktop/DCP2B_exhaus/"
+#
+# es_minima_csv = "/home/nelse003/Desktop/DCP2B_exhaus/es_minima.csv"
+# edstats_csv = "/home/nelse003/Desktop/DCP2B_exhaus/edstats.csv"
 database_path = "/home/nelse003/Desktop/DCP2B_exhaus/soakDBDataFile.sqlite"
 
 edstats_df = pd.read_csv(edstats_csv)
@@ -74,13 +76,29 @@ for xtal_name, compound_code, resolution in refinement_xtals:
 
 comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName','compound_code'])
 summary_df = pd.merge(summary_df, comp_df, on='CrystalName')
+
 FMOPL000435a_df = summary_df[summary_df['compound_code'] == "FMOPL000435a"]
 
-pairplot = labelled_pairplot(summary_df, hue_column="compound_code")
-fig = pairplot.fig
-fig.savefig(os.path.join(out_dir,"pairplot.png"),
-                 dpi=300)
+if not os.path.exists(os.path.join(out_dir,"pairplot.png")):
+    pairplot = labelled_pairplot(summary_df, hue_column="compound_code")
+    fig = pairplot.fig
+    fig.savefig(os.path.join(out_dir,"pairplot.png"),
+                     dpi=300)
 
-FMOPL000435a_pairplot = labelled_pairplot(FMOPL000435a_df)
-fig = FMOPL000435a_pairplot.fig
-fig.savefig(os.path.join(out_dir,"FMOPL000435a_pairplot.png"),dpi=300)
+if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
+    FMOPL000435a_pairplot = labelled_pairplot(FMOPL000435a_df)
+    fig = FMOPL000435a_pairplot.fig
+    fig.savefig(os.path.join(out_dir,"FMOPL000435a_pairplot.png"), dpi=300)
+
+print(summary_df)
+
+print("_______________________________________________________________________")
+
+print("FMOPL000435a length: {}".format(len(FMOPL000435a_df.index)))
+print("FMOPL000435a RSCC range: {} {}").format(FMOPL000435a_df['RSCC'].min(),
+                                               FMOPL000435a_df['RSCC'].max())
+
+print("FMOPL000435a refinement_occ range: {} {}").format(
+    FMOPL000435a_df['Occupancy'].min(), FMOPL000435a_df['Occupancy'].max())
+
+
