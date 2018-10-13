@@ -162,7 +162,7 @@ for xtal_dir in xtal_dirs:
     print(xtal_name)
 
 
-    if xtal_name in xtals:
+    if xtal_name in xtal_dir:
 
         params.input.xtal_name = xtal_name
 
