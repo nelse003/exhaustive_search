@@ -145,7 +145,6 @@ params.exhaustive.options.lower_u_iso = 0.00
 #     csv_paths.append(os.path.join(params.output.out_dir,
 #                                   params.exhaustive.output.csv_name))
 
-############## DCP2B ##################################################################
 
 in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
 loop_dir = in_dir
@@ -194,7 +193,17 @@ for xtal_dir in xtal_dirs:
         exhaustive(params=params)
         scatter_plot(params.exhaustive.output.csv_name)
 
+with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
+    minima_writer = csv.writer(minima_csv, delimiter=',')
+
+    for path in csv_paths:
+        occ, u_iso, fofc = get_minimum_fofc(path)
+        b_fac = u_iso_to_b_fac(u_iso)
+
+        xtal_name = os.path.split(os.path.split(path)[0])[1]
+
+        minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
 # for xtal_name in xtals:
 #
@@ -284,18 +293,6 @@ for xtal_dir in xtal_dirs:
 #
 #             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
-
-with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
-
-    minima_writer = csv.writer(minima_csv, delimiter=',')
-
-    for path in csv_paths:
-        occ, u_iso, fofc = get_minimum_fofc(path)
-        b_fac = u_iso_to_b_fac(u_iso)
-
-        xtal_name = os.path.split(os.path.split(path)[0])[1]
-
-        minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 #refine minima
 
 # with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
