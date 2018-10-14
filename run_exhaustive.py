@@ -166,6 +166,9 @@ for xtal_dir in xtal_dirs:
 
         params.input.xtal_name = xtal_name
 
+        print(xtal_dir)
+        print(xtal_name)
+
         compounds = list_files(xtal_dir,"cif")
         compound_name = (list_files(xtal_dir,"cif")[0]).split(".")[0]
 
@@ -189,6 +192,12 @@ for xtal_dir in xtal_dirs:
         params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
         csv_paths.append(params.exhaustive.output.csv_name)
+
+        if os.path.exists(params.exhaustive.output.csv_name):
+            continue
+
+        print(params.exhaustive.output.csv_name)
+        exit()
 
         exhaustive(params=params)
         scatter_plot(params.exhaustive.output.csv_name)
