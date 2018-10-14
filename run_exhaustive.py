@@ -145,6 +145,7 @@ params.exhaustive.options.lower_u_iso = 0.00
 #     csv_paths.append(os.path.join(params.output.out_dir,
 #                                   params.exhaustive.output.csv_name))
 
+#### Covalent ratios ###################
 
 in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
 loop_dir = in_dir
