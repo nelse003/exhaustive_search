@@ -197,11 +197,10 @@ for xtal_dir in xtal_dirs:
         if os.path.exists(params.exhaustive.output.csv_name):
             continue
 
-        # exhaustive(params=params)
-        # scatter_plot(params.exhaustive.output.csv_name)
+        exhaustive(params=params)
+        scatter_plot(params.exhaustive.output.csv_name)
 
-print(csv_paths)
-exit()
+
 
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
