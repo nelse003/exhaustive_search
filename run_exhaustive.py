@@ -201,6 +201,7 @@ for xtal_dir in xtal_dirs:
         # scatter_plot(params.exhaustive.output.csv_name)
 
 print(csv_paths)
+exit()
 
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
