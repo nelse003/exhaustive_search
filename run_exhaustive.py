@@ -152,7 +152,8 @@ out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/cova
 prefix = "NUDT7A-x"
 
 xtal_dirs = [os.path.join(loop_dir, xtal_dir) for xtal_dir in os.listdir(loop_dir)
-             if os.path.isdir(os.path.join(loop_dir, xtal_dir))]
+             if os.path.isdir(os.path.join(loop_dir, xtal_dir))
+             and not xtal_dir.endswith("LIG_CYS")]
 
 csv_paths = []
 
@@ -196,11 +197,8 @@ for xtal_dir in xtal_dirs:
         if os.path.exists(params.exhaustive.output.csv_name):
             continue
 
-        print(params.exhaustive.output.csv_name)
-        exit()
-
-        exhaustive(params=params)
-        scatter_plot(params.exhaustive.output.csv_name)
+        # exhaustive(params=params)
+        # scatter_plot(params.exhaustive.output.csv_name)
 
 with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
 
