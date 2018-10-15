@@ -142,8 +142,6 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
 
 # TODO sort out params
-
-
 def plot_2d_occ_b_validation(start_occ,
                              end_occ,
                              step,
@@ -315,6 +313,8 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     plt.close()
 
     print(occ_df)
+
+
 
     # if len(occ_df) != len(occ_df.dropna()):
     #     print("!!!!!!")
