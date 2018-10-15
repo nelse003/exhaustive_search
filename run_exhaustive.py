@@ -145,61 +145,59 @@ params.exhaustive.options.lower_u_iso = 0.00
 #     csv_paths.append(os.path.join(params.output.out_dir,
 #                                   params.exhaustive.output.csv_name))
 
+######################## NUDT22 #########################################
 
-in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
 loop_dir = in_dir
-out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
-prefix = "NUD22A-x"
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
+prefix = "NUDT22A-x"
 
-xtal_dirs = [os.path.join(loop_dir, xtal_dir) for xtal_dir in os.listdir(loop_dir)
-             if os.path.isdir(os.path.join(loop_dir, xtal_dir))
-             and not xtal_dir.endswith("LIG_CYS")]
-
-csv_paths = []
-
-for xtal_dir in xtal_dirs:
-
-    xtal_name = os.path.basename(xtal_dir)
-    print(xtal_name)
+compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
+             if os.path.isdir(os.path.join(loop_dir, compound_dir))]
 
 
-    if xtal_name in xtal_dir:
+for compound_dir in compound_dirs:
 
-        params.input.xtal_name = xtal_name
+    xtal_dirs = [os.path.join(compound_dir, xtal_dir)
+                 for xtal_dir in os.listdir(compound_dir)
+                 if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
 
-        print(xtal_dir)
+    csv_paths = []
+    for xtal_dir in xtal_dirs:
+
+        xtal_name = os.path.basename(xtal_dir)
         print(xtal_name)
 
-        compounds = list_files(xtal_dir,"cif")
-        compound_name = (list_files(xtal_dir,"cif")[0]).split(".")[0]
+        if xtal_name in xtal_dir:
 
-        params.input.pdb = os.path.join(xtal_dir,"refine.pdb")
-        params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
-        params.output.out_dir = os.path.join(out_dir, compound_name, xtal_name)
+            params.input.xtal_name = xtal_name
+            params.input.pdb = os.path.join(xtal_dir,"refine.pdb")
+            params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
+            params.output.out_dir = os.path.join(compound_dir, xtal_name)
 
-        if not os.path.exists(os.path.join(out_dir, compound_name)):
-            os.mkdir(os.path.join(out_dir, compound_name))
+            if not os.path.exists(params.output.out_dir):
+                os.mkdir(params.output.out_dir)
 
-        if not os.path.exists(params.output.out_dir):
-            os.mkdir(params.output.out_dir)
+            if not os.path.exists(params.input.pdb):
+                print("input pdb doesn't exist: {}".format(params.input.pdb))
+                continue
 
-        if not os.path.exists(params.input.pdb):
-            print("input pdb doesn't exist: {}".format(params.input.pdb))
-            continue
-        if not os.path.exists(params.input.mtz):
-            print("input mtz doesn't exsit: {}".format(params.input.mtz))
-            continue
+            if not os.path.exists(params.input.mtz):
+                print("input mtz doesn't exsit: {}".format(params.input.mtz))
+                continue
 
-        params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
+            params.exhaustive.output.csv_name = os.path.join(
+                params.output.out_dir, "exhaustive_search.csv")
 
-        csv_paths.append(params.exhaustive.output.csv_name)
+            csv_paths.append(params.exhaustive.output.csv_name)
 
-        if os.path.exists(params.exhaustive.output.csv_name):
-            continue
+            if os.path.exists(params.exhaustive.output.csv_name):
+                continue
 
-        # exhaustive(params=params)
-        # scatter_plot(params.exhaustive.output.csv_name)
+            exhaustive(params=params)
+            scatter_plot(params.exhaustive.output.csv_name)
 
+        print(csv_paths)
 
 
 # with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
