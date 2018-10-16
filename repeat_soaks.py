@@ -249,6 +249,8 @@ compound_dirs.remove(os.path.join(loop_dir,'N14004a'))
 combined_occ_df_list = []
 for compound_dir in compound_dirs:
 
+    params.output.out_dir = compound_dir
+
     refine_occ_df = get_occ_b(
     refinement_dir=compound_dir,
     lig_chain="B",
@@ -256,10 +258,11 @@ for compound_dir in compound_dirs:
 
     es_minima_csv = os.path.join(compound_dir, "es_minima.csv")
 
-    es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset',
-                                                     'ES_occ',
-                                                     'es_bfac',
+    es_minima_df = pd.read_csv(es_minima_csv, names=['dataset',
+                                                     'es_occupancy',
+                                                     'es_b_fac',
                                                      'min_fofc'])
+
 
     occ_df = pd.merge(es_minima_df, refine_occ_df, on='dataset', how='outer')
 
@@ -278,7 +281,7 @@ for compound_dir in compound_dirs:
     if compound.startswith("FMOPL00622a"):
         combined_occ_df_list.append(occ_df)
 
-joined_occ_df = pd.concat(combined_occ_df_list.append(occ_df))
+joined_occ_df = pd.concat(combined_occ_df_list, ignore_index=True )
 
 occupancy_histogram_with_exhaustive_search(joined_occ_df,
                                            protein_name="NUDT22A",

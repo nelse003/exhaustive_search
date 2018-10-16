@@ -134,7 +134,6 @@ def copy_atoms(copy_params):
             os.path.join(copy_params.output.out_dir,
                          xtal_name, copy_params.output.pdb)))
 
-
         # Add link record strings into multimodel pdb file, prior to refinement
         if copy_params.input.link_record_list is not None:
 
