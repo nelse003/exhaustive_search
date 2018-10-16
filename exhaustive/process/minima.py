@@ -6,7 +6,9 @@ import iotbx
 from iotbx.pdb import hierarchy
 
 from exhaustive.exhaustive.utils.utils import process_refined_pdb_bound_ground_states
-from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac, b_fac_to_u_iso, get_minimum_fofc
+from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.exhaustive.utils.utils import b_fac_to_u_iso
+from exhaustive.exhaustive.utils.utils import get_minimum_fofc
 
 logging = logging.getLogger(__name__)
 

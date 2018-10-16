@@ -197,20 +197,17 @@ for compound_dir in compound_dirs:
             exhaustive(params=params)
             scatter_plot(params.exhaustive.output.csv_name)
 
-        print(csv_paths)
+    with open(os.path.join(compound_dir,"es_minima.csv"),'wb') as minima_csv:
 
+        minima_writer = csv.writer(minima_csv, delimiter=',')
 
-# with open(os.path.join(out_dir,"es_minima.csv"),'wb') as minima_csv:
-#
-#     minima_writer = csv.writer(minima_csv, delimiter=',')
-#
-#     for path in csv_paths:
-#         occ, u_iso, fofc = get_minimum_fofc(path)
-#         b_fac = u_iso_to_b_fac(u_iso)
-#
-#         xtal_name = os.path.split(os.path.split(path)[0])[1]
-#
-#         minima_writer.writerow([xtal_name, occ, b_fac, fofc])
+        for path in csv_paths:
+            occ, u_iso, fofc = get_minimum_fofc(path)
+            b_fac = u_iso_to_b_fac(u_iso)
+
+            xtal_name = os.path.split(os.path.split(path)[0])[1]
+
+            minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
 
 #### Covalent ratios ###################

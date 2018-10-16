@@ -230,8 +230,67 @@ def process_exhaustive_search(compound_codes,
                                       compound=compound,
                                       protein_name=protein_name,
                                       title_suffix="Exhaustive minima")
+###########
+# NUDT22A
+###########
 
+params =  master_phil.extract()
 
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
+loop_dir = in_dir
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
+prefix = "NUDT22A-x"
+
+compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
+             if os.path.isdir(os.path.join(loop_dir, compound_dir))]
+
+compound_dirs.remove(os.path.join(loop_dir,'N14004a'))
+
+combined_occ_df_list = []
+for compound_dir in compound_dirs:
+
+    refine_occ_df = get_occ_b(
+    refinement_dir=compound_dir,
+    lig_chain="B",
+    pdb_name="refine.split.bound-state.pdb")
+
+    es_minima_csv = os.path.join(compound_dir, "es_minima.csv")
+
+    es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset',
+                                                     'ES_occ',
+                                                     'es_bfac',
+                                                     'min_fofc'])
+
+    occ_df = pd.merge(es_minima_df, refine_occ_df, on='dataset', how='outer')
+
+    compound = os.path.basename(compound_dir)
+
+    occupancy_histogram_with_exhaustive_search(occ_df,
+                                               protein_name="NUDT22A",
+                                               compound=compound,
+                                               params=params)
+
+    occupancy_b_factor_scatter_plot(occ_df,
+                                    protein_name="NUDT22A",
+                                    compound=compound,
+                                    params=params)
+
+    if compound.startswith("FMOPL00622a"):
+        combined_occ_df_list.append(occ_df)
+
+joined_occ_df = pd.concat(combined_occ_df_list.append(occ_df))
+
+occupancy_histogram_with_exhaustive_search(joined_occ_df,
+                                           protein_name="NUDT22A",
+                                           compound="FMOPL00622a (All)",
+                                           params=params)
+
+occupancy_b_factor_scatter_plot(joined_occ_df,
+                                protein_name="NUDT22A",
+                                compound="FMOPL00622a (All)",
+                                params=params)
+
+exit()
 ############
 # NUDT7A covalent
 ############

@@ -29,7 +29,20 @@ def copy_NUDT22():
         if not os.path.exists(xtal_dir):
             os.mkdir(xtal_dir)
 
-        os.symlink(pdb, os.path.join(xtal_dir, "refine.pdb"))
+        if not os.path.exists(os.path.join(xtal_dir, "refine.pdb")):
+            os.symlink(pdb, os.path.join(xtal_dir, "refine.pdb"))
 
-        os.symlink(mtz, os.path.join(xtal_dir, "refine.mtz"))
+        if not os.path.exists(os.path.join(xtal_dir, "refine.mtz")):
+            os.symlink(mtz, os.path.join(xtal_dir, "refine.mtz"))
 
+        if not os.path.exists(os.path.join(xtal_dir,
+                                           'refine.split.bound-state.pdb')):
+
+            os.symlink(pdb.replace('.pdb', '.split.bound-state.pdb'),
+                       os.path.join(xtal_dir, 'refine.split.bound-state.pdb'))
+
+        if not os.path.exists(os.path.join(xtal_dir,
+                                           'refine.split.ground-state.pdb')):
+
+            os.symlink(pdb.replace('.pdb', '.split.ground-state.pdb'),
+                       os.path.join(xtal_dir, 'refine.split.ground-state.pdb'))
