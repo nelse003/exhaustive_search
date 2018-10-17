@@ -5,6 +5,10 @@ import sqlite3
 matplotlib.use('agg')
 import seaborn as sns
 from matplotlib import pyplot as plt
+from exhaustive.exhaustive.utils.utils import get_minimum_fofc
+from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
+from phil import master_phil
+from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 
 def labelled_pairplot(df, hue_column=None):
     """ Seaborn pairplot with labelled axis for each subplot
@@ -60,6 +64,7 @@ def plot_NUDT22():
 
     combined_occ_df_list = []
     for compound_dir in compound_dirs:
+        pass
 
 def plot_DCP2B():
     """ Plotting code for edtstats pairplots on DCP2B 
@@ -102,10 +107,19 @@ def plot_DCP2B():
 
 
     compounds = {}
+    es_occ_b = []
     for xtal_name, compound_code, resolution in refinement_xtals:
         #xtal_name = xtal_name.encode('ascii')
         #compound_code = compound_code.encode('ascii')
         compounds[xtal_name] = compound_code
+
+
+        if compound_code == "FMOPL000435a":
+            csv = os.path.join(out_dir, xtal_name, "exhaustive_search.csv")
+            occ, u_iso, _ = get_minimum_fofc(csv)
+            es_occ_b.append([xtal_name,
+                             occ,
+                             u_iso_to_b_fac(u_iso)])
 
     comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName','compound_code'])
     summary_df = pd.merge(summary_df, comp_df, on='CrystalName')
@@ -122,6 +136,21 @@ def plot_DCP2B():
         FMOPL000435a_pairplot = labelled_pairplot(FMOPL000435a_df)
         fig = FMOPL000435a_pairplot.fig
         fig.savefig(os.path.join(out_dir,"FMOPL000435a_pairplot.png"), dpi=300)
+
+    FMOPL000435a_df =FMOPL000435a_df.rename(index=str, columns={"ES_occ":"es_occupancy",
+                                               "Occupancy":"occupancy"})
+
+    params = master_phil.extract()
+    params.output.out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+
+    occupancy_histogram_with_exhaustive_search(FMOPL000435a_df,
+                                               protein_name="DCP2B",
+                                               compound="FMOPL000435a",
+                                               params=params)
+    # occupancy_b_factor_scatter_plot(FMOPL000435a_df,
+    #                                 protein_name=protein_name,
+    #                                 compound=compound,
+    #                                 params=params)
 
     summary_df.to_csv(os.path.join(out_dir, "DCP2B_edstats_summary.csv"))
     FMOPL000435a_df.to_csv(os.path.join(out_dir, "FMOPL000435a_edstats_summary.csv"))
@@ -143,3 +172,5 @@ def plot_DCP2B():
         summary_duplicate_df_list.append(pd.DataFrame(data=summary))
 
     pd.concat(summary_duplicate_df_list).to_csv(os.path.join(out_dir, "DCP2B_edstats_duplicates.csv"))
+
+plot_DCP2B()

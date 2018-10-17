@@ -230,6 +230,67 @@ def process_exhaustive_search(compound_codes,
                                       compound=compound,
                                       protein_name=protein_name,
                                       title_suffix="Exhaustive minima")
+############
+# DCP2B
+############
+
+params =  master_phil.extract()
+
+covalent_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+
+params.output.out_dir = covalent_dir
+
+xtal_dirs = [os.path.join(covalent_dir, xtal_dir)
+             for xtal_dir in os.listdir(covalent_dir)
+             if os.path.isdir(os.path.join(covalent_dir, xtal_dir))
+             and not xtal_dir.endswith("LIG_CYS")]
+
+for xtal_dir in xtal_dirs:
+    if not os.path.exists(os.path.join("refine.split.bound-state.pdb")):
+        os.chdir(xtal_dir)
+        os.system("giant.split_conformations refine.pdb")
+
+refine_occ_df = get_occ_b(
+    refinement_dir=covalent_dir,
+    lig_chain="E",
+    pdb_name="refine.split.bound-state.pdb")
+
+exhaustive_search_csvs = [os.path.join(xtal_dir,,
+                                       "exhaustive_search.csv")
+                          for xtal_dir in os.listdir(covalent_dir)
+                          if os.path.isdir(os.path.join(covalent_dir,
+                                                        xtal_dir))
+                          and xtal_dir.endswith("LIG_CYS")]
+
+
+es_occ_b = []
+for csv in exhaustive_search_csvs:
+    if os.path.exists(csv):
+        occ, u_iso, _ = get_minimum_fofc(csv)
+        es_occ_b.append([os.path.basename(os.path.dirname(csv)).rstrip('_LIG_CYS'),
+                         occ,
+                         u_iso_to_b_fac(u_iso)])
+
+es_occ_df = pd.DataFrame(data=es_occ_b, columns=['dataset',
+                                                'es_occupancy',
+                                                'es_b_fac'])
+
+occ_df = pd.merge(es_occ_df, refine_occ_df, on='dataset', how='outer')
+
+
+occupancy_histogram_with_exhaustive_search(occ_df,
+                                           protein_name="DCP2B",
+                                           compound="NUOOA000181a",
+                                           params=params)
+
+occupancy_b_factor_scatter_plot(occ_df,
+                                protein_name="DCP2B",
+                                compound="NUOOA000181a",
+                                params=params)
+
+
+exit()
+
 ###########
 # NUDT22A
 ###########
@@ -280,6 +341,8 @@ for compound_dir in compound_dirs:
 
     if compound.startswith("FMOPL00622a"):
         combined_occ_df_list.append(occ_df)
+    print(compound_dir)
+    print("---------{}----------".format(compound))
 
 joined_occ_df = pd.concat(combined_occ_df_list, ignore_index=True )
 

@@ -158,6 +158,10 @@ compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.lis
 
 for compound_dir in compound_dirs:
 
+    compound = os.path.basename(compound_dir)
+    if not compound.startswith('FMOP'):
+        continue
+
     xtal_dirs = [os.path.join(compound_dir, xtal_dir)
                  for xtal_dir in os.listdir(compound_dir)
                  if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
