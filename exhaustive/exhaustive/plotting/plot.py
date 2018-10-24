@@ -302,6 +302,9 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     ax.legend(loc='best', fontsize='small')
     plt.xlabel("Occupancy")
     plt.ylabel("B Factor")
+
+    plt.gca().invert_yaxis()
+
     plt.title("Exhaustive search minima compared to refined "
               "{} : {}".format(protein_name, compound))
 
