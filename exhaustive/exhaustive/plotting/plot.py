@@ -284,7 +284,7 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     ax.scatter(es_occs, es_b_fac,
                label="Exhaustive search: {}".format(
                    len(occ_df['es_occupancy'].dropna())),
-               color=r)
+               color='r')
 
     ax.errorbar(refined_occs, refine_mean_b_fac,
                 fmt='rs',
@@ -293,7 +293,7 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
                      "across ligand): {}".format(
                     len(occ_df['occupancy'].dropna())),
                 linestyle="None",
-                color=b)
+                color='b')
 
     for i in np.arange(0, len(es_occs_joined)):
         connectpoints(es_occs_joined, es_b_fac_joined, refined_occs_joined,
