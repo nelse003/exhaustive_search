@@ -453,3 +453,10 @@ def plot_protein_and_selection(pdb, atom_points, plot_filename, params):
     ax.scatter(x, y, z, marker='.', color='y')
     plt.savefig(filename=os.path.join(params.output.out_dir, plot_filename), dpi=300)
 
+def plot_occupancy_convergence(occ_conv_df, plot_filename):
+
+    occ_conv_df.plot()
+    plt.xlabel('Cycle')
+    plt.ylabel('Occupancy')
+    plt.legend()
+    plt.savefig(plot_filename)
