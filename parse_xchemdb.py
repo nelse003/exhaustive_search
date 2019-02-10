@@ -144,7 +144,7 @@ if __name__ == "__main__":
             bound_conf_dir = os.path.dirname(row.bound_conf)
             bound_conf_file_name = os.path.basename(row.bound_conf)
             ground_conf_file_name = bound_conf_file_name.replace('bound','ground')
-            ground_conf = os.path.join(bound_conf_dir,ground_conf_file_name)
+            ground_conf = os.path.join(bound_conf_dir, ground_conf_file_name)
 
             if not os.path.isfile(row.bound_conf):
                 bound_missing_ids.append(row.id)
@@ -164,17 +164,74 @@ if __name__ == "__main__":
 
     print("Number of rows where bound structure is not present in filesystem: "
           "{}".format(len(bound_missing_ids)))
+    missing_bound_df = with_pdb_df[with_pdb_df['id'].isin(bound_missing_ids)]
+
 
     print("Number of rows where superposed structure is not present in "
           "filesystem: {}".format(len(superposed_missing_ids)))
+    missing_superposed_df = with_pdb_df[with_pdb_df['id'].isin(superposed_missing_ids)]
 
     print("Number of rows where ground structure is not present in "
           "filesystem: {}".format(len(ground_missing_ids)))
+    missing_ground_df = with_pdb_df[with_pdb_df['id'].isin(ground_missing_ids)]
+
+    ground_bound_missing_ids = list(set(bound_missing_ids +
+                                        ground_missing_ids))
+
+    missing_ground_bound_df = with_pdb_df[
+        with_pdb_df['id'].isin(ground_bound_missing_ids)]
+
+    missing_ids = list(set(bound_missing_ids +
+                           ground_missing_ids +
+                           superposed_missing_ids))
+    # ~ inverts the bool
+    with_all_pdb_df = with_pdb_df[~with_pdb_df['id'].isin(missing_ids)]
+
+    print("Number of rows where ground, "
+          "bound and superposed pdbs exist "
+          "in db and filesystem: {}".format(len(with_all_pdb_df)))
+
+    missing_mtz_ids = []
+    for index, row in with_all_pdb_df.iterrows():
+        if row.mtz_latest is not None:
+            if not os.path.isfile(row.mtz_latest):
+                missing_mtz_ids.append(row.id)
+        else:
+            missing_mtz_ids.append(row.id)
+
+    with_pdb_mtz_df = with_all_pdb_df[
+        ~with_all_pdb_df['id'].isin(missing_mtz_ids)]
+
+    print("Number of rows where ground, "
+          "bound and superposed pdbs and mtz exist "
+          "in db and filesystem: {}".format(len(with_pdb_mtz_df)))
+
+    log_not_found_ids = []
+    log_names = {}
+    for index, row in with_pdb_mtz_df.iterrows():
+        dir_name = os.path.dirname(row.pdb_latest)
+        base_name = os.path.basename(row.pdb_latest)
+        log_name = base_name.replace('.pdb','.quick-refine.log')
+        log_path = os.path.join(dir_name, log_name)
+
+        if not os.path.isfile(log_path):
+            log_not_found_ids.append(row.id)
+            log_names[row.id] = None
+        else:
+            log_names[row.id] = log_path
+
+    with_pdb_mtz_log_df = with_pdb_mtz_df[
+        ~with_pdb_mtz_df['id'].isin(log_not_found_ids)]
+
+    # Add log names to df
+    with_pdb_mtz_log_df['refine_log'] = with_pdb_mtz_log_df['id'].map(log_names)
+
+    print("Number of rows with all pdbs, mtz and log: {}".format(
+        len(with_pdb_mtz_log_df)))
+
+    with_pdb_mtz_log_df.to_csv(os.path.join(args.output,'log_pdb_mtz.csv'),index=False)
 
 
 
-    # print(len(bound_conf_df))
-    # print(refine_df.columns.values)
-    #
 
 

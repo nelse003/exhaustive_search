@@ -1,4 +1,4 @@
-from exhaustive.exhaustive.utils.utils import read_occupancies_from_refmac_log
+from occ_convergence_on_db import read_occupancies_from_refmac_log
 from exhaustive.exhaustive.plotting.plot import plot_occupancy_convergence
 
 occ_conv_df = read_occupancies_from_refmac_log("/home/enelson/Downloads/output.quick-refine.log")
