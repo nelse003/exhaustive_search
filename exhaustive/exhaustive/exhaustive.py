@@ -463,7 +463,6 @@ def run(params):
     if not os.path.exists(os.path.join(params.output.out_dir,params.output.log_dir)):
         os.mkdir(os.path.join(params.output.out_dir,params.output.log_dir))
 
-
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.out_dir,
                             params.output.log_dir,

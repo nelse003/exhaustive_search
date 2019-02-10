@@ -142,8 +142,6 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
 
 
 # TODO sort out params
-
-
 def plot_2d_occ_b_validation(start_occ,
                              end_occ,
                              step,
@@ -285,7 +283,8 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
 
     ax.scatter(es_occs, es_b_fac,
                label="Exhaustive search: {}".format(
-                   len(occ_df['es_occupancy'].dropna())))
+                   len(occ_df['es_occupancy'].dropna())),
+               color='r')
 
     ax.errorbar(refined_occs, refine_mean_b_fac,
                 fmt='rs',
@@ -293,7 +292,8 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
                 label="Refinement (errorbar = standard deviation of B factor "
                      "across ligand): {}".format(
                     len(occ_df['occupancy'].dropna())),
-                linestyle="None")
+                linestyle="None",
+                color='b')
 
     for i in np.arange(0, len(es_occs_joined)):
         connectpoints(es_occs_joined, es_b_fac_joined, refined_occs_joined,
@@ -304,6 +304,9 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     ax.legend(loc='best', fontsize='small')
     plt.xlabel("Occupancy")
     plt.ylabel("B Factor")
+
+    plt.gca().invert_yaxis()
+
     plt.title("Exhaustive search minima compared to refined "
               "{} : {}".format(protein_name, compound))
 
@@ -315,6 +318,8 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     plt.close()
 
     print(occ_df)
+
+
 
     # if len(occ_df) != len(occ_df.dropna()):
     #     print("!!!!!!")
@@ -448,3 +453,10 @@ def plot_protein_and_selection(pdb, atom_points, plot_filename, params):
     ax.scatter(x, y, z, marker='.', color='y')
     plt.savefig(filename=os.path.join(params.output.out_dir, plot_filename), dpi=300)
 
+def plot_occupancy_convergence(occ_conv_df, plot_filename):
+
+    occ_conv_df.plot()
+    plt.xlabel('Cycle')
+    plt.ylabel('Occupancy')
+    plt.legend()
+    plt.savefig(plot_filename)
