@@ -4,6 +4,8 @@ from shutil import rmtree
 import pandas as pd
 import sqlalchemy
 
+# TODO pathlib import
+
 pd.options.display.max_columns = 30
 pd.options.display.max_colwidth = 50
 
@@ -113,24 +115,28 @@ if __name__ == "__main__":
 
     # TODO Check columns where bound conf does not exist to whether refine.pdb exists
 
+    crystals_df = databases['crystals']
+
+    print(crystals_df.head())
+
     print("Length of refinement table: {}".format(len(refine_df)))
 
     # Check rows with just superposed confirmation
     superposed_df = refine_df[refine_df.pdb_latest.notnull()]
 
-    print("Length of refinement table with superposed state"
+    print("Length of refinement table with superposed state "
           "specified: {}".format(len(superposed_df)))
 
     # Get only rows with bound conformation
     bound_df = refine_df[refine_df.bound_conf.notnull()]
 
-    print("Length of refinement table with bound state"
+    print("Length of refinement table with bound state "
           "specified: {}".format(len(bound_df)))
 
     # drops NaN if both bound_conf and pdb_latest are NaN
     with_pdb_df = refine_df.dropna(axis='index',how='all', subset=['bound_conf','pdb_latest'])
 
-    print("Length of refinement table with either bound state"
+    print("Length of refinement table with either bound state "
           "or superposed state specified: {}".format(len(with_pdb_df)))
 
     # Check path exists for bound, ground and refine.pdb
