@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import time
 import iotbx.pdb
+import sys
+import traceback
+import itertools
 
 from exhaustive.exhaustive.plotting.plot import plot_occupancy_convergence
 
@@ -77,7 +80,26 @@ def get_lig_chain_id(pdb_path, lig_name='LIG'):
     else:
         raise ValueError('Ligand chain is not unique: {}'.format(lig_chains))
 
-def get_occupancy_df(log_path, pdb_path, lig_name='LIG'):
+def drop_similiar_cols(cols, df, atol=0.001):
+
+    print("COLS:{}".format(cols))
+    print(df)
+
+    for pair_col in itertools.combinations(cols, 2):
+
+        if len(pair_col) == 2:
+            col_1 = df[pair_col[0]]
+            col_2 = df[pair_col[1]]
+
+            if np.allclose(col_1.values, col_2.values, atol=atol):
+                cols_to_drop = pair_col[0]
+                return df.drop(cols_to_drop, axis=1)
+            else:
+                return df
+        else:
+            return df
+
+def get_occupancy_df(log_path, pdb_path, crystal, lig_name='LIG',):
 
     chain = get_lig_chain_id(pdb_path=pdb_path, lig_name=lig_name)
 
@@ -87,24 +109,51 @@ def get_occupancy_df(log_path, pdb_path, lig_name='LIG'):
 
     occ_conv_df = read_occupancies_from_refmac_log(log_path)
 
-    # Get columns associated with bound
+    # Get columns associated with bound & ground from
+    # ligand groups
+
     column_bound = list(
         set(occ_conv_df.columns.values).intersection(
             set(lig_groups)))
+
+    if len(column_bound) == 0:
+        raise ValueError("No bound state identified")
 
     column_ground = list(
         set(occ_conv_df.columns.values).symmetric_difference(
             set(lig_groups)))
 
-    # Remove duplicate columns
-    short_occ_conv_df = occ_conv_df.T.drop_duplicates().T
+    if len(column_bound) == 0:
+        raise ValueError("No ground state identified")
+
+    # Drop duplicate columns
+    short_occ_conv_df = drop_similiar_cols(column_ground,
+                                        occ_conv_df,
+                                        atol=0.001)
+    short_occ_conv_df = drop_similiar_cols(column_bound,
+                                           short_occ_conv_df,
+                                        atol=0.001)
+
+    # Return occupancy to full
     multiplicity_of_occ_groups = len(occ_conv_df.T) / \
                                  len(short_occ_conv_df.T)
     occ_corrected_df = short_occ_conv_df * multiplicity_of_occ_groups
 
+    # Check whether all occupancy values are 1.0
+    if len(pd.unique(occ_corrected_df.values)) == 1:
+        if pd.unique(occ_corrected_df.values)[0] == 1.0:
+            raise ValueError("All occupancies are {}. "
+                             "Likely there is no ground state".format(
+                             pd.unique(occ_corrected_df.values)[0]))
+        else:
+            print(occ_corrected_df)
+            print(occ_conv_df)
+            pass
+
     if len(occ_corrected_df.T) != 2:
-        raise ValueError("Too many columns in occupancy df: "
-                         "{}".format(occ_corrected_df))
+        print(occ_conv_df)
+        print(occ_corrected_df)
+        raise ValueError("Too many columns in occupancy df: {}".format(occ_corrected_df))
 
     # Handle labels for duplicate columns
     for col in column_ground:
@@ -127,23 +176,29 @@ def get_occupancy_df(log_path, pdb_path, lig_name='LIG'):
                          "columns: {}".format(column_bound))
     column_bound = np.int64(column_bound[0])
 
-    occ_corrected_df = occ_corrected_df.rename(columns={column_bound: "bound",
-                                                        column_ground: "ground"},
-                                               index=str)
+    occ_df = occ_corrected_df.rename(columns={column_bound: "bound",
+                                              column_ground: "ground"},
+                                              index=str)
+    # Transposing and adding crystal_id
+    occ_df = occ_df.T
+    occ_df.reset_index(level=0, inplace=True)
+    occ_df.rename(columns={'index': 'state'},
+                  index=str,
+                  inplace=True)
+    occ_df['crystal'] = [crystal, crystal]
+    occ_df = occ_df.set_index(['crystal', 'state'])
 
-    return occ_corrected_df
+    return occ_df
 
 if __name__ == "__main__":
     """
     Process log files from refmac runs to get occupancy convergence
     
-    #TODO Sort utils/plotting into ccp4 dependent 
-    and ccp4 non dependent sections
-    
-    Currently requires ccp4-python
+    Requires ccp4-python
     
     """
 
+    # TODO Sort utils/plotting into ccp4 dependent and ccp4 non dependent sections
 
     log_csv = "/dls/science/groups/i04-1/elliot-dev/Work/" \
               "exhaustive_parse_xchem_db/log_pdb_mtz.csv"
@@ -151,22 +206,55 @@ if __name__ == "__main__":
     occ_conv_csv = "/dls/science/groups/i04-1/elliot-dev/Work/" \
               "exhaustive_parse_xchem_db/occ_conv.csv"
 
+    occ_conv_fails_csv = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                   "exhaustive_parse_xchem_db/occ_conv_failures.csv"
+
     log_df = pd.read_csv(log_csv)
+
+    #individual test case where columns
+    # should overlap but don't because
+    # non-identical
+    #
+    # merge_log = "/dls/labxchem/data/2018/lb19005-1/processing/" \
+    # "analysis/initial_model/PaFEN_C3-x0440/" \
+    # "Refine_0001/refine_1.quick-refine.log"
+    #
+    # merge_pdb = "/dls/labxchem/data/2018/lb19005-1/processing/" \
+    #             "analysis/initial_model/PaFEN_C3-x0440/" \
+    #             "Refine_0001/refine_1.pdb"
+    #
+    # crystal, target = pdb_path_to_crystal_target(merge_pdb)
+    # occ_df = get_occupancy_df(log_path=merge_log,
+    #                           pdb_path=merge_pdb,
+    #                           lig_name='LIG',
+    #                           crystal=crystal)
+
 
     occ_conv_df_list = []
     failures = []
     for index, row in log_df.iterrows():
-
-
         print(row.refine_log)
+
         try:
             crystal, target = pdb_path_to_crystal_target(row.pdb_latest)
             occ_df = get_occupancy_df(log_path=row.refine_log,
                                       pdb_path=row.pdb_latest,
-                                      lig_name='LIG')
-        # TODO handle exceptions saving tracebakcs?
-        except (ValueError, AssertionError, IndexError) as e:
-            failures.append(row.refine_log)
+                                      lig_name='LIG',
+                                      crystal=crystal)
+        except ValueError:
+            # This is for handling the exception,
+            # utilising it's traceback to determine
+            # the consitent errors
+            #
+            # This is python 2.7 specific
+            #
+            # Could alternatively be done by logging
+
+            ex_type, ex, tb = sys.exc_info()
+            tb_txt = traceback.extract_tb(tb)
+            error = (row.refine_log, ex_type, ex, tb_txt)
+            failures.append(error)
+            print('Error')
             continue
 
         occ_conv_df_list.append(occ_df)
@@ -179,8 +267,11 @@ if __name__ == "__main__":
         #                            "Work/exhaustive_parse_xchem_db/"
         #                            "log_png_test.png")
 
-    # TODO Transpose and add xtal_id?
+    failures_df =pd.DataFrame(failures,columns=['log',
+                                                'exception_type',
+                                                'excpetion',
+                                                'traceback'])
+    failures_df.to_csv(occ_conv_fails_csv)
+
     occ_conv_summary_df = pd.concat(occ_conv_df_list)
     occ_conv_summary_df.to_csv(occ_conv_csv)
-    print(failures)
-    print(len(failures))
