@@ -90,11 +90,12 @@ if __name__ == "__main__":
 
     # Set up output dir
     print("Establishing output directory...")
-    try:
-        os.mkdir(args.output)
-    except:
-        rmtree(args.output)
-        os.mkdir(args.output)
+    if not os.path.exists(args.output):
+        try:
+            os.mkdir(args.output)
+        except:
+            rmtree(args.output)
+            os.mkdir(args.output)
 
     # get_databases
     print("Setting up databases...")
@@ -117,14 +118,12 @@ if __name__ == "__main__":
 
     crystals_df = databases['crystals']
 
-    print(crystals_df.head())
-
     print("Length of refinement table: {}".format(len(refine_df)))
 
     # Check rows with just superposed confirmation
     superposed_df = refine_df[refine_df.pdb_latest.notnull()]
 
-    print("Length of refinement table with superposed state "
+    print("Length of refinement table with pdb latest"
           "specified: {}".format(len(superposed_df)))
 
     # Get only rows with bound conformation
@@ -173,7 +172,7 @@ if __name__ == "__main__":
     missing_bound_df = with_pdb_df[with_pdb_df['id'].isin(bound_missing_ids)]
 
 
-    print("Number of rows where superposed structure is not present in "
+    print("Number of rows where latest pdb structure is not present in "
           "filesystem: {}".format(len(superposed_missing_ids)))
     missing_superposed_df = with_pdb_df[with_pdb_df['id'].isin(superposed_missing_ids)]
 
@@ -194,27 +193,40 @@ if __name__ == "__main__":
     with_all_pdb_df = with_pdb_df[~with_pdb_df['id'].isin(missing_ids)]
 
     print("Number of rows where ground, "
-          "bound and superposed pdbs exist "
+          "bound and latest pdbs exist "
           "in db and filesystem: {}".format(len(with_all_pdb_df)))
 
     missing_mtz_ids = []
-    for index, row in with_all_pdb_df.iterrows():
+    dimple_is_latest_ids = []
+    for index, row in superposed_df.iterrows():
         if row.mtz_latest is not None:
             if not os.path.isfile(row.mtz_latest):
                 missing_mtz_ids.append(row.id)
         else:
             missing_mtz_ids.append(row.id)
 
-    with_pdb_mtz_df = with_all_pdb_df[
-        ~with_all_pdb_df['id'].isin(missing_mtz_ids)]
+        if "dimple" in row.pdb_latest:
+            dimple_is_latest_ids.append(row.id)
 
-    print("Number of rows where ground, "
-          "bound and superposed pdbs and mtz exist "
-          "in db and filesystem: {}".format(len(with_pdb_mtz_df)))
+    print("Number of rows with dimple in latest pdb: {}".format(len(dimple_is_latest_ids)))
+    print("Number of mtzs that missing: {}".format(len(missing_mtz_ids)))
+
+    # Drop files with dimple in path from superposed list
+    superposed_df = superposed_df[
+        ~superposed_df['id'].isin(dimple_is_latest_ids)]
+
+    #requires superposed and mtz
+    superposed_mtz_df = superposed_df[
+        ~superposed_df['id'].isin(missing_mtz_ids)]
+
+
+    print("Number of rows where superposed pdbs and mtz exist "
+          "in db and filesystem: {}".format(len(superposed_mtz_df)))
 
     log_not_found_ids = []
     log_names = {}
-    for index, row in with_pdb_mtz_df.iterrows():
+    for index, row in superposed_mtz_df.iterrows():
+        #print(row.pdb_latest)
         dir_name = os.path.dirname(row.pdb_latest)
         base_name = os.path.basename(row.pdb_latest)
         log_name = base_name.replace('.pdb','.quick-refine.log')
@@ -226,18 +238,18 @@ if __name__ == "__main__":
         else:
             log_names[row.id] = log_path
 
-    with_pdb_mtz_log_df = with_pdb_mtz_df[
-        ~with_pdb_mtz_df['id'].isin(log_not_found_ids)]
+        superposed_mtz_log_df = superposed_mtz_df[
+        ~superposed_mtz_df['id'].isin(log_not_found_ids)]
 
     # Add log names to df
-    with_pdb_mtz_log_df['refine_log'] = with_pdb_mtz_log_df['id'].map(log_names)
+    superposed_mtz_log_df['refine_log'] = superposed_mtz_log_df['id'].map(log_names)
 
-    print("Number of rows with all pdbs, mtz and log: {}".format(
-        len(with_pdb_mtz_log_df)))
+    print("Number of rows with superposed pdb, mtz and log: {}".format(
+        len(superposed_mtz_log_df)))
 
-    with_pdb_mtz_log_df.to_csv(os.path.join(args.output,'log_pdb_mtz.csv'),index=False)
-
-
+    superposed_mtz_log_df.to_csv(os.path.join(args.output,'log_pdb_mtz.csv'),index=False)
+    superposed_df.to_csv(os.path.join(args.output,'superposed.csv'),index=False)
+    refine_df.to_csv(os.path.join(args.output,'refinement.csv'),index=False)
 
 
 
