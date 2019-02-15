@@ -250,6 +250,6 @@ if __name__ == "__main__":
     superposed_mtz_log_df.to_csv(os.path.join(args.output,'log_pdb_mtz.csv'),index=False)
     superposed_df.to_csv(os.path.join(args.output,'superposed.csv'),index=False)
     refine_df.to_csv(os.path.join(args.output,'refinement.csv'),index=False)
-
+    crystals_df.to_csv(os.path.join(args.output,'crystal.csv'),index=False)
 
 
