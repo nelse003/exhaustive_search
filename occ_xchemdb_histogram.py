@@ -73,7 +73,7 @@ def plot_histogram_collection_bin(data,
     plt.savefig(file_path)
     plt.close()
 
-if __name__ == "__main__":
+def main():
 
     occ_conv_csv = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                    "exhaustive_parse_xchem_db/occ_conv.csv"
@@ -162,3 +162,8 @@ if __name__ == "__main__":
     plt.ylabel("Occupancy")
     plt.savefig(os.path.join(out_dir, "example_convergence_2"))
     plt.close()
+
+if __name__ == "__main__":
+
+    main()
+

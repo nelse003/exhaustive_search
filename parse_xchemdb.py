@@ -82,8 +82,7 @@ def get_databases(args):
 
     return databases
 
-if __name__ == "__main__":
-
+def main():
     # get args
     print("Parsing arguments...")
     args = parse_args()
@@ -101,7 +100,7 @@ if __name__ == "__main__":
     print("Setting up databases...")
     databases = get_databases(args)
 
-    #print(databases['refinement'].head())
+    # print(databases['refinement'].head())
 
     refine_df = databases['refinement']
 
@@ -133,7 +132,7 @@ if __name__ == "__main__":
           "specified: {}".format(len(bound_df)))
 
     # drops NaN if both bound_conf and pdb_latest are NaN
-    with_pdb_df = refine_df.dropna(axis='index',how='all', subset=['bound_conf','pdb_latest'])
+    with_pdb_df = refine_df.dropna(axis='index', how='all', subset=['bound_conf', 'pdb_latest'])
 
     print("Length of refinement table with either bound state "
           "or superposed state specified: {}".format(len(with_pdb_df)))
@@ -148,7 +147,7 @@ if __name__ == "__main__":
         if row.bound_conf is not None:
             bound_conf_dir = os.path.dirname(row.bound_conf)
             bound_conf_file_name = os.path.basename(row.bound_conf)
-            ground_conf_file_name = bound_conf_file_name.replace('bound','ground')
+            ground_conf_file_name = bound_conf_file_name.replace('bound', 'ground')
             ground_conf = os.path.join(bound_conf_dir, ground_conf_file_name)
 
             if not os.path.isfile(row.bound_conf):
@@ -166,11 +165,9 @@ if __name__ == "__main__":
         else:
             superposed_missing_ids.append(row.id)
 
-
     print("Number of rows where bound structure is not present in filesystem: "
           "{}".format(len(bound_missing_ids)))
     missing_bound_df = with_pdb_df[with_pdb_df['id'].isin(bound_missing_ids)]
-
 
     print("Number of rows where latest pdb structure is not present in "
           "filesystem: {}".format(len(superposed_missing_ids)))
@@ -215,10 +212,9 @@ if __name__ == "__main__":
     superposed_df = superposed_df[
         ~superposed_df['id'].isin(dimple_is_latest_ids)]
 
-    #requires superposed and mtz
+    # requires superposed and mtz
     superposed_mtz_df = superposed_df[
         ~superposed_df['id'].isin(missing_mtz_ids)]
-
 
     print("Number of rows where superposed pdbs and mtz exist "
           "in db and filesystem: {}".format(len(superposed_mtz_df)))
@@ -226,10 +222,10 @@ if __name__ == "__main__":
     log_not_found_ids = []
     log_names = {}
     for index, row in superposed_mtz_df.iterrows():
-        #print(row.pdb_latest)
+        # print(row.pdb_latest)
         dir_name = os.path.dirname(row.pdb_latest)
         base_name = os.path.basename(row.pdb_latest)
-        log_name = base_name.replace('.pdb','.quick-refine.log')
+        log_name = base_name.replace('.pdb', '.quick-refine.log')
         log_path = os.path.join(dir_name, log_name)
 
         if not os.path.isfile(log_path):
@@ -239,7 +235,7 @@ if __name__ == "__main__":
             log_names[row.id] = log_path
 
         superposed_mtz_log_df = superposed_mtz_df[
-        ~superposed_mtz_df['id'].isin(log_not_found_ids)]
+            ~superposed_mtz_df['id'].isin(log_not_found_ids)]
 
     # Add log names to df
     superposed_mtz_log_df['refine_log'] = superposed_mtz_log_df['id'].map(log_names)
@@ -247,9 +243,12 @@ if __name__ == "__main__":
     print("Number of rows with superposed pdb, mtz and log: {}".format(
         len(superposed_mtz_log_df)))
 
-    superposed_mtz_log_df.to_csv(os.path.join(args.output,'log_pdb_mtz.csv'),index=False)
-    superposed_df.to_csv(os.path.join(args.output,'superposed.csv'),index=False)
-    refine_df.to_csv(os.path.join(args.output,'refinement.csv'),index=False)
-    crystals_df.to_csv(os.path.join(args.output,'crystal.csv'),index=False)
+    superposed_mtz_log_df.to_csv(os.path.join(args.output, 'log_pdb_mtz.csv'), index=False)
+    superposed_df.to_csv(os.path.join(args.output, 'superposed.csv'), index=False)
+    refine_df.to_csv(os.path.join(args.output, 'refinement.csv'), index=False)
+    crystals_df.to_csv(os.path.join(args.output, 'crystal.csv'), index=False)
 
+
+if __name__ == "__main__":
+    main()
 
