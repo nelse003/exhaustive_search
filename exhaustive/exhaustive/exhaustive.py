@@ -60,15 +60,26 @@ def compute_maps(fmodel, crystal_gridding, map_type):
     Calculate a map.
     Return the fft map, real map, and map coefficents.
 
-    :param fmodel: fmodel is a class that contains the
-    :type fmodel:
-    :param crystal_gridding: Separation of crystal grid
-    :type crystal_gridding: ????????????
-    :param map_type: Specify the type of map to be generate i.e mFo-DFc
-    :type map_type: str
-    :return: fft_map.real_map_unpadded():
-    :type
+    # TODO Check types of parameters/ returns
+
+    Parameters
+    ----------
+    fmodel:
+        fmodel is a cctbx class that contains
+    crystal_gridding:
+
+    map_type: str
+        "mFo-DFc" or "2mFo-DFc" defining the map type
+
+    Returns
+    -------
+    fft_map:
+
+    fft_map.real_map_unpadded():
+
+    map_coefficents
     """
+
     map_coefficients = map_tools.electron_density_map(
         fmodel=fmodel).map_coefficients(
         map_type=map_type,
@@ -87,22 +98,37 @@ def compute_maps(fmodel, crystal_gridding, map_type):
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     """Get mean of |Fo-Fc| over a cartesian point list.
 
-    :param sites_cart:
-    :param fofc_map:
-    :param inputs:
-    :return:
+    # TODO Check type of parameters/returns
+
+    Parameters
+    -----------
+    sites_cart:
+        Cartesian sites over which to calculate the mean of |Fo-Fc|
+    fofc_map:
+
+    Returns
+    -------
+    mean_abs_fofc_value:
+        Mean value of the |Fo-Fc| map over the supplied cartesian sites
+
     """
+    # Set a default value of parameter to sum over
     sum_abs_fofc_value = 0
 
+    # Loop over all cartesian points
     for site_cart in list(sites_cart):
 
+        # Get the fractional site from the cartesian coordinate
         site_frac = inputs.crystal_symmetry.unit_cell().\
             fractionalize(site_cart)
 
+        # Use interpolation to get the difference map value at the site
         fofc_value = fofc_map.eight_point_interpolation(site_frac)
 
+        # Append value to sum over points
         sum_abs_fofc_value += abs(fofc_value)
 
+    # Get the mean value of |Fo-Fc|
     mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
 
     return mean_abs_fofc_value
@@ -115,15 +141,26 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     Wrapper to prepare for main loop. Outputs a csv with ground_occupancy,
     bound_occupancy, u_iso and mean(|Fo-Fc|).
-    
-    :param params:
-    :param protein_hier:
-    :param xrs:
-    :param inputs:
-    :param fmodel:
-    :param crystal_gridding:
-    :param pdb:
-    :return:
+
+    Parameters
+    ----------
+    params:
+
+    xrs:
+
+    inputs:
+
+    fmodel:
+
+    crystal_gridding:
+
+    pdb:
+
+    logging:
+
+    Returns
+    --------
+    None
     """
     sites_frac = xrs.sites_frac()
 
