@@ -84,12 +84,12 @@ def refine_after_exhasutive_search(input_pdb, input_mtz, input_cif, refine_param
 def quick_refine_qsub(input_pdb, input_mtz, input_cif, refine_params,
                       sh_file, out_prefix=None, dir_prefix=None):
 
-    with open(os.path.join(out_path, sh_file), 'w') as file:
-        file.write("#!/bin/bash\n")
-        file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-        file.write(
+    with open(os.path.join(out_path, sh_file), 'w') as f:
+        f.write("#!/bin/bash\n")
+        f.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+        f.write(
             "source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-        file.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
+        f.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
                    "input.params={} output.out_prefix={} output.dir_prefix={} ".format(input_pdb, input_mtz,
                                                                                        input_cif, refine_params,
                                                                                        out_prefix, dir_prefix))
@@ -135,15 +135,15 @@ def quick_refine_repeats(start_occ, end_occ,step, dataset_prefix, set_b, out_pat
             print(out_path)
 
             os.system("cp multi-state-restraints.refmac.params multi-state-restraints-tmp.refmac.params")
-            with open("multi-state-restraints-tmp.refmac.params",'a') as file:
-                file.write('ncyc 20')
+            with open("multi-state-restraints-tmp.refmac.params",'a') as f:
+                f.write('ncyc 20')
 
-            with open(os.path.join(out_path, sh_file), 'w') as file:
-                file.write("#!/bin/bash\n")
-                file.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
-                file.write(
+            with open(os.path.join(out_path, sh_file), 'w') as f:
+                f.write("#!/bin/bash\n")
+                f.write("export XChemExplorer_DIR=\"/dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer\"\n")
+                f.write(
                     "source /dls/science/groups/i04-1/software/XChemExplorer_new/XChemExplorer/setup-scripts/pandda.setup-sh\n")
-                file.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
+                f.write("giant.quick_refine input.pdb={} input.mtz={} input.cif={} "
                            "input.params={} output.out_prefix={} output.dir_prefix={} ".format(
                     refinement_random_occ_pdb, simulate_mtz, input_cif, "multi-state-restraints-tmp.refmac.params",
                     out_prefix, dir_prefix,))

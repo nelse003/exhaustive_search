@@ -230,7 +230,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
 
     logging.debug(cart_points)
 
-    write_pdb_HOH_site_cart(pdb=params.input.pdb, sites_cart=cart_points)
+    #write_pdb_HOH_site_cart(pdb=params.input.pdb, sites_cart=cart_points)
 
     logging.info("Looping over occupancy, u_iso with occupancy "
                 "betweeen {} and {} in steps of {} and u_iso "
@@ -499,7 +499,6 @@ def run(params):
 
     if not os.path.exists(os.path.join(params.output.out_dir,params.output.log_dir)):
         os.mkdir(os.path.join(params.output.out_dir,params.output.log_dir))
-
 
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.out_dir,

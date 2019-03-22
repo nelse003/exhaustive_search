@@ -10,17 +10,18 @@ from giant.jiffies.score_model import run as score_model
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
-from exhaustive.exhaustive import run as exhaustive
+from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import occupancy_b_factor_scatter_plot
 from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 from exhaustive.exhaustive.plotting.plot import plot_edstats_across_soaks
-from exhaustive.exhaustive.utils import collate_edstats_scores
-from exhaustive.exhaustive.utils import get_minimum_fofc, get_occ_b
-from exhaustive.exhaustive.utils import u_iso_to_b_fac, datasets_from_compound
-from exhaustive.process.minima import write_minima_pdb
-from phil import master_phil, check_input_files
-
-params =  master_phil.extract()
+from exhaustive.exhaustive.utils.utils import collate_edstats_scores
+from exhaustive.exhaustive.utils.utils import get_minimum_fofc
+from exhaustive.exhaustive.utils.utils import get_occ_b
+from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.exhaustive.utils.utils import datasets_from_compound
+#from exhaustive.process.minima import write_minima_pdb
+from phil import master_phil
+from phil import check_input_files
 
 def get_cif_file_from_dataset(dataset_dir, preferred_cif=None):
 
@@ -124,7 +125,6 @@ def process_exhaustive_search(compound_codes,
             print(input_mtz)
             print(input_pdb)
             print("---------------------")
-            exit()
 
             dataset_dir = os.path.join(initial_model_dir, dataset)
 
@@ -230,7 +230,195 @@ def process_exhaustive_search(compound_codes,
                                       compound=compound,
                                       protein_name=protein_name,
                                       title_suffix="Exhaustive minima")
+############
+# DCP2B
+############
 
+# params =  master_phil.extract()
+#
+# covalent_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+#
+# params.output.out_dir = covalent_dir
+#
+# xtal_dirs = [os.path.join(covalent_dir, xtal_dir)
+#              for xtal_dir in os.listdir(covalent_dir)
+#              if os.path.isdir(os.path.join(covalent_dir, xtal_dir))
+#              and not xtal_dir.endswith("LIG_CYS")]
+#
+# for xtal_dir in xtal_dirs:
+#     if not os.path.exists(os.path.join("refine.split.bound-state.pdb")):
+#         os.chdir(xtal_dir)
+#         os.system("giant.split_conformations refine.pdb")
+#
+# refine_occ_df = get_occ_b(
+#     refinement_dir=covalent_dir,
+#     lig_chain="E",
+#     pdb_name="refine.split.bound-state.pdb")
+#
+# exhaustive_search_csvs = [os.path.join(xtal_dir,,
+#                                        "exhaustive_search.csv")
+#                           for xtal_dir in os.listdir(covalent_dir)
+#                           if os.path.isdir(os.path.join(covalent_dir,
+#                                                         xtal_dir))
+#                           and xtal_dir.endswith("LIG_CYS")]
+#
+#
+# es_occ_b = []
+# for csv in exhaustive_search_csvs:
+#     if os.path.exists(csv):
+#         occ, u_iso, _ = get_minimum_fofc(csv)
+#         es_occ_b.append([os.path.basename(os.path.dirname(csv)).rstrip('_LIG_CYS'),
+#                          occ,
+#                          u_iso_to_b_fac(u_iso)])
+#
+# es_occ_df = pd.DataFrame(data=es_occ_b, columns=['dataset',
+#                                                 'es_occupancy',
+#                                                 'es_b_fac'])
+#
+# occ_df = pd.merge(es_occ_df, refine_occ_df, on='dataset', how='outer')
+#
+#
+# occupancy_histogram_with_exhaustive_search(occ_df,
+#                                            protein_name="DCP2B",
+#                                            compound="NUOOA000181a",
+#                                            params=params)
+#
+# occupancy_b_factor_scatter_plot(occ_df,
+#                                 protein_name="DCP2B",
+#                                 compound="NUOOA000181a",
+#                                 params=params)
+#
+#
+# exit()
+
+###########
+# NUDT22A
+###########
+
+params =  master_phil.extract()
+
+in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
+loop_dir = in_dir
+out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
+prefix = "NUDT22A-x"
+
+compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
+             if os.path.isdir(os.path.join(loop_dir, compound_dir))]
+
+compound_dirs.remove(os.path.join(loop_dir,'N14004a'))
+
+combined_occ_df_list = []
+for compound_dir in compound_dirs:
+
+    params.output.out_dir = compound_dir
+
+    refine_occ_df = get_occ_b(
+    refinement_dir=compound_dir,
+    lig_chain="B",
+    pdb_name="refine.split.bound-state.pdb")
+
+    es_minima_csv = os.path.join(compound_dir, "es_minima.csv")
+
+    es_minima_df = pd.read_csv(es_minima_csv, names=['dataset',
+                                                     'es_occupancy',
+                                                     'es_b_fac',
+                                                     'min_fofc'])
+
+
+    occ_df = pd.merge(es_minima_df, refine_occ_df, on='dataset', how='outer')
+
+    compound = os.path.basename(compound_dir)
+
+    occupancy_histogram_with_exhaustive_search(occ_df,
+                                               protein_name="NUDT22A",
+                                               compound=compound,
+                                               params=params)
+
+    occupancy_b_factor_scatter_plot(occ_df,
+                                    protein_name="NUDT22A",
+                                    compound=compound,
+                                    params=params)
+
+    if compound.startswith("FMOPL00622a"):
+        combined_occ_df_list.append(occ_df)
+    print(compound_dir)
+    print("---------{}----------".format(compound))
+
+joined_occ_df = pd.concat(combined_occ_df_list, ignore_index=True )
+
+occupancy_histogram_with_exhaustive_search(joined_occ_df,
+                                           protein_name="NUDT22A",
+                                           compound="FMOPL00622a (All)",
+                                           params=params)
+
+occupancy_b_factor_scatter_plot(joined_occ_df,
+                                protein_name="NUDT22A",
+                                compound="FMOPL00622a (All)",
+                                params=params)
+
+exit()
+############
+# NUDT7A covalent
+############
+
+params =  master_phil.extract()
+
+covalent_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_ratios"
+
+params.output.out_dir = covalent_dir
+
+xtal_dirs = [os.path.join(covalent_dir, xtal_dir)
+             for xtal_dir in os.listdir(covalent_dir)
+             if os.path.isdir(os.path.join(covalent_dir, xtal_dir))
+             and not xtal_dir.endswith("LIG_CYS")]
+
+for xtal_dir in xtal_dirs:
+    if not os.path.exists(os.path.join("refine.split.bound-state.pdb")):
+        os.chdir(xtal_dir)
+        os.system("giant.split_conformations refine.pdb")
+
+refine_occ_df = get_occ_b(
+    refinement_dir=covalent_dir,
+    lig_chain="E",
+    pdb_name="refine.split.bound-state.pdb")
+
+exhaustive_search_csvs = [os.path.join(covalent_dir,
+                                       xtal_dir,
+                                       xtal_dir.rstrip('_LIG_CYS'),
+                                       "exhaustive_search.csv")
+                          for xtal_dir in os.listdir(covalent_dir)
+                          if os.path.isdir(os.path.join(covalent_dir,
+                                                        xtal_dir))
+                          and xtal_dir.endswith("LIG_CYS")]
+
+
+es_occ_b = []
+for csv in exhaustive_search_csvs:
+    if os.path.exists(csv):
+        occ, u_iso, _ = get_minimum_fofc(csv)
+        es_occ_b.append([os.path.basename(os.path.dirname(csv)).rstrip('_LIG_CYS'),
+                         occ,
+                         u_iso_to_b_fac(u_iso)])
+
+es_occ_df = pd.DataFrame(data=es_occ_b, columns=['dataset',
+                                                'es_occupancy',
+                                                'es_b_fac'])
+
+occ_df = pd.merge(es_occ_df, refine_occ_df, on='dataset', how='outer')
+
+
+occupancy_histogram_with_exhaustive_search(occ_df,
+                                           protein_name="NUDT7A",
+                                           compound="NUOOA000181a",
+                                           params=params)
+
+occupancy_b_factor_scatter_plot(occ_df,
+                                protein_name="NUDT7A",
+                                compound="NUOOA000181a",
+                                params=params)
+
+exit()
+#########################
 
 
 # Setting common parameters
@@ -267,7 +455,7 @@ for num in range(start_xtal_num, end_xtal_num + 1):
     NUDT22_xtals.append(xtal_name)
 
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
-          "repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
+          "NUDT22A"
 
 
 #TODO Check local folder

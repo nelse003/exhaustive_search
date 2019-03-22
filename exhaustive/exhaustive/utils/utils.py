@@ -526,3 +526,7 @@ def is_almost_equal(x,y, epsilon=1*10**(-8)):
         i.e. 0.00000001
     """
     return abs(x-y) <= epsilon
+
+
+
+

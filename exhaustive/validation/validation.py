@@ -7,7 +7,7 @@ import numpy as np
 from giant.jiffies.merge_conformations import master_phil as merge_phil
 from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
-from mmtbx.command_line.maps import run as map
+from mmtbx.command_line.maps import run as generate_map
 
 from exhaustive.exhaustive.plotting.plot import scatter_plot,\
     plot_3d_fofc_occ, plot_2d_occ_b_validation
@@ -90,7 +90,7 @@ def occ_loop_merge_confs_simulate(params):
 
      > Run giant.merge_conformations to generate suitable
      (with occupancies set to (1- lig_occ) for ground and to (lig_occ)
-     for bound state) pdb file (multi-state-model.pdb) to be passed to the
+     for bound state) pdb f (multi-state-model.pdb) to be passed to the
      simulation routine.
 
      > If a B factor is to be set (using params.validate.options.set_b)
@@ -132,7 +132,7 @@ def occ_loop_merge_confs_simulate(params):
                 or not os.path.exists(os.path.join(merged_pdb)):
 
             logging.info("Using giant.merge_conformations to generate a pdb "
-                        "file with bound state occupancy {}".format(
+                        "f with bound state occupancy {}".format(
                 str(1-lig_occupancy)))
 
             # Params for merging confs
@@ -169,7 +169,7 @@ def occ_loop_merge_confs_simulate(params):
 
                 if params.validate.options.set_all_b is not None:
 
-                    logging.info("Generating pdb file:\n{}\n with" 
+                    logging.info("Generating pdb f:\n{}\n with" 
                     "all B factors set to {}".format(
                         merged_file_name
                         + params.validate.output.set_all_b_name_extension))
@@ -181,7 +181,7 @@ def occ_loop_merge_confs_simulate(params):
                         b_fac=params.validate.options.set_b)
 
                 else:
-                    logging.info("Generating pdb file:\n{}\n with B factors"
+                    logging.info("Generating pdb f:\n{}\n with B factors"
                                 "of atoms in occupancy groups related to "
                                 "ground and bound states set to {}".format(
                         merged_file_name
@@ -310,16 +310,16 @@ def occ_loop_merge_confs_simulate(params):
                             "search via qsub".format(sh_file))
 
                 with open(os.path.join(params.output.out_dir,
-                                       sh_file), 'w') as file:
+                                       sh_file), 'w') as f:
 
-                    file.write("#!/bin/bash\n")
-                    file.write("export XChemExplorer_DIR=\"/dls/science/"
+                    f.write("#!/bin/bash\n")
+                    f.write("export XChemExplorer_DIR=\"/dls/science/"
                                "groups/i04-1/software/XChemExplorer_new/"
                                "XChemExplorer\"\n")
-                    file.write("source /dls/science/groups/i04-1/software/"
+                    f.write("source /dls/science/groups/i04-1/software/"
                                "XChemExplorer_new/XChemExplorer/"
                                "setup-scripts/pandda.setup-sh\n")
-                    file.write(cmd)
+                    f.write(cmd)
 
                 logging.info("Job submission to qsub")
 
@@ -353,14 +353,14 @@ def occ_loop_merge_confs_simulate(params):
                     or not os.path.exists(merged_pdb):
 
                 logging.info("Converting simualted mtz: "
-                            "\n{}\n to difference map .ccp4 file".format(
+                            "\n{}\n to difference map .ccp4 f".format(
                     merged_pdb + ".mtz"))
 
                 map_args = ["maps.map.map_type=\"mfo-Dfc\"", merged_pdb,
                             merged_pdb + ".mtz"]
 
                 # equivalent to phenix.maps
-                map(args=map_args)
+                generate_map(args=map_args)
 
 
 def run(params):

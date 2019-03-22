@@ -5,8 +5,10 @@ import pandas as pd
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive.utils.utils import process_refined_pdb_bound_ground_states
-from exhaustive.utils.utils import u_iso_to_b_fac, b_fac_to_u_iso, get_minimum_fofc
+from exhaustive.exhaustive.utils.utils import process_refined_pdb_bound_ground_states
+from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.exhaustive.utils.utils import b_fac_to_u_iso
+from exhaustive.exhaustive.utils.utils import get_minimum_fofc
 
 logging = logging.getLogger(__name__)
 
@@ -45,12 +47,12 @@ def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
                             atom.set_b(u_iso_to_b_fac(min_u_iso))
 
 
-    with open(output_pdb,"w") as file:
-        file.write(hier.as_pdb_string(
+    with open(output_pdb,"w") as f:
+        f.write(hier.as_pdb_string(
             crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
 
-get_minima_within_b_range(csv_file="/dls/science/groups/i04-1/elliot-dev/Work/"\
-                          "exhaustive_search_data/covalent_ratios_exhaus_sep_18/NUDT7A-x6208",
-                          b_lower=0.3,
-                          b_upper=0.7)
+# get_minima_within_b_range(csv_file="/dls/science/groups/i04-1/elliot-dev/Work/"\
+#                           "exhaustive_search_data/covalent_ratios_exhaus_sep_18/NUDT7A-x6208",
+#                           b_lower=0.3,
+#                           b_upper=0.7)
