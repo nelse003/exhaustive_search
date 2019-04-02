@@ -1,10 +1,6 @@
 import os
-from phil import master_phil
 import numpy as np
-import iotbx
-from scitbx.array_family import flex
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from exhaustive.exhaustive.utils.convex_hull import convex_hull_per_residue
 
 from exhaustive.exhaustive.utils.select_atoms \
@@ -15,8 +11,7 @@ from exhaustive.exhaustive.utils.convex_hull import \
     convex_hull_from_states, atom_points_from_sel_string, \
     convex_hull_grid_points
 
-from exhaustive.exhaustive.utils.utils import expand_array, sample_spherical
-from exhaustive.exhaustive.plotting.plot import plot_protein_and_selection
+from exhaustive.exhaustive.utils.utils import expand_array
 
 
 # params =  master_phil.extract()

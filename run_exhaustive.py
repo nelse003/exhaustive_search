@@ -1,14 +1,10 @@
 import csv
 import os
-import logging
-import sqlite3
 
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc, u_iso_to_b_fac
-from phil import master_phil
-from plot_select_regions import plot_protein_region
-from exhaustive.exhaustive.utils.utils import get_xtals_from_db
+from exhaustive.exhaustive.utils.phil import master_phil
 
 params =  master_phil.extract()
 

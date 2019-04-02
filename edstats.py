@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from phil import master_phil
+from exhaustive.exhaustive.utils.phil import master_phil
 
 from exhaustive.exhaustive.utils.utils import get_xtals_from_db
 

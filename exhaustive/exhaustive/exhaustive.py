@@ -29,16 +29,15 @@ from libtbx import easy_mp
 from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
 from mmtbx.utils import data_and_flags_master_params
-from iotbx.pdb import hierarchy
 
 from utils.convex_hull import convex_hull_from_states, \
     atom_points_from_sel_string, convex_hull_grid_points, \
     convex_hull_per_residue
 
-from utils.utils import is_almost_equal, write_pdb_HOH_site_cart
+from utils.utils import is_almost_equal
 from utils.select_atoms import process_refined_pdb_bound_ground_states, \
     get_occupancy_group_grid_points
-from phil import master_phil
+from utils.phil import master_phil
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -481,7 +480,7 @@ def run(params):
     args = [params.input.pdb, params.input.mtz]
 
     header = " ############################################# "
-    logging.info("\n {} \n #".format(header) + params.input.xtal_name
+    logging.info("\n {} \n ".format(header) + str(params.input.xtal_name)
                 + ": running exhaustive search \n {}".format(header))
 
     logging.info("Processing input PDB and reflection files. "

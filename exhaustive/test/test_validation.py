@@ -5,7 +5,7 @@ import unittest
 
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc, b_to_u_iso, u_iso_to_b_fac
 from exhaustive.validation.validation import run as validate
-from phil import master_phil
+from exhaustive.exhaustive.utils.phil import master_phil
 
 
 class TestValidation(unittest.TestCase):

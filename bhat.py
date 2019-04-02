@@ -8,15 +8,12 @@ import mmtbx.utils
 import iotbx.pdb
 import numpy as np
 
-from scitbx.array_family import flex
-from cctbx import maptbx
 from iotbx import reflection_file_utils
-from phil import master_phil
+from exhaustive.exhaustive.utils.phil import master_phil
 from mmtbx.utils import data_and_flags_master_params
 
 import cctbx.eltbx
 
-import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines

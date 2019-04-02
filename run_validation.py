@@ -5,7 +5,7 @@ Similiar to the test_validation script, but quicker to edit"""
 import os
 
 from exhaustive.validation.validation import run as validate
-from phil import master_phil
+from exhaustive.exhaustive.utils.phil import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 

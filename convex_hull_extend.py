@@ -7,7 +7,7 @@ import numpy as np
 
 from exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
-from phil import master_phil
+from exhaustive.exhaustive.utils.phil import master_phil
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x0955"

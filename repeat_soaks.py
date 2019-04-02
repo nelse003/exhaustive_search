@@ -20,8 +20,8 @@ from exhaustive.exhaustive.utils.utils import get_occ_b
 from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
 from exhaustive.exhaustive.utils.utils import datasets_from_compound
 #from exhaustive.process.minima import write_minima_pdb
-from phil import master_phil
-from phil import check_input_files
+from exhaustive.exhaustive.utils.phil import master_phil
+from exhaustive.exhaustive.utils.phil import check_input_files
 
 def get_cif_file_from_dataset(dataset_dir, preferred_cif=None):
 
