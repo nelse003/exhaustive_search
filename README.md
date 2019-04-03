@@ -17,3 +17,5 @@ The project heavily relies on CCTBX libraries,as well as tools from the PanDDA r
 ## Code structure
 
 exhaustive/exhaustive/exhaustive.py is the main loop of occupancy and B-factor. This can be run directly, the minimal set of parameters to be supplied are: 
+
+Makes me happy to see this so empyt....
