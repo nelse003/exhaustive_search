@@ -160,7 +160,7 @@ def copy_atoms(copy_params):
                          xtal_name, copy_params.output.pdb)))
 
         # Add extra parameters to parameter file
-        if copy_params.extra_params is not None:
+        if copy_params.input.extra_params is not None:
             update_refinement_params(params=copy_params.param_file,
                                      extra_params=copy_params.extra_params)
 
