@@ -44,7 +44,7 @@ input{
         .help = "Path to cif defining a compound added, for refinement"
     extra_params = None
         .type =str
-        .help = "Extra parameters to be written to 
+        .help = "Extra parameters to be written to parameter file"
 }
 output{
     out_dir = None
