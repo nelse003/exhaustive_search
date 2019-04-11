@@ -184,7 +184,7 @@ def copy_atoms(copy_params):
         else:
             os.system(cmds)
 
-if __name__ == __main__:
+if __name__ == '__main__':
 
     #titration
     # (path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
