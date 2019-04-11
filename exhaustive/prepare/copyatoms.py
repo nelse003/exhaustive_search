@@ -184,56 +184,57 @@ def copy_atoms(copy_params):
         else:
             os.system(cmds)
 
+if __name__ == __main__:
 
-#titration
-# (path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
-#                      prefix='NUDT7A-x',
-#                      start_xtal_num=2006,
-#                      end_xtal_num=2073,
-#                      new_ground_structure_path="/dls/labxchem/data/2017/lb18145-3/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb",
-#                      atoms_new=[['E','1']],
-#                      atoms_remove=[['B','60'],['B','151'],['B','189'],['B','33'],['B','11'],['B','40'],['B','196']],
-#                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-#                    "exhaustive_search_data/titration_series",
-#                      qsub = True)
+    #titration
+    # (path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
+    #                      prefix='NUDT7A-x',
+    #                      start_xtal_num=2006,
+    #                      end_xtal_num=2073,
+    #                      new_ground_structure_path="/dls/labxchem/data/2017/lb18145-3/processing/analysis/initial_model/NUDT7A-x1237/refine.pdb",
+    #                      atoms_new=[['E','1']],
+    #                      atoms_remove=[['B','60'],['B','151'],['B','189'],['B','33'],['B','11'],['B','40'],['B','196']],
+    #                      out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+    #                    "exhaustive_search_data/titration_series",
+    #                      qsub = True)
 
-# To be used for covalent atoms
+    # To be used for covalent atoms
 
-copy_params = copy_phil.extract()
+    copy_params = copy_phil.extract()
 
-copy_params.input.path = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
-copy_params.input.prefix = 'NUDT7A-x'
-copy_params.input.start_xtal_number = 6192
-copy_params.input.end_xtal_number = 6251
-copy_params.input.base_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-pandda-model.pdb"
-copy_params.input.atoms_new = [['E','1']]
-copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                        "exhaustive_search_data/NUDT7_covalent" \
-                        "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif"
-copy_params.input.link_record_list =["LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
-                                     "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
+    copy_params.input.path = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
+    copy_params.input.prefix = 'NUDT7A-x'
+    copy_params.input.start_xtal_number = 6192
+    copy_params.input.end_xtal_number = 6251
+    copy_params.input.base_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-pandda-model.pdb"
+    copy_params.input.atoms_new = [['E','1']]
+    copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                            "exhaustive_search_data/NUDT7_covalent" \
+                            "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif"
+    copy_params.input.link_record_list =["LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
+                                         "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
 
-copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                   "exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+    copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                       "exhaustive_search_data/covalent_ratios_exhaus_sep_18"
 
-copy_params.settings.overwrite = True
+    copy_params.settings.overwrite = True
 
-copy_atoms(copy_params)
+    copy_atoms(copy_params)
 
-# Commented out for testing of new dimple based function
-# copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"
-#                 "initial_model",
-#            prefix="NUDT22A-x",
-#            start_xtal_num=182,
-#            end_xtal_num=182,
-#            new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/"
-#                                      "Work/exhaustive_search_data/"
-#                                      "NUDT22A_new_ground_state_x1058/"
-#                                      "ground_state_refine_2_more_waters.pdb",
-#            atoms_new=[['W', '230'], ['W', '231'], ['W', '232'], ['W', '233'],
-#                       ['W', '234'], ['W', '235']],
-#            out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
-#                    "exhaustive_search_data/occupancy_group_with_refinement")
+    # Commented out for testing of new dimple based function
+    # copy_atoms(path="/dls/labxchem/data/2018/lb18145-55/processing/analysis/"
+    #                 "initial_model",
+    #            prefix="NUDT22A-x",
+    #            start_xtal_num=182,
+    #            end_xtal_num=182,
+    #            new_ground_structure_path="/dls/science/groups/i04-1/elliot-dev/"
+    #                                      "Work/exhaustive_search_data/"
+    #                                      "NUDT22A_new_ground_state_x1058/"
+    #                                      "ground_state_refine_2_more_waters.pdb",
+    #            atoms_new=[['W', '230'], ['W', '231'], ['W', '232'], ['W', '233'],
+    #                       ['W', '234'], ['W', '235']],
+    #            out_dir="/dls/science/groups/i04-1/elliot-dev/Work/"
+    #                    "exhaustive_search_data/occupancy_group_with_refinement")
 
-# NUDT22 [['W','11'],['W','230'],['W','231'],['W','232'],
-# ['W','233'],['W','234'],['W','235']]
+    # NUDT22 [['W','11'],['W','230'],['W','231'],['W','232'],
+    # ['W','233'],['W','234'],['W','235']]
