@@ -4,7 +4,32 @@ from giant.structure.utils import transfer_residue_groups_from_other
 from iotbx.pdb import hierarchy
 from copy_phil import copy_phil
 
+def update_refinement_params(params, extra_params):
+    # TODO Import from common framework files?
+    """
+    Append new parameters to the parameter file
+
+    Parameters
+    ----------
+    params: str
+        path to parameter file
+    extra_params: str
+        extra parameters to be added
+
+    Returns
+    -------
+    None
+    """
+    if extra_params is None:
+        return
+
+    params = open(params,'a')
+    params.write('\n' + extra_params)
+    params.close()
+
 def copy_atoms(copy_params):
+
+    #TODO Refactor in smaller chunks
 
     """ Copy atoms from one pdb file to many, then refine.
     
@@ -133,6 +158,11 @@ def copy_atoms(copy_params):
                          xtal_name, copy_params.input.pdb_style),
             os.path.join(copy_params.output.out_dir,
                          xtal_name, copy_params.output.pdb)))
+
+        # Add extra parameters to parameter file
+        if copy_params.extra_params is not None:
+            update_refinement_params(params=copy_params.param_file,
+                                     extra_params=copy_params.extra_params)
 
         # Add link record strings into multimodel pdb file, prior to refinement
         if copy_params.input.link_record_list is not None:
