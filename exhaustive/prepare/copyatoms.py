@@ -161,7 +161,7 @@ def copy_atoms(copy_params):
 
         # Add extra parameters to parameter file
         if copy_params.input.extra_params is not None:
-            update_refinement_params(params=copy_params.param_file,
+            update_refinement_params(params=copy_params.settings.param_file,
                                      extra_params=copy_params.extra_params)
 
         # Add link record strings into multimodel pdb file, prior to refinement
