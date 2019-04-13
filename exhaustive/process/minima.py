@@ -12,6 +12,7 @@ from exhaustive.exhaustive.utils.utils import get_minimum_fofc
 
 logging = logging.getLogger(__name__)
 
+
 def get_minima_within_b_range(csv_file, b_lower, b_upper):
 
     df = pd.read_csv(csv_file)
@@ -52,7 +53,3 @@ def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
             crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
 
 
-# get_minima_within_b_range(csv_file="/dls/science/groups/i04-1/elliot-dev/Work/"\
-#                           "exhaustive_search_data/covalent_ratios_exhaus_sep_18/NUDT7A-x6208",
-#                           b_lower=0.3,
-#                           b_upper=0.7)

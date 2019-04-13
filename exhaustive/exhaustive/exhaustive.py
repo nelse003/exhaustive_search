@@ -254,21 +254,24 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding,
     print("Pre loop")
     print(len(u_iso_occ))
 
-    if params.settings.processes > 1:
+    #if params.settings.processes > 1:
 
-        # For covalent ratios this wasn't working at all. The map method seems fast enough even at 0.01
-        sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
-                                            processes=params.settings.processes)
-    else:
-        sum_fofc_results = map(occ_b_loop,u_iso_occ)
+    # For covalent ratios this wasn't working at all.
+    # The map method seems fast enough even at 0.01
+
+    # TODO Investigate parallelisation
+
+    # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
+    #                                     processes=params.settings.processes)
+    sum_fofc_results = map(occ_b_loop, u_iso_occ)
+
 
     logging.info("Loop finished.\n"
                 "Writing bound occupancy, ground_occupancy, u_iso, "
                 "mean |Fo-Fc| to CSV: {}".format(
         params.exhaustive.output.csv_name))
 
-    with open(os.path.join(params.output.out_dir,
-                           params.exhaustive.output.csv_name), 'w') as f1:
+    with open(params.exhaustive.output.csv_name, 'w') as f1:
 
         writer = csv.writer(f1, delimiter=',', lineterminator='\n')
         writer.writerows(sum_fofc_results)

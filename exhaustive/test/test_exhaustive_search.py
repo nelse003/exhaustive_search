@@ -1,6 +1,7 @@
 import unittest
 from exhaustive.exhaustive.utils.phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
+from run_exhaustive_multiple_sampling import run as multiple_exhaustive
 from exhaustive.exhaustive.utils.utils import get_minimum_fofc
 import os
 
@@ -9,12 +10,10 @@ class TestComputeMaps(unittest.TestCase):
     """
     Test the ability to compute maps using compute_maps()
     """
-
     def test_compute_maps(self):
         self.assertEqual(True, False)
 
 
-# TODO Write TestExhaustiveSearch
 class TestExhaustiveSearch(unittest.TestCase):
     """
     Test the main loop of exhaustive search.
@@ -67,6 +66,20 @@ class TestExhaustiveSearch(unittest.TestCase):
 
     def test_multiprocess_exhaustive_search(self):
         self.assertEqual(True, False)
+
+class TestMultipleSamplingExhaustiveSearch(TestExhaustiveSearch):
+    """
+    Test the multiple sampling exhaustive search method.
+    """
+    def test_multiple_exhaustive_search(self):
+
+        """ Test with minimal number of parameters changed from default."""
+
+        self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
+        multiple_exhaustive(self.params)
+        bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
+        self.assertAlmostEqual(0.7,bound_occ)
+        self.assertAlmostEqual(0.45,u_iso)
 
 
 # TODO Write TestOccupancyCartPoints
