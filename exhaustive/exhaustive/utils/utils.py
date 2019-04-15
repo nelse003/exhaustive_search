@@ -1,6 +1,5 @@
-import numpoy as np
-
-from exhaustive.utils.utils_ccp4 import round_step
+import os
+import numpy as np
 
 
 def b_to_u_iso(b_fac):
@@ -66,3 +65,8 @@ def get_minimum_fofc(csv_name, b_fac=None):
     min_index = np.argmin(fo_fc)
 
     return occ[min_index], u_iso[min_index], fo_fc[min_index]
+
+
+def round_step(x, prec=2, base=.05):
+    """ Return a number rounded to the nearest base."""
+    return round(base * round(float(x)/base), prec)

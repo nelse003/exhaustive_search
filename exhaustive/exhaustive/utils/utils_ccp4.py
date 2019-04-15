@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from iotbx.pdb import hierarchy
 
-from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc
+from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc, round_step
 from select_atoms import get_occupancy_groups
 
 def get_xtals_from_db(params,
@@ -170,11 +170,6 @@ def sample_spherical(npoints, ndim=3):
     vec = np.random.randn(ndim, npoints)
     vec /= np.linalg.norm(vec, axis=0)
     return vec
-
-
-def round_step(x, prec=2, base=.05):
-    """ Return a number rounded to the nearest base."""
-    return round(base * round(float(x)/base), prec)
 
 
 def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):

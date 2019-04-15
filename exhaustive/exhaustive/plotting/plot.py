@@ -8,8 +8,8 @@ import pandas as pd
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from exhaustive.exhaustive.utils.utils_ccp4 import (get_fofc_from_csv,
-                                                    round_step, process_validation_csvs, expand_array)
-from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc
+                                                    process_validation_csvs, expand_array)
+from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc, round_step
 from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
 from mpl_toolkits.mplot3d import Axes3D
 #import seaborn as sns
