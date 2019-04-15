@@ -34,7 +34,7 @@ from utils.convex_hull import convex_hull_from_states, \
     atom_points_from_sel_string, convex_hull_grid_points, \
     convex_hull_per_residue
 
-from utils.utils import is_almost_equal
+from utils.utils_ccp4 import is_almost_equal
 from utils.select_atoms import process_refined_pdb_bound_ground_states, \
     get_occupancy_group_grid_points
 from utils.phil import master_phil

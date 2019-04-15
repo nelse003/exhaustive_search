@@ -5,10 +5,10 @@ import pandas as pd
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive.exhaustive.utils.utils import process_refined_pdb_bound_ground_states
-from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
-from exhaustive.exhaustive.utils.utils import b_fac_to_u_iso
-from exhaustive.exhaustive.utils.utils import get_minimum_fofc
+from exhaustive.exhaustive.utils.utils_ccp4 import process_refined_pdb_bound_ground_states
+from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.exhaustive.utils.utils_ccp4 import b_fac_to_u_iso
+from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
 
 logging = logging.getLogger(__name__)
 

@@ -5,8 +5,9 @@ import pandas as pd
 
 from exhaustive.exhaustive.utils.phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
-from exhaustive.exhaustive.utils.utils import get_minimum_fofc
-from exhaustive.exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
+from exhaustive.utils.utils import u_iso_to_b_fac
+
 
 def append_csv(in_csv1, in_csv2, out_csv):
     """

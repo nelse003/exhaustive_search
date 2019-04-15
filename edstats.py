@@ -3,7 +3,7 @@ import pandas as pd
 
 from exhaustive.exhaustive.utils.phil import master_phil
 
-from exhaustive.exhaustive.utils.utils import get_xtals_from_db
+from exhaustive.exhaustive.utils.utils_ccp4 import get_xtals_from_db
 
 
 # from giant.jiffies.score_model import run as score_model

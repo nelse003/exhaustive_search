@@ -9,7 +9,7 @@ from scitbx.array_family import flex
 import giant.grid as grid
 
 from select_atoms import get_occupancy_groups
-from utils import sample_spherical
+from utils_ccp4 import sample_spherical
 
 def convex_hull_from_states(pdb, bound_states, ground_states, params):
 
