@@ -2,7 +2,7 @@ import unittest
 from exhaustive.exhaustive.utils.phil import master_phil
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from run_exhaustive_multiple_sampling import run as multiple_exhaustive
-from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
+from exhaustive.utils.utils import get_minimum_fofc
 import os
 
 # TODO Write TestComputeMaps

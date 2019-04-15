@@ -5,8 +5,7 @@ import sqlite3
 matplotlib.use('agg')
 import seaborn as sns
 from matplotlib import pyplot as plt
-from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
-from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
 from exhaustive.exhaustive.utils.phil import master_phil
 from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 

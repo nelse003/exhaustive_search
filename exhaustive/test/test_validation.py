@@ -3,8 +3,7 @@ import os
 import numpy as np
 import unittest
 
-from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
-from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac
+from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc
 from exhaustive.validation.validation import run as validate
 from exhaustive.exhaustive.utils.phil import master_phil
 

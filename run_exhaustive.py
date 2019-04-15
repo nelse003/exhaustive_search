@@ -3,8 +3,7 @@ import os
 
 from exhaustive.exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive.plotting.plot import scatter_plot
-from exhaustive.exhaustive.utils.utils_ccp4 import get_minimum_fofc
-from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
 from exhaustive.exhaustive.utils.phil import master_phil
 
 params =  master_phil.extract()
