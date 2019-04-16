@@ -5,22 +5,13 @@ import pandas as pd
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive.exhaustive.utils.utils_ccp4 import process_refined_pdb_bound_ground_states
+from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
 from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
-from exhaustive.exhaustive.utils.utils_ccp4 import b_fac_to_u_iso
+
 
 logging = logging.getLogger(__name__)
 
-
-def get_minima_within_b_range(csv_file, b_lower, b_upper):
-
-    df = pd.read_csv(csv_file)
-    u_lower = b_fac_to_u_iso(b_lower)
-    u_upper = b_fac_to_u_iso(b_upper)
-    print(df)
-
-
-def write_minima_pdb(input_pdb,output_pdb,csv_name, params):
+def write_minima_pdb(input_pdb, output_pdb, csv_name, params):
 
     min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 

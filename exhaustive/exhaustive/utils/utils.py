@@ -70,3 +70,77 @@ def get_minimum_fofc(csv_name, b_fac=None):
 def round_step(x, prec=2, base=.05):
     """ Return a number rounded to the nearest base."""
     return round(base * round(float(x)/base), prec)
+
+
+def expand_array(array):
+    "Expand a 3d numpy array"
+
+    x = array[:, 0]
+    y = array[:, 1]
+    z = array[:, 2]
+
+    return x, y, z
+
+
+def sample_spherical(npoints, ndim=3):
+    """Sample a ndimensional sphere using gaussians
+
+    Is used to generate points within a sphere from which
+    a convex hull around atoms can be generated
+    """
+
+    vec = np.random.randn(ndim, npoints)
+    vec /= np.linalg.norm(vec, axis=0)
+    return vec
+
+
+def wait_for_file_existence(file_path, wait_time):
+
+    """ Wait for a file to exist, stop after wait_time (seconds)
+
+    Used for waiting for qsub to finish
+    """
+
+    time_in_loop = 0
+    while not os.path.exists(file_path):
+        if time_in_loop < wait_time:
+            print("waiting")
+            time.sleep(1)
+            time_in_loop += 1
+        else:
+            raise IOError("Cannot find file {} within {} seconds".format(
+                file_path, wait_time))
+
+
+def chunks(l, n):
+
+    """ Divide a list l into chunks of length n. Yield with consecutive letters
+
+    Used for splitting a list of atomic points into breaks of 9999 for
+    display in a pdb file.
+
+    Parameters
+    -------------------
+    l: list
+        list to be split into chunks
+    y: int
+        length to chunk list into
+
+    Yields
+    ----------------------
+    list
+        slice of original list up to chunk size
+    str
+        A letter associated with chunk (A-Z)
+    """
+
+    alphabet = []
+    for letter in range(65, 91):
+        alphabet.append(chr(letter))
+
+    # For item i in a range that is a length of l,
+    pos = 0
+    for i in xrange(0, len(l), n):
+        # Create an index range for l of n items:
+        yield l[i:i+n], alphabet[pos]
+        pos += 1

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from iotbx.pdb import hierarchy
 
-from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc, round_step
+from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc, round_step, chunks
 from select_atoms import get_occupancy_groups
 
 def get_xtals_from_db(params,
@@ -37,38 +37,6 @@ def get_xtals_from_db(params,
         xtal_name = xtal_name.encode('ascii')
         yield xtal_name, pdb, mtz
 
-def chunks(l, n):
-
-    """ Divide a list l into chunks of length n. Yield with consecutive letters
-    
-    Used for splitting a list of atomic points into breaks of 9999 for 
-    display in a pdb file. 
-    
-    Parameters
-    -------------------
-    l: list
-        list to be split into chunks
-    y: int
-        length to chunk list into
-    
-    Yields
-    ----------------------
-    list
-        slice of original list up to chunk size
-    str
-        A letter associated with chunk (A-Z)
-    """
-
-    alphabet = []
-    for letter in range(65, 91):
-        alphabet.append(chr(letter))
-
-    # For item i in a range that is a length of l,
-    pos = 0
-    for i in xrange(0, len(l), n):
-        # Create an index range for l of n items:
-        yield l[i:i+n], alphabet[pos]
-        pos += 1
 
 def write_pdb_HOH_site_cart(pdb, sites_cart):
 
@@ -150,28 +118,6 @@ def process_validation_csvs(start_occ,
     return min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs
 
 
-def expand_array(array):
-    "Expand a 3d numpy array"
-
-    x = array[:, 0]
-    y = array[:, 1]
-    z = array[:, 2]
-
-    return x, y, z
-
-
-def sample_spherical(npoints, ndim=3):
-    """Sample a ndimensional sphere using gaussians
-    
-    Is used to generate points within a sphere from which 
-    a convex hull around atoms can be generated
-    """
-
-    vec = np.random.randn(ndim, npoints)
-    vec /= np.linalg.norm(vec, axis=0)
-    return vec
-
-
 def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):
 
     """ Change b factor of all atoms involved in occupancy groups"""
@@ -227,24 +173,6 @@ def get_lig_occ(refine_pdb):
     else:
         "Ligand occupancy is not defined"
         exit()
-
-
-def wait_for_file_existence(file_path, wait_time):
-
-    """ Wait for a file to exist, stop after wait_time (seconds)
-
-    Used for waiting for qsub to finish
-    """
-
-    time_in_loop = 0
-    while not os.path.exists(file_path):
-        if time_in_loop < wait_time:
-            print("waiting")
-            time.sleep(1)
-            time_in_loop += 1
-        else:
-            raise IOError("Cannot find file {} within {} seconds".format(
-                file_path, wait_time))
 
 
 def get_csv_filepath(params):
@@ -373,9 +301,6 @@ def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
                      & ((u_iso-e)<data[:,2])
                      & ((u_iso+e)>data[:,2]) ]
 
-    print(u_iso)
-    print(data_line)
-
     fo_fc = data_line[0][3]
 
     return fo_fc
@@ -460,5 +385,27 @@ def is_almost_equal(x,y, epsilon=1*10**(-8)):
     return abs(x-y) <= epsilon
 
 
+def print_hier_atoms(hier):
+    """
+    Basic printing of an iotbx.pdb.hierarchy
 
+    :param hier:
+    :return:
+    """
 
+    for model in hier.models():
+        print("Model: {}".format(model.id))
+
+        for chain in model.chains():
+            print("Chain: {}".format(chain.id))
+
+            for residue_group in chain.residue_groups():
+                print("Residue: {}".format(residue_group.resseq))
+
+                for atom_group in residue_group.atom_groups():
+                    print("Altloc: {}".format(atom_group.altloc))
+
+                    for atom in atom_group.atoms():
+                        print("Atom Name: {}".format(atom.name))
+
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

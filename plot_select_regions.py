@@ -11,7 +11,7 @@ from exhaustive.exhaustive.utils.convex_hull import \
     convex_hull_from_states, atom_points_from_sel_string, \
     convex_hull_grid_points
 
-from exhaustive.exhaustive.utils.utils_ccp4 import expand_array
+from exhaustive.utils.utils import expand_array
 
 
 # params =  master_phil.extract()
