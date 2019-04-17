@@ -19,6 +19,13 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.legend import Legend
 
+"""
+Exploring Bhat 1989: R value for atoms
+
+NOT TESTED after refactor
+"""
+
+
 def dump(obj):
   for attr in dir(obj):
     print("obj.%s = %r" % (attr, getattr(obj, attr)))

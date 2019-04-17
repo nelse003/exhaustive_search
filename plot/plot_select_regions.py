@@ -14,14 +14,6 @@ from exhaustive import \
 from utils import expand_array
 
 
-# params =  master_phil.extract()
-# params.input.xtal_name = "NUDT22A-x0182"
-# params.input.in_path = os.path.join("/hdlocal/home/enelson/exhaustive_search_data/validation_NUDT22/FMOPL000622a_DSPL/NUDT22A-x0182")
-# params.input.mtz = os.path.join(params.input.in_path, "refine.mtz")
-# params.input.pdb = os.path.join(params.input.in_path,"refine.pdb")
-# params.output.out_dir = os.path.realpath("/hdlocal/home/enelson/exhaustive_search_data/validation_NUDT22/FMOPL000622a_DSPL/NUDT22A-x0182")
-# params.exhaustive.options.atom_points_sel_string = "(chain B and altid C and resid 1) or (chain B and altid D resid 1)"
-
 def plot_protein_region(params, lig_grid=False, all=True, per_residue=True,
                         convex_hull=False, boxes=False, lig_atoms=False):
 

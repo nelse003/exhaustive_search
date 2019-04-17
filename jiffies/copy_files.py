@@ -2,7 +2,10 @@ import os
 import sqlite3
 
 def copy_NUDT22():
-    """ Copy refine pdb and mtz from NUDT22 to compound dirs"""
+    """ Copy refine pdb and mtz from NUDT22 to compound dirs
+
+    NOT TESTED after Refactor
+    """
 
     out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
     database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"
