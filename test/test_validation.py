@@ -3,12 +3,13 @@ import os
 import numpy as np
 import unittest
 
-from exhaustive.utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc
-from exhaustive.validation.validation import run as validate
-from exhaustive.exhaustive.utils.phil import master_phil
+from utils.utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc
+from validation.validation import run as validate
+from exhaustive import master_phil
 
 
 class TestValidation(unittest.TestCase):
+
     """
     Test the main loop of exhaustive search.
 
@@ -28,7 +29,7 @@ class TestValidation(unittest.TestCase):
         self.params =  master_phil.extract()
         self.params.input.xtal_name = "FALZA-x0085"
         self.params.input.in_path = os.path.join(os.path.realpath(
-            "./exhaustive/test/resources"), self.params.input.xtal_name)
+            "./test/resources"), self.params.input.xtal_name)
         self.params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
                                         "FALZA-x0085.free.mtz")
         self.params.input.mtz = os.path.join(self.params.input.in_path,
@@ -36,7 +37,7 @@ class TestValidation(unittest.TestCase):
         self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
         #self.params.output.out_dir = os.path.realpath("./exhaustive/test/output")
 
-        self.params.output.out_dir = os.path.realpath("./exhaustive/test/output/per_res")
+        self.params.output.out_dir = os.path.realpath("./test/output/per_res")
         self.params.exhaustive.options.per_residue = True
 
         self.params.output.log_dir = os.path.join(self.params.output.out_dir, "logs")
@@ -201,17 +202,25 @@ class TestValidation(unittest.TestCase):
         # summary png
         summary_png = self.params.input.xtal_name()
 
-        assert os.path.exists("multi-state-restraints.refmac.self.params"), "Missing: multi-state-restraints.refmac.params"
+        assert os.path.exists("multi-state-restraints.refmac.self.params"), \
+            "Missing: multi-state-restraints.refmac.params"
+
         files.append("multi-state-restraints.refmac.params")
-        assert os.path.exists("multi-state-restraints.phenix.params"), "Missing: multi-state-restraints.phenix.params"
-        files.append("multi-state-restraints.refmac.params")
+
+        assert os.path.exists("multi-state-restraints.phenix.params"),\
+            "Missing: multi-state-restraints.phenix.params"
+
+        files.append("multi-state-restraints.phenix.params")
 
         # Check no other files are generated
-        generated_files = [f for f in os.listdir(self.params.output.out_dir) if isfile(os.path.join(self.params.output.out_dir, f))]
+        generated_files = [f for f
+                           in os.listdir(self.params.output.out_dir)
+                           if isfile(os.path.join(self.params.output.out_dir, f))]
 
 
-        assert len(files) == len(generated_files), "There are {} extra files in the output folder".format(len(files) -
-                                                                                                          len(generated_files))
+        assert len(files) == len(generated_files),\
+            "There are {} extra files in the output folder".format(
+                len(files) - len(generated_files))
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,9 +5,9 @@ import sqlite3
 matplotlib.use('agg')
 import seaborn as sns
 from matplotlib import pyplot as plt
-from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
-from exhaustive.exhaustive.utils.phil import master_phil
-from exhaustive.exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
+from utils import u_iso_to_b_fac, get_minimum_fofc
+from exhaustive import master_phil
+from plot import occupancy_histogram_with_exhaustive_search
 
 def labelled_pairplot(df, hue_column=None):
     """ Seaborn pairplot with labelled axis for each subplot

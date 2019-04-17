@@ -3,9 +3,9 @@ import os
 import time
 import pandas as pd
 
-from exhaustive.exhaustive.utils.phil import master_phil
-from exhaustive.exhaustive.exhaustive import run as exhaustive
-from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
+from exhaustive import master_phil
+from exhaustive import run as exhaustive
+from utils.utils import u_iso_to_b_fac, get_minimum_fofc
 
 
 def append_csv(in_csv1, in_csv2, out_csv):

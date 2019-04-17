@@ -9,7 +9,7 @@ import iotbx.pdb
 import numpy as np
 
 from iotbx import reflection_file_utils
-from exhaustive.exhaustive.utils.phil import master_phil
+from exhaustive import master_phil
 from mmtbx.utils import data_and_flags_master_params
 
 import cctbx.eltbx

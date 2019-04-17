@@ -1,10 +1,10 @@
 import csv
 import os
 
-from exhaustive.exhaustive.exhaustive import run as exhaustive
-from exhaustive.exhaustive.plotting.plot import scatter_plot
-from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
-from exhaustive.exhaustive.utils.phil import master_phil
+from exhaustive import run as exhaustive
+from plot import scatter_plot
+from utils import u_iso_to_b_fac, get_minimum_fofc
+from exhaustive import master_phil
 
 params =  master_phil.extract()
 

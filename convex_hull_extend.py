@@ -5,9 +5,9 @@ Compare the output of the exhaustive search algorithm, """
 import os
 import numpy as np
 
-from exhaustive.exhaustive import run as exhaustive
-from exhaustive.exhaustive.plotting.plot import scatter_plot
-from exhaustive.exhaustive.utils.phil import master_phil
+from exhaustive import run as exhaustive
+from plot import scatter_plot
+from exhaustive import master_phil
 
 params =  master_phil.extract()
 params.input.xtal_name = "NUDT22A-x0955"

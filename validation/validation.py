@@ -9,13 +9,13 @@ from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as generate_map
 
-from exhaustive.exhaustive.plotting.plot import scatter_plot,\
+from plotting.plot import scatter_plot,\
     plot_3d_fofc_occ, plot_2d_occ_b_validation
-from exhaustive.exhaustive.utils.utils_ccp4 import set_b_fac_all_occupancy_groups, \
+from utils.utils_ccp4 import set_b_fac_all_occupancy_groups, \
     get_csv_filepath, set_b_fac_all_atoms
-from exhaustive.utils.utils import wait_for_file_existence
-from exhaustive.exhaustive.utils.phil import master_phil, prepare_validate_phil, check_input_files
-from exhaustive.exhaustive.exhaustive import run as exhaustive
+from utils import wait_for_file_existence
+from exhaustive import master_phil, prepare_validate_phil, check_input_files
+from exhaustive import run as exhaustive
 
 
 # Logging

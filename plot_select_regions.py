@@ -1,17 +1,17 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from exhaustive.exhaustive.utils.convex_hull import convex_hull_per_residue
+from exhaustive import convex_hull_per_residue
 
-from exhaustive.exhaustive.utils.select_atoms \
+from exhaustive \
     import process_refined_pdb_bound_ground_states, \
     get_occupancy_group_grid_points
 
-from exhaustive.exhaustive.utils.convex_hull import \
+from exhaustive import \
     convex_hull_from_states, atom_points_from_sel_string, \
     convex_hull_grid_points
 
-from exhaustive.utils.utils import expand_array
+from utils import expand_array
 
 
 # params =  master_phil.extract()

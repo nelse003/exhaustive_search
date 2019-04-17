@@ -1,12 +1,11 @@
 from __future__ import division, print_function
 
 import logging
-import pandas as pd
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive.exhaustive.utils.select_atoms import process_refined_pdb_bound_ground_states
-from exhaustive.utils.utils import u_iso_to_b_fac, get_minimum_fofc
+from exhaustive import process_refined_pdb_bound_ground_states
+from utils import u_iso_to_b_fac, get_minimum_fofc
 
 
 logging = logging.getLogger(__name__)

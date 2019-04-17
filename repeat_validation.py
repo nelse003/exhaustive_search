@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-from exhaustive.exhaustive.utils.phil import master_phil
+from exhaustive import master_phil
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
-from exhaustive.validation.repeat_validate import repeat_validate
+from repeat_validate import repeat_validate
 
 def list_files(directory, extension):
     return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
