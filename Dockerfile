@@ -19,3 +19,5 @@ RUN ./pandda_update
 CMD ["source", "/ccp4/bin/ccp4.setup-sh"]
 CMD ["ccp4/start"]
 
+RUN mkdir test
+ADD * /test/
