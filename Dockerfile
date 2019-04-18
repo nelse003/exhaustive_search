@@ -21,3 +21,6 @@ CMD ["ccp4/start"]
 
 RUN mkdir exhaustive_search
 ADD * /exhaustive_search/
+
+RUN mkdir exhaustive_search/test
+ADD * /exhaustive_search/test
