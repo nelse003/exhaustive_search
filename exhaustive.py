@@ -171,8 +171,8 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding, pdb):
     crystal_gridding: cctbx.maptbx.crystal_gridding
         cctbx object handling the grid on whihc the maps are defined
 
-    pdb:
-
+    pdb: str
+        path to pdb file
 
     Returns
     --------
@@ -457,6 +457,7 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
     fmodel.update_xray_structure(
         xray_structure=xrs_dc,
         update_f_calc=True)
+
     fft_map, fofc_map, fofc = compute_maps(
         fmodel=fmodel,
         crystal_gridding=crystal_gridding,
@@ -486,16 +487,6 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
-class XtalModelData(object):
-
-    def __init__(self, pdb, mtz, params):
-
-        self.xrs =
-        self.inputs = mmtbx.utils.process_command_line_args(args=[params.input.pdb, params.input.mtz])
-        self.fmodel =
-        self.crystal_gridding =
-
-    def
 
 def run(params):
     """ 
@@ -540,8 +531,11 @@ def run(params):
     if not os.path.exists(params.output.out_dir):
         os.makedirs(params.output.out_dir)
 
-    if not os.path.exists(os.path.join(params.output.out_dir, params.output.log_dir)):
-        os.makedirs(os.path.join(params.output.out_dir, params.output.log_dir))
+    if not os.path.exists(os.path.join(params.output.out_dir,
+                                       params.output.log_dir)):
+        os.makedirs(os.path.join(
+            params.output.out_dir,
+            params.output.log_dir))
 
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.out_dir,
@@ -571,6 +565,7 @@ def run(params):
         force_symmetry=True,
         reflection_files=inputs.reflection_files,
         err=StringIO())
+
     logger.debug("Processed reflection files using reflection file server")
 
     logger.debug("Extracting a copy of data_and_flags_master_params "
