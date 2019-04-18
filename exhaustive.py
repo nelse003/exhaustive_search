@@ -486,7 +486,16 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
 
     return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
 
-class
+class XtalModelData(object):
+
+    def __init__(self, pdb, mtz, params):
+
+        self.xrs =
+        self.inputs = mmtbx.utils.process_command_line_args(args=[params.input.pdb, params.input.mtz])
+        self.fmodel =
+        self.crystal_gridding =
+
+    def
 
 def run(params):
     """ 
