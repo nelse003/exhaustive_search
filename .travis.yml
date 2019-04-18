@@ -10,7 +10,7 @@ before_script:
 - docker build --pull --cache-from nelse003/ccp4_phenix_docker --tag nelse003/ccp4_phenix_docker .
 
 script:
-- docker run nelse003/ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4-python -m unittest discover exhaustive_search/test"
+- docker run nelse003/ccp4_phenix_docker /bin/bash -c "/ccp4/bin/ccp4-python -m unittest discover test"
 after_script:
 - docker images
 
