@@ -7,7 +7,7 @@ import mmtbx.f_model
 import mmtbx.masks
 from mmtbx.utils import data_and_flags_master_params
 from iotbx import reflection_file_utils
-
+import cctbx
 
 class XtalModelData(object):
 
@@ -26,13 +26,13 @@ class XtalModelData(object):
     mtz: str
         mtz filepath
 
-    xrs: cctbx.xray.structure.structure
+    xrs: cctbx.xray.structure
         Xray structure object
 
     inputs: mmtbx.utils.process_command_line_args
         holder for input arguments
 
-    fmodel: mmtbx.f_model.f_model.manager'
+    fmodel: mmtbx.f_model.f_model.manager
         cctbx object handling the model
 
     crystal_gridding: cctbx.maptbx.crystal_gridding

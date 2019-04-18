@@ -1,5 +1,7 @@
 import os
 import unittest
+import cctbx
+import mmtbx
 
 from xtal_model_data import XtalModelData
 from utils.phil import master_phil
@@ -25,10 +27,18 @@ class TestXtalModelData(unittest.TestCase):
 
 
     def test_init(self):
+        """Check the class constructor
+
+        Checks that objects of the correct type are produced.
+        """
         xtal_model_data = XtalModelData(self.params)
 
         assert xtal_model_data.pdb == self.params.input.pdb
         assert xtal_model_data.mtz == self.params.input.mtz
+        self.assertIsInstance(xtal_model_data.xrs, cctbx.xray.structure)
+        self.assertIsInstance(xtal_model_data.inputs, mmtbx.utils.process_command_line_args)
+        self.assertIsInstance(xtal_model_data.crystal_gridding, cctbx.maptbx.crystal_gridding)
+        self.assertIsInstance(xtal_model_data.fmodel, mmtbx.f_model.f_model.manager)
 
 
 
