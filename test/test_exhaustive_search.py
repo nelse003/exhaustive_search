@@ -1,11 +1,11 @@
 import os
-import shutil
 import unittest
 
-from utils.phil import master_phil
+from exhaustive import compute_maps
 from exhaustive import run as exhaustive
-from run_exhaustive_multiple_sampling import run as multiple_exhaustive
+from utils.phil import master_phil
 from utils.utils import get_minimum_fofc
+
 
 # TODO Write TestComputeMaps
 class TestComputeMaps(unittest.TestCase):
@@ -13,17 +13,20 @@ class TestComputeMaps(unittest.TestCase):
     Test the ability to compute maps using compute_maps()
     """
 
+    def setUp(self):
+        self.params = master_phil.extract()
+
     @unittest.skip("Not implemented")
     def test_compute_maps(self):
-        self.assertEqual(True, False)
+        compute_maps()
 
 
 class TestExhaustiveSearch(unittest.TestCase):
     """
     Test the main loop of exhaustive search.
     """
-    def setUp(self):
 
+    def setUp(self):
         """Provide the minimal number of parameters to test exhaustive search"""
 
         self.params = master_phil.extract()
@@ -32,16 +35,14 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.input.in_path = os.path.join(os.path.realpath(
             "./test/resources"), self.params.input.xtal_name)
         self.params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
-                                        "FALZA-x0085.free.mtz")
+                                                           "FALZA-x0085.free.mtz")
         self.params.input.mtz = os.path.join(self.params.input.in_path,
-                                        "FALZA-x0085.free.mtz")
-        self.params.input.pdb = os.path.join(self.params.input.in_path,"refine.pdb")
+                                             "FALZA-x0085.free.mtz")
+        self.params.input.pdb = os.path.join(self.params.input.in_path, "refine.pdb")
         self.params.output.out_dir = os.path.realpath("./test/output")
         self.params.output.log_dir = os.path.realpath(os.path.join("./test/output", "logs"))
 
-
     def tearDown(self):
-
         """Remove test files"""
         # TODO Fix Teardown method
 
@@ -50,22 +51,19 @@ class TestExhaustiveSearch(unittest.TestCase):
         # OSError: [Errno 16] Device or resource busy:
         # '/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/test/output/logs/.nfs00000000a0d05de80000319f'
 
-        #shutil.rmtree(os.path.realpath("./test/output"))
-
+        # shutil.rmtree(os.path.realpath("./test/output"))
 
     def test_exhaustive_search(self):
-
         """ Test with minimal number of parameters changed from default."""
 
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
 
         exhaustive(self.params)
         bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
-        self.assertAlmostEqual(0.6,bound_occ)
-        self.assertAlmostEqual(0.35,u_iso)
+        self.assertAlmostEqual(0.6, bound_occ)
+        self.assertAlmostEqual(0.35, u_iso)
 
     def test_convex_hull_exhaustive_search(self):
-
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
         exhaustive(self.params)
         bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
@@ -87,20 +85,6 @@ class TestExhaustiveSearch(unittest.TestCase):
     @unittest.skip("Not implemented")
     def test_multiprocess_exhaustive_search(self):
         self.assertEqual(True, False)
-
-class TestMultipleSamplingExhaustiveSearch(TestExhaustiveSearch):
-    """
-    Test the multiple sampling exhaustive search method.
-    """
-    def test_multiple_exhaustive_search(self):
-
-        """ Test with minimal number of parameters changed from default."""
-
-        self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
-        multiple_exhaustive(self.params)
-        bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
-        self.assertAlmostEqual(0.6,bound_occ)
-        self.assertAlmostEqual(0.33,u_iso)
 
 
 # TODO Write TestOccupancyCartPoints

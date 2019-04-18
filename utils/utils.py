@@ -1,11 +1,12 @@
 import os
+
 import numpy as np
 
 
 def b_to_u_iso(b_fac):
     """ Convert isotropic B factor to u iso"""
 
-    u_iso = b_fac/(8 * np.pi ** 2)
+    u_iso = b_fac / (8 * np.pi ** 2)
     return u_iso
 
 
@@ -69,7 +70,7 @@ def get_minimum_fofc(csv_name, b_fac=None):
 
 def round_step(x, prec=2, base=.05):
     """ Return a number rounded to the nearest base."""
-    return round(base * round(float(x)/base), prec)
+    return round(base * round(float(x) / base), prec)
 
 
 def expand_array(array):
@@ -86,7 +87,13 @@ def sample_spherical(npoints, ndim=3):
     """Sample a ndimensional sphere using gaussians
 
     Is used to generate points within a sphere from which
-    a convex hull around atoms can be generated
+    a convex hull around atoms can be generated.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
     """
 
     vec = np.random.randn(ndim, npoints)
@@ -95,7 +102,6 @@ def sample_spherical(npoints, ndim=3):
 
 
 def wait_for_file_existence(file_path, wait_time):
-
     """ Wait for a file to exist, stop after wait_time (seconds)
 
     Used for waiting for qsub to finish
@@ -113,7 +119,6 @@ def wait_for_file_existence(file_path, wait_time):
 
 
 def chunks(l, n):
-
     """ Divide a list l into chunks of length n. Yield with consecutive letters
 
     Used for splitting a list of atomic points into breaks of 9999 for
@@ -142,5 +147,5 @@ def chunks(l, n):
     pos = 0
     for i in xrange(0, len(l), n):
         # Create an index range for l of n items:
-        yield l[i:i+n], alphabet[pos]
+        yield l[i:i + n], alphabet[pos]
         pos += 1

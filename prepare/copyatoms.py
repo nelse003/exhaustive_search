@@ -2,7 +2,9 @@ import os
 
 from giant.structure.utils import transfer_residue_groups_from_other
 from iotbx.pdb import hierarchy
+
 from copy_phil import copy_phil
+
 
 def update_refinement_params(params, extra_params):
     # TODO Import from common framework files?
@@ -23,13 +25,13 @@ def update_refinement_params(params, extra_params):
     if extra_params is None:
         return
 
-    params = open(params,'a')
+    params = open(params, 'a')
     params.write('\n' + extra_params)
     params.close()
 
-def copy_atoms(copy_params):
 
-    #TODO Refactor in smaller chunks
+def copy_atoms(copy_params):
+    # TODO Refactor in smaller chunks
 
     """ Copy atoms from one pdb file to many, then refine.
     
@@ -69,13 +71,12 @@ def copy_atoms(copy_params):
             selection_string_list.append(selection_string)
 
         selection_string = "or".join(selection_string_list)
-        not_selection_string ="not ({})".format(selection_string)
+        not_selection_string = "not ({})".format(selection_string)
 
     # Define xtals to loop over
     xtals = copy_params.input.xtal_list
     for num in range(copy_params.input.start_xtal_number,
                      copy_params.input.end_xtal_number + 1):
-
         xtal_name = copy_params.input.prefix + "{0:0>4}".format(num)
         xtals.append(xtal_name)
 
@@ -86,14 +87,13 @@ def copy_atoms(copy_params):
         if os.path.exists(os.path.join(copy_params.output.out_dir,
                                        xtal_name,
                                        copy_params.output.refine_pdb)) and \
-            not copy_params.settings.overwrite:
+                not copy_params.settings.overwrite:
             continue
 
         # Run only if sufficent input data
         if not os.path.exists(os.path.join(copy_params.input.path,
                                            xtal_name,
                                            copy_params.input.pdb_style)):
-
             print("pdb does not exist: {}".format(
                 os.path.join(copy_params.input.path,
                              xtal_name, copy_params.input.pdb_style)))
@@ -104,7 +104,7 @@ def copy_atoms(copy_params):
 
         acceptor_hierarchy = pdb_in_refine.construct_hierarchy()
 
-        #remove atoms from xtal
+        # remove atoms from xtal
         if copy_params.input.atoms_remove is not None:
             refine_sel_cache = pdb_in_refine.hierarchy.atom_selection_cache()
             remove_atoms_sel = refine_sel_cache.selection(not_selection_string)
@@ -125,8 +125,8 @@ def copy_atoms(copy_params):
             os.mkdir(os.path.join(copy_params.output.out_dir, xtal_name))
 
         # Write output pdb with changed atoms
-        f = open(os.path.join(copy_params.output.out_dir,xtal_name,
-                              copy_params.output.pdb),"w+")
+        f = open(os.path.join(copy_params.output.out_dir, xtal_name,
+                              copy_params.output.pdb), "w+")
         f.write(acceptor_hier.as_pdb_string(
             crystal_symmetry=pdb_in_refine.input.crystal_symmetry()))
         f.close()
@@ -149,9 +149,9 @@ def copy_atoms(copy_params):
         os.system('cp -rL {} {}'.format(os.path.join(copy_params.input.path,
                                                      xtal_name,
                                                      copy_params.input.mtz_style),
-                                    os.path.join(copy_params.output.out_dir,
-                                                 xtal_name,
-                                                 copy_params.input.mtz_style)))
+                                        os.path.join(copy_params.output.out_dir,
+                                                     xtal_name,
+                                                     copy_params.input.mtz_style)))
         # Run giant.merge_conforamtions
         os.system('giant.merge_conformations major={} minor={}'.format(
             os.path.join(copy_params.output.out_dir,
@@ -178,7 +178,7 @@ def copy_atoms(copy_params):
             with open(os.path.join(
                     copy_params.output.out_dir,
                     xtal_name,
-                    copy_params.output.multi_state_model_pdb),"w") as modified:
+                    copy_params.output.multi_state_model_pdb), "w") as modified:
 
                 for link_record in copy_params.input.link_record_list:
                     modified.write(link_record)
@@ -202,8 +202,8 @@ def copy_atoms(copy_params):
 
         if copy_params.settings.qsub:
             f = open(
-                os.path.join(copy_params.output.out_dir,xtal_name,
-                             "{}_quick_refine.sh".format(xtal_name)),"w")
+                os.path.join(copy_params.output.out_dir, xtal_name,
+                             "{}_quick_refine.sh".format(xtal_name)), "w")
 
             f.write(cmds)
             f.close()
@@ -214,9 +214,9 @@ def copy_atoms(copy_params):
         else:
             os.system(cmds)
 
-if __name__ == '__main__':
 
-    #titration
+if __name__ == '__main__':
+    # titration
     # (path="/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model",
     #                      prefix='NUDT7A-x',
     #                      start_xtal_num=2006,
@@ -237,15 +237,16 @@ if __name__ == '__main__':
     copy_params.input.start_xtal_number = 6192
     copy_params.input.end_xtal_number = 6251
     copy_params.input.base_pdb = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model/NUDT7A-x1812/NUDT7A-x1812-pandda-model.pdb"
-    copy_params.input.atoms_new = [['E','1']]
+    copy_params.input.atoms_new = [['E', '1']]
     copy_params.input.cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
                             "exhaustive_search_data/NUDT7_covalent" \
                             "/NUDT7A-x1812/NUDT7A-x1812LIG-CYS.cif"
-    copy_params.input.link_record_list =["LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
-                                         "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
+    copy_params.input.link_record_list = [
+        "LINKR        C  CLIG E   1                 SG ACYS A  73                LIG-CYS\n",
+        "LINKR        D  CLIG E   1                 SG ACYS A  73                LIG-CYS\n"]
 
     copy_params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/" \
-                       "exhaustive_search_data/covalent_ratios_exhaus_sep_18"
+                                 "exhaustive_search_data/covalent_ratios_exhaus_sep_18"
 
     copy_params.settings.overwrite = True
 

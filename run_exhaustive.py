@@ -1,21 +1,23 @@
 import csv
 import os
 
+from exhaustive import master_phil
 from exhaustive import run as exhaustive
 from plot import scatter_plot
-from utils import u_iso_to_b_fac, get_minimum_fofc
-from exhaustive import master_phil
+from utils import get_minimum_fofc
+from utils import u_iso_to_b_fac
 
-params =  master_phil.extract()
+params = master_phil.extract()
+
 
 def list_files(directory, extension):
     return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
 
-def parse_repeat_soak_csv(params):
 
+def parse_repeat_soak_csv(params):
     input_df = pd.read_csv(params.input.csv)
     for index, row in input_df.iterrows():
-        yield row["CrystalName"],row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
+        yield row["CrystalName"], row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
 
 
 # example for a single dataset
@@ -37,7 +39,7 @@ def parse_repeat_soak_csv(params):
 # params.output.log_dir = os.path.join(params.output.out_dir, "logs")
 # params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, "exhaustive_search.csv")
 
-#Running exhaustive search for covalent ratios/ titration series
+# Running exhaustive search for covalent ratios/ titration series
 
 # start_xtal_num = 6192
 # end_xtal_num = 6251
@@ -45,7 +47,7 @@ def parse_repeat_soak_csv(params):
 # # in_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/covalent_1812_test"
 # qsub = False
 
-#Running exhaustive search for covalent ratios dose experiements
+# Running exhaustive search for covalent ratios dose experiements
 
 # start_xtal_num = 6192
 # end_xtal_num = 6251
@@ -65,7 +67,7 @@ qsub = False
 # scatter_plot(params.exhaustive.output.csv_name)
 # plot_protein_region(params)
 
-#FALZA exhaustive search
+# FALZA exhaustive search
 
 # out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/FALZA_exhaus_18_09_18_step_0_01_low_U_iso_0/"
 # #loop_dir= "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/repeat_soaks/2018-05-28/NUDT22_from_occ_group_with_refinement/"
@@ -94,7 +96,7 @@ params.exhaustive.options.lower_u_iso = 0.00
 
 ############## DCP2B ##################################################################
 
-#out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+# out_dir =  "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
 # params.input.database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 #
 # if not os.path.exists(out_dir):
@@ -149,8 +151,7 @@ out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT
 prefix = "NUDT22A-x"
 
 compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
-             if os.path.isdir(os.path.join(loop_dir, compound_dir))]
-
+                 if os.path.isdir(os.path.join(loop_dir, compound_dir))]
 
 for compound_dir in compound_dirs:
 
@@ -171,8 +172,8 @@ for compound_dir in compound_dirs:
         if xtal_name in xtal_dir:
 
             params.input.xtal_name = xtal_name
-            params.input.pdb = os.path.join(xtal_dir,"refine.pdb")
-            params.input.mtz = os.path.join(xtal_dir,"refine.mtz")
+            params.input.pdb = os.path.join(xtal_dir, "refine.pdb")
+            params.input.mtz = os.path.join(xtal_dir, "refine.mtz")
             params.output.out_dir = os.path.join(compound_dir, xtal_name)
 
             if not os.path.exists(params.output.out_dir):
@@ -197,7 +198,7 @@ for compound_dir in compound_dirs:
             exhaustive(params=params)
             scatter_plot(params.exhaustive.output.csv_name)
 
-    with open(os.path.join(compound_dir,"es_minima.csv"),'wb') as minima_csv:
+    with open(os.path.join(compound_dir, "es_minima.csv"), 'wb') as minima_csv:
 
         minima_writer = csv.writer(minima_csv, delimiter=',')
 
@@ -208,7 +209,6 @@ for compound_dir in compound_dirs:
             xtal_name = os.path.split(os.path.split(path)[0])[1]
 
             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
-
 
 #### Covalent ratios ###################
 
@@ -368,7 +368,7 @@ for compound_dir in compound_dirs:
 #
 #             minima_writer.writerow([xtal_name, occ, b_fac, fofc])
 
-#refine minima
+# refine minima
 
 # with open(os.path.join(out_dir,"refined_occs.csv"),'wb') as minima_csv:
 #
@@ -383,4 +383,3 @@ for compound_dir in compound_dirs:
 #             minima_writer.writerow([xtal_name,occ])
 #         else:
 #             continue
-  

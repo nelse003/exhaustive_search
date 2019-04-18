@@ -1,13 +1,16 @@
 import os
-import pandas as pd
-import matplotlib
 import sqlite3
+
+import matplotlib
+import pandas as pd
+
 matplotlib.use('agg')
 import seaborn as sns
 from matplotlib import pyplot as plt
 from utils import u_iso_to_b_fac, get_minimum_fofc
 from exhaustive import master_phil
 from plot import occupancy_histogram_with_exhaustive_search
+
 
 def labelled_pairplot(df, hue_column=None):
     """ Seaborn pairplot with labelled axis for each subplot
@@ -29,7 +32,7 @@ def labelled_pairplot(df, hue_column=None):
     """
 
     if hue_column is not None:
-        g = sns.PairGrid(df, hue = hue_column)
+        g = sns.PairGrid(df, hue=hue_column)
     else:
         g = sns.PairGrid(df)
 
@@ -51,8 +54,9 @@ def labelled_pairplot(df, hue_column=None):
             g.axes[j, i].yaxis.set_label_text(ylabels[j])
 
     return g
-def plot_NUDT22():
 
+
+def plot_NUDT22():
     NUDT22_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
     prefix = "NUDT22A-x"
 
@@ -64,6 +68,7 @@ def plot_NUDT22():
     combined_occ_df_list = []
     for compound_dir in compound_dirs:
         pass
+
 
 def plot_DCP2B():
     """ Plotting code for edtstats pairplots on DCP2B 
@@ -81,15 +86,15 @@ def plot_DCP2B():
     database_path = "/dls/labxchem/data/2016/lb13385-64/processing/database/soakDBDataFile.sqlite"
 
     edstats_df = pd.read_csv(edstats_csv)
-    es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset','ES_occ','es_bfac','min_fofc'])
+    es_minima_df = pd.read_csv(es_minima_csv, names=['Dataset', 'ES_occ', 'es_bfac', 'min_fofc'])
 
-    summary_df = pd.merge(edstats_df,es_minima_df, on='Dataset')
+    summary_df = pd.merge(edstats_df, es_minima_df, on='Dataset')
 
-    refinement_outcomes= "'4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
+    refinement_outcomes = "'4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
 
     print(database_path)
     conn = sqlite3.connect(database_path)
-    main_table_df = pd.read_sql_query("select * from mainTable",conn)
+    main_table_df = pd.read_sql_query("select * from mainTable", conn)
     cur = conn.cursor()
 
     cur.execute("SELECT CrystalName, CompoundCode, RefinementResolution "
@@ -98,20 +103,18 @@ def plot_DCP2B():
 
     refinement_xtals = cur.fetchall()
 
-    #Close connection to the database
+    # Close connection to the database
     cur.close()
 
-    summary_df = summary_df.rename(columns={'Dataset':'CrystalName'})
+    summary_df = summary_df.rename(columns={'Dataset': 'CrystalName'})
     # summary_df = pd.merge(summary_df, main_table_df, on='CrystalName')
-
 
     compounds = {}
     es_occ_b = []
     for xtal_name, compound_code, resolution in refinement_xtals:
-        #xtal_name = xtal_name.encode('ascii')
-        #compound_code = compound_code.encode('ascii')
+        # xtal_name = xtal_name.encode('ascii')
+        # compound_code = compound_code.encode('ascii')
         compounds[xtal_name] = compound_code
-
 
         if compound_code == "FMOPL000435a":
             csv = os.path.join(out_dir, xtal_name, "exhaustive_search.csv")
@@ -120,27 +123,27 @@ def plot_DCP2B():
                              occ,
                              u_iso_to_b_fac(u_iso)])
 
-    comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName','compound_code'])
+    comp_df = pd.DataFrame(list(compounds.items()), columns=['CrystalName', 'compound_code'])
     summary_df = pd.merge(summary_df, comp_df, on='CrystalName')
 
     FMOPL000435a_df = summary_df[summary_df['compound_code'] == "FMOPL000435a"]
 
-    if not os.path.exists(os.path.join(out_dir,"pairplot.png")):
+    if not os.path.exists(os.path.join(out_dir, "pairplot.png")):
         pairplot = labelled_pairplot(summary_df, hue_column="compound_code")
         fig = pairplot.fig
-        fig.savefig(os.path.join(out_dir,"pairplot.png"),
-                         dpi=300)
+        fig.savefig(os.path.join(out_dir, "pairplot.png"),
+                    dpi=300)
 
-    if not os.path.exists(os.path.join(out_dir,"FMOPL000435a_pairplot.png")):
+    if not os.path.exists(os.path.join(out_dir, "FMOPL000435a_pairplot.png")):
         FMOPL000435a_pairplot = labelled_pairplot(FMOPL000435a_df)
         fig = FMOPL000435a_pairplot.fig
-        fig.savefig(os.path.join(out_dir,"FMOPL000435a_pairplot.png"), dpi=300)
+        fig.savefig(os.path.join(out_dir, "FMOPL000435a_pairplot.png"), dpi=300)
 
-    FMOPL000435a_df =FMOPL000435a_df.rename(index=str, columns={"ES_occ":"es_occupancy",
-                                               "Occupancy":"occupancy"})
+    FMOPL000435a_df = FMOPL000435a_df.rename(index=str, columns={"ES_occ": "es_occupancy",
+                                                                 "Occupancy": "occupancy"})
 
     params = master_phil.extract()
-    params.output.out_dir="/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
+    params.output.out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/DCP2B_18_09_20_exhaus"
 
     occupancy_histogram_with_exhaustive_search(FMOPL000435a_df,
                                                protein_name="DCP2B",
@@ -157,19 +160,20 @@ def plot_DCP2B():
 
     summary_duplicate_df_list = []
     for duplicate_compound in duplicate_compound_df['compound_code'].unique():
-        duplicate_df =  summary_df[summary_df['compound_code'] == duplicate_compound]
+        duplicate_df = summary_df[summary_df['compound_code'] == duplicate_compound]
 
-        summary = {"compound" : [duplicate_compound],
-                   "number refined hits" : [len(duplicate_df.index)],
-                   "RSCC min" : [duplicate_df['RSCC'].min()],
-                   "RSCC max" : [duplicate_df['RSCC'].max()],
-                   "Occ refined min" : [duplicate_df['Occupancy'].min()],
-                   "Occ refined max" : [duplicate_df['Occupancy'].max()],
+        summary = {"compound": [duplicate_compound],
+                   "number refined hits": [len(duplicate_df.index)],
+                   "RSCC min": [duplicate_df['RSCC'].min()],
+                   "RSCC max": [duplicate_df['RSCC'].max()],
+                   "Occ refined min": [duplicate_df['Occupancy'].min()],
+                   "Occ refined max": [duplicate_df['Occupancy'].max()],
                    "Occ ES min": [duplicate_df['ES_occ'].min()],
                    "Occ ES max": [duplicate_df['ES_occ'].max()]
                    }
         summary_duplicate_df_list.append(pd.DataFrame(data=summary))
 
     pd.concat(summary_duplicate_df_list).to_csv(os.path.join(out_dir, "DCP2B_edstats_duplicates.csv"))
+
 
 plot_DCP2B()

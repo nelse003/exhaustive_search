@@ -1,11 +1,12 @@
-import os, sys, glob, shutil
+import glob
+import os
+import shutil
+import sys
 
 import libtbx.phil
-
 from bamboo.common.command import CommandManager
 from bamboo.common.logs import Log
 from bamboo.common.path import rel_symlink
-
 from giant.jiffies import split_conformations
 
 ############################################################################
@@ -24,10 +25,10 @@ DESCRIPTION = """
         > giant.quick_refine ... params=restraints.params
 """
 
-blank_arg_prepend = {   '.mtz':'input.mtz=',
-                        '.pdb':'input.pdb=',
-                        '.cif':'input.cif=',
-                        '.params':'input.params=' }
+blank_arg_prepend = {'.mtz': 'input.mtz=',
+                     '.pdb': 'input.pdb=',
+                     '.cif': 'input.cif=',
+                     '.params': 'input.params='}
 
 ############################################################################
 
@@ -72,17 +73,17 @@ settings {
 }
 """, process_includes=True)
 
+
 ############################################################################
 
 def run(params):
-
     # Identify any existing output directories
-    current_dirs = sorted(glob.glob(params.output.dir_prefix+'*'))
+    current_dirs = sorted(glob.glob(params.output.dir_prefix + '*'))
     if not current_dirs:
         next_int = 1
     else:
         current_nums = [s.replace(params.output.dir_prefix, '') for s in current_dirs]
-        next_int = sorted(map(int, current_nums))[-1]+1
+        next_int = sorted(map(int, current_nums))[-1] + 1
 
     # Create output directory name from int
     out_dir = params.output.dir_prefix + '{:04}'.format(next_int)
@@ -90,8 +91,8 @@ def run(params):
     os.mkdir(out_dir)
 
     # Create log object
-    log = Log(log_file = os.path.join(out_dir, params.output.out_prefix+'.quick-refine.log'),
-              verbose  = params.settings.verbose)
+    log = Log(log_file=os.path.join(out_dir, params.output.out_prefix + '.quick-refine.log'),
+              verbose=params.settings.verbose)
 
     # Report
     if current_dirs:
@@ -131,31 +132,31 @@ def run(params):
     if params.options.program == 'phenix':
         cm = CommandManager('phenix.refine')
         # Command line args
-        cm.add_command_line_arguments([ params.input.pdb, params.input.mtz ])
-        cm.add_command_line_arguments([ 'output.prefix={}'.format(output_prefix) ])
+        cm.add_command_line_arguments([params.input.pdb, params.input.mtz])
+        cm.add_command_line_arguments(['output.prefix={}'.format(output_prefix)])
         if params.input.cif:
-            cm.add_command_line_arguments( params.input.cif )
+            cm.add_command_line_arguments(params.input.cif)
         if params.input.params and os.path.exists(params.input.params):
-            cm.add_command_line_arguments([ params.input.params ])
+            cm.add_command_line_arguments([params.input.params])
 
     # REFMAC
     elif params.options.program == 'refmac':
         cm = CommandManager('refmac5')
         # Command line args
-        cm.add_command_line_arguments( ['xyzin', params.input.pdb, 'hklin', params.input.mtz] )
-        cm.add_command_line_arguments( ['xyzout', output_prefix+'.pdb', 'hklout', output_prefix+'.mtz'] )
+        cm.add_command_line_arguments(['xyzin', params.input.pdb, 'hklin', params.input.mtz])
+        cm.add_command_line_arguments(['xyzout', output_prefix + '.pdb', 'hklout', output_prefix + '.mtz'])
         if params.input.cif:
             for cif in params.input.cif:
-                cm.add_command_line_arguments( ['libin', cif] )
+                cm.add_command_line_arguments(['libin', cif])
         # Standard input
         if params.input.params:
-            cm.add_standard_input( open(params.input.params).read().split('\n') )
+            cm.add_standard_input(open(params.input.params).read().split('\n'))
 
-        cm.add_standard_input( ['END'] )
+        cm.add_standard_input(['END'])
 
     # Pass additional command line arguments?
     if params.input.args:
-        cm.add_command_line_arguments( params.input.args )
+        cm.add_command_line_arguments(params.input.args)
 
     # Report
     log(str(cm))
@@ -168,7 +169,7 @@ def run(params):
     if not log.verbose:
         log('output written to log file ({} lines)'.format(cm.output.count('\n')))
 
-    log('\n'+cm.output, show=False)
+    log('\n' + cm.output, show=False)
 
     if out != 0:
         log.subheading('Refinement Errors')
@@ -185,13 +186,13 @@ def run(params):
 
     except:
         log('Refinement has failed - output files do not exist')
-        log('{}: {}'.format(output_prefix+'*.pdb', glob.glob(output_prefix+'*.pdb')))
-        log('{}: {}'.format(output_prefix+'*.mtz', glob.glob(output_prefix+'*.mtz')))
+        log('{}: {}'.format(output_prefix + '*.pdb', glob.glob(output_prefix + '*.pdb')))
+        log('{}: {}'.format(output_prefix + '*.mtz', glob.glob(output_prefix + '*.mtz')))
         raise
 
     # List of links to make at the end of the run
-    link_file_pairs = [     (real_pdb, params.output.link_prefix+'.pdb'),
-                            (real_mtz, params.output.link_prefix+'.mtz')    ]
+    link_file_pairs = [(real_pdb, params.output.link_prefix + '.pdb'),
+                       (real_mtz, params.output.link_prefix + '.mtz')]
 
     print(link_file_pairs)
 
@@ -200,16 +201,18 @@ def run(params):
         params.split_conformations.settings.verbose = params.settings.verbose
         log.subheading('Splitting refined structure conformations')
         # Running split conformations
-        out_files = split_conformations.split_conformations(filename=real_pdb, params=params.split_conformations, log=log)
+        out_files = split_conformations.split_conformations(filename=real_pdb, params=params.split_conformations,
+                                                            log=log)
         # Link output files to top
         for real_file in out_files:
-            link_file = params.output.link_prefix+os.path.basename(real_file.replace(os.path.splitext(real_pdb)[0], ''))
+            link_file = params.output.link_prefix + os.path.basename(
+                real_file.replace(os.path.splitext(real_pdb)[0], ''))
             link_file_pairs.append([real_file, link_file])
 
     # Link output files
     log.subheading('linking output files')
     for real_file, link_file in link_file_pairs:
-        log('Linking {} -> {}'.format(link_file,real_file))
+        log('Linking {} -> {}'.format(link_file, real_file))
         if not os.path.exists(real_file):
             log('file does not exist: {}'.format(real_file))
             continue
@@ -221,14 +224,16 @@ def run(params):
 
     log.heading('finished - refinement')
 
+
 #######################################
 
-if __name__=='__main__':
+if __name__ == '__main__':
     from giant.jiffies import run_default
+
     run_default(
-        run                 = run,
-        master_phil         = master_phil,
-        args                = sys.argv[1:],
-        blank_arg_prepend   = blank_arg_prepend,
-        program             = PROGRAM,
-        description         = DESCRIPTION)
+        run=run,
+        master_phil=master_phil,
+        args=sys.argv[1:],
+        blank_arg_prepend=blank_arg_prepend,
+        program=PROGRAM,
+        description=DESCRIPTION)

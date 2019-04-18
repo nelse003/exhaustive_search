@@ -1,15 +1,14 @@
 from __future__ import print_function
-import itertools
-
-from giant.maths.geometry import pairwise_dists
-from giant.structure.restraints.occupancy import overlapping_occupancy_groups
-import giant.grid as grid
-
-import iotbx
-from scitbx.array_family import flex
-from iotbx.pdb import hierarchy
 
 import logging
+
+import giant.grid as grid
+import iotbx
+from giant.maths.geometry import pairwise_dists
+from giant.structure.restraints.occupancy import overlapping_occupancy_groups
+from iotbx.pdb import hierarchy
+from scitbx.array_family import flex
+
 logging = logging.getLogger(__name__)
 
 
@@ -48,7 +47,6 @@ def get_occupancy_groups(pdb, params):
 
 def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
                                     params):
-
     """Produce cartesian points related to occupancy groups.
 
     Get cartesian points that correspond to atoms involved in the
@@ -63,10 +61,10 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
     """
 
     logging.info("For all bound and ground states, "
-                "select cartesian grid points for each altloc/residue \n"
-                "involved in occupancy groups. A buffer of {} Angstrom \n"
-                "is applied to minimal and maximal grid points,"
-                "with a grid seperation of {}.\n".format(
+                 "select cartesian grid points for each altloc/residue \n"
+                 "involved in occupancy groups. A buffer of {} Angstrom \n"
+                 "is applied to minimal and maximal grid points,"
+                 "with a grid seperation of {}.\n".format(
         params.exhaustive.options.buffer,
         params.exhaustive.options.grid_spacing))
 
@@ -77,7 +75,6 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
 
     occupancy_group_cart_points = flex.vec3_double()
     for state in states:
-
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
         sites_cart = selected_atoms.extract_xyz()
@@ -96,7 +93,7 @@ def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
             grid_from_selection.cart_points())
 
     logging.info("Number of cartesian points to calculate "
-                "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
+                 "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
 
     return occupancy_group_cart_points
 
@@ -124,7 +121,7 @@ def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
                                   "group selection")
     if not parameters:
         logging.warning("Parameter may not be recognised,"
-                       "as output list is empty")
+                        "as output list is empty")
         raise Warning("Parameter may not be recognised,"
                       "as output list is empty")
 
@@ -166,7 +163,7 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     :param coincident_altloc_group: 
     :return: 
     """
-    num_altlocs =  len(coincident_altloc_group[0])
+    num_altlocs = len(coincident_altloc_group[0])
     selection_string = ""
     for altloc in coincident_altloc_group[0]:
         selection_string += "altloc {} or ".format(altloc)

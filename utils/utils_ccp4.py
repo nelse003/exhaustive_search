@@ -1,19 +1,26 @@
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import print_function
+
 import os
 import sqlite3
+
 import numpy as np
 import pandas as pd
 from iotbx.pdb import hierarchy
 
-from utils import b_to_u_iso, u_iso_to_b_fac, get_minimum_fofc, round_step, chunks
 from select_atoms import get_occupancy_groups
+from utils import b_to_u_iso
+from utils import chunks
+from utils import get_minimum_fofc
+from utils import round_step
+from utils import u_iso_to_b_fac
+
 
 def get_xtals_from_db(params,
                       refinement_outcomes="'3 - In Refinement',"
                                           "'4 - CompChem ready', "
                                           "'5 - Deposition ready',"
                                           "'6 - Deposited'"):
-
     assert os.path.isfile(params.input.database_path), \
         "The database file: \n {} \n does not exist".format(params.input.database_path)
 
@@ -22,7 +29,7 @@ def get_xtals_from_db(params,
     cur = conn.cursor()
 
     cur.execute("SELECT CrystalName, RefinementPDB_latest, RefinementMTZ_latest "
-                "FROM mainTable WHERE RefinementOutcome in ({})" 
+                "FROM mainTable WHERE RefinementOutcome in ({})"
                 " AND  (RefinementPDB_latest AND RefinementMTZ_latest) IS NOT NULL".format(refinement_outcomes))
 
     refinement_xtals = cur.fetchall()
@@ -38,7 +45,6 @@ def get_xtals_from_db(params,
 
 
 def write_pdb_HOH_site_cart(pdb, sites_cart):
-
     """ Write a PDB file containing waters at supplied cartesian sites
      
     Parameters
@@ -74,19 +80,19 @@ def write_pdb_HOH_site_cart(pdb, sites_cart):
     for sites, chain in chunks(sites_cart, 9999):
         print(chain, len(sites))
 
-        for i,site in enumerate(sites):
+        for i, site in enumerate(sites):
             f_out.write("HETATM{:>5}  O   HOH {}{:>4}{:>12.3f}{:>8.3f}{:>8.3f}  1.00 10.00           O\n".format(
-               i+1, chain, i+1,site[0], site[1], site[2]))
+                i + 1, chain, i + 1, site[0], site[1], site[2]))
 
     f_out.close()
 
-def process_validation_csvs(start_occ,
-                     end_occ,
-                     step,
-                     set_b,
-                     out_dir,
-                     params):
 
+def process_validation_csvs(start_occ,
+                            end_occ,
+                            step,
+                            set_b,
+                            out_dir,
+                            params):
     min_fofcs = []
     min_occs = []
     min_b_facs = []
@@ -118,7 +124,6 @@ def process_validation_csvs(start_occ,
 
 
 def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):
-
     """ Change b factor of all atoms involved in occupancy groups"""
 
     pdb_inp = hierarchy.input(input_pdb)
@@ -140,7 +145,6 @@ def set_b_fac_all_occupancy_groups(input_pdb, output_pdb, b_fac, params):
 
 
 def set_b_fac_all_atoms(input_pdb, output_pdb, b_fac):
-
     """ Change B factors of all atoms to the same provided value"""
     pdb_inp = hierarchy.input(input_pdb)
     for chain in pdb_inp.hierarchy.only_model().chains():
@@ -155,7 +159,6 @@ def set_b_fac_all_atoms(input_pdb, output_pdb, b_fac):
 
 
 def get_lig_occ(refine_pdb):
-
     pdb_in = hierarchy.input(refine_pdb)
 
     lig_atoms = []
@@ -167,7 +170,7 @@ def get_lig_occ(refine_pdb):
                         lig_atoms.append((atom_group.altloc, atom.occ))
 
     if len(list(set(lig_atoms))) == 2:
-        end_occ = list(set(lig_atoms))[0][1]+list(set(lig_atoms))[1][1]
+        end_occ = list(set(lig_atoms))[0][1] + list(set(lig_atoms))[1][1]
         return end_occ
     else:
         "Ligand occupancy is not defined"
@@ -179,7 +182,6 @@ def get_csv_filepath(params):
                                params.validate.options.end_simul_occ +
                                params.validate.options.step_simulation / 5,
                                params.validate.options.step_simulation):
-
         yield os.path.join(params.output.out_dir,
                            params.exhaustive.output.csv_prefix +
                            "_occ_{}_b_{}.csv".format(
@@ -189,7 +191,6 @@ def get_csv_filepath(params):
 
 def get_random_starting_occ_from_folder_name(occupancy, out_path,
                                              dataset_prefix):
-
     """Pull occupancy values from folder names of random refinements"""
 
     folders = [name for name in os.listdir(
@@ -282,11 +283,10 @@ def get_occ_b(refinement_dir, lig_chain,
 
 
 def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
-
     occupancy = round_step(occupancy, base=step)
     u_iso = round_step(u_iso, base=step)
 
-    #TODO Remove this dual .csv by cleaning up csv name: issue 59
+    # TODO Remove this dual .csv by cleaning up csv name: issue 59
 
     if csv_name.endswith(".csv"):
         data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
@@ -294,30 +294,28 @@ def get_fofc_from_csv(csv_name, occupancy, u_iso, step=0.05):
         data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',',
                              skip_header=0)
 
-    e=0.0001
-    data_line = data[((occupancy-e)<data[:,0])
-                     & ((occupancy+e)>data[:,0])
-                     & ((u_iso-e)<data[:,2])
-                     & ((u_iso+e)>data[:,2]) ]
+    e = 0.0001
+    data_line = data[((occupancy - e) < data[:, 0])
+                     & ((occupancy + e) > data[:, 0])
+                     & ((u_iso - e) < data[:, 2])
+                     & ((u_iso + e) > data[:, 2])]
 
     fo_fc = data_line[0][3]
 
     return fo_fc
 
 
-def datasets_from_compound(protein_prefix,compound_folder):
-
+def datasets_from_compound(protein_prefix, compound_folder):
     """ Loop over datasets with prefix in folder."""
 
     for dataset in filter(lambda x:
                           x.startswith(protein_prefix)
                           and os.path.isdir(os.path.join(compound_folder, x)),
-                                os.listdir(compound_folder)):
+                          os.listdir(compound_folder)):
         yield dataset
 
 
 def collate_edstats_scores(protein_prefix, compound_folder):
-
     """ Collate edstats scores into DataFrame. Write csv. Return df"""
 
     dfs = []
@@ -348,18 +346,17 @@ def collate_edstats_scores(protein_prefix, compound_folder):
 
 
 def remove_residues(input_pdb, output_pdb, residues_remove):
-
-    pdb_in = hierarchy.input(file_name = input_pdb)
+    pdb_in = hierarchy.input(file_name=input_pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
 
     selection_string_list = []
     for residue_remove in residues_remove:
         selection_string = "(resid {} and chain {} and altid {})".format(residue_remove[0],
-                                                            residue_remove[1],residue_remove[2])
+                                                                         residue_remove[1], residue_remove[2])
         selection_string_list.append(selection_string)
 
     selection_string = " or ".join(selection_string_list)
-    not_selection_string ="not ({})".format(selection_string)
+    not_selection_string = "not ({})".format(selection_string)
 
     acceptor_hierarchy = pdb_in.construct_hierarchy()
 
@@ -376,12 +373,12 @@ def remove_residues(input_pdb, output_pdb, residues_remove):
     f.close()
 
 
-def is_almost_equal(x,y, epsilon=1*10**(-8)):
+def is_almost_equal(x, y, epsilon=1 * 10 ** (-8)):
     """Return True if two values are close in numeric value
         By default close is withing 1*10^-8 of each other
         i.e. 0.00000001
     """
-    return abs(x-y) <= epsilon
+    return abs(x - y) <= epsilon
 
 
 def print_hier_atoms(hier):

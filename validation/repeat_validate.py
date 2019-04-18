@@ -1,18 +1,20 @@
-import os
-import numpy as np
 import csv
+import os
 
-from exhaustive import atom_points_from_sel_string, convex_hull_grid_points, \
-    convex_hull_per_residue, convex_hull_from_states
-from utils_ccp4 import process_validation_csvs
-from utils import u_iso_to_b_fac
-from plot import plot_protein_and_selection
+import numpy as np
+
+from exhaustive import atom_points_from_sel_string
+from exhaustive import convex_hull_from_states
+from exhaustive import convex_hull_grid_points
+from exhaustive import convex_hull_per_residue
 from exhaustive import process_refined_pdb_bound_ground_states
+from plot import plot_protein_and_selection
+from utils import u_iso_to_b_fac
+from utils_ccp4 import process_validation_csvs
 from validation import run as validate
 
 
 def repeat_validate(params):
-
     # Issue: Can't do selection of lig atoms for each case, can we do it by LIG naming
 
     # Ligand grid (by convex hull of ligand atoms)
@@ -27,7 +29,7 @@ def repeat_validate(params):
                                               selection_string=
                                               params.exhaustive.options.atom_points_sel_string)
 
-    lig_grid_points = convex_hull_grid_points(atom_points,params)
+    lig_grid_points = convex_hull_grid_points(atom_points, params)
 
     plot_protein_and_selection(pdb=params.input.pdb,
                                atom_points=lig_grid_points,
@@ -57,9 +59,9 @@ def repeat_validate(params):
                                                             params=params)
 
     per_residue_points = convex_hull_per_residue(pdb=params.input.pdb,
-                                          bound_states=bound_states,
-                                          ground_states=ground_states,
-                                          params=params)
+                                                 bound_states=bound_states,
+                                                 ground_states=ground_states,
+                                                 params=params)
 
     plot_protein_and_selection(pdb=params.input.pdb,
                                atom_points=per_residue_points,
@@ -68,7 +70,7 @@ def repeat_validate(params):
                                    "per_residue_points.png"),
                                params=params)
 
-    #Reset
+    # Reset
     params.exhaustive.options.per_residue = False
     params.output.out_dir = os.path.split(params.output.out_dir)[0]
     print(params.output.out_dir)
@@ -92,22 +94,22 @@ def repeat_validate(params):
         summary_validation(params)
 
         buffered_points = convex_hull_from_states(pdb=params.input.pdb,
-                                              bound_states=bound_states,
-                                              ground_states=ground_states,
-                                              params=params)
+                                                  bound_states=bound_states,
+                                                  ground_states=ground_states,
+                                                  params=params)
 
         plot_protein_and_selection(pdb=params.input.pdb,
-                               atom_points=buffered_points,
-                               plot_filename=os.path.join(
-                                   params.output.out_dir,
-                                   "buffer_{}_points.png".format(
-                                       str(params.validate.options.set_b).replace('.','_'))),
-                               params=params)
+                                   atom_points=buffered_points,
+                                   plot_filename=os.path.join(
+                                       params.output.out_dir,
+                                       "buffer_{}_points.png".format(
+                                           str(params.validate.options.set_b).replace('.', '_'))),
+                                   params=params)
 
         params.output.out_dir = os.path.split(params.output.out_dir)[0]
 
-def summary_validation(params):
 
+def summary_validation(params):
     """ Generate a summary csv with validation output
 
     Output:
@@ -119,32 +121,32 @@ def summary_validation(params):
 
     min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
         process_validation_csvs(params.validate.options.start_simul_occ,
-                     params.validate.options.end_simul_occ,
-                     step=params.validate.options.step_simulation,
-                     set_b=params.validate.options.set_b,
-                     out_dir=params.output.out_dir,
-                     params=params)
+                                params.validate.options.end_simul_occ,
+                                step=params.validate.options.step_simulation,
+                                set_b=params.validate.options.set_b,
+                                out_dir=params.output.out_dir,
+                                params=params)
 
     occ_delta = np.abs(np.array(min_occs) - np.array(occs))
     b_delta = np.abs(np.array(min_b_facs) - np.array(b_facs))
 
     normalised_min_b_fac = (np.array(min_b_facs)
                             - u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
-        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+                params.exhaustive.options.lower_u_iso)) / (u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso) - u_iso_to_b_fac(
         params.exhaustive.options.lower_u_iso))
 
     normalised_b_fac = (np.array(b_facs)
-                            - u_iso_to_b_fac(
-        params.exhaustive.options.lower_u_iso))/(u_iso_to_b_fac(
-        params.exhaustive.options.upper_u_iso)-u_iso_to_b_fac(
+                        - u_iso_to_b_fac(
+                params.exhaustive.options.lower_u_iso)) / (u_iso_to_b_fac(
+        params.exhaustive.options.upper_u_iso) - u_iso_to_b_fac(
         params.exhaustive.options.lower_u_iso))
 
     norm_b_delta = np.abs(normalised_min_b_fac - normalised_b_fac)
 
-    mean_occ_delta =  np.mean(occ_delta)
-    mean_b_delta =  np.mean(b_delta)
-    dst = np.sqrt(occ_delta**2 + norm_b_delta**2 )
+    mean_occ_delta = np.mean(occ_delta)
+    mean_b_delta = np.mean(b_delta)
+    dst = np.sqrt(occ_delta ** 2 + norm_b_delta ** 2)
     mean_dst = np.mean(dst)
 
     print(os.path.join(params.output.out_dir, "validation_summary.csv"))
@@ -152,7 +154,6 @@ def summary_validation(params):
     with open(os.path.join(params.output.out_dir,
                            "validation_summary.csv"),
               'wb') as validation_csv:
-
         validation_writer = csv.writer(validation_csv, delimiter=',')
         validation_writer.writerow(["mean_occ_delta", "mean_b_delta", "mean_dst"])
-        validation_writer.writerow([mean_occ_delta,mean_b_delta,mean_dst])
+        validation_writer.writerow([mean_occ_delta, mean_b_delta, mean_dst])

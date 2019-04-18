@@ -1,5 +1,6 @@
-import libtbx.phil
 import os
+
+import libtbx.phil
 
 master_phil = libtbx.phil.parse("""
 testing{
@@ -189,7 +190,6 @@ repeat{
 
 
 def prepare_validate_phil(master_phil):
-
     """ Add bound state and ground state paths if they do not exist"""
 
     params = master_phil.extract()
@@ -203,23 +203,23 @@ def prepare_validate_phil(master_phil):
         params.validate.input.ground_state_pdb_path = os.path.join(params.input.in_path,
                                                                    params.validate.input.ground_state_pdb_name)
     if params.validate.output.set_all_b_name_extension is None:
-        params.validate.output.set_all_b_name_extension = str(params.validate.options.set_b).replace(".","_") +".pdb"
+        params.validate.output.set_all_b_name_extension = str(params.validate.options.set_b).replace(".", "_") + ".pdb"
     else:
         params.validate.output.set_all_b_name_extension = params.validate.output.set_all_b_name_extension + \
-                                                          str(params.validate.options.set_b).replace(".","_") +".pdb"
+                                                          str(params.validate.options.set_b).replace(".", "_") + ".pdb"
 
     if params.validate.output.set_b_name_extension is None:
         params.validate.output.set_b_name_extension = str(params.validate.options.set_b).replace(".", "_") + ".pdb"
     else:
         params.validate.output.set_b_name_extension = params.validate.output.set_b_name_extension + \
-                                                     str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+                                                      str(params.validate.options.set_b).replace(".", "_") + ".pdb"
 
-    modified_phil = master_phil.format(python_object = params)
+    modified_phil = master_phil.format(python_object=params)
 
     return modified_phil
 
-def check_input_files(params):
 
+def check_input_files(params):
     if not os.path.exists(params.output.out_dir):
         os.mkdir(params.output.out_dir)
 
@@ -231,4 +231,3 @@ def check_input_files(params):
 
     assert params.input.mtz is not None, "Input mtz not supplied"
     assert os.path.exists(params.input.mtz), "Input mtz: \n{}\ndoes not exist".format(params.input.mtz)
-

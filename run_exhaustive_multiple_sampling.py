@@ -1,11 +1,13 @@
-import sys
 import os
+import sys
 import time
+
 import pandas as pd
 
 from exhaustive import master_phil
 from exhaustive import run as exhaustive
-from utils.utils import u_iso_to_b_fac, get_minimum_fofc
+from utils.utils import get_minimum_fofc
+from utils.utils import u_iso_to_b_fac
 
 
 def append_csv(in_csv1, in_csv2, out_csv):
@@ -29,7 +31,7 @@ def append_csv(in_csv1, in_csv2, out_csv):
     df1 = pd.read_csv(in_csv1, header=None)
     df2 = pd.read_csv(in_csv2, header=None)
 
-    df = df1.append(df2, ignore_index = True)
+    df = df1.append(df2, ignore_index=True)
 
     df.to_csv(out_csv, header=None, index=False)
 
@@ -82,31 +84,32 @@ def run(params):
 
     t3 = time.time()
     exhaustive(params)
-    t4= time.time()
+    t4 = time.time()
 
     occ_fine, u_iso_fine, fo_fc_fine = get_minimum_fofc(os.path.join(params.output.out_dir,
-                                                     params.exhaustive.output.csv_name))
+                                                                     params.exhaustive.output.csv_name))
 
     print("Minimum from first run is occupancy: {occupancy},\n"
           "B factor {b_factor}\n"
           "This took {time} seconds".format(occupancy=occ,
                                             b_factor=u_iso_to_b_fac(u_iso),
-                                            time=t2-t1))
+                                            time=t2 - t1))
 
     print("Minimum from second run is occupancy: {occupancy},\n"
           "B factor {b_factor}\n"
           "This took {time} seconds".format(occupancy=occ_fine,
-                                         b_factor=u_iso_to_b_fac(u_iso_fine),
-                                         time=t4-t3))
+                                            b_factor=u_iso_to_b_fac(u_iso_fine),
+                                            time=t4 - t3))
 
     append_csv(in_csv1=os.path.join(params.output.out_dir,
                                     base_csv + "_coarse.csv"),
                in_csv2=os.path.join(params.output.out_dir,
                                     base_csv + "_fine.csv"),
                out_csv=os.path.join(params.output.out_dir,
-                                    base_csv +".csv"))
+                                    base_csv + ".csv"))
 
-if(__name__ == "__main__"):
+
+if (__name__ == "__main__"):
     from giant.jiffies import run_default
 
     blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}

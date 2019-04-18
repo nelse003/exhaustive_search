@@ -8,19 +8,22 @@ from giant.jiffies.merge_conformations import master_phil as merge_phil
 from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as generate_map
+from plotting.plot import plot_2d_occ_b_validation
+from plotting.plot import plot_3d_fofc_occ
+from plotting.plot import scatter_plot
 
-from plotting.plot import scatter_plot,\
-    plot_3d_fofc_occ, plot_2d_occ_b_validation
-from utils.utils_ccp4 import set_b_fac_all_occupancy_groups, \
-    get_csv_filepath, set_b_fac_all_atoms
-from utils import wait_for_file_existence
-from exhaustive import master_phil, prepare_validate_phil, check_input_files
 from exhaustive import run as exhaustive
+from utils.phil import check_input_files
+from utils.phil import master_phil
+from utils.phil import prepare_validate_phil
+from utils.utils import wait_for_file_existence
+from utils.utils_ccp4 import get_csv_filepath
+from utils.utils_ccp4 import set_b_fac_all_atoms
+from utils.utils_ccp4 import set_b_fac_all_occupancy_groups
 
 
 # Logging
 def start_validate_logging(params):
-
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
     log_path = os.path.join(params.output.log_dir,
                             params.validate.output.log_name + log_time)
@@ -41,14 +44,13 @@ def start_validate_logging(params):
 
 
 def check_validate_input_files(params):
-
     """Check existence of input files, needed for validation"""
 
     check_input_files(params)
 
     # Output directory
     try:
-        assert os.path.exists(params.output.out_dir),\
+        assert os.path.exists(params.output.out_dir), \
             "{} does not exist".format(params.output.out_dir)
     except AssertionError:
         logging.exception("{} does not exist".format(params.output.out_dir))
@@ -57,8 +59,8 @@ def check_validate_input_files(params):
     # Ground state pdb
     try:
         assert os.path.exists(params.validate.input.ground_state_pdb_path), \
-        "Ground state pdb: \n{}\n does not exist".format(
-            params.validate.input.ground_state_pdb_path)
+            "Ground state pdb: \n{}\n does not exist".format(
+                params.validate.input.ground_state_pdb_path)
 
     except AssertionError:
         logging.exception("Ground state pdb: \n{}\n does not exist".format(
@@ -67,9 +69,9 @@ def check_validate_input_files(params):
 
     # Bound state pdb
     try:
-        assert os.path.exists(params.validate.input.bound_state_pdb_path),\
-        "Bound state pdb: \n{}\n does not exist".format(
-            params.validate.input.ground_state_pdb_path)
+        assert os.path.exists(params.validate.input.bound_state_pdb_path), \
+            "Bound state pdb: \n{}\n does not exist".format(
+                params.validate.input.ground_state_pdb_path)
 
     except AssertionError:
         logging.exception("Bound state pdb: \n{}\n does not exist".format(
@@ -78,7 +80,6 @@ def check_validate_input_files(params):
 
 
 def occ_loop_merge_confs_simulate(params):
-
     """ Simulate Experimental data using phenix f_model.
 
     Run exhaustive_search on simulated data.
@@ -115,26 +116,26 @@ def occ_loop_merge_confs_simulate(params):
     check_validate_input_files(params=params)
 
     logging.info("Looping over simulated occupancies "
-                "between {} and {} in steps of {}".format(
+                 "between {} and {} in steps of {}".format(
         params.validate.options.start_simul_occ,
         params.validate.options.end_simul_occ,
         params.validate.options.step_simulation))
 
     for lig_occupancy in np.arange(params.validate.options.start_simul_occ,
                                    params.validate.options.end_simul_occ
-                                   + params.validate.options.step_simulation/5,
+                                   + params.validate.options.step_simulation / 5,
                                    params.validate.options.step_simulation):
 
         merged_pdb = os.path.join(
-            params.output.out_dir,"{}_refine_occ_{}.pdb".format(
+            params.output.out_dir, "{}_refine_occ_{}.pdb".format(
                 params.input.xtal_name, str(lig_occupancy).replace(".", "_")))
 
         if params.validate.options.overwrite \
                 or not os.path.exists(os.path.join(merged_pdb)):
 
             logging.info("Using giant.merge_conformations to generate a pdb "
-                        "f with bound state occupancy {}".format(
-                str(1-lig_occupancy)))
+                         "f with bound state occupancy {}".format(
+                str(1 - lig_occupancy)))
 
             # Params for merging confs
             merge_params = merge_phil.extract()
@@ -150,15 +151,15 @@ def occ_loop_merge_confs_simulate(params):
             merge_params.output.log = os.path.join(
                 params.output.log_dir,
                 "occ_{}_b_{}_merge_conformations.log".format(
-                str(lig_occupancy).format(lig_occupancy),
-                str(params.validate.options.set_b).replace(".","_")))
+                    str(lig_occupancy).format(lig_occupancy),
+                    str(params.validate.options.set_b).replace(".", "_")))
 
             merge_conformations(merge_params)
 
         else:
             logging.info("Skipping generating merged pdb"
-                        "\n{}\n as it already exists,"
-                        "and overwriting is not flagged".format(merged_pdb))
+                         "\n{}\n as it already exists,"
+                         "and overwriting is not flagged".format(merged_pdb))
 
         if params.validate.options.set_b is not None:
             merged_file_name, _ = os.path.splitext(merged_pdb)
@@ -170,21 +171,21 @@ def occ_loop_merge_confs_simulate(params):
 
                 if params.validate.options.set_all_b is not None:
 
-                    logging.info("Generating pdb f:\n{}\n with" 
-                    "all B factors set to {}".format(
+                    logging.info("Generating pdb f:\n{}\n with"
+                                 "all B factors set to {}".format(
                         merged_file_name
                         + params.validate.output.set_all_b_name_extension))
 
                     set_b_fac_all_atoms(
                         input_pdb=merged_pdb,
                         output_pdb=merged_file_name
-                        + params.validate.output.set_all_b_name_extension,
+                                   + params.validate.output.set_all_b_name_extension,
                         b_fac=params.validate.options.set_b)
 
                 else:
                     logging.info("Generating pdb f:\n{}\n with B factors"
-                                "of atoms in occupancy groups related to "
-                                "ground and bound states set to {}".format(
+                                 "of atoms in occupancy groups related to "
+                                 "ground and bound states set to {}".format(
                         merged_file_name
                         + params.validate.output.set_b_name_extension,
                         lig_occupancy))
@@ -192,7 +193,7 @@ def occ_loop_merge_confs_simulate(params):
                     set_b_fac_all_occupancy_groups(
                         input_pdb=merged_pdb,
                         output_pdb=merged_file_name
-                            + params.validate.output.set_b_name_extension,
+                                   + params.validate.output.set_b_name_extension,
                         b_fac=params.validate.options.set_b,
                         params=params)
 
@@ -211,13 +212,13 @@ def occ_loop_merge_confs_simulate(params):
                 or not os.path.exists(simulated_mtz):
 
             logging.info("Generating simulated mtz \n{}\n "
-                        "For occupancy {} using cctbx equivalent of "
-                        "phenix.fmodel from pdb: \n{}\n "
-                        "With miller indices matched to "
-                        "input mtz:\n{}\n".format(simulated_mtz,
-                                                  lig_occupancy,
-                                                  merged_pdb,
-                                                  params.input.mtz))
+                         "For occupancy {} using cctbx equivalent of "
+                         "phenix.fmodel from pdb: \n{}\n "
+                         "With miller indices matched to "
+                         "input mtz:\n{}\n".format(simulated_mtz,
+                                                   lig_occupancy,
+                                                   merged_pdb,
+                                                   params.input.mtz))
 
             # TODO Work out data column label for sensible input:
             # Talk to tobias- Frank suggests  a pre-selection filter: 32
@@ -239,20 +240,20 @@ def occ_loop_merge_confs_simulate(params):
                                            "{}_occ_{}_b_{}_fmodel.log".format(
                                                params.input.xtal_name,
                                                str(lig_occupancy).replace(".", "_"),
-                                               str(params.validate.options.set_b).replace(".", "_"))),'w+')
+                                               str(params.validate.options.set_b).replace(".", "_"))), 'w+')
 
             fmodel(args=fmodel_args, log=fmodel_log)
             fmodel_log.close()
 
         else:
             logging.info("Skipping the generation of simulated data:"
-                        "\n{}\n using fmodel as it already exists,"
-                        " for occupancy {}, and "
-                        " params.validate.options.overwrite is "
-                        "{}".format(simulated_mtz, lig_occupancy,
-                                    params.validate.options.overwrite))
+                         "\n{}\n using fmodel as it already exists,"
+                         " for occupancy {}, and "
+                         " params.validate.options.overwrite is "
+                         "{}".format(simulated_mtz, lig_occupancy,
+                                     params.validate.options.overwrite))
         try:
-            assert os.path.exists(merged_pdb+".mtz"), \
+            assert os.path.exists(merged_pdb + ".mtz"), \
                 "Simulated mtz does not exist:\n{}\n".format(merged_pdb
                                                              + ".mtz")
         except AssertionError:
@@ -269,7 +270,7 @@ def occ_loop_merge_confs_simulate(params):
         params.input.mtz = simulated_mtz
 
         params.exhaustive.options.mtz_prefix = "simul_{}_".format(
-            str(lig_occupancy).replace(".","_"))
+            str(lig_occupancy).replace(".", "_"))
 
         params.exhaustive.output.csv_name = \
             params.exhaustive.output.csv_prefix \
@@ -308,18 +309,18 @@ def occ_loop_merge_confs_simulate(params):
                     params.exhaustive.options.generate_mtz)
 
                 logging.info("Writing {} to run exhaustive"
-                            "search via qsub".format(sh_file))
+                             "search via qsub".format(sh_file))
 
                 with open(os.path.join(params.output.out_dir,
                                        sh_file), 'w') as f:
 
                     f.write("#!/bin/bash\n")
                     f.write("export XChemExplorer_DIR=\"/dls/science/"
-                               "groups/i04-1/software/XChemExplorer_new/"
-                               "XChemExplorer\"\n")
+                            "groups/i04-1/software/XChemExplorer_new/"
+                            "XChemExplorer\"\n")
                     f.write("source /dls/science/groups/i04-1/software/"
-                               "XChemExplorer_new/XChemExplorer/"
-                               "setup-scripts/pandda.setup-sh\n")
+                            "XChemExplorer_new/XChemExplorer/"
+                            "setup-scripts/pandda.setup-sh\n")
                     f.write(cmd)
 
                 logging.info("Job submission to qsub")
@@ -335,7 +336,7 @@ def occ_loop_merge_confs_simulate(params):
                                  params.output.log_dir,
                                  params.validate.options.qsub_error_prefix
                                  + "_{}.txt".format(
-                                    str(lig_occupancy).replace(".", "_")))
+                                     str(lig_occupancy).replace(".", "_")))
 
                 os.system("qsub -o {} -e {} {}".format(
                     qsub_output_log,
@@ -352,9 +353,8 @@ def occ_loop_merge_confs_simulate(params):
             if params.validate.options.overwrite \
                     or not os.path.exists(merged_pdb + ".mtz") \
                     or not os.path.exists(merged_pdb):
-
                 logging.info("Converting simualted mtz: "
-                            "\n{}\n to difference map .ccp4 f".format(
+                             "\n{}\n to difference map .ccp4 f".format(
                     merged_pdb + ".mtz"))
 
                 map_args = ["maps.map.map_type=\"mfo-Dfc\"", merged_pdb,
@@ -365,7 +365,6 @@ def occ_loop_merge_confs_simulate(params):
 
 
 def run(params):
-
     """ Run the validation script.
 
     Provides modified parameters to the occ_merge_loop_function
@@ -390,7 +389,6 @@ def run(params):
     check_validate_input_files(params)
 
     if not os.path.exists(params.output.out_dir):
-
         logging.info("Creating output directory:\n{}\n".format(
             params.output.out_dir))
 
@@ -400,7 +398,7 @@ def run(params):
     occ_loop_merge_confs_simulate(params)
 
     logging.info("Checking for files existence : "
-                "wait for jobs submitted to the cluster")
+                 "wait for jobs submitted to the cluster")
 
     for file_path in get_csv_filepath(params):
         wait_for_file_existence(file_path, wait_time=10000)
@@ -408,7 +406,7 @@ def run(params):
     os.chdir(params.output.out_dir)
 
     logging.info("This plots exhaustive search results, to confirm whether "
-                "exhaustive search recovers the simulated occupancy")
+                 "exhaustive search recovers the simulated occupancy")
 
     plot_3d_fofc_occ(params.validate.options.start_simul_occ,
                      params.validate.options.end_simul_occ,
@@ -427,13 +425,12 @@ def run(params):
                              params=params)
 
     logging.info("Plotting occupancy, bfactor and mean |Fobs-Fcalc| "
-                "for each simulated occupancy")
+                 "for each simulated occupancy")
 
     for simul_occ in np.arange(params.validate.options.start_simul_occ,
                                params.validate.options.end_simul_occ,
                                params.validate.options.step_simulation):
-
-    # TODO remove duplication of this code: utils.get_minimum_fofc: 59
+        # TODO remove duplication of this code: utils.get_minimum_fofc: 59
 
         csv_name = params.exhaustive.output.csv_prefix \
                    + "_occ_{}_b_{}.csv".format(
@@ -446,7 +443,7 @@ def run(params):
     logging.info("Validation script finished")
 
 
-if(__name__ == "__main__"):
+if (__name__ == "__main__"):
     from giant.jiffies import run_default
 
     run_default(run=run, master_phil=master_phil, args=sys.argv[1:])

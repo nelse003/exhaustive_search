@@ -1,6 +1,7 @@
 import os
 import sqlite3
 
+
 def copy_NUDT22():
     """ Copy refine pdb and mtz from NUDT22 to compound dirs
 
@@ -9,7 +10,7 @@ def copy_NUDT22():
 
     out_path = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
     database_path = "/dls/labxchem/data/2018/lb18145-55/processing/database/soakDBDataFile.sqlite"
-    refinement_outcomes= " '3 - In Refinement', '4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
+    refinement_outcomes = " '3 - In Refinement', '4 - CompChem ready', '5 - Deposition ready','6 - Deposited'"
 
     conn = sqlite3.connect(database_path)
     cur = conn.cursor()
@@ -40,12 +41,10 @@ def copy_NUDT22():
 
         if not os.path.exists(os.path.join(xtal_dir,
                                            'refine.split.bound-state.pdb')):
-
             os.symlink(pdb.replace('.pdb', '.split.bound-state.pdb'),
                        os.path.join(xtal_dir, 'refine.split.bound-state.pdb'))
 
         if not os.path.exists(os.path.join(xtal_dir,
                                            'refine.split.ground-state.pdb')):
-
             os.symlink(pdb.replace('.pdb', '.split.ground-state.pdb'),
                        os.path.join(xtal_dir, 'refine.split.ground-state.pdb'))
