@@ -9,6 +9,7 @@ from utils.phil import master_phil
 class TestXtalModelData(unittest.TestCase):
 
     def setUp(self):
+        """Provide setup for the test on """
 
         self.params = master_phil.extract()
 
@@ -25,7 +26,6 @@ class TestXtalModelData(unittest.TestCase):
 
         self.params.input.pdb = os.path.join(self.params.input.in_path, "refine.pdb")
 
-
     def test_init(self):
         """Check the class constructor
 
@@ -39,6 +39,3 @@ class TestXtalModelData(unittest.TestCase):
         self.assertIsInstance(xtal_model_data.inputs, mmtbx.utils.process_command_line_args)
         self.assertIsInstance(xtal_model_data.crystal_gridding, cctbx.maptbx.crystal_gridding)
         self.assertIsInstance(xtal_model_data.fmodel, mmtbx.f_model.f_model.manager)
-
-
-

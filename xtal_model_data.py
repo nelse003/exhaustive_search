@@ -1,3 +1,4 @@
+import logging
 from cStringIO import StringIO
 
 from cctbx import maptbx
@@ -7,7 +8,11 @@ import mmtbx.f_model
 import mmtbx.masks
 from mmtbx.utils import data_and_flags_master_params
 from iotbx import reflection_file_utils
-import cctbx
+
+from utils.log_utils import log
+
+logger = logging.getLogger(__name__)
+
 
 class XtalModelData(object):
 
@@ -57,13 +62,20 @@ class XtalModelData(object):
 
     """
 
+    @log(in_msg="Creating Xtal Model Data: Processing input PDB and reflection files." \
+                 "Parse into xray structure, fmodel and hierarchies",
+         out_msg="Created Xtal Model Data")
     def __init__(self, params):
         """
+        Create XtalModelData class to hold data
 
         Parameters
         ----------
-        params:
+        params: libtbx.phil.scope_extract
+            python object from phil file,
+            edited with any additional parameters
         """
+
         self.params = params
         self.pdb = self.params.input.pdb
         self.mtz = self.params.input.mtz
@@ -81,12 +93,18 @@ class XtalModelData(object):
 
         self.fmodel = self._get_fmodel()
 
-
+    @log(in_msg="Getting Rfree flags and Fobs",
+         out_msg="Succeeded getting Rfree flags and Fobs")
     def _get_f_obs_r_free(self):
         """ Get f_obs and r_free_flags from pdb and mtz via self.inputs
 
         Returns
         -------
+        f_obs: cctbx.miller.array
+            observed data
+
+        r_free_flags: cctbx.miller.array
+            r free flags
         """
 
         rfs = reflection_file_utils.reflection_file_server(
@@ -112,12 +130,15 @@ class XtalModelData(object):
 
         return f_obs, r_free_flags
 
-
+    @log(in_msg="Getting xtal structure",
+         out_msg="Suceeded in getting xtal structure")
     def _get_xrs(self):
         """ Get X-ray Structure Object
 
         Returns
         --------
+        xrs: cctbx.xray.structure
+            Xray structure object
         """
 
         # Parse input pdb
@@ -131,8 +152,17 @@ class XtalModelData(object):
 
         return xrs
 
+    @log(in_msg="Getting model as fmodel object",
+         out_msg="Suceeded in model as fmodel object")
     def _get_fmodel(self):
-        """Get fmodel object"""
+
+        """Get fmodel object
+
+        Returns
+        -------
+        fmodel: mmtbx.f_model.f_model.manager
+            cctbx object handling the model
+        """
 
         mask_params = mmtbx.masks.mask_master_params.extract()
         mask_params.ignore_hydrogens = False
@@ -143,5 +173,7 @@ class XtalModelData(object):
                                        mask_params=mask_params,
                                        xray_structure=self.xrs)
         fmodel.update_all_scales()
+
+        logger.info("r_work: {0} r_free: {1}".format(fmodel.r_work(), fmodel.r_free()))
 
         return fmodel

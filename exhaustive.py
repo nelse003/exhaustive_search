@@ -14,20 +14,12 @@ import datetime
 import logging
 import os
 import sys
-from cStringIO import StringIO
+
 
 import cctbx.miller
-import iotbx.ccp4_map
-import iotbx.pdb
-import mmtbx.f_model
-import mmtbx.masks
-import mmtbx.utils
 import numpy as np
-from cctbx import maptbx
-from iotbx import reflection_file_utils
 from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
-from mmtbx.utils import data_and_flags_master_params
 
 from utils.convex_hull import atom_points_from_sel_string
 from utils.convex_hull import convex_hull_from_states
@@ -36,6 +28,8 @@ from utils.convex_hull import convex_hull_per_residue
 from utils.phil import master_phil
 from utils.select_atoms import get_occupancy_group_grid_points
 from utils.select_atoms import process_refined_pdb_bound_ground_states
+
+from xtal_model_data import XtalModelData
 
 ##############################################################
 PROGRAM = 'Exhaustive Search'
@@ -155,7 +149,7 @@ def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding, pdb):
 
     Parameters
     ----------
-    params: libtbx.phil.scope_extract'
+    params: libtbx.phil.scope_extract
         python object from phil file
 
     xrs: cctbx.xray.structure.structure
@@ -542,7 +536,6 @@ def run(params):
                             params.output.log_dir,
                             params.exhaustive.output.log_name + log_time)
 
-    logger.basicConfig(filename=log_path, level=logging.DEBUG)
     logger.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
@@ -554,101 +547,20 @@ def run(params):
 
     logger.info("{}: running exhaustive search".format(str(params.input.xtal_name)))
 
-    logger.info("Processing input PDB and reflection files. "
-                 "Parse into xray structure, fmodel and hierarchies")
+    xtal_model_data = XtalModelData(params)
 
-    inputs = mmtbx.utils.process_command_line_args(args=[params.input.pdb, params.input.mtz])
-    logger.debug("Processed command line arguments using mmtbx.utils")
-
-    rfs = reflection_file_utils.reflection_file_server(
-        crystal_symmetry=inputs.crystal_symmetry,
-        force_symmetry=True,
-        reflection_files=inputs.reflection_files,
-        err=StringIO())
-
-    logger.debug("Processed reflection files using reflection file server")
-
-    logger.debug("Extracting a copy of data_and_flags_master_params "
-                  "from mmtbx utils. Adding labels {} for mtz column type "
-                  "to use".format(params.exhaustive.options.column_type))
-    data_flags_params = data_and_flags_master_params().extract()
-    data_flags_params.labels = params.exhaustive.options.column_type
-
-    logger.debug("Default parameters supplied to "
-                  "mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().as_str())
-
-    logger.debug("Current parameters supplied to "
-                  "mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().format(
-        python_object=data_flags_params).as_str())
-
-    logger.debug("Parameters different to default, "
-                  "supplied to mmtbx.utils.determine_data_and_flags")
-    logger.debug(data_and_flags_master_params().fetch_diff(
-        source=data_and_flags_master_params().format(
-            python_object=data_flags_params)).as_str())
-
-    determined_data_and_flags = mmtbx.utils.determine_data_and_flags(
-        reflection_file_server=rfs,
-        parameters=data_flags_params,
-        keep_going=True,
-        log=StringIO())
-
-    logger.debug("Processed data and flags")
-
-    pdb_inp = iotbx.pdb.input(file_name=inputs.pdb_file_names[0])
-
-    logger.debug("Constructing hierarchy from input PDB: "
-                  + inputs.pdb_file_names[0])
-
-    ph = pdb_inp.construct_hierarchy()
-    xrs = ph.extract_xray_structure(
-        crystal_symmetry=inputs.crystal_symmetry)
-
-    # TODO To log as string #68
-    xrs.show_summary()
-
-    logger.info("Extract Fobs and free-r flags")
-
-    f_obs = determined_data_and_flags.f_obs
-    r_free_flags = determined_data_and_flags.r_free_flags
-
-    logger.info("Define map grididng")
-
-    crystal_gridding = f_obs.crystal_gridding(
-        d_min=f_obs.d_min(),
-        symmetry_flags=maptbx.use_space_group_symmetry,
-        resolution_factor=1. / 4)
-
-    logger.info("Define fmodel")
-
-    mask_params = mmtbx.masks.mask_master_params.extract()
-    mask_params.ignore_hydrogens = False
-    mask_params.ignore_zero_occupancy_atoms = False
-
-    fmodel = mmtbx.f_model.manager(
-        f_obs=f_obs,
-        r_free_flags=r_free_flags,
-        mask_params=mask_params,
-        xray_structure=xrs)
-
-    fmodel.update_all_scales()
-
-    logger.info("r_work: {0} r_free: {1}".format(fmodel.r_work(),
-                                                  fmodel.r_free()))
     logger.info("Organising output directory")
     os.chdir(params.output.out_dir)
 
     logger.info("Run main calculation of |Fo-Fc| at grid points near ligand")
 
     try:
-        calculate_mean_fofc(params=params,
-                            xrs=xrs,
-                            inputs=inputs,
-                            fmodel=fmodel,
-                            crystal_gridding=crystal_gridding,
-                            pdb=params.input.pdb)
+        calculate_mean_fofc(params=xtal_model_data.params,
+                            xrs=xtal_model_data.xrs,
+                            inputs=xtal_model_data.inputs,
+                            fmodel=xtal_model_data.fmodel,
+                            crystal_gridding=xtal_model_data.crystal_gridding,
+                            pdb=xtal_model_data.pdb)
 
     except UnboundLocalError:
         raise
