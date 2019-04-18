@@ -1,23 +1,26 @@
-import giant.grid as grid
 import iotbx.pdb
 import numpy as np
+
 from scipy.spatial import ConvexHull
 from scipy.spatial import distance
+
 from scitbx.array_family import flex
+
+import giant.grid as grid
 
 from select_atoms import get_occupancy_groups
 from utils import sample_spherical
 
-
 def convex_hull_from_states(pdb, bound_states, ground_states, params):
-    """ Convex hull selection of bound & ground states
+
+    """ Convex hull selection of bound & ground states 
     
     Given bound & ground states and pdb file, determine a grid of points which
     are defined by a convex hull around the atoms involved in the bound and 
     ground states. 
     
     Allow extension of the convex hull by a buffer distance, 
-    supplied via params.exhaustive.options.buffer. The buffer extends
+    supplied via params.exhaustive.options.buffer. The buffer extends 
     in the direction of the nearest atom not in the bound or ground states.
     By default (params.exhaustive.options.convex_hull_ignore_nearest = False)
     the buffer is at most 1/2 the distance to the nearest atom. When 
@@ -25,21 +28,23 @@ def convex_hull_from_states(pdb, bound_states, ground_states, params):
     up to the supplied buffer distance.
 
     Parameters
-    -----------
-    pdb:
+    ----------
+    pdb: str
+        path to a pdb file
 
     bound_states:
 
     ground_states:
 
     params:
+        A extracted python object from the master phil file.
+        This defines the settings of the settings and I/O.
 
     Returns
     -------
-     :flex.vec3_double
-     containing the x,y,z coordinates of points
-     within the convex hull
-
+    flex.vec3_double containing the x,y,z coordinates of points
+              within the convex hull
+      
     """
 
     # Get atom points that come from states
@@ -80,23 +85,23 @@ def convex_hull_from_states(pdb, bound_states, ground_states, params):
         print(type(vertex_atom_point))
 
         if not params.exhaustive.options.convex_hull_ignore_nearest \
-                and min_dist / 2 >= params.exhaustive.options.buffer:
+            and min_dist/2 >= params.exhaustive.options.buffer:
 
             buffer_point = vertex_atom_point + \
-                           (params.exhaustive.options.buffer / min_dist) * (nearest_atom_point - vertex_atom_point)
+                           (params.exhaustive.options.buffer/min_dist)*(nearest_atom_point - vertex_atom_point)
 
             print("Buffer point at buffer distance")
 
         elif not params.exhaustive.options.convex_hull_ignore_nearest \
-                and min_dist / 2 < params.exhaustive.options.buffer:
+            and min_dist/2 < params.exhaustive.options.buffer:
 
-            buffer_point = vertex_atom_point + 0.5 * (nearest_atom_point - vertex_atom_point)
+            buffer_point = vertex_atom_point + 0.5*(nearest_atom_point - vertex_atom_point)
             print("Buffer point at mid point to nearest atom")
 
         else:
             buffer_point = vertex_atom_point + \
                            params.exhaustive.options.buffer * \
-                           (nearest_atom_point - vertex_atom_point) / min_dist
+                           (nearest_atom_point - vertex_atom_point)/min_dist
             print("Buffer point ignores nearest atom")
 
         buffer_points.append(buffer_point)
@@ -105,8 +110,8 @@ def convex_hull_from_states(pdb, bound_states, ground_states, params):
 
     return convex_hull_grid_points(buffer_points, params)
 
+def convex_hull_grid_points(atom_points,params):
 
-def convex_hull_grid_points(atom_points, params):
     """
     Given points define grid points in convex hull
     
@@ -121,10 +126,10 @@ def convex_hull_grid_points(atom_points, params):
 
     hull = ConvexHull(atom_points)
 
-    if isinstance(atom_points, flex.vec3_double):
+    if  isinstance(atom_points,flex.vec3_double):
         grid_min = flex.double(atom_points.min())
         grid_max = flex.double(atom_points.max())
-    elif isinstance(atom_points, np.ndarray):
+    elif isinstance(atom_points,np.ndarray):
         grid_min = flex.double(atom_points.min(axis=0))
         grid_max = flex.double(atom_points.max(axis=0))
     else:
@@ -147,7 +152,6 @@ def convex_hull_grid_points(atom_points, params):
 
     return flex.vec3_double(list(np.stack(points_in_hull)))
 
-
 def convex_hull_per_residue(pdb, bound_states, ground_states, params):
     """ Convex hull per residue involded in bound and ground states
     
@@ -156,70 +160,59 @@ def convex_hull_per_residue(pdb, bound_states, ground_states, params):
     
     For any residue/ water/ ligand sample the local space to 
     that atom in sphere with radius of 
-    params.exhaustive.options.atom_buffer.
+    params.exhaustive.options.atom_buffer. 
     Then generate a convex hull around those spheres 
     
     This sphere method could be ignored for residues 
     large enough to generate a convex hull, 
     but wouldn't work for single waters
 
-    Parameters
-    ----------
-    pdb:
-
-    bound_states:
-
-    ground_states:
-
-    params:
-
-    Returns
-    --------
-    convex_hull_points
-
+    :param pdb: 
+    :param bound_states: 
+    :param ground_states: 
+    :return: flex.vec3_double
     """
 
     states = bound_states + ground_states
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     pdb_atoms = pdb_in.hierarchy.atoms()
     convex_hull_points = flex.vec3_double()
-    states_buffered_points_list = []
 
+    states_buffered_points_list= []
     for state in states:
         selection = state[0]
         selected_atoms = pdb_atoms.select(selection)
         sites_cart = selected_atoms.extract_xyz()
 
+        print(len(sites_cart))
+
         buffered_points_list = []
         for site in sites_cart:
+            print(site)
             xi, yi, zi = sample_spherical(100, ndim=3)
-            buffered_site_points = np.stack((params.exhaustive.options.atom_buffer * xi + site[0],
-                                             params.exhaustive.options.atom_buffer * yi + site[1],
-                                             params.exhaustive.options.atom_buffer * zi + site[2]), axis=-1)
+            buffered_site_points = np.stack((params.exhaustive.options.atom_buffer*xi + site[0],
+                      params.exhaustive.options.atom_buffer*yi + site[1],
+                      params.exhaustive.options.atom_buffer*zi + site[2]),axis=-1)
             buffered_points_list.append(buffered_site_points)
 
         buffered_points = np.concatenate(buffered_points_list)
         states_buffered_points_list.append(buffered_points)
+        print(buffered_points.shape)
         convex_hull_points = convex_hull_points.concatenate(convex_hull_grid_points(buffered_points, params))
+
+    states_buffered_points = np.concatenate(states_buffered_points_list)
 
     return convex_hull_points
 
-
 def atom_points_within_states(pdb, bound_states, ground_states):
+
     """ Given states return xyz of atoms involved
-
-    Parameters
-    ----------
-    pdb:
-
-    bound_states:
-
-    ground_states:
-
-    Returns
-    -------
-    atom_points:
-
+    
+    
+    :param pdb: 
+    :param bound_states: 
+    :param ground_states: 
+    :return: flex.vec3_double
     """
 
     states = bound_states + ground_states
@@ -235,19 +228,8 @@ def atom_points_within_states(pdb, bound_states, ground_states):
 
     return atom_points
 
-
 def atom_points_from_sel_string(pdb, selection_string):
-    """
 
-    Parameters
-    ----------
-    pdb
-    selection_string
-
-    Returns
-    -------
-    atom_points
-    """
     pdb_in = iotbx.pdb.hierarchy.input(pdb)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
     atoms_sel = sel_cache.selection(selection_string)
@@ -258,6 +240,7 @@ def atom_points_from_sel_string(pdb, selection_string):
 
 
 def atoms_not_in_occ_groups(pdb, params):
+
     """Select atoms that are not involved in the occupancy groups
     
     :returns: iotbx.pdb.hierarchy.af_shared_atom
@@ -279,7 +262,7 @@ def atoms_not_in_occ_groups(pdb, params):
                 selection_string_list.append(selection_string)
 
     selection_string = " or ".join(selection_string_list)
-    not_selection_string = "not ({})".format(selection_string)
+    not_selection_string ="not ({})".format(selection_string)
     sel_cache = pdb_in.hierarchy.atom_selection_cache()
     remove_atoms_sel = sel_cache.selection(not_selection_string)
     removed_hier = pdb_in.hierarchy.select(remove_atoms_sel)
@@ -298,9 +281,9 @@ def point_in_hull(point, hull, tolerance=1e-12):
         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
         for eq in hull.equations)
 
-
 def grid_to_np_array(grid):
-    array = np.zeros((grid.cart_points().all()[0], 3))
+
+    array = np.zeros((grid.cart_points().all()[0],3))
     for i, point in enumerate(grid.cart_points()):
         array[i] = point
 

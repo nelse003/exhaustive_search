@@ -1,36 +1,55 @@
-from __future__ import division
-from __future__ import print_function
-
-import logging
+from __future__ import division, print_function
 import os
-
 import matplotlib
 import numpy as np
+import logging
 import pandas as pd
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from utils.utils_ccp4 import (get_fofc_from_csv,
-                              process_validation_csvs)
-from utils.utils import b_to_u_iso, u_iso_to_b_fac, \
-    get_minimum_fofc, round_step, expand_array
-from exhaustive import atom_points_from_sel_string
-
-# import seaborn as sns
+from exhaustive.exhaustive.utils.utils import (get_fofc_from_csv,
+get_minimum_fofc, round_step, b_to_u_iso, u_iso_to_b_fac, process_validation_csvs, expand_array)
+from exhaustive.exhaustive.utils.convex_hull import atom_points_from_sel_string
+from mpl_toolkits.mplot3d import Axes3D
+#import seaborn as sns
 ##############################################################
 
 logging = logging.getLogger(__name__)
 
 
 def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
-    """ Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output """
+
+    #TODO Split into multiple functions with base class
+
+    """
+    Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output
+
+    Parameters
+    ----------
+    csv_name: str
+        path to csv file
+
+    three_dim_plot: Bool
+        flag to determine whether a three dimensional plot is used
+
+    title_text:str
+        plot title text
+
+    Returns
+    -------
+    None
+
+    Notes
+    ------
+    Saves png to same name as csv
+    """
 
     # Load data from CSV
     if csv_name.endswith(".csv"):
         data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
     else:
         data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',',
-                             skip_header=0)
+         skip_header=0)
 
     if len(data[0]) == 3:
         logging.info("Using 3 column data to plot")
@@ -71,12 +90,29 @@ def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
 
 
 def bounded_2d_scatter(atom_name, lower_bound, upper_bound):
+
+    """
+
+    Parameters
+    ----------
+    atom_name
+    lower_bound
+    upper_bound
+
+    Returns
+    -------
+
+    Notes
+    -----
+
+    """
+
     # Load data from CSV
     data = np.genfromtxt('{}.csv'.format(atom_name), delimiter=',',
                          skip_header=0)
 
     reduced_data = data[np.where(np.logical_and(data[:, 2] >= lower_bound,
-                                                data[:, 2] <= upper_bound))]
+    data[:, 2] <= upper_bound))]
 
     x = reduced_data[:, 0]
     y = reduced_data[:, 1]
@@ -120,6 +156,7 @@ def colourbar_2d_scatter(atom_name):
 
 
 def connectpoints(x, y, x_1, y_1, p1, linestyle='k-'):
+
     """ Draw lines between two lists of points"""
 
     x1, x2 = x[p1], x_1[p1]
@@ -128,11 +165,13 @@ def connectpoints(x, y, x_1, y_1, p1, linestyle='k-'):
 
 
 def connectpoint(x, y, x_1, y_1, linestyle='k-'):
+
     """ Draw line between two points """
     plt.plot([x, x_1], [y, y_1], linestyle)
 
 
 def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle='k-'):
+
     """ Draw lines between two sets od points in 3d"""
 
     x1, x2 = x[p1], x_1[p1]
@@ -149,6 +188,7 @@ def plot_2d_occ_b_validation(start_occ,
                              dataset_prefix,
                              out_dir,
                              params):
+
     min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = \
         process_validation_csvs(start_occ, end_occ, step,
                                 set_b, out_dir, params)
@@ -176,10 +216,10 @@ def plot_2d_occ_b_validation(start_occ,
         dataset_prefix), fontsize=10)
 
     print(os.path.join(out_dir,
-                       "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
 
     plt.savefig(os.path.join(out_dir,
-                             "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
+        "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
 
 
 def plot_3d_fofc_occ(start_occ,
@@ -189,6 +229,7 @@ def plot_3d_fofc_occ(start_occ,
                      set_b,
                      out_dir,
                      params):
+
     """ Plot the difference in occupancy & mean(|fo-fc|)
     at the simulated occupancy and the minima. """
 
@@ -226,6 +267,7 @@ def plot_3d_fofc_occ(start_occ,
 
 def occupancy_histogram_with_exhaustive_search(occ_df, protein_name, compound,
                                                params):
+
     es_occs = occ_df['es_occupancy'].dropna()
     refined_occs = occ_df['occupancy'].dropna()
 
@@ -240,7 +282,7 @@ def occupancy_histogram_with_exhaustive_search(occ_df, protein_name, compound,
 
     fig, ax = plt.subplots()
     try:
-        ax.hist(es_occs, bins=occ_bins, width=0.04, color='r', alpha=0.5,
+        ax.hist(es_occs, bins=occ_bins, width=0.04, color='r',  alpha=0.5,
                 label='Exhaustive search occupancy: {}'.format(len(es_occs)))
         ax.hist(refined_occs, bins=occ_bins, width=0.04, color='b', alpha=0.5,
                 label='Refined occupancy: {}'.format(len(refined_occs)))
@@ -264,6 +306,7 @@ def occupancy_histogram_with_exhaustive_search(occ_df, protein_name, compound,
 
 
 def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
+
     es_occs = occ_df['es_occupancy']
     refined_occs = occ_df['occupancy']
     es_b_fac = occ_df['es_b_fac']
@@ -286,7 +329,7 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
                 fmt='rs',
                 yerr=refine_std_b_fac,
                 label="Refinement (errorbar = standard deviation of B factor "
-                      "across ligand): {}".format(
+                     "across ligand): {}".format(
                     len(occ_df['occupancy'].dropna())),
                 linestyle="None",
                 color='b')
@@ -308,12 +351,14 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
 
     file_path = os.path.join(params.output.out_dir,
                              "occ_scatter_with_exhaustive_"
-                             "{}_{}".format(protein_name, compound))
+                             "{}_{}".format(protein_name,  compound))
 
     plt.savefig(file_path, dpi=300)
     plt.close()
 
     print(occ_df)
+
+
 
     # if len(occ_df) != len(occ_df.dropna()):
     #     print("!!!!!!")
@@ -321,8 +366,8 @@ def occupancy_b_factor_scatter_plot(occ_df, protein_name, compound, params):
     #     print(occ_df.dropna())
     #     exit()
 
-
 def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
+
     """Plot the difference in occupancy/fofc at the simulated occupancy
     and minima."""
 
@@ -332,6 +377,7 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
     occs = []
 
     for lig_occupancy in np.arange(start_occ, end_occ + (step / 5), step):
+
         csv_name = "occ_{}_b_{}_u_iso".format(
             str(lig_occupancy).replace(".", "_"),
             str(set_b).replace(".", "_"))
@@ -369,9 +415,9 @@ def plot_fofc_occ(start_occ, end_occ, step, dataset_prefix, set_b):
               "and Delta Occupancy".format(dataset_prefix), fontsize=10)
     plt.savefig("{}-delta_fofc_occ.png".format(dataset_prefix))
 
-
 def plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
                         metric_name):
+
     """Plot a single giant.score_model metric"""
 
     metric_filename = metric_name.replace(" ", "_")
@@ -383,28 +429,28 @@ def plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
 
     datasets = edstats_df['Dataset'].tolist()
 
-    ax = edstats_df.plot(x="Dataset", y=metric_name, marker='o', linestyle='None')
+    ax=edstats_df.plot(x="Dataset", y=metric_name, marker='o', linestyle='None')
     ax.legend().set_visible(False)
     plt.title("{} {}".format(protein_name, compound))
     plt.ylabel(metric_name)
-    plt.xticks(np.arange(len(datasets)), datasets, rotation='vertical')
-    plt.xlim(-1, len(datasets) + 1)
+    plt.xticks(np.arange(len(datasets)),datasets,rotation='vertical')
+    plt.xlim(-1,len(datasets)+1)
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
 
-
 def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
                               protein_name, title_suffix=None):
+
     metrics = ["Occupancy", "RSZO/OCC", "Model RMSD", "RSZD", "RSR", "RSCC",
-               "Surroundings B-factor Ratio"]
+                   "Surroundings B-factor Ratio"]
     metrics_2 = ["Occupancy-2", "RSZO/OCC-2", "RSZD-2", "RSR-2", "RSCC-2"]
 
     for metric in metrics + metrics_2:
         plot_edstats_metric(edstats_df, compound_folder, compound, protein_name,
                             metric)
 
-    # pairplot
+    #pairplot
 
     cols = [c for c in edstats_df.columns if c.lower()[-2:] == '-2']
     cols_1 = [col.rstrip('-2') for col in cols]
@@ -415,7 +461,7 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
     metric_2_df['source_file'] = 2
 
     for i in np.arange(len(cols)):
-        metric_2_df = metric_2_df.rename(columns={cols[i]: cols_1[i]})
+        metric_2_df = metric_2_df.rename(columns={cols[i]:cols_1[i]})
 
     edstats_df = pd.concat([metric_df, metric_2_df], ignore_index=True)
 
@@ -424,7 +470,7 @@ def plot_edstats_across_soaks(edstats_df, compound_folder, compound,
     plt.savefig(os.path.join(compound_folder, "pairplot.png"))
 
     pp = sns.pairplot(edstats_df, vars=metrics, hue="source_file")
-    pp.fig.suptitle("{} {} :{}".format(protein_name, compound, title_suffix))
+    pp.fig.suptitle("{} {} :{}".format(protein_name,compound,title_suffix))
     plt.tight_layout()
     plt.savefig(os.path.join(compound_folder, "reduced_pairplot.png"))
 
@@ -446,8 +492,8 @@ def plot_protein_and_selection(pdb, atom_points, plot_filename, params):
     ax.scatter(x, y, z, marker='.', color='y')
     plt.savefig(filename=os.path.join(params.output.out_dir, plot_filename), dpi=300)
 
-
 def plot_occupancy_convergence(occ_conv_df, plot_filename):
+
     occ_conv_df.plot()
     plt.xlabel('Cycle')
     plt.ylabel('Occupancy')
