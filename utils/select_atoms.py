@@ -201,18 +201,27 @@ def get_bound_ground_states(pdb, params):
     -------
     ground_states: list
         list containing the atoms in the ground state.
+
         list is shaped:
         [[selection, number of altlocs],[selection, number of altlocs]...]
-        where selection is a iotbx.pdb selection object of type
+
+        where selection is a iotbx.pdb selection object of type:
+
         scitbx_array_family_flex_ext.bool
 
     bound_states: list
         list containing the atoms in the bound state.
+
         list is shaped:
         [[selection, number of altlocs],[selection, number of altlocs]...]
-        where selection is a iotbx.pdb selection object of type
+
+        where selection is a iotbx.pdb selection object of type:
+
         scitbx_array_family_flex_ext.bool
 
+    Notes
+    -----
+    Currently the altlocs need to be
 
     """
     logging.info("Process pdb file to get bound and ground states.")
@@ -229,15 +238,6 @@ def get_bound_ground_states(pdb, params):
 
     if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
 
-        # There are no coincident residues therefore use the occupancy id instead.
-        # This may need doing earlier, i.e the selection by altlocs is possibly really stupid.
-        # Only the case for if a single complete group (i.e first part of the if statement)
-
-        # (altloc_group, residue, chain)
-        # (('C', 'D'), ' 121', 'A')
-        # [altloc_selection, num_altlocs]
-        # {'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
-
         # Get bound altlocs if residue is in params.select.resname
         bound_altlocs = []
         for occupancy_group in occupancy_groups[0]:
@@ -246,12 +246,11 @@ def get_bound_ground_states(pdb, params):
                 if residue_altloc.get('resname') in params.select.resnames:
                     bound_altlocs += residue_altloc.get('altloc')
 
-        # TODO Refactor into function
         # Produce a dictonary of residues
         # inolved in ground and bound state,
         # and which altlocs belong to each state
         # As the altocs are
-        move_res = dict()
+        move_res={}
         for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
 
@@ -260,18 +259,15 @@ def get_bound_ground_states(pdb, params):
                 resseq = residue_altloc.get('resseq')
 
                 if altloc in bound_altlocs:
-                    state = "Bound"
+                    state_string = "Bound"
                 else:
-                    state = "Ground"
+                    state_string = "Ground"
 
-                # TODO Refactor has_key: default dict
-                if move_res.has_key((chain, resseq, state)):
-                    move_res[(chain, resseq, state)].append(altloc)
+                # TODO Swap to default dict
+                if move_res.has_key((chain, resseq, state_string)):
+                    move_res[(chain, resseq, state_string)].append(altloc)
                 else:
-                    move_res[(chain, resseq, state)] = [altloc]
-
-        #print(move_res)
-        #raise Exception
+                    move_res[(chain, resseq, state_string)] = [altloc]
 
         bound_states = []
         ground_states = []
@@ -284,11 +280,14 @@ def get_bound_ground_states(pdb, params):
             logging.info("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
 
             if state == "Bound":
-                bound_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+                bound_states.append(get_bound_ground_selection(sel_cache,
+                                                               ((tuple(altlocs), resseq, chain))))
             elif state == "Ground":
-                ground_states.append(get_bound_ground_selection(sel_cache, ((tuple(altlocs), resseq, chain))))
+                ground_states.append(get_bound_ground_selection(sel_cache,
+                                                                ((tuple(altlocs), resseq, chain))))
             else:
                 raise ValueError("{} states is undefined".format(state))
+
         try:
             ground_states
         except NameError:

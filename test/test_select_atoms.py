@@ -37,11 +37,11 @@ class TestSelectAtoms(unittest.TestCase):
                               scitbx.array_family.flex.bool)
 
         # Check for specific pdb file parsing
-        self.assertEqual(ground_states[0][1],2)
-        self.assertEqual(len(ground_states), 6)
+        self.assertEqual(ground_states[0][1], 1)
+        self.assertEqual(len(ground_states), 12)
 
-        self.assertEqual(bound_states[0][1],2)
-        self.assertEqual(len(bound_states), 5)
+        self.assertEqual(bound_states[0][1], 1)
+        self.assertEqual(len(bound_states), 10)
 
 
 

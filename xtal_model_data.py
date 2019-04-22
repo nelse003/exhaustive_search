@@ -1,3 +1,5 @@
+import sys
+import csv
 import logging
 import numpy as np
 from cStringIO import StringIO
@@ -17,6 +19,7 @@ from utils.convex_hull import atom_points_from_sel_string
 from utils.convex_hull import convex_hull_from_states
 from utils.convex_hull import convex_hull_grid_points
 from utils.convex_hull import convex_hull_per_residue
+from exhaustive_func import OccBLoopCaller
 
 logger = logging.getLogger(__name__)
 
@@ -259,7 +262,7 @@ class XtalModelData(object):
         return u_iso_occ
 
 
-    def calculate_mean_fofc(self, pdb):
+    def calculate_mean_fofc(self):
         """Generate csv of occupancy and B factor for bound and ground states.
 
         Wrapper to prepare for main loop.
@@ -278,7 +281,8 @@ class XtalModelData(object):
 
         logger.debug("U_ISO_OCC {}".format(u_iso_occ))
 
-
+        bound_states, ground_states = get_bound_ground_states(
+            pdb=self.params.input.pdb, params=self.params)
 
         if self.params.exhaustive.options.per_residue:
 
@@ -348,9 +352,9 @@ class XtalModelData(object):
         # For covalent ratios this wasn't working at all.
         # The map method seems fast enough even at 0.01
 
-        sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
-                                            processes=self.params.settings.processes)
-        #sum_fofc_results = map(occ_b_loop, u_iso_occ)
+        # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
+        #                                     processes=self.params.settings.processes)
+        sum_fofc_results = map(occ_b_loop, u_iso_occ)
 
         logger.info("Loop finished.\n"
                     "Writing bound occupancy, ground_occupancy, u_iso, "

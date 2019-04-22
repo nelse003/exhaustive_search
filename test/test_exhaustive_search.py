@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from exhaustive import run as exhaustive, compute_maps
+from exhaustive import run as exhaustive
 from utils.phil import master_phil
 from utils.utils import get_minimum_fofc
 
