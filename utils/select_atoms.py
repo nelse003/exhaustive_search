@@ -1,13 +1,11 @@
 from __future__ import print_function
 
 import logging
+from collections import defaultdict
 
-import giant.grid as grid
 import iotbx
-from giant.maths.geometry import pairwise_dists
 from giant.structure.restraints.occupancy import overlapping_occupancy_groups
 from iotbx.pdb import hierarchy
-from scitbx.array_family import flex
 
 logging = logging.getLogger(__name__)
 
@@ -19,10 +17,16 @@ def get_occupancy_groups(pdb, params):
     
     Wrapper of giant.structure.restraints.occupancy: overlapping_occupancy_groups(), 
     that generates hierarchy from pdb file path
-    
+
+    Parameters
+    ----------
+
     :param pdb: 
     :param params: 
-    :return: 
+
+    Returns
+    -------
+
     """
 
     logging.info("Gathering occupancy group information from PDB: %s", pdb)
@@ -45,143 +49,63 @@ def get_occupancy_groups(pdb, params):
     return occupancy_groups
 
 
-def get_occupancy_group_grid_points(pdb, bound_states, ground_states,
-                                    params):
-    """Produce cartesian points related to occupancy groups.
+def get_selection_altloc_resseq_chain(sel_cache,
+                                      altlocs,
+                                      resseq,
+                                      chain):
 
-    Get cartesian points that correspond to atoms involved in the
-    occupancy groups (as in multi-state.restraints.params)
-
-    :param pdb: Input PDB file
-    :type 
-    :param params: Working phil parameters
-    :type
-    :return: occupancy_group_cart_points: The cartesian points involved
-    in the bound and ground states as a list
-    """
-
-    logging.info("For all bound and ground states, "
-                 "select cartesian grid points for each altloc/residue \n"
-                 "involved in occupancy groups. A buffer of {} Angstrom \n"
-                 "is applied to minimal and maximal grid points,"
-                 "with a grid seperation of {}.\n".format(
-        params.exhaustive.options.buffer,
-        params.exhaustive.options.grid_spacing))
-
-    states = bound_states + ground_states
-
-    pdb_in = iotbx.pdb.hierarchy.input(pdb)
-    pdb_atoms = pdb_in.hierarchy.atoms()
-
-    occupancy_group_cart_points = flex.vec3_double()
-    for state in states:
-        selection = state[0]
-        selected_atoms = pdb_atoms.select(selection)
-        sites_cart = selected_atoms.extract_xyz()
-        grid_min = flex.double([s - params.exhaustive.options.buffer
-                                for s in sites_cart.min()])
-        grid_max = flex.double([s + params.exhaustive.options.buffer
-                                for s in sites_cart.max()])
-        grid_from_selection = grid.Grid(
-            grid_spacing=params.exhaustive.options.grid_spacing,
-            origin=tuple(grid_min),
-            approx_max=tuple(grid_max))
-
-        logging.debug(grid_from_selection.summary())
-
-        occupancy_group_cart_points = occupancy_group_cart_points.concatenate(
-            grid_from_selection.cart_points())
-
-    logging.info("Number of cartesian points to calculate "
-                 "|Fo-Fc| over: {}".format(len(occupancy_group_cart_points)))
-
-    return occupancy_group_cart_points
-
-
-def get_parameter_from_occupancy_groups(occupancy_groups, parameter_str):
-    """
-    Extracts a parameter from occupancy groups,
-    given a str matching that parameter (altloc, chain, resseq...)
-    
-    :param occupancy_groups: 
-    :param parameter_str: 
-    :return: 
-    """
-
-    parameters = []
-
-    for occupancy_group in occupancy_groups:
-        for group in occupancy_group:
-            for residue_altloc in group:
-                if residue_altloc.get("model") == '':
-                    parameters.append(residue_altloc.get(parameter_str))
-                else:
-                    raise Warning("Multiple models are present in pdb file. "
-                                  "This is not processable with occupancy "
-                                  "group selection")
-    if not parameters:
-        logging.warning("Parameter may not be recognised,"
-                        "as output list is empty")
-        raise Warning("Parameter may not be recognised,"
-                      "as output list is empty")
-
-    return parameters
-
-
-def within_rmsd_cutoff(atoms1, atoms2, params):
-    """
-    Given two groups of atoms determine within a given cutoff
-    (supplied via params)
-    
-    :param atoms1: 
-    :param atoms2: 
-    :param params: 
-    :return: 
-    """
-
-    for i in range(0, len(pairwise_dists(atoms1.extract_xyz(),
-                                         atoms2.extract_xyz()))):
-        if pairwise_dists(atoms1.extract_xyz(),
-                          atoms2.extract_xyz())[i][i] \
-                < params.select.coincident_cutoff:
-            continue
-        else:
-            return False
-    return True
-
-
-def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     """
     Get iotbx boolean selection of altlocs for a residue
     
-    Given a coincident altloc group in format (('C', 'D'), ' 121', 'A') return a selection, 
-    using a supplied selection cache.
-    Also returns number of altlocs in that selection. 
-    In the format: [altloc_selection, num_altlocs]
-    
-    :param sel_cache: 
-    :param coincident_altloc_group: 
-    :return: 
+    Given set of altlocs, residue number and chain,
+    return a selection, using a supplied selection cache.
+
+    Parameters
+    ----------
+    sel_cache: iotbx.pdb.atom_selection.cache
+        selection cache on which to make the selection
+
+    altlocs: list
+        list of strings describing the altlocs involved i.e ['A','B']
+
+    resseq: str
+        residue sequnce number
+
+    chain: str
+        chain of supplied residue
+
+    Returns
+    --------
+    altloc_selection, len(altlocs): tuple
+
+        tuple containing the atoms in the ground state.
+        altloc_selection is a iotbx.pdb selection object of type:
+
+        scitbx_array_family_flex_ext.bool
+
     """
-    num_altlocs = len(coincident_altloc_group[0])
+
     selection_string = ""
-    for altloc in coincident_altloc_group[0]:
+
+    for altloc in altlocs:
         selection_string += "altloc {} or ".format(altloc)
+
     selection_string = selection_string.rstrip(" or ")
 
-    if num_altlocs > 1:
+    if len(altlocs) > 1:
         selection_string = "({}) and chain {} and resseq {}".format(selection_string,
-                                                                    coincident_altloc_group[2],
-                                                                    coincident_altloc_group[1])
+                                                                    chain,
+                                                                    resseq)
     else:
         selection_string = "{} and chain {} and resseq {}".format(selection_string,
-                                                                  coincident_altloc_group[2],
-                                                                  coincident_altloc_group[1])
-
+                                                                  chain,
+                                                                  resseq)
     print(selection_string)
+
     altloc_selection = sel_cache.selection(selection_string)
 
-    return [altloc_selection, num_altlocs]
+    return (altloc_selection, len(altlocs))
+
 
 # TODO Refactor into class
 def get_bound_ground_states(pdb, params):
@@ -194,8 +118,10 @@ def get_bound_ground_states(pdb, params):
     -----------
     pdb: str
         path to pdb file
-    params:
 
+    params: libtbx.phil.scope_extract
+            python object from phil file,
+            edited with any additional parameters
 
     Returns
     -------
@@ -221,7 +147,11 @@ def get_bound_ground_states(pdb, params):
 
     Notes
     -----
-    Currently the altlocs need to be
+    Currently the altlocs needs to be in multiple loops,
+    such that altlocs are joint in selection,
+    otherwise occupancy changes.
+    I presume this might be to do with the
+    distribution of points over which fo_fc is sampled?
 
     """
     logging.info("Process pdb file to get bound and ground states.")
@@ -230,80 +160,66 @@ def get_bound_ground_states(pdb, params):
 
     logging.debug(occupancy_groups)
 
+    # Get bound altlocs if residue is in params.select.resname
+    bound_altlocs = []
+    for occupancy_group in occupancy_groups[0]:
+        for residue_altloc in occupancy_group:
+
+            if residue_altloc.get('resname') in params.select.resnames:
+                bound_altlocs += residue_altloc.get('altloc')
+
+    # Produce a default dictionary of residues
+    # involved in ground and bound state,
+    # and which altlocs belong to each state
+    move_res = defaultdict(list)
+    for occupancy_group in occupancy_groups[0]:
+        for residue_altloc in occupancy_group:
+
+            altloc = residue_altloc.get('altloc')
+            chain = residue_altloc.get('chain')
+            resseq = residue_altloc.get('resseq')
+
+            if altloc in bound_altlocs:
+                move_res[(chain, resseq, "Bound")].append(altloc)
+            else:
+                move_res[(chain, resseq, "Ground")].append(altloc)
+
+
     pdb_inp = iotbx.pdb.input(pdb)
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
 
-    #TODO Remove the if statement, or add else with exception
+    bound_states = []
+    ground_states = []
+    for (chain, resseq, state), altlocs in move_res.iteritems():
 
-    if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
+        if state == "Bound":
+            bound_states.append(get_selection_altloc_resseq_chain(sel_cache,
+                                                                  altlocs,
+                                                                  resseq,
+                                                                  chain))
+        elif state == "Ground":
+            ground_states.append(get_selection_altloc_resseq_chain(sel_cache,
+                                                                   altlocs,
+                                                                   resseq,
+                                                                   chain))
 
-        # Get bound altlocs if residue is in params.select.resname
-        bound_altlocs = []
-        for occupancy_group in occupancy_groups[0]:
-            for residue_altloc in occupancy_group:
+    try:
+        ground_states
+    except NameError:
+        logging.info("There is no ground state. Try remodelling ground state")
 
-                if residue_altloc.get('resname') in params.select.resnames:
-                    bound_altlocs += residue_altloc.get('altloc')
+    try:
+        bound_states
+    except NameError:
+        logging.info("There is no bound state.")
 
-        # Produce a dictonary of residues
-        # inolved in ground and bound state,
-        # and which altlocs belong to each state
-        # As the altocs are
-        move_res={}
-        for occupancy_group in occupancy_groups[0]:
-            for residue_altloc in occupancy_group:
+    logging.info("len occ_groups {}".format(len(occupancy_groups)))
 
-                altloc = residue_altloc.get('altloc')
-                chain = residue_altloc.get('chain')
-                resseq = residue_altloc.get('resseq')
+    logging.info("BOUND")
+    logging.info(bound_states)
 
-                if altloc in bound_altlocs:
-                    state_string = "Bound"
-                else:
-                    state_string = "Ground"
+    logging.info("GROUND")
+    logging.info(ground_states)
 
-                # TODO Swap to default dict
-                if move_res.has_key((chain, resseq, state_string)):
-                    move_res[(chain, resseq, state_string)].append(altloc)
-                else:
-                    move_res[(chain, resseq, state_string)] = [altloc]
-
-        bound_states = []
-        ground_states = []
-        for residue_chain, altlocs in move_res.iteritems():
-
-            resseq = residue_chain[1]
-            chain = residue_chain[0]
-            state = residue_chain[2]
-
-            logging.info("{} State: {}".format(state, ((tuple(altlocs), resseq, chain))))
-
-            if state == "Bound":
-                bound_states.append(get_bound_ground_selection(sel_cache,
-                                                               ((tuple(altlocs), resseq, chain))))
-            elif state == "Ground":
-                ground_states.append(get_bound_ground_selection(sel_cache,
-                                                                ((tuple(altlocs), resseq, chain))))
-            else:
-                raise ValueError("{} states is undefined".format(state))
-
-        try:
-            ground_states
-        except NameError:
-            logging.info("There is no ground state. Try remodelling ground state")
-
-        try:
-            bound_states
-        except NameError:
-            logging.info("There is no bound state.")
-
-        logging.info("len occ_groups {}".format(len(occupancy_groups)))
-
-        logging.info("BOUND")
-        logging.info(bound_states)
-
-        logging.info("GROUND")
-        logging.info(ground_states)
-
-        return bound_states, ground_states
+    return bound_states, ground_states

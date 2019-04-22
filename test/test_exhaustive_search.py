@@ -1,5 +1,6 @@
 import os
 import unittest
+import shutil
 
 from exhaustive import run as exhaustive
 from utils.phil import master_phil
@@ -41,6 +42,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         self.params.output.out_dir = os.path.realpath("./test/output")
         self.params.output.log_dir = os.path.realpath(os.path.join("./test/output", "logs"))
 
+
     def tearDown(self):
         """Remove test files"""
         # TODO Fix Teardown method
@@ -50,17 +52,17 @@ class TestExhaustiveSearch(unittest.TestCase):
         # OSError: [Errno 16] Device or resource busy:
         # '/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/test/output/logs/.nfs00000000a0d05de80000319f'
 
-        # shutil.rmtree(os.path.realpath("./test/output"))
+        shutil.rmtree(os.path.realpath("./test/output"))
 
     def test_exhaustive_search(self):
         """ Test with minimal number of parameters changed from default."""
 
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
-
+        self.params.exhaustive.options.step = 0.2
         exhaustive(self.params)
         bound_occ, u_iso, fofc = get_minimum_fofc(self.params.exhaustive.output.csv_name)
         self.assertAlmostEqual(0.6, bound_occ)
-        self.assertAlmostEqual(0.35, u_iso)
+        self.assertAlmostEqual(0.4, u_iso)
 
     def test_convex_hull_exhaustive_search(self):
         self.params.exhaustive.output.csv_name = os.path.join(self.params.output.out_dir, "test.csv")
