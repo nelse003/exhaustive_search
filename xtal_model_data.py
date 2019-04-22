@@ -11,6 +11,7 @@ import mmtbx.f_model
 import mmtbx.masks
 from mmtbx.utils import data_and_flags_master_params
 from iotbx import reflection_file_utils
+import libtbx.easy_mp as easy_mp
 
 from utils.log_utils import log
 from utils.select_atoms import get_bound_ground_states
@@ -123,7 +124,7 @@ class XtalModelData(object):
 
         self.fmodel = self._get_fmodel()
 
-        self.ground_states, self.bound_states = self._determine_states()
+        self.bound_states, self.ground_states = self._determine_states()
 
     @log(in_msg="Getting Rfree flags and Fobs",
          out_msg="Succeeded getting Rfree flags and Fobs")
@@ -281,21 +282,18 @@ class XtalModelData(object):
 
         logger.debug("U_ISO_OCC {}".format(u_iso_occ))
 
-        bound_states, ground_states = get_bound_ground_states(
-            pdb=self.params.input.pdb, params=self.params)
-
         if self.params.exhaustive.options.per_residue:
 
             cart_points = convex_hull_per_residue(self.pdb,
-                                                  bound_states,
-                                                  ground_states,
+                                                  self.bound_states,
+                                                  self.ground_states,
                                                   self.params)
 
         elif self.params.exhaustive.options.convex_hull:
 
             cart_points = convex_hull_from_states(self.pdb,
-                                                  bound_states,
-                                                  ground_states,
+                                                  self.bound_states,
+                                                  self.ground_states,
                                                   self.params)
 
         elif self.params.exhaustive.options.ligand_atom_points:
@@ -315,8 +313,8 @@ class XtalModelData(object):
 
         else:
             cart_points = get_occupancy_group_grid_points(self.pdb,
-                                                          bound_states,
-                                                          ground_states,
+                                                          self.bound_states,
+                                                          self.ground_states,
                                                           self.params)
 
         logger.debug(cart_points)
@@ -341,19 +339,20 @@ class XtalModelData(object):
                                     crystal_gridding=self.crystal_gridding,
                                     inputs=self.inputs,
                                     params=self.params,
-                                    bound_states=bound_states,
-                                    ground_states=ground_states,
+                                    bound_states=self.bound_states,
+                                    ground_states=self.ground_states,
                                     cart_points=cart_points)
 
         # TODO Investigate parallelisation
 
         # if self.params.settings.processes > 1:
+            # For covalent ratios this wasn't working at all.
+            # The map method seems fast enough even at 0.01
+            # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop,
+            #                                     args=u_iso_occ,
+            #                                     processes=self.params.settings.processes)
+        # else
 
-        # For covalent ratios this wasn't working at all.
-        # The map method seems fast enough even at 0.01
-
-        # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
-        #                                     processes=self.params.settings.processes)
         sum_fofc_results = map(occ_b_loop, u_iso_occ)
 
         logger.info("Loop finished.\n"
