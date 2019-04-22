@@ -50,9 +50,23 @@ class XtalModelData(object):
     crystal_gridding: cctbx.maptbx.crystal_gridding
         cctbx object handling the grid on which the maps are defined
 
-    ground_states:
+    params: libtbx.phil.scope_extract
+            python object from phil file,
+            edited with any additional parameters
 
-    bound_states:
+    ground_states: list
+        list containing the atoms in the ground state.
+        list is shaped:
+        [[selection, number of altlocs],[selection, number of altlocs]...]
+        where selection is a iotbx.pdb selection object of type
+        scitbx_array_family_flex_ext.bool
+
+    bound_states: list
+        list containing the atoms in the ground state.
+        list is shaped:
+        [[selection, number of altlocs],[selection, number of altlocs]...]
+        where selection is a iotbx.pdb selection object of type
+        scitbx_array_family_flex_ext.bool
 
     _f_obs: cctbx.miller.array
         observed data

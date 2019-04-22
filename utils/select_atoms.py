@@ -183,26 +183,36 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
 
     return [altloc_selection, num_altlocs]
 
-
+# TODO Refactor into class
 def get_bound_ground_states(pdb, params):
     """
     Get bound and ground states from PDB file.
 
     Uses the occupancy group information to get the ground and bound states
 
-    Returns in the form [[selection, number of altlocs],[selection, number of altlocs]...] 
-    for each of the bound and ground states. 
-
     Parameters
     -----------
-    pdb:
+    pdb: str
+        path to pdb file
     params:
+
 
     Returns
     -------
     ground_states: list
+        list containing the atoms in the ground state.
+        list is shaped:
+        [[selection, number of altlocs],[selection, number of altlocs]...]
+        where selection is a iotbx.pdb selection object of type
+        scitbx_array_family_flex_ext.bool
 
     bound_states: list
+        list containing the atoms in the bound state.
+        list is shaped:
+        [[selection, number of altlocs],[selection, number of altlocs]...]
+        where selection is a iotbx.pdb selection object of type
+        scitbx_array_family_flex_ext.bool
+
 
     """
     logging.info("Process pdb file to get bound and ground states.")
@@ -215,7 +225,7 @@ def get_bound_ground_states(pdb, params):
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
 
-    #TODO Remove the if state, or add else with exception
+    #TODO Remove the if statement, or add else with exception
 
     if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
 
@@ -228,7 +238,7 @@ def get_bound_ground_states(pdb, params):
         # [altloc_selection, num_altlocs]
         # {'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
 
-        # Get bound altlocs: 
+        # Get bound altlocs if residue is in params.select.resname
         bound_altlocs = []
         for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
@@ -236,6 +246,11 @@ def get_bound_ground_states(pdb, params):
                 if residue_altloc.get('resname') in params.select.resnames:
                     bound_altlocs += residue_altloc.get('altloc')
 
+        # TODO Refactor into function
+        # Produce a dictonary of residues
+        # inolved in ground and bound state,
+        # and which altlocs belong to each state
+        # As the altocs are
         move_res = dict()
         for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
@@ -245,14 +260,18 @@ def get_bound_ground_states(pdb, params):
                 resseq = residue_altloc.get('resseq')
 
                 if altloc in bound_altlocs:
-                    state_string = "Bound"
+                    state = "Bound"
                 else:
-                    state_string = "Ground"
+                    state = "Ground"
 
-                if move_res.has_key((chain, resseq, state_string)):
-                    move_res[(chain, resseq, state_string)].append(altloc)
+                # TODO Refactor has_key: default dict
+                if move_res.has_key((chain, resseq, state)):
+                    move_res[(chain, resseq, state)].append(altloc)
                 else:
-                    move_res[(chain, resseq, state_string)] = [altloc]
+                    move_res[(chain, resseq, state)] = [altloc]
+
+        #print(move_res)
+        #raise Exception
 
         bound_states = []
         ground_states = []
@@ -287,10 +306,5 @@ def get_bound_ground_states(pdb, params):
 
         logging.info("GROUND")
         logging.info(ground_states)
-
-        print(ground_states)
-        print(type(ground_states))
-        print(ground_states[0])
-        print(type(ground_states[0]))
 
         return bound_states, ground_states
