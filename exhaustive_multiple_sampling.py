@@ -2,38 +2,10 @@ import os
 import sys
 import time
 
-import pandas as pd
-
 from exhaustive import master_phil
 from exhaustive import run as exhaustive
-from utils.utils import get_minimum_fofc
+from utils.utils import get_minimum_fofc, append_csv
 from utils.utils import u_iso_to_b_fac
-
-
-def append_csv(in_csv1, in_csv2, out_csv):
-    """
-    Append two csv to out_csv
-
-    Parameters
-    ----------
-    in_csv1: str
-        path to input csv 1
-    in_csv2: str
-        path to input csv 2
-    out_csv: str
-        path to output csv
-
-    Returns
-    -------
-    None
-    """
-
-    df1 = pd.read_csv(in_csv1, header=None)
-    df2 = pd.read_csv(in_csv2, header=None)
-
-    df = df1.append(df2, ignore_index=True)
-
-    df.to_csv(out_csv, header=None, index=False)
 
 
 def run(params):

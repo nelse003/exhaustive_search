@@ -184,77 +184,26 @@ def get_bound_ground_selection(sel_cache, coincident_altloc_group):
     return [altloc_selection, num_altlocs]
 
 
-def get_ligand_coincident_altloc_group(hier, coincident, params):
+def get_bound_ground_states(pdb, params):
     """
-    Determine whether altloc group is bound or ground. 
-    
-    Returns altloc group i.e (C,D) that has the same altloc as the first altloc of the ligand in the specified 
-    ligand resnames (DRG,FRG,LIG,UNK,UNL). Used in cases where:
-    
-    LIG (C,D)
-    Ground (A,B)
-    
-    Residue (A,C) (B,D)
-    
-    to pick the bound state of the residue@
-    
-    Bound (A,C)
-    Ground (B,D)
-    
-    :param hier: 
-    :param coincident: 
-    :param params: 
-    :return: 
-    """
+    Get bound and ground states from PDB file.
 
-    resnames = params.select.resnames.split(',')
-    sel_cache = hier.atom_selection_cache()
-    pdb_atoms = hier.atoms()
+    Uses the occupancy group information to get the ground and bound states
 
-    logging.debug("Resnames: {}".format(resnames))
-
-    lig_altlocs = set()
-    lig_chain = set()
-    for resname in resnames:
-        selection_string = "resname {}".format(resname)
-        altloc_selection = sel_cache.selection(selection_string)
-        altloc_atoms = pdb_atoms.select(altloc_selection)
-        for atom in altloc_atoms:
-            lig_altlocs.add(atom.parent().altloc)
-            lig_chain.add(atom.parent().parent().parent().id)
-
-    logging.debug("Lig altlocs: {}".format(lig_altlocs))
-    logging.debug("Lig chain: {}".format(lig_chain))
-
-    logging.debug("coincident: {}".format(coincident))
-
-    for coincident_altloc_group in coincident:
-
-        logging.debug("Coinicident altloc group: {}".format(coincident_altloc_group))
-
-        print(coincident_altloc_group[2])
-        print(list(lig_chain)[0])
-        print(list(lig_altlocs)[0])
-        print(coincident_altloc_group[0])
-
-        if coincident_altloc_group[2] == list(lig_chain)[0] and list(lig_altlocs)[0] in coincident_altloc_group[0]:
-            return coincident_altloc_group[0]
-        else:
-            continue
-    # If no matching coinicdent cases have been made return just the ligand altlocs
-    return tuple(lig_altlocs)
-
-
-def process_refined_pdb_bound_ground_states(pdb, params):
-    """
-    Main Function that returns bound and ground states from occupancy group of the supplied PDB file.
-    
     Returns in the form [[selection, number of altlocs],[selection, number of altlocs]...] 
     for each of the bound and ground states. 
-    
-    :param pdb: 
-    :param params: 
-    :return: 
+
+    Parameters
+    -----------
+    pdb:
+    params:
+
+    Returns
+    -------
+    ground_states: list
+
+    bound_states: list
+
     """
     logging.info("Process pdb file to get bound and ground states.")
 
@@ -265,6 +214,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
     pdb_inp = iotbx.pdb.input(pdb)
     hier = pdb_inp.construct_hierarchy()
     sel_cache = hier.atom_selection_cache()
+
+    #TODO Remove the if state, or add else with exception
 
     if len(occupancy_groups) == 1 and len(occupancy_groups[0]) >= 2:
 
@@ -277,9 +228,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
         # [altloc_selection, num_altlocs]
         # {'chain': 'A', 'altloc': 'A', 'resseq': '  67', 'icode': ' ', 'resname': 'ARG', 'model': ''}
 
-        bound_states = []
-        ground_states = []
-        move_res = dict()
+        # Get bound altlocs: 
         bound_altlocs = []
         for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
@@ -287,6 +236,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 if residue_altloc.get('resname') in params.select.resnames:
                     bound_altlocs += residue_altloc.get('altloc')
 
+        move_res = dict()
         for occupancy_group in occupancy_groups[0]:
             for residue_altloc in occupancy_group:
 
@@ -304,8 +254,8 @@ def process_refined_pdb_bound_ground_states(pdb, params):
                 else:
                     move_res[(chain, resseq, state_string)] = [altloc]
 
-        print("move_res: {}".format(move_res))
-
+        bound_states = []
+        ground_states = []
         for residue_chain, altlocs in move_res.iteritems():
 
             resseq = residue_chain[1]
@@ -324,6 +274,7 @@ def process_refined_pdb_bound_ground_states(pdb, params):
             ground_states
         except NameError:
             logging.info("There is no ground state. Try remodelling ground state")
+
         try:
             bound_states
         except NameError:
@@ -336,5 +287,10 @@ def process_refined_pdb_bound_ground_states(pdb, params):
 
         logging.info("GROUND")
         logging.info(ground_states)
+
+        print(ground_states)
+        print(type(ground_states))
+        print(ground_states[0])
+        print(type(ground_states[0]))
 
         return bound_states, ground_states

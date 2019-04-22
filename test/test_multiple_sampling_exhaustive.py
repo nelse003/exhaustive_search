@@ -1,6 +1,6 @@
 import os
 
-from run_exhaustive_multiple_sampling import run as multiple_exhaustive
+from exhaustive_multiple_sampling import run as multiple_exhaustive
 from test_exhaustive_search import TestExhaustiveSearch
 from utils.utils import get_minimum_fofc
 

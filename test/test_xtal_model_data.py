@@ -34,8 +34,38 @@ class TestXtalModelData(unittest.TestCase):
         xtal_model_data = XtalModelData(self.params)
 
         assert xtal_model_data.pdb == self.params.input.pdb
+
         assert xtal_model_data.mtz == self.params.input.mtz
-        self.assertIsInstance(xtal_model_data.xrs, cctbx.xray.structure)
-        self.assertIsInstance(xtal_model_data.inputs, mmtbx.utils.process_command_line_args)
-        self.assertIsInstance(xtal_model_data.crystal_gridding, cctbx.maptbx.crystal_gridding)
-        self.assertIsInstance(xtal_model_data.fmodel, mmtbx.f_model.f_model.manager)
+
+        self.assertIsInstance(xtal_model_data.xrs,
+                              cctbx.xray.structure)
+
+        self.assertIsInstance(xtal_model_data.inputs,
+                              mmtbx.utils.process_command_line_args)
+
+        self.assertIsInstance(xtal_model_data.crystal_gridding,
+                              cctbx.maptbx.crystal_gridding)
+
+        self.assertIsInstance(xtal_model_data.fmodel,
+                              mmtbx.f_model.f_model.manager)
+
+    def test_determine_states(self):
+
+        xtal_model_data = XtalModelData(self.params)
+        self.assertIsInstance(xtal_model_data.ground_states,
+                              list)
+
+        assert True == False
+
+    def test_iter_u_iso_occ(self):
+
+        xtal_model_data = XtalModelData(self.params)
+        u_iso_occ = xtal_model_data.iter_u_iso_occ()
+
+        self.assertIsInstance(u_iso_occ, list)
+
+        assert True == False
+
+    def test_calculate_mean_fofc(self):
+
+        assert True == False

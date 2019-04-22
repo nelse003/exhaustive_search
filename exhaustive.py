@@ -15,19 +15,13 @@ import logging
 import os
 import sys
 
-
-import cctbx.miller
 import numpy as np
-from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
 
-from utils.convex_hull import atom_points_from_sel_string
-from utils.convex_hull import convex_hull_from_states
-from utils.convex_hull import convex_hull_grid_points
-from utils.convex_hull import convex_hull_per_residue
+
 from utils.phil import master_phil
 from utils.select_atoms import get_occupancy_group_grid_points
-from utils.select_atoms import process_refined_pdb_bound_ground_states
+
 
 from xtal_model_data import XtalModelData
 
@@ -44,63 +38,9 @@ blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 logger = logging.getLogger(__name__)
 
 
-def compute_maps(fmodel, crystal_gridding, map_type):
-    """Compute electron density maps for a given model.
-
-    Given a model through fmodel, a map type:
-    "mFo-DFc"
-    "2mFo-DFc"
-    Calculate a map.
-
-    Volume scaling is applied to the map
-
-    Return the fft map, real map, and map coefficents.
-
-    Parameters
-    ----------
-    fmodel: mmtbx.f_model.f_model.manager
-        cctbx object handling the model
-
-    crystal_gridding: cctbx.maptbx.crystal_gridding
-        cctbx object handling the grid on which the maps are defined
-
-    map_type: str
-        "mFo-DFc" or "2mFo-DFc" defining the map type
-
-    Returns
-    -------
-    fft_map: cctbx.miller.fft_map
-        Container for an FFT from reciprocal space (complex double) into real space.
-
-    fft_map.real_map_unpadded(): scitbx_array_family_flex_ext.double
-        Real component of the FFT'd map,
-        removing any padding required for the FFT grid.
-
-    map_coefficents:cctbx.miller.array object
-        coeffiecients
-
-    """
-
-    map_coefficients = map_tools.electron_density_map(
-        fmodel=fmodel).map_coefficients(
-        map_type=map_type,
-        isotropize=True,
-        fill_missing=False)
-
-    fft_map = cctbx.miller.fft_map(
-        crystal_gridding=crystal_gridding,
-        fourier_coefficients=map_coefficients)
-
-    fft_map.apply_volume_scaling()
-
-    return fft_map, fft_map.real_map_unpadded(), map_coefficients
-
-
 def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     """Get mean of |Fo-Fc| over a cartesian point list.
-
-    # TODO Check type of parameters/returns
-
+{
     Parameters
     -----------
     sites_cart: scitbx_array_family_flex_ext.vec3_double
@@ -116,7 +56,7 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     Returns
     -------
     mean_abs_fofc_value: float
-        Mean value of the |Fo-Fc| map over the supplied cartesian sites
+        Mean value of the |Fo-Fc| map over the supplied cartesian site{s
 
     """
 
@@ -139,148 +79,6 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
 
     return mean_abs_fofc_value
-
-
-def calculate_mean_fofc(params, xrs, inputs, fmodel, crystal_gridding, pdb):
-    """Generate csv of occupancy and B factor for bound and ground states.
-
-    Wrapper to prepare for main loop. Outputs a csv with ground_occupancy,
-    bound_occupancy, u_iso and mean(|Fo-Fc|).
-
-    Parameters
-    ----------
-    params: libtbx.phil.scope_extract
-        python object from phil file
-
-    xrs: cctbx.xray.structure.structure
-        X-ray structure of interest:
-        A class to describe and handle information related to a crystal structure.
-
-    inputs: mmtbx.utils.process_command_line_args
-        holds arguments to be used for the xtal model
-
-    fmodel: mmtbx.f_model.f_model.manager
-        cctbx object handling the model
-
-    crystal_gridding: cctbx.maptbx.crystal_gridding
-        cctbx object handling the grid on whihc the maps are defined
-
-    pdb: str
-        path to pdb file
-
-    Returns
-    --------
-    None
-    """
-    sites_frac = xrs.sites_frac()
-
-    # TODO Loop over b factor separately for multiple ligands #33
-
-    u_iso_occ = []
-    for occupancy in np.arange(params.exhaustive.options.lower_occ,
-                               params.exhaustive.options.upper_occ
-                               + params.exhaustive.options.step / 5,
-                               params.exhaustive.options.step):
-
-        for u_iso in np.arange(params.exhaustive.options.lower_u_iso,
-                               params.exhaustive.options.upper_u_iso
-                               + params.exhaustive.options.step / 5,
-                               params.exhaustive.options.step):
-            u_iso_occ.append((occupancy, u_iso))
-
-    logger.debug("U_ISO_OCC {}".format(u_iso_occ))
-
-    try:
-        bound_states, \
-        ground_states = process_refined_pdb_bound_ground_states(pdb, params)
-
-    except UnboundLocalError:
-        logger.info("Insufficient state information for pdb file %s", pdb)
-        raise
-
-    if params.exhaustive.options.per_residue:
-
-        cart_points = convex_hull_per_residue(pdb,
-                                              bound_states,
-                                              ground_states,
-                                              params)
-
-    elif params.exhaustive.options.convex_hull:
-
-        cart_points = convex_hull_from_states(pdb,
-                                              bound_states,
-                                              ground_states,
-                                              params)
-
-    elif params.exhaustive.options.ligand_atom_points:
-
-        cart_points = atom_points_from_sel_string(pdb,
-                                                  selection_string=
-                                                  params.exhaustive.options.atom_points_sel_string)
-
-    elif params.exhaustive.options.ligand_grid_points:
-
-        atom_points = atom_points_from_sel_string(pdb,
-                                                  selection_string= \
-                                                      params.exhaustive.options.atom_points_sel_string)
-
-        cart_points = convex_hull_grid_points(atom_points,
-                                              params)
-
-    else:
-        cart_points = get_occupancy_group_grid_points(pdb,
-                                                      bound_states,
-                                                      ground_states,
-                                                      params)
-
-    logger.debug(cart_points)
-
-    # write_pdb_HOH_site_cart(pdb=params.input.pdb, sites_cart=cart_points)
-
-    logger.info("Looping over occupancy, u_iso with occupancy "
-                 "betweeen {} and {} in steps of {} and u_iso "
-                 "between {} and {} in steps of {}.".format(
-        params.exhaustive.options.lower_occ,
-        params.exhaustive.options.upper_occ,
-        params.exhaustive.options.step,
-        params.exhaustive.options.lower_u_iso,
-        params.exhaustive.options.upper_u_iso,
-        params.exhaustive.options.step))
-
-    occ_b_loop = OccBLoopCaller(xrs=xrs,
-                                sites_frac=sites_frac,
-                                fmodel=fmodel,
-                                crystal_gridding=crystal_gridding,
-                                inputs=inputs,
-                                params=params,
-                                bound_states=bound_states,
-                                ground_states=ground_states,
-                                cart_points=cart_points)
-
-    print("Pre loop")
-    print(len(u_iso_occ))
-
-    # TODO Investigate parallelisation
-
-    # if params.settings.processes > 1:
-
-    # For covalent ratios this wasn't working at all.
-    # The map method seems fast enough even at 0.01
-
-    # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop, args=u_iso_occ,
-    #                                     processes=params.settings.processes)
-    sum_fofc_results = map(occ_b_loop, u_iso_occ)
-
-    logger.info("Loop finished.\n"
-                 "Writing bound occupancy, ground_occupancy, u_iso, "
-                 "mean |Fo-Fc| to CSV: {}".format(
-        params.exhaustive.output.csv_name))
-
-    with open(params.exhaustive.output.csv_name, 'w') as f1:
-
-        writer = csv.writer(f1, delimiter=',', lineterminator='\n')
-        writer.writerows(sum_fofc_results)
-        sys.stdout.flush()
 
 
 class OccBLoopCaller(object):
@@ -573,3 +371,55 @@ if (__name__ == "__main__"):
 
     run_default(run=run, master_phil=master_phil,
                 blank_arg_prepend=blank_arg_prepend, args=sys.argv[1:])
+
+
+def compute_maps(fmodel, crystal_gridding, map_type):
+    """Compute electron density maps for a given model.
+
+    Given a model through fmodel, a map type:
+    "mFo-DFc"
+    "2mFo-DFc"
+    Calculate a map.
+
+    Volume scaling is applied to the map
+
+    Return the fft map, real map, and map coefficents.
+
+    Parameters
+    ----------
+    fmodel: mmtbx.f_model.f_model.manager
+        cctbx object handling the model
+
+    crystal_gridding: cctbx.maptbx.crystal_gridding
+        cctbx object handling the grid on which the maps are defined
+
+    map_type: str
+        "mFo-DFc" or "2mFo-DFc" defining the map type
+
+    Returns
+    -------
+    fft_map: cctbx.miller.fft_map
+        Container for an FFT from reciprocal space (complex double) into real space.
+
+    fft_map.real_map_unpadded(): scitbx_array_family_flex_ext.double
+        Real component of the FFT'd map,
+        removing any padding required for the FFT grid.
+
+    map_coefficents:cctbx.miller.array object
+        coeffiecients
+
+    """
+
+    map_coefficients = map_tools.electron_density_map(
+        fmodel=fmodel).map_coefficients(
+        map_type=map_type,
+        isotropize=True,
+        fill_missing=False)
+
+    fft_map = cctbx.miller.fft_map(
+        crystal_gridding=crystal_gridding,
+        fourier_coefficients=map_coefficients)
+
+    fft_map.apply_volume_scaling()
+
+    return fft_map, fft_map.real_map_unpadded(), map_coefficients
