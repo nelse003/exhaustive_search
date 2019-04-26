@@ -268,6 +268,8 @@ def calculate_fofc_occupancy_b_factor(iter_u_iso_occ,
                 xrs_dc.scatterers()[i].occupancy = set_ground_occupancy
                 xrs_dc.scatterers()[i].u_iso = u_iso
 
+    # TODO Change to copy
+
     fmodel.update_xray_structure(
         xray_structure=xrs_dc,
         update_f_calc=True)

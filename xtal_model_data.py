@@ -126,6 +126,7 @@ class XtalModelData(object):
 
         self.bound_states, self.ground_states = self._determine_states()
 
+
     @log(in_msg="Getting Rfree flags and Fobs",
          out_msg="Succeeded getting Rfree flags and Fobs")
     def _get_f_obs_r_free(self):

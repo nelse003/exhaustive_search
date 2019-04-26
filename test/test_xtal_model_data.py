@@ -37,6 +37,8 @@ class TestXtalModelData(unittest.TestCase):
 
         assert xtal_model_data.mtz == self.params.input.mtz
 
+        # TODO Assert utilised method calls of these classes
+
         self.assertIsInstance(xtal_model_data.xrs,
                               cctbx.xray.structure)
 

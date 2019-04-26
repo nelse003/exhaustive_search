@@ -28,6 +28,8 @@ DESCRIPTION = """
 blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
 ##############################################################
 
+# TODO move to bin
+
 logger = logging.getLogger(__name__)
 
 def run(params):
