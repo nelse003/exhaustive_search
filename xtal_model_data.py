@@ -15,6 +15,7 @@ import libtbx.easy_mp as easy_mp
 
 from utils.log_utils import log
 from utils.select_atoms import get_bound_ground_states
+from utils.select_atoms import get_occupancy_group_grid_points
 
 from utils.convex_hull import atom_points_from_sel_string
 from utils.convex_hull import convex_hull_from_states
@@ -72,6 +73,13 @@ class XtalModelData(object):
         where selection is a iotbx.pdb selection object of type
         scitbx_array_family_flex_ext.bool
 
+    sites_frac: scitbx_array_family_flex_ext.vec3_double
+        fractional coordinates of sites
+
+    cart_points: scitbx_array_family_flex_ext.vec3_double
+        cartesian coordiantes for points averaged
+        over for calculation of mean_fofc
+
     _f_obs: cctbx.miller.array
         observed data
 
@@ -93,9 +101,11 @@ class XtalModelData(object):
         get ground and bound states
     """
 
-    @log(in_msg="Creating Xtal Model Data: Processing input PDB and reflection files." \
-                 "Parse into xray structure, fmodel and hierarchies",
-         out_msg="Created Xtal Model Data")
+    @log(
+        in_msg="Creating Xtal Model Data: Processing input PDB and reflection files."
+        "Parse into xray structure, fmodel and hierarchies",
+        out_msg="Created Xtal Model Data",
+    )
     def __init__(self, params):
         """
         Create XtalModelData class to hold data
@@ -111,23 +121,35 @@ class XtalModelData(object):
         self.pdb = self.params.input.pdb
         self.mtz = self.params.input.mtz
 
-        self.inputs = mmtbx.utils.process_command_line_args(args=[self.params.input.pdb,
-                                                                  self.params.input.mtz])
+        self.inputs = mmtbx.utils.process_command_line_args(
+            args=[self.params.input.pdb, self.params.input.mtz]
+        )
 
         self.xrs = self._get_xrs()
 
         self._f_obs, self._r_free_flags = self._get_f_obs_r_free()
 
-        self.crystal_gridding = self._f_obs.crystal_gridding(d_min=self._f_obs.d_min(),
-                                                             symmetry_flags=maptbx.use_space_group_symmetry,
-                                                             resolution_factor=1. / 4)
+        self.crystal_gridding = self._f_obs.crystal_gridding(
+            d_min=self._f_obs.d_min(),
+            symmetry_flags=maptbx.use_space_group_symmetry,
+            resolution_factor=1.0 / 4,
+        )
 
         self.fmodel = self._get_fmodel()
 
         self.bound_states, self.ground_states = self._determine_states()
 
-    @log(in_msg="Getting Rfree flags and Fobs",
-         out_msg="Succeeded getting Rfree flags and Fobs")
+        self.sites_frac = self.xrs.sites_frac()
+        logger.debug(
+            "Number of fractional sites (atoms), {}".format(self.sites_frac.size())
+        )
+
+        self.cart_points = self._get_cart_points()
+
+    @log(
+        in_msg="Getting Rfree flags and Fobs",
+        out_msg="Succeeded getting Rfree flags and Fobs",
+    )
     def _get_f_obs_r_free(self):
         """ Get f_obs and r_free_flags from pdb and mtz via self.inputs
 
@@ -144,7 +166,8 @@ class XtalModelData(object):
             crystal_symmetry=self.inputs.crystal_symmetry,
             force_symmetry=True,
             reflection_files=self.inputs.reflection_files,
-            err=StringIO())
+            err=StringIO(),
+        )
 
         # Parameter object descrinign the may to process data
         # From mmtbx.utils
@@ -155,7 +178,8 @@ class XtalModelData(object):
             reflection_file_server=rfs,
             parameters=data_flags_params,
             keep_going=True,
-            log=StringIO())
+            log=StringIO(),
+        )
 
         # Extract the need parts of determined_data_and_flags
         f_obs = determined_data_and_flags.f_obs
@@ -163,9 +187,7 @@ class XtalModelData(object):
 
         return f_obs, r_free_flags
 
-
-    @log(in_msg="Getting xtal structure",
-         out_msg="Suceeded in getting xtal structure")
+    @log(in_msg="Getting xtal structure", out_msg="Suceeded in getting xtal structure")
     def _get_xrs(self):
         """ Get X-ray Structure Object
 
@@ -186,9 +208,10 @@ class XtalModelData(object):
 
         return xrs
 
-
-    @log(in_msg="Getting model as fmodel object",
-         out_msg="Suceeded in model as fmodel object")
+    @log(
+        in_msg="Getting model as fmodel object",
+        out_msg="Suceeded in model as fmodel object",
+    )
     def _get_fmodel(self):
 
         """Get fmodel object
@@ -203,16 +226,17 @@ class XtalModelData(object):
         mask_params.ignore_hydrogens = False
         mask_params.ignore_zero_occupancy_atoms = False
 
-        fmodel = mmtbx.f_model.manager(f_obs=self._f_obs,
-                                       r_free_flags=self._r_free_flags,
-                                       mask_params=mask_params,
-                                       xray_structure=self.xrs)
+        fmodel = mmtbx.f_model.manager(
+            f_obs=self._f_obs,
+            r_free_flags=self._r_free_flags,
+            mask_params=mask_params,
+            xray_structure=self.xrs,
+        )
         fmodel.update_all_scales()
 
         logger.info("r_work: {0} r_free: {1}".format(fmodel.r_work(), fmodel.r_free()))
 
         return fmodel
-
 
     def _determine_states(self):
         """Determine the ground and bound states from pdb
@@ -226,15 +250,50 @@ class XtalModelData(object):
         bound_states:
         """
         try:
-            bound_states, \
-            ground_states = get_bound_ground_states(self.pdb, self.params)
+            bound_states, ground_states = get_bound_ground_states(self.pdb, self.params)
 
         except UnboundLocalError:
-            logger.info("Insufficient state information for pdb file %s", pdb)
+            logger.info("Insufficient state information for pdb file %s", self.pdb)
             raise
 
         return bound_states, ground_states
 
+    def _get_cart_points(self):
+        """Get cartesian points over which to calculate mean |Fo-Fc|"""
+        if self.params.exhaustive.options.per_residue:
+
+            cart_points = convex_hull_per_residue(
+                self.pdb, self.bound_states, self.ground_states, self.params
+            )
+
+        elif self.params.exhaustive.options.convex_hull:
+
+            cart_points = convex_hull_from_states(
+                self.pdb, self.bound_states, self.ground_states, self.params
+            )
+
+        elif self.params.exhaustive.options.ligand_atom_points:
+
+            cart_points = atom_points_from_sel_string(
+                self.pdb,
+                selection_string=self.params.exhaustive.options.atom_points_sel_string,
+            )
+
+        elif self.params.exhaustive.options.ligand_grid_points:
+
+            atom_points = atom_points_from_sel_string(
+                self.pdb,
+                selection_string=self.params.exhaustive.options.atom_points_sel_string,
+            )
+
+            cart_points = convex_hull_grid_points(atom_points, self.params)
+
+        else:
+            cart_points = get_occupancy_group_grid_points(
+                self.pdb, self.bound_states, self.ground_states, self.params
+            )
+
+        return cart_points
 
     def iter_u_iso_occ(self):
         """Get occupancy and u_iso from minima, maxima and step size
@@ -249,19 +308,22 @@ class XtalModelData(object):
         """
 
         u_iso_occ = []
-        for occupancy in np.arange(self.params.exhaustive.options.lower_occ,
-                                   self.params.exhaustive.options.upper_occ
-                                   + self.params.exhaustive.options.step / 5,
-                                   self.params.exhaustive.options.step):
+        for occupancy in np.arange(
+            self.params.exhaustive.options.lower_occ,
+            self.params.exhaustive.options.upper_occ
+            + self.params.exhaustive.options.step / 5,
+            self.params.exhaustive.options.step,
+        ):
 
-            for u_iso in np.arange(self.params.exhaustive.options.lower_u_iso,
-                                   self.params.exhaustive.options.upper_u_iso
-                                   + self.params.exhaustive.options.step / 5,
-                                   self.params.exhaustive.options.step):
+            for u_iso in np.arange(
+                self.params.exhaustive.options.lower_u_iso,
+                self.params.exhaustive.options.upper_u_iso
+                + self.params.exhaustive.options.step / 5,
+                self.params.exhaustive.options.step,
+            ):
                 u_iso_occ.append((occupancy, u_iso))
 
         return u_iso_occ
-
 
     def calculate_mean_fofc(self):
         """Generate csv of occupancy and B factor for bound and ground states.
@@ -276,94 +338,51 @@ class XtalModelData(object):
 
         # TODO Loop over b factor separately for multiple ligands #33
         """
-        sites_frac = self.xrs.sites_frac()
         u_iso_occ = self.iter_u_iso_occ()
-
 
         logger.debug("U_ISO_OCC {}".format(u_iso_occ))
 
-        if self.params.exhaustive.options.per_residue:
-
-            cart_points = convex_hull_per_residue(self.pdb,
-                                                  self.bound_states,
-                                                  self.ground_states,
-                                                  self.params)
-
-        elif self.params.exhaustive.options.convex_hull:
-
-            cart_points = convex_hull_from_states(self.pdb,
-                                                  self.bound_states,
-                                                  self.ground_states,
-                                                  self.params)
-
-        elif self.params.exhaustive.options.ligand_atom_points:
-
-            cart_points = atom_points_from_sel_string(self.pdb,
-                                                      selection_string=
-                                                      self.params.exhaustive.options.atom_points_sel_string)
-
-        elif self.params.exhaustive.options.ligand_grid_points:
-
-            atom_points = atom_points_from_sel_string(self.pdb,
-                                                      selection_string= \
-                                                          self.params.exhaustive.options.atom_points_sel_string)
-
-            cart_points = convex_hull_grid_points(atom_points,
-                                                  self.params)
-
-        else:
-            cart_points = get_occupancy_group_grid_points(self.pdb,
-                                                          self.bound_states,
-                                                          self.ground_states,
-                                                          self.params)
-
-        logger.debug(cart_points)
+        logger.debug(self.cart_points)
 
         # write_pdb_HOH_site_cart(pdb=self.params.input.pdb, sites_cart=cart_points)
 
-        logger.info("Looping over occupancy, u_iso with occupancy "
-                    "betweeen {} and {} in steps of {} and u_iso "
-                    "between {} and {} in steps of {}: "
-                    "number of iteratrions.".format(
-            self.params.exhaustive.options.lower_occ,
-            self.params.exhaustive.options.upper_occ,
-            self.params.exhaustive.options.step,
-            self.params.exhaustive.options.lower_u_iso,
-            self.params.exhaustive.options.upper_u_iso,
-            self.params.exhaustive.options.step,
-            len(u_iso_occ)))
+        logger.info(
+            "Looping over occupancy, u_iso with occupancy "
+            "betweeen {} and {} in steps of {} and u_iso "
+            "between {} and {} in steps of {}: "
+            "number of iteratrions.".format(
+                self.params.exhaustive.options.lower_occ,
+                self.params.exhaustive.options.upper_occ,
+                self.params.exhaustive.options.step,
+                self.params.exhaustive.options.lower_u_iso,
+                self.params.exhaustive.options.upper_u_iso,
+                self.params.exhaustive.options.step,
+                len(u_iso_occ),
+            )
+        )
 
-        occ_b_loop = OccBLoopCaller(xrs=self.xrs,
-                                    sites_frac=sites_frac,
-                                    fmodel=self.fmodel,
-                                    crystal_gridding=self.crystal_gridding,
-                                    inputs=self.inputs,
-                                    params=self.params,
-                                    bound_states=self.bound_states,
-                                    ground_states=self.ground_states,
-                                    cart_points=cart_points)
+        occ_b_loop = OccBLoopCaller(u_iso_occ=u_iso_occ, xtal_model_data=self)
 
         # TODO Investigate parallelisation
 
         # if self.params.settings.processes > 1:
-            # For covalent ratios this wasn't working at all.
-            # The map method seems fast enough even at 0.01
-            # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop,
-            #                                     args=u_iso_occ,
-            #                                     processes=self.params.settings.processes)
+        # For covalent ratios this wasn't working at all.
+        # The map method seems fast enough even at 0.01
+        # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop,
+        #                                     args=u_iso_occ,
+        #                                     processes=self.params.settings.processes)
         # else
 
         sum_fofc_results = map(occ_b_loop, u_iso_occ)
 
-        logger.info("Loop finished.\n"
-                    "Writing bound occupancy, ground_occupancy, u_iso, "
-                    "mean |Fo-Fc| to CSV: {}".format(
-            self.params.exhaustive.output.csv_name))
+        logger.info(
+            "Loop finished.\n"
+            "Writing bound occupancy, ground_occupancy, u_iso, "
+            "mean |Fo-Fc| to CSV: {}".format(self.params.exhaustive.output.csv_name)
+        )
 
-        with open(self.params.exhaustive.output.csv_name, 'w') as f1:
+        with open(self.params.exhaustive.output.csv_name, "w") as f1:
 
-            writer = csv.writer(f1, delimiter=',', lineterminator='\n')
+            writer = csv.writer(f1, delimiter=",", lineterminator="\n")
             writer.writerows(sum_fofc_results)
             sys.stdout.flush()
-
-
