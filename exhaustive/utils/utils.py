@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+import pandas as pd
 
 
 def b_to_u_iso(b_fac):
@@ -149,3 +150,29 @@ def chunks(l, n):
         # Create an index range for l of n items:
         yield l[i:i + n], alphabet[pos]
         pos += 1
+
+
+def append_csv(in_csv1, in_csv2, out_csv):
+    """
+    Append two csv to out_csv
+
+    Parameters
+    ----------
+    in_csv1: str
+        path to input csv 1
+    in_csv2: str
+        path to input csv 2
+    out_csv: str
+        path to output csv
+
+    Returns
+    -------
+    None
+    """
+
+    df1 = pd.read_csv(in_csv1, header=None)
+    df2 = pd.read_csv(in_csv2, header=None)
+
+    df = df1.append(df2, ignore_index=True)
+
+    df.to_csv(out_csv, header=None, index=False)

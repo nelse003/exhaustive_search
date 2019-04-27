@@ -11,18 +11,18 @@ from giant.jiffies.score_model import run as score_model
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
-from exhaustive import check_input_files
+from exhaustive.exhaustive import check_input_files
 # from exhaustive.process.minima import write_minima_pdb
-from exhaustive import master_phil
-from exhaustive import run as exhaustive
-from plot import occupancy_b_factor_scatter_plot
-from plot import occupancy_histogram_with_exhaustive_search
-from plot import plot_edstats_across_soaks
-from utils import get_minimum_fofc
-from utils import u_iso_to_b_fac
-from utils_ccp4 import collate_edstats_scores
-from utils_ccp4 import datasets_from_compound
-from utils_ccp4 import get_occ_b
+from exhaustive.exhaustive import master_phil
+from exhaustive.exhaustive import run as exhaustive
+from exhaustive.plotting import occupancy_b_factor_scatter_plot
+from exhaustive.plotting import occupancy_histogram_with_exhaustive_search
+from exhaustive.plotting import plot_edstats_across_soaks
+from exhaustive.utils import get_minimum_fofc
+from exhaustive.utils import u_iso_to_b_fac
+from exhaustive.utils.utils_ccp4 import collate_edstats_scores
+from exhaustive.utils.utils_ccp4 import datasets_from_compound
+from exhaustive.utils.utils_ccp4 import get_occ_b
 
 
 def get_cif_file_from_dataset(dataset_dir, preferred_cif=None):
