@@ -11,7 +11,6 @@ import mmtbx.f_model
 import mmtbx.masks
 from mmtbx.utils import data_and_flags_master_params
 from iotbx import reflection_file_utils
-import libtbx.easy_mp as easy_mp
 
 from utils.log_utils import log
 from utils.select_atoms import get_bound_ground_states
@@ -21,7 +20,6 @@ from utils.convex_hull import atom_points_from_sel_string
 from utils.convex_hull import convex_hull_from_states
 from utils.convex_hull import convex_hull_grid_points
 from utils.convex_hull import convex_hull_per_residue
-from occ_b_loop import OccBLoopCaller
 
 logger = logging.getLogger(__name__)
 
@@ -294,95 +292,3 @@ class XtalModelData(object):
             )
 
         return cart_points
-
-    def iter_u_iso_occ(self):
-        """Get occupancy and u_iso from minima, maxima and step size
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        u_iso_occ: list
-            list of tuples of u_iso and occupancy to be iterated over
-        """
-
-        u_iso_occ = []
-        for occupancy in np.arange(
-            self.params.exhaustive.options.lower_occ,
-            self.params.exhaustive.options.upper_occ
-            + self.params.exhaustive.options.step / 5,
-            self.params.exhaustive.options.step,
-        ):
-
-            for u_iso in np.arange(
-                self.params.exhaustive.options.lower_u_iso,
-                self.params.exhaustive.options.upper_u_iso
-                + self.params.exhaustive.options.step / 5,
-                self.params.exhaustive.options.step,
-            ):
-                u_iso_occ.append((occupancy, u_iso))
-
-        return u_iso_occ
-
-    def calculate_mean_fofc(self):
-        """Generate csv of occupancy and B factor for bound and ground states.
-
-        Wrapper to prepare for main loop.
-        Outputs a csv with ground_occupancy,
-        bound_occupancy, u_iso and mean(|Fo-Fc|).
-
-        Returns
-        --------
-        None
-
-        # TODO Loop over b factor separately for multiple ligands #33
-        """
-        u_iso_occ = self.iter_u_iso_occ()
-
-        logger.debug("U_ISO_OCC {}".format(u_iso_occ))
-
-        logger.debug(self.cart_points)
-
-        # write_pdb_HOH_site_cart(pdb=self.params.input.pdb, sites_cart=cart_points)
-
-        logger.info(
-            "Looping over occupancy, u_iso with occupancy "
-            "betweeen {} and {} in steps of {} and u_iso "
-            "between {} and {} in steps of {}: "
-            "number of iteratrions.".format(
-                self.params.exhaustive.options.lower_occ,
-                self.params.exhaustive.options.upper_occ,
-                self.params.exhaustive.options.step,
-                self.params.exhaustive.options.lower_u_iso,
-                self.params.exhaustive.options.upper_u_iso,
-                self.params.exhaustive.options.step,
-                len(u_iso_occ),
-            )
-        )
-
-        occ_b_loop = OccBLoopCaller(xtal_model_data=self)
-
-        # TODO Investigate parallelisation
-
-        # if self.params.settings.processes > 1:
-        # For covalent ratios this wasn't working at all.
-        # The map method seems fast enough even at 0.01
-        # sum_fofc_results = easy_mp.pool_map(fixed_func=occ_b_loop,
-        #                                     args=u_iso_occ,
-        #                                     processes=self.params.settings.processes)
-        # else
-
-        sum_fofc_results = map(occ_b_loop, u_iso_occ)
-
-        logger.info(
-            "Loop finished.\n"
-            "Writing bound occupancy, ground_occupancy, u_iso, "
-            "mean |Fo-Fc| to CSV: {}".format(self.params.exhaustive.output.csv_name)
-        )
-
-        with open(self.params.exhaustive.output.csv_name, "w") as f1:
-
-            writer = csv.writer(f1, delimiter=",", lineterminator="\n")
-            writer.writerows(sum_fofc_results)
-            sys.stdout.flush()

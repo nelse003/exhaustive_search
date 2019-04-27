@@ -63,21 +63,3 @@ class TestXtalModelData(unittest.TestCase):
         # Assert is innstance causses issues if called from somewhere else
 
         self.assertIsInstance(xtal_model_data.ground_states, list)
-
-        assert True == False
-
-    def test_iter_u_iso_occ(self):
-
-        xtal_model_data = XtalModelData(self.params)
-        u_iso_occ = xtal_model_data.iter_u_iso_occ()
-
-        # TODO Assert utilised method calls of these classes
-        # Assert is innstance causses issues if called from somewhere else
-
-        self.assertIsInstance(u_iso_occ, list)
-
-        assert True == False
-
-    def test_calculate_mean_fofc(self):
-
-        assert True == False

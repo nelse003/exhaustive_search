@@ -523,3 +523,35 @@ def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
     mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
 
     return mean_abs_fofc_value
+
+
+def iter_u_iso_occ(params):
+    """Get occupancy and u_iso from minima, maxima and step size
+
+    Parameters
+    ----------
+    params: libtbx.phil.scope_extract
+            python object from phil file,
+            edited with any additional parameters
+
+    Returns
+    -------
+    u_iso_occ: list
+        list of tuples of u_iso and occupancy to be iterated over
+    """
+
+    u_iso_occ = []
+    for occupancy in np.arange(
+        params.exhaustive.options.lower_occ,
+        params.exhaustive.options.upper_occ + params.exhaustive.options.step / 5,
+        params.exhaustive.options.step,
+    ):
+
+        for u_iso in np.arange(
+            params.exhaustive.options.lower_u_iso,
+            params.exhaustive.options.upper_u_iso + params.exhaustive.options.step / 5,
+            params.exhaustive.options.step,
+        ):
+            u_iso_occ.append((occupancy, u_iso))
+
+    return u_iso_occ

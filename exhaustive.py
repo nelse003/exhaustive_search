@@ -9,14 +9,16 @@ determine unique minima of mean(|Fo-Fc|).
 from __future__ import division
 from __future__ import print_function
 
-import datetime
 import logging
 import os
 import sys
+import csv
 
 from utils.phil import master_phil
+from utils.utils_ccp4 import iter_u_iso_occ
 
 from xtal_model_data import XtalModelData
+from occ_b_loop import OccBLoopCaller
 
 ##############################################################
 PROGRAM = "Exhaustive Search"
@@ -28,7 +30,7 @@ DESCRIPTION = """
 blank_arg_prepend = {".pdb": "pdb=", ".mtz": "mtz=", ".csv": "csv="}
 ##############################################################
 
-# TODO move to bin
+# TODO Split, and move running function move to bin
 
 logger = logging.getLogger(__name__)
 
@@ -79,13 +81,6 @@ def run(params):
     if not os.path.exists(os.path.join(params.output.out_dir, params.output.log_dir)):
         os.makedirs(os.path.join(params.output.out_dir, params.output.log_dir))
 
-    log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
-    log_path = os.path.join(
-        params.output.out_dir,
-        params.output.log_dir,
-        params.exhaustive.output.log_name + log_time,
-    )
-
     logger.info("Running Exhaustive Search \n\n")
 
     modified_phil = master_phil.format(python_object=params)
@@ -97,20 +92,28 @@ def run(params):
 
     logger.info("{}: running exhaustive search".format(str(params.input.xtal_name)))
 
+    # create a list of occupancies and b factors to loop over
+    u_iso_occ = iter_u_iso_occ(params)
+
+    # Generate XtalModelData from pdb and mtz
     xtal_model_data = XtalModelData(params)
 
-    logger.info("Organising output directory")
-    os.chdir(params.output.out_dir)
+    # Define a instance
+    occ_b_loop = OccBLoopCaller(xtal_model_data=xtal_model_data)
 
-    logger.info("Run main calculation of |Fo-Fc| at grid points near ligand")
+    # Use map() to loop over supplied list of occupancies and b factors
+    sum_fofc_results = map(occ_b_loop, u_iso_occ)
 
-    try:
-        xtal_model_data.calculate_mean_fofc()
+    logger.info(
+        "Loop finished.\n"
+        "Writing bound occupancy, ground_occupancy, u_iso, "
+        "mean |Fo-Fc| to CSV: {}".format(params.exhaustive.output.csv_name)
+    )
 
-    except UnboundLocalError:
-        raise
-
-    os.chdir("../../")
+    with open(params.exhaustive.output.csv_name, "w") as f1:
+        writer = csv.writer(f1, delimiter=",", lineterminator="\n")
+        writer.writerows(sum_fofc_results)
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":

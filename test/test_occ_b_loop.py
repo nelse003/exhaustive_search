@@ -55,7 +55,7 @@ class TestOccBLoop(unittest.TestCase):
         self.assertEqual(bound_occupancy, 0.6)
         self.assertEqual(ground_occupancy, 0.4)
         self.assertEqual(u_iso, 0.4)
-        self.assertAlmostEqual(mean_fofc, 0.18156490413531706, places=3)
+        self.assertAlmostEqual(mean_fofc, 0.181, places=2)
 
     def test_call_mtz(self):
         """Test call of OccBLoopCall generating a mtz file"""
