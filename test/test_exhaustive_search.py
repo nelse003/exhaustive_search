@@ -2,9 +2,9 @@ import os
 import unittest
 import shutil
 
-from exhaustive import run as exhaustive
-from utils.phil import master_phil
-from utils.utils import get_minimum_fofc
+from exhaustive.exhaustive import run as exhaustive
+from exhaustive.utils.phil import master_phil
+from exhaustive.utils.utils import get_minimum_fofc
 
 
 # TODO Write TestComputeMaps

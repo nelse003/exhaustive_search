@@ -6,9 +6,9 @@ import logging
 import iotbx
 from iotbx.pdb import hierarchy
 
-from exhaustive import process_refined_pdb_bound_ground_states
-from utils import get_minimum_fofc
-from utils import u_iso_to_b_fac
+from exhaustive.utils.select_atoms import get_bound_ground_states
+from exhaustive.utils.utils_ccp4 import get_minimum_fofc
+from exhaustive.utils import u_iso_to_b_fac
 
 logging = logging.getLogger(__name__)
 
@@ -16,8 +16,7 @@ logging = logging.getLogger(__name__)
 def write_minima_pdb(input_pdb, output_pdb, csv_name, params):
     min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(
-        input_pdb, params)
+    bound_states, ground_states = get_bound_ground_states(input_pdb, params)
     pdb_inp = iotbx.pdb.input(input_pdb)
     hier = pdb_inp.construct_hierarchy()
 
@@ -39,5 +38,8 @@ def write_minima_pdb(input_pdb, output_pdb, csv_name, params):
                             atom.set_b(u_iso_to_b_fac(min_u_iso))
 
     with open(output_pdb, "w") as f:
-        f.write(hier.as_pdb_string(
-            crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()))
+        f.write(
+            hier.as_pdb_string(
+                crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()
+            )
+        )

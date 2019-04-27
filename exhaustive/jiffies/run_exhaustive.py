@@ -1,23 +1,25 @@
 import csv
 import os
 
-from exhaustive import master_phil
-from exhaustive import run as exhaustive
+from exhaustive.exhaustive import master_phil
+from exhaustive.exhaustive import run as exhaustive
 from plot import scatter_plot
-from utils import get_minimum_fofc
-from utils import u_iso_to_b_fac
+from exhaustive.utils import get_minimum_fofc
+from exhaustive.utils import u_iso_to_b_fac
 
 params = master_phil.extract()
 
 
 def list_files(directory, extension):
-    return [f for f in os.listdir(directory) if f.endswith('.' + extension)]
+    return [f for f in os.listdir(directory) if f.endswith("." + extension)]
 
 
 def parse_repeat_soak_csv(params):
     input_df = pd.read_csv(params.input.csv)
     for index, row in input_df.iterrows():
-        yield row["CrystalName"], row["RefinementPDB_latest"], row["RefinementMTZ_latest"]
+        yield row["CrystalName"], row["RefinementPDB_latest"], row[
+            "RefinementMTZ_latest"
+        ]
 
 
 # example for a single dataset
@@ -150,18 +152,23 @@ loop_dir = in_dir
 out_dir = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/NUDT22_repeat_soaks"
 prefix = "NUDT22A-x"
 
-compound_dirs = [os.path.join(loop_dir, compound_dir) for compound_dir in os.listdir(loop_dir)
-                 if os.path.isdir(os.path.join(loop_dir, compound_dir))]
+compound_dirs = [
+    os.path.join(loop_dir, compound_dir)
+    for compound_dir in os.listdir(loop_dir)
+    if os.path.isdir(os.path.join(loop_dir, compound_dir))
+]
 
 for compound_dir in compound_dirs:
 
     compound = os.path.basename(compound_dir)
-    if not compound.startswith('FMOP'):
+    if not compound.startswith("FMOP"):
         continue
 
-    xtal_dirs = [os.path.join(compound_dir, xtal_dir)
-                 for xtal_dir in os.listdir(compound_dir)
-                 if os.path.isdir(os.path.join(compound_dir, xtal_dir))]
+    xtal_dirs = [
+        os.path.join(compound_dir, xtal_dir)
+        for xtal_dir in os.listdir(compound_dir)
+        if os.path.isdir(os.path.join(compound_dir, xtal_dir))
+    ]
 
     csv_paths = []
     for xtal_dir in xtal_dirs:
@@ -188,7 +195,8 @@ for compound_dir in compound_dirs:
                 continue
 
             params.exhaustive.output.csv_name = os.path.join(
-                params.output.out_dir, "exhaustive_search.csv")
+                params.output.out_dir, "exhaustive_search.csv"
+            )
 
             csv_paths.append(params.exhaustive.output.csv_name)
 
@@ -198,9 +206,9 @@ for compound_dir in compound_dirs:
             exhaustive(params=params)
             scatter_plot(params.exhaustive.output.csv_name)
 
-    with open(os.path.join(compound_dir, "es_minima.csv"), 'wb') as minima_csv:
+    with open(os.path.join(compound_dir, "es_minima.csv"), "wb") as minima_csv:
 
-        minima_writer = csv.writer(minima_csv, delimiter=',')
+        minima_writer = csv.writer(minima_csv, delimiter=",")
 
         for path in csv_paths:
             occ, u_iso, fofc = get_minimum_fofc(path)

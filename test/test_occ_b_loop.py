@@ -2,9 +2,9 @@ import os
 import unittest
 import shutil
 
-from xtal_model_data import XtalModelData
-from occ_b_loop import OccBLoopCaller
-from utils.phil import master_phil
+from exhaustive.xtal_model_data import XtalModelData
+from exhaustive.occ_b_loop import OccBLoopCaller
+from exhaustive.utils import master_phil
 
 
 class TestOccBLoop(unittest.TestCase):

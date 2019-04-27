@@ -7,6 +7,7 @@ from cStringIO import StringIO
 import cctbx.eltbx
 import iotbx.pdb
 import matplotlib.lines as mlines
+
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mmtbx.utils
@@ -15,7 +16,7 @@ from iotbx import reflection_file_utils
 from matplotlib.legend import Legend
 from mmtbx.utils import data_and_flags_master_params
 
-from exhaustive import master_phil
+from exhaustive.exhaustive import master_phil
 
 """
 Exploring Bhat 1989: R value for atoms
@@ -34,7 +35,9 @@ def calc_bhat_r(occ, atom_type):
     r_bot_sum = np.zeros(700)
 
     for stol_sq in fmodel.f_obs_work().sin_theta_over_lambda_sq().data():
-        f0 = cctbx.eltbx.xray_scattering.best_approximation(atom_type).at_stol_sq(stol_sq)
+        f0 = cctbx.eltbx.xray_scattering.best_approximation(atom_type).at_stol_sq(
+            stol_sq
+        )
 
         b = np.linspace(0, 70, 700)
 
@@ -47,16 +50,18 @@ def calc_bhat_r(occ, atom_type):
 
     return b, r
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     params = master_phil.extract()
     params.input.xtal_name = "FALZA-x0085"
-    params.input.in_path = os.path.join(os.path.realpath(
-        "./exhaustive/test/resources"), params.input.xtal_name)
-    params.validate.input.base_mtz = os.path.join(params.input.in_path,
-                                                  "FALZA-x0085.free.mtz")
-    params.input.mtz = os.path.join(params.input.in_path,
-                                    "FALZA-x0085.free.mtz")
+    params.input.in_path = os.path.join(
+        os.path.realpath("./exhaustive/test/resources"), params.input.xtal_name
+    )
+    params.validate.input.base_mtz = os.path.join(
+        params.input.in_path, "FALZA-x0085.free.mtz"
+    )
+    params.input.mtz = os.path.join(params.input.in_path, "FALZA-x0085.free.mtz")
     params.input.pdb = os.path.join(params.input.in_path, "refine.pdb")
 
     args = [params.input.pdb, params.input.mtz]
@@ -66,13 +71,13 @@ if __name__ == '__main__':
         crystal_symmetry=inputs.crystal_symmetry,
         force_symmetry=True,
         reflection_files=inputs.reflection_files,
-        err=StringIO())
+        err=StringIO(),
+    )
 
     pdb_inp = iotbx.pdb.input(file_name=inputs.pdb_file_names[0])
     ph = pdb_inp.construct_hierarchy()
 
-    xrs = ph.extract_xray_structure(
-        crystal_symmetry=inputs.crystal_symmetry)
+    xrs = ph.extract_xray_structure(crystal_symmetry=inputs.crystal_symmetry)
     xrs.show_summary()
 
     data_flags_params = data_and_flags_master_params().extract()
@@ -82,7 +87,8 @@ if __name__ == '__main__':
         reflection_file_server=rfs,
         parameters=data_flags_params,
         keep_going=True,
-        log=StringIO())
+        log=StringIO(),
+    )
 
     f_obs = determined_data_and_flags.f_obs
     r_free_flags = determined_data_and_flags.r_free_flags
@@ -99,7 +105,8 @@ if __name__ == '__main__':
         f_obs=f_obs,
         r_free_flags=r_free_flags,
         mask_params=mask_params,
-        xray_structure=xrs)
+        xray_structure=xrs,
+    )
 
     d_spacings = fmodel.f_obs_work().d_spacings().data()
 
@@ -146,7 +153,7 @@ if __name__ == '__main__':
 
     print(cctbx.eltbx.xray_scattering.best_approximation("O").show())
 
-    jet = plt.get_cmap('jet')
+    jet = plt.get_cmap("jet")
     colors = iter(jet(np.linspace(0.1, 1, 10)))
 
     fig, ax = plt.subplots(figsize=(8, 12))
@@ -163,28 +170,30 @@ if __name__ == '__main__':
         colour = next(colors)
 
         B_ox, R_ox = calc_bhat_R(occ=occ, atom_type="O")
-        ax.plot(B_ox, R_ox, c=colour, label='{}'.format(occ))
+        ax.plot(B_ox, R_ox, c=colour, label="{}".format(occ))
         ax_top.plot(B_ox, R_ox, c=colour)
 
         B_cl, R_cl = calc_bhat_R(occ=occ, atom_type="CL")
-        ax.plot(B_cl, R_cl, c=colour, linestyle='dashed')
-        ax_top.plot(B_cl, R_cl, c=colour, linestyle='dashed')
+        ax.plot(B_cl, R_cl, c=colour, linestyle="dashed")
+        ax_top.plot(B_cl, R_cl, c=colour, linestyle="dashed")
 
         B_h, R_h = calc_bhat_R(occ=occ, atom_type="H")
-        ax.plot(B_h, R_h, c=colour, linestyle=':')
-        ax_top.plot(B_h, R_h, c=colour, linestyle=':')
+        ax.plot(B_h, R_h, c=colour, linestyle=":")
+        ax_top.plot(B_h, R_h, c=colour, linestyle=":")
 
-    dashed = mlines.Line2D([], [], color='k', linestyle='dashed', label="CL")
-    solid = mlines.Line2D([], [], color='k', label="O")
-    dotted = mlines.Line2D([], [], color='k', linestyle=':', label="H")
+    dashed = mlines.Line2D([], [], color="k", linestyle="dashed", label="CL")
+    solid = mlines.Line2D([], [], color="k", label="O")
+    dotted = mlines.Line2D([], [], color="k", linestyle=":", label="H")
 
-    ax.legend(loc='best', title="Occupancy", frameon=False)
+    ax.legend(loc="best", title="Occupancy", frameon=False)
 
-    leg = Legend(parent=ax,
-                 handles=[dashed, solid, dotted],
-                 labels=["CL", "O", "H"],
-                 loc='upper center',
-                 frameon=False)
+    leg = Legend(
+        parent=ax,
+        handles=[dashed, solid, dotted],
+        labels=["CL", "O", "H"],
+        loc="upper center",
+        frameon=False,
+    )
 
     ax.add_artist(leg)
     plt.savefig("bhat_o_cl_h.png", dpi=300)
