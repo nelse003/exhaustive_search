@@ -9,7 +9,7 @@ import pandas as pd
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from exhaustive.utils import (
+from exhaustive.utils.utils import (
     get_minimum_fofc,
     round_step,
     b_to_u_iso,

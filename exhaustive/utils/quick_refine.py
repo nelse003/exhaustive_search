@@ -11,7 +11,7 @@ from giant.jiffies import split_conformations
 
 ############################################################################
 
-PROGRAM = 'giant.quick_refine'
+PROGRAM = "giant.quick_refine"
 DESCRIPTION = """
     A tool to simplify the launching of standard refinement jobs in REFMAC or PHENIX.
 
@@ -25,14 +25,17 @@ DESCRIPTION = """
         > giant.quick_refine ... params=restraints.params
 """
 
-blank_arg_prepend = {'.mtz': 'input.mtz=',
-                     '.pdb': 'input.pdb=',
-                     '.cif': 'input.cif=',
-                     '.params': 'input.params='}
+blank_arg_prepend = {
+    ".mtz": "input.mtz=",
+    ".pdb": "input.pdb=",
+    ".cif": "input.cif=",
+    ".params": "input.params=",
+}
 
 ############################################################################
 
-master_phil = libtbx.phil.parse("""
+master_phil = libtbx.phil.parse(
+    """
 input {
     pdb = None
         .type = str
@@ -71,88 +74,103 @@ settings {
     verbose = False
         .type = bool
 }
-""", process_includes=True)
+""",
+    process_includes=True,
+)
 
 
 ############################################################################
 
+
 def run(params):
     # Identify any existing output directories
-    current_dirs = sorted(glob.glob(params.output.dir_prefix + '*'))
+    current_dirs = sorted(glob.glob(params.output.dir_prefix + "*"))
     if not current_dirs:
         next_int = 1
     else:
-        current_nums = [s.replace(params.output.dir_prefix, '') for s in current_dirs]
+        current_nums = [s.replace(params.output.dir_prefix, "") for s in current_dirs]
         next_int = sorted(map(int, current_nums))[-1] + 1
 
     # Create output directory name from int
-    out_dir = params.output.dir_prefix + '{:04}'.format(next_int)
+    out_dir = params.output.dir_prefix + "{:04}".format(next_int)
     # Create output directory
     os.mkdir(out_dir)
 
     # Create log object
-    log = Log(log_file=os.path.join(out_dir, params.output.out_prefix + '.quick-refine.log'),
-              verbose=params.settings.verbose)
+    log = Log(
+        log_file=os.path.join(out_dir, params.output.out_prefix + ".quick-refine.log"),
+        verbose=params.settings.verbose,
+    )
 
     # Report
     if current_dirs:
-        log('Found existing refinement directories: \n\t{}'.format('\n\t'.join(current_dirs)))
-        log('')
-    log('Creating new output directory: {}'.format(out_dir))
+        log(
+            "Found existing refinement directories: \n\t{}".format(
+                "\n\t".join(current_dirs)
+            )
+        )
+        log("")
+    log("Creating new output directory: {}".format(out_dir))
 
     # Validate input parameters
-    log.subheading('Validating input parameters')
-    assert params.input.pdb is not None, 'No PDB given for refinement'
-    assert params.input.mtz is not None, 'No MTZ given for refinement'
+    log.subheading("Validating input parameters")
+    assert params.input.pdb is not None, "No PDB given for refinement"
+    assert params.input.mtz is not None, "No MTZ given for refinement"
 
     if os.path.islink(params.input.mtz):
-        log('Converting mtz path to real path:')
-        log('{} -> {}'.format(params.input.mtz, os.path.realpath(params.input.mtz)))
+        log("Converting mtz path to real path:")
+        log("{} -> {}".format(params.input.mtz, os.path.realpath(params.input.mtz)))
         params.input.mtz = os.path.realpath(params.input.mtz)
 
     # Link input
-    log('Copying/linking files to refinement folder')
-    shutil.copy(params.input.pdb, os.path.abspath(os.path.join(out_dir, 'input.pdb')))
-    rel_symlink(params.input.mtz, os.path.abspath(os.path.join(out_dir, 'input.mtz')))
+    log("Copying/linking files to refinement folder")
+    shutil.copy(params.input.pdb, os.path.abspath(os.path.join(out_dir, "input.pdb")))
+    rel_symlink(params.input.mtz, os.path.abspath(os.path.join(out_dir, "input.mtz")))
     # Copy parameter file to output folder
     if params.input.params:
-        shutil.copy(params.input.params, os.path.abspath(os.path.join(out_dir, 'input.params')))
+        shutil.copy(
+            params.input.params, os.path.abspath(os.path.join(out_dir, "input.params"))
+        )
 
     # Create output prefixes
 
     output_prefix = out_dir
 
-    log('Real output file path prefixes: {}'.format(output_prefix))
-    log('Link output file path prefixes: {}'.format(params.output.link_prefix))
+    log("Real output file path prefixes: {}".format(output_prefix))
+    log("Link output file path prefixes: {}".format(params.output.link_prefix))
 
     # Create command objects
-    log.subheading('Preparing command line input for refinement program')
+    log.subheading("Preparing command line input for refinement program")
 
     # PHENIX
-    if params.options.program == 'phenix':
-        cm = CommandManager('phenix.refine')
+    if params.options.program == "phenix":
+        cm = CommandManager("phenix.refine")
         # Command line args
         cm.add_command_line_arguments([params.input.pdb, params.input.mtz])
-        cm.add_command_line_arguments(['output.prefix={}'.format(output_prefix)])
+        cm.add_command_line_arguments(["output.prefix={}".format(output_prefix)])
         if params.input.cif:
             cm.add_command_line_arguments(params.input.cif)
         if params.input.params and os.path.exists(params.input.params):
             cm.add_command_line_arguments([params.input.params])
 
     # REFMAC
-    elif params.options.program == 'refmac':
-        cm = CommandManager('refmac5')
+    elif params.options.program == "refmac":
+        cm = CommandManager("refmac5")
         # Command line args
-        cm.add_command_line_arguments(['xyzin', params.input.pdb, 'hklin', params.input.mtz])
-        cm.add_command_line_arguments(['xyzout', output_prefix + '.pdb', 'hklout', output_prefix + '.mtz'])
+        cm.add_command_line_arguments(
+            ["xyzin", params.input.pdb, "hklin", params.input.mtz]
+        )
+        cm.add_command_line_arguments(
+            ["xyzout", output_prefix + ".pdb", "hklout", output_prefix + ".mtz"]
+        )
         if params.input.cif:
             for cif in params.input.cif:
-                cm.add_command_line_arguments(['libin', cif])
+                cm.add_command_line_arguments(["libin", cif])
         # Standard input
         if params.input.params:
-            cm.add_standard_input(open(params.input.params).read().split('\n'))
+            cm.add_standard_input(open(params.input.params).read().split("\n"))
 
-        cm.add_standard_input(['END'])
+        cm.add_standard_input(["END"])
 
     # Pass additional command line arguments?
     if params.input.args:
@@ -162,72 +180,80 @@ def run(params):
     log(str(cm))
 
     log.bar()
-    log('running refinement... ({})'.format(cm.program[0]))
+    log("running refinement... ({})".format(cm.program[0]))
     out = cm.run()
 
-    log.subheading('Refinement output')
+    log.subheading("Refinement output")
     if not log.verbose:
-        log('output written to log file ({} lines)'.format(cm.output.count('\n')))
+        log("output written to log file ({} lines)".format(cm.output.count("\n")))
 
-    log('\n' + cm.output, show=False)
+    log("\n" + cm.output, show=False)
 
     if out != 0:
-        log.subheading('Refinement Errors')
+        log.subheading("Refinement Errors")
         log(cm.error)
 
-    log.subheading('Post-processing output files')
+    log.subheading("Post-processing output files")
 
     # Find output files
     try:
-        real_pdb = os.path.join(output_prefix, params.output.out_prefix + '.pdb')
-        real_mtz = os.path.join(output_prefix, params.output.out_prefix + '.mtz')
+        real_pdb = os.path.join(output_prefix, params.output.out_prefix + ".pdb")
+        real_mtz = os.path.join(output_prefix, params.output.out_prefix + ".mtz")
 
         print(real_pdb, "\n", real_mtz)
 
     except:
-        log('Refinement has failed - output files do not exist')
-        log('{}: {}'.format(output_prefix + '*.pdb', glob.glob(output_prefix + '*.pdb')))
-        log('{}: {}'.format(output_prefix + '*.mtz', glob.glob(output_prefix + '*.mtz')))
+        log("Refinement has failed - output files do not exist")
+        log(
+            "{}: {}".format(output_prefix + "*.pdb", glob.glob(output_prefix + "*.pdb"))
+        )
+        log(
+            "{}: {}".format(output_prefix + "*.mtz", glob.glob(output_prefix + "*.mtz"))
+        )
         raise
 
     # List of links to make at the end of the run
-    link_file_pairs = [(real_pdb, params.output.link_prefix + '.pdb'),
-                       (real_mtz, params.output.link_prefix + '.mtz')]
+    link_file_pairs = [
+        (real_pdb, params.output.link_prefix + ".pdb"),
+        (real_mtz, params.output.link_prefix + ".mtz"),
+    ]
 
     print(link_file_pairs)
 
     # Split conformations
     if params.options.split_conformations:
         params.split_conformations.settings.verbose = params.settings.verbose
-        log.subheading('Splitting refined structure conformations')
+        log.subheading("Splitting refined structure conformations")
         # Running split conformations
-        out_files = split_conformations.split_conformations(filename=real_pdb, params=params.split_conformations,
-                                                            log=log)
+        out_files = split_conformations.split_conformations(
+            filename=real_pdb, params=params.split_conformations, log=log
+        )
         # Link output files to top
         for real_file in out_files:
             link_file = params.output.link_prefix + os.path.basename(
-                real_file.replace(os.path.splitext(real_pdb)[0], ''))
+                real_file.replace(os.path.splitext(real_pdb)[0], "")
+            )
             link_file_pairs.append([real_file, link_file])
 
     # Link output files
-    log.subheading('linking output files')
+    log.subheading("linking output files")
     for real_file, link_file in link_file_pairs:
-        log('Linking {} -> {}'.format(link_file, real_file))
+        log("Linking {} -> {}".format(link_file, real_file))
         if not os.path.exists(real_file):
-            log('file does not exist: {}'.format(real_file))
+            log("file does not exist: {}".format(real_file))
             continue
         if os.path.exists(link_file) and os.path.islink(link_file):
-            log('removing existing link: {}'.format(link_file))
+            log("removing existing link: {}".format(link_file))
             os.unlink(link_file)
         if not os.path.exists(link_file):
             rel_symlink(real_file, link_file)
 
-    log.heading('finished - refinement')
+    log.heading("finished - refinement")
 
 
 #######################################
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from giant.jiffies import run_default
 
     run_default(
@@ -236,4 +262,5 @@ if __name__ == '__main__':
         args=sys.argv[1:],
         blank_arg_prepend=blank_arg_prepend,
         program=PROGRAM,
-        description=DESCRIPTION)
+        description=DESCRIPTION,
+    )

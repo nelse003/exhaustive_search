@@ -1,10 +1,10 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
-def log(in_msg=None,out_msg=None):
 
+def log(in_msg=None, out_msg=None):
     def decorator(fn):
-
         def wrapper(*args, **kwargs):
 
             logger.debug("Entering {:s}...".format(fn.__name__))

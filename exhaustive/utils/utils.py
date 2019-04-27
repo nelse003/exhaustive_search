@@ -32,10 +32,9 @@ def get_minimum_fofc(csv_name, b_fac=None):
     print(os.getcwd())
     # TODO Remove this dual .csv by cleaning up csv name: issue 59
     if csv_name.endswith(".csv"):
-        data = np.genfromtxt(csv_name, delimiter=',', skip_header=0)
+        data = np.genfromtxt(csv_name, delimiter=",", skip_header=0)
     else:
-        data = np.genfromtxt('{}.csv'.format(csv_name), delimiter=',',
-                             skip_header=0)
+        data = np.genfromtxt("{}.csv".format(csv_name), delimiter=",", skip_header=0)
 
     # If four column data from multiple ligand
     if len(data[0]) == 4:
@@ -55,21 +54,24 @@ def get_minimum_fofc(csv_name, b_fac=None):
         check_u_iso = round_step(set_u_iso, base=step)
         data_array = np.stack((occ, u_iso, fo_fc))
 
-        occ = data_array[0][(data_array[1] >= check_u_iso)
-                            & (data_array[1] <= check_u_iso)]
+        occ = data_array[0][
+            (data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)
+        ]
 
-        u_iso = data_array[1][(data_array[1] >= check_u_iso)
-                              & (data_array[1] <= check_u_iso)]
+        u_iso = data_array[1][
+            (data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)
+        ]
 
-        fo_fc = data_array[2][(data_array[1] >= check_u_iso)
-                              & (data_array[1] <= check_u_iso)]
+        fo_fc = data_array[2][
+            (data_array[1] >= check_u_iso) & (data_array[1] <= check_u_iso)
+        ]
 
     min_index = np.argmin(fo_fc)
 
     return occ[min_index], u_iso[min_index], fo_fc[min_index]
 
 
-def round_step(x, prec=2, base=.05):
+def round_step(x, prec=2, base=0.05):
     """ Return a number rounded to the nearest base."""
     return round(base * round(float(x) / base), prec)
 
@@ -115,8 +117,9 @@ def wait_for_file_existence(file_path, wait_time):
             time.sleep(1)
             time_in_loop += 1
         else:
-            raise IOError("Cannot find file {} within {} seconds".format(
-                file_path, wait_time))
+            raise IOError(
+                "Cannot find file {} within {} seconds".format(file_path, wait_time)
+            )
 
 
 def chunks(l, n):
@@ -148,7 +151,7 @@ def chunks(l, n):
     pos = 0
     for i in xrange(0, len(l), n):
         # Create an index range for l of n items:
-        yield l[i:i + n], alphabet[pos]
+        yield l[i : i + n], alphabet[pos]
         pos += 1
 
 
