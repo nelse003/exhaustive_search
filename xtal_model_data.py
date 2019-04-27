@@ -361,6 +361,8 @@ class XtalModelData(object):
             )
         )
 
+        occ_b_loop = OccBLoopCaller(xtal_model_data=self)
+
         # TODO Investigate parallelisation
 
         # if self.params.settings.processes > 1:
