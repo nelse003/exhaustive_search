@@ -21,7 +21,7 @@ from utils.convex_hull import atom_points_from_sel_string
 from utils.convex_hull import convex_hull_from_states
 from utils.convex_hull import convex_hull_grid_points
 from utils.convex_hull import convex_hull_per_residue
-from exhaustive_func import OccBLoopCaller
+from occ_b_loop import OccBLoopCaller
 
 logger = logging.getLogger(__name__)
 
@@ -360,8 +360,6 @@ class XtalModelData(object):
                 len(u_iso_occ),
             )
         )
-
-        occ_b_loop = OccBLoopCaller(u_iso_occ=u_iso_occ, xtal_model_data=self)
 
         # TODO Investigate parallelisation
 

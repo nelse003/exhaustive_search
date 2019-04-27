@@ -6,8 +6,8 @@ import mmtbx
 from xtal_model_data import XtalModelData
 from utils.phil import master_phil
 
-class TestXtalModelData(unittest.TestCase):
 
+class TestXtalModelData(unittest.TestCase):
     def setUp(self):
         """Provide setup for the test on """
 
@@ -15,14 +15,17 @@ class TestXtalModelData(unittest.TestCase):
 
         self.params.input.xtal_name = "FALZA-x0085"
 
-        self.params.input.in_path = os.path.join(os.path.realpath(
-            "./test/resources"), self.params.input.xtal_name)
+        self.params.input.in_path = os.path.join(
+            os.path.realpath("./test/resources"), self.params.input.xtal_name
+        )
 
-        self.params.validate.input.base_mtz = os.path.join(self.params.input.in_path,
-                                                           "FALZA-x0085.free.mtz")
+        self.params.validate.input.base_mtz = os.path.join(
+            self.params.input.in_path, "FALZA-x0085.free.mtz"
+        )
 
-        self.params.input.mtz = os.path.join(self.params.input.in_path,
-                                             "FALZA-x0085.free.mtz")
+        self.params.input.mtz = os.path.join(
+            self.params.input.in_path, "FALZA-x0085.free.mtz"
+        )
 
         self.params.input.pdb = os.path.join(self.params.input.in_path, "refine.pdb")
 
@@ -38,24 +41,28 @@ class TestXtalModelData(unittest.TestCase):
         assert xtal_model_data.mtz == self.params.input.mtz
 
         # TODO Assert utilised method calls of these classes
+        # Assert is innstance causses issues if called from somewhere else
 
-        self.assertIsInstance(xtal_model_data.xrs,
-                              cctbx.xray.structure)
+        self.assertIsInstance(xtal_model_data.xrs, cctbx.xray.structure)
 
-        self.assertIsInstance(xtal_model_data.inputs,
-                              mmtbx.utils.process_command_line_args)
+        self.assertIsInstance(
+            xtal_model_data.inputs, mmtbx.utils.process_command_line_args
+        )
 
-        self.assertIsInstance(xtal_model_data.crystal_gridding,
-                              cctbx.maptbx.crystal_gridding)
+        self.assertIsInstance(
+            xtal_model_data.crystal_gridding, cctbx.maptbx.crystal_gridding
+        )
 
-        self.assertIsInstance(xtal_model_data.fmodel,
-                              mmtbx.f_model.f_model.manager)
+        self.assertIsInstance(xtal_model_data.fmodel, mmtbx.f_model.f_model.manager)
 
     def test_determine_states(self):
 
         xtal_model_data = XtalModelData(self.params)
-        self.assertIsInstance(xtal_model_data.ground_states,
-                              list)
+
+        # TODO Assert utilised method calls of these classes
+        # Assert is innstance causses issues if called from somewhere else
+
+        self.assertIsInstance(xtal_model_data.ground_states, list)
 
         assert True == False
 
@@ -63,6 +70,9 @@ class TestXtalModelData(unittest.TestCase):
 
         xtal_model_data = XtalModelData(self.params)
         u_iso_occ = xtal_model_data.iter_u_iso_occ()
+
+        # TODO Assert utilised method calls of these classes
+        # Assert is innstance causses issues if called from somewhere else
 
         self.assertIsInstance(u_iso_occ, list)
 

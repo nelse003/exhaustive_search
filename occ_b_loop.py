@@ -1,103 +1,11 @@
 import os
 import logging
 
+from utils.utils_ccp4 import compute_maps, get_mean_fofc_over_cart_sites
+
 logger = logging.getLogger(__name__)
 
-import cctbx
-from mmtbx import map_tools
 from mmtbx.command_line.mtz2map import run as mtz2map
-
-
-def compute_maps(fmodel, crystal_gridding, map_type):
-    """Compute electron density maps for a given model.
-
-    Given a model through fmodel, a map type:
-    "mFo-DFc"
-    "2mFo-DFc"
-    Calculate a map.
-
-    Volume scaling is applied to the map
-
-    Return the fft map, real map, and map coefficents.
-
-    Parameters
-    ----------
-    fmodel: mmtbx.f_model.f_model.manager
-        cctbx object handling the model
-
-    crystal_gridding: cctbx.maptbx.crystal_gridding
-        cctbx object handling the grid on which the maps are defined
-
-    map_type: str
-        "mFo-DFc" or "2mFo-DFc" defining the map type
-
-    Returns
-    -------
-    fft_map: cctbx.miller.fft_map
-        Container for an FFT from reciprocal space (complex double) into real space.
-
-    fft_map.real_map_unpadded(): scitbx_array_family_flex_ext.double
-        Real component of the FFT'd map,
-        removing any padding required for the FFT grid.
-
-    map_coefficents:cctbx.miller.array object
-        coeffiecients
-
-    """
-
-    map_coefficients = map_tools.electron_density_map(fmodel=fmodel).map_coefficients(
-        map_type=map_type, isotropize=True, fill_missing=False
-    )
-
-    fft_map = cctbx.miller.fft_map(
-        crystal_gridding=crystal_gridding, fourier_coefficients=map_coefficients
-    )
-
-    fft_map.apply_volume_scaling()
-
-    return fft_map, fft_map.real_map_unpadded(), map_coefficients
-
-
-def get_mean_fofc_over_cart_sites(sites_cart, fofc_map, inputs):
-    """Get mean of |Fo-Fc| over a cartesian point list.
-{
-    Parameters
-    -----------
-    sites_cart: scitbx_array_family_flex_ext.vec3_double
-        Cartesian sites over which to calculate the mean of |Fo-Fc|
-
-    fofc_map: scitbx_array_family_flex_ext.double
-        Real component of the FFT'd F_obs - F_calc map,
-        removing any padding required for the FFT grid.
-
-    inputs:mmtbx.utils.process_command_line_args
-        holds arguments to be used for the xtal model
-
-    Returns
-    -------
-    mean_abs_fofc_value: float
-        Mean value of the |Fo-Fc| map over the supplied cartesian site{s
-
-    """
-
-    # Set a default value of parameter to sum over
-    sum_abs_fofc_value = 0
-
-    # Loop over all cartesian points
-    for site_cart in list(sites_cart):
-        # Get the fractional site from the cartesian coordinate
-        site_frac = inputs.crystal_symmetry.unit_cell().fractionalize(site_cart)
-
-        # Use interpolation to get the difference map value at the site
-        fofc_value = fofc_map.eight_point_interpolation(site_frac)
-
-        # Append value to sum over points
-        sum_abs_fofc_value += abs(fofc_value)
-
-    # Get the mean value of |Fo-Fc|
-    mean_abs_fofc_value = sum_abs_fofc_value / len(list(sites_cart))
-
-    return mean_abs_fofc_value
 
 
 class OccBLoopCaller(object):
@@ -250,24 +158,58 @@ class OccBLoopCaller(object):
             self.cart_points, fofc_map, self.inputs
         )
 
+        # Generate optional output files
         if self.params.exhaustive.options.generate_mtz:
-
-            output_mtz = "testing_{}_{}.mtz".format(
-                str(bound_occupancy).replace(".", "_"), str(u_iso).replace(".", "_")
+            output_mtz = self.generate_mtz(
+                bound_occupancy=bound_occupancy, u_iso=u_iso, fofc=fofc
             )
-
-            if self.params.exhaustive.options.mtz_prefix is not None:
-                output_mtz = self.params.exhaustive.options.mtz_prefix + output_mtz
-
-            mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
-            mtz_object = mtz_dataset.mtz_object()
-            mtz_object.write(file_name=output_mtz)
-
             if self.params.exhaustive.options.generate_map:
-                mtz2map_args = [output_mtz]
+                mtz2map_args = [
+                    output_mtz,
+                    "output.directory={}".format(self.params.output.out_dir),
+                ]
                 mtz2map(args=mtz2map_args)
 
         return [bound_occupancy, ground_occupancy, u_iso, mean_abs_fofc_value]
+
+    def generate_mtz(self, bound_occupancy, u_iso, fofc):
+        """Generate mtz from fo_fc map at bound_occupancy and u_iso
+
+        Parameters
+        -----------
+        bound_occupancy: float
+            bound state occupancy
+
+        u_iso: float
+            u_iso value to set bound atoms to
+
+        fofc: scitbx_array_family_flex_ext.double
+           Fobs - Fcalc map
+
+
+        Returns
+        -------
+        output_mtz: str
+            path to output_mtz
+        """
+
+        output_mtz = "testing_{}_{}.mtz".format(
+            str(bound_occupancy).replace(".", "_"), str(u_iso).replace(".", "_")
+        )
+
+        if self.params.exhaustive.options.mtz_prefix is not None:
+            output_mtz = self.params.exhaustive.options.mtz_prefix + output_mtz
+
+        output_mtz = os.path.join(self.params.output.out_dir, output_mtz)
+
+        if not os.path.isdir(self.params.output.out_dir):
+            os.makedirs(self.params.output.out_dir)
+
+        mtz_dataset = fofc.as_mtz_dataset(column_root_label="FOFCWT")
+        mtz_object = mtz_dataset.mtz_object()
+        mtz_object.write(file_name=output_mtz)
+
+        return output_mtz
 
     def update_xrs_over_states(self, xrs, states, occupancy, u_iso):
         """ Update local copy of x ray structure with occupancy and u_iso

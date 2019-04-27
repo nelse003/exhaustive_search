@@ -19,18 +19,19 @@ from utils.phil import master_phil
 from xtal_model_data import XtalModelData
 
 ##############################################################
-PROGRAM = 'Exhaustive Search'
+PROGRAM = "Exhaustive Search"
 DESCRIPTION = """
     Take in pdb and mtz, or csv of pdb and mtz locations,
     run a exhaustive search of B factor and occupancy to
     determine unique minima.
 """
-blank_arg_prepend = {'.pdb': 'pdb=', '.mtz': 'mtz=', '.csv': 'csv='}
+blank_arg_prepend = {".pdb": "pdb=", ".mtz": "mtz=", ".csv": "csv="}
 ##############################################################
 
 # TODO move to bin
 
 logger = logging.getLogger(__name__)
+
 
 def run(params):
     """ 
@@ -75,16 +76,15 @@ def run(params):
     if not os.path.exists(params.output.out_dir):
         os.makedirs(params.output.out_dir)
 
-    if not os.path.exists(os.path.join(params.output.out_dir,
-                                       params.output.log_dir)):
-        os.makedirs(os.path.join(
-            params.output.out_dir,
-            params.output.log_dir))
+    if not os.path.exists(os.path.join(params.output.out_dir, params.output.log_dir)):
+        os.makedirs(os.path.join(params.output.out_dir, params.output.log_dir))
 
     log_time = datetime.datetime.now().strftime("_%Y_%m_%d_%H_%M.log")
-    log_path = os.path.join(params.output.out_dir,
-                            params.output.log_dir,
-                            params.exhaustive.output.log_name + log_time)
+    log_path = os.path.join(
+        params.output.out_dir,
+        params.output.log_dir,
+        params.exhaustive.output.log_name + log_time,
+    )
 
     logger.info("Running Exhaustive Search \n\n")
 
@@ -113,10 +113,12 @@ def run(params):
     os.chdir("../../")
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     from giant.jiffies import run_default
 
-    run_default(run=run, master_phil=master_phil,
-                blank_arg_prepend=blank_arg_prepend, args=sys.argv[1:])
-
-
+    run_default(
+        run=run,
+        master_phil=master_phil,
+        blank_arg_prepend=blank_arg_prepend,
+        args=sys.argv[1:],
+    )
