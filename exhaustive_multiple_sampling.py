@@ -7,6 +7,7 @@ from exhaustive import run as exhaustive
 from utils.utils import get_minimum_fofc, append_csv
 from utils.utils import u_iso_to_b_fac
 
+# TODO move to bin
 
 def run(params):
     """
