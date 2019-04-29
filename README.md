@@ -11,7 +11,7 @@ For a superposed model we vary the occupancy and B factor of the bound state; us
 
 i.e. Bound state occupancy 0.1, Ground state occupancy 0.9.
 
-At each value of occupancy we explore possible values of B factor, currently fixing the B factor to be the same across the whole state. 
+At each value of occupancy we explore possible values of B factor, currently fixing the B factor to be the same across the whole state. The output is thus recorded to a CSV file, which can be used to generate a pdb file at the minima of B factor and occupancy, as well as be plotted.
  
 The project heavily relies on the [computational crystallographic toolbox](https://cci.lbl.gov/cctbx_docs/index.html), as distributed in [CCP4](http://www.ccp4.ac.uk/) as well as tools from [PanDDA](https://pandda.bitbucket.io).
 
