@@ -1,5 +1,7 @@
 # Exhaustive occupancy search
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/7d2d7d5f72cfe0c6a0c3/maintainability)](https://codeclimate.com/github/nelse003/exhaustive_search/maintainability)
+
 This exhaustive search algorithm explores the crystallographic occupancy & B factor of  ligands. 
 The algorithm is designed to be used as a last stage step to confirm crystallographic occupancy, when 
 the position of the ligand has been refined. 
