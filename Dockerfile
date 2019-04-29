@@ -19,7 +19,7 @@ RUN ./pandda_update
 CMD ["source", "/ccp4/bin/ccp4.setup-sh"]
 CMD ["ccp4/start"]
 
-CMD ["ccp4-python setup.py install"]
+CMD ["/ccp4/bin/ccp4-python setup.py install"]
 
 RUN mkdir test
 ADD * /test/
