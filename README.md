@@ -17,10 +17,10 @@ The project heavily relies on CCTBX libraries,as well as tools from the PanDDA r
 ## Installation
 Install a recent version of CCP4.
 
-Please install an up to date version of panddas, as per below instructions
+Please install an up to date version of panddas:
 https://pandda.bitbucket.io/index.html#install
 
-Download from here. Unzip the download directory and cd into it:
+Download/clone from github. Unzip the download directory and cd into it:
 
 ```
 cd "/path/to/download/directory" 
