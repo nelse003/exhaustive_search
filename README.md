@@ -5,7 +5,7 @@ The algorithm is designed to be used as a last stage step to confirm crystallogr
 the position of the ligand has been refined. 
 
 We consider the crystal with a ligand bound to be in a superposition of bound and ground states, specifically 
-we use the framework detailed in [Pearce, N. M., Krojer, T. & von Delft, F. (2017). Acta Cryst. D73, 256-266.] (https://doi.org/10.1107/S2059798317003412)
+we use the framework detailed in [Pearce, N. M., Krojer, T. & von Delft, F. 2017. Acta Cryst. D73, 256-266.](https://doi.org/10.1107/S2059798317003412)
 
 For a superposed model we vary the occupancy and B factor of the bound state; usually the bound ligand and any alternative conformations of the protein induced when the ligand fits, and the ground state; the conformations modelled for the protien without any ligand bound. i.e. Bound state occupancy 0.1, Ground state occupancy 0.9. At each value of occupancy we explore possible values of B facotr, currently fixing the B factor to be the same across the whole state. 
  
