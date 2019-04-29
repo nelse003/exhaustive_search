@@ -6,7 +6,7 @@ from setuptools import findall
 install_scripts = findall(dir='bin')
 
 setup(
-    name="exhaustive_search",
+    name="exhaustive",
     version="0.1",
     packages=[
         "test",
