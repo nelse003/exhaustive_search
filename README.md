@@ -56,6 +56,6 @@ Options for this script are detailed in exhaustive.utils.phil, and can be suppli
 exhaustive_multiple_sampling
 ```
 
-As above but runs at step sizes 0.05 across occupancy [0,1], u_iso [0.2, 1.2] and then at the minima +/- 0.2 in step sizes of 0.01. This will increase the program runtime by 10 times, and is appropraite as in tested cases the minima of the difference maps are flat 
+As above but runs at step sizes 0.05 across occupancy [0,1], u_iso [0.2, 1.2] and then at the minima +/- 0.1 in step sizes of 0.01. This will increase the program runtime by 10 times, and is appropraite as in tested cases the minima of the difference maps are flat 
 
 
