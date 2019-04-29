@@ -7,10 +7,6 @@ from exhaustive.exhaustive import run as exhaustive
 from exhaustive.exhaustive import get_minimum_fofc, append_csv
 from exhaustive.exhaustive import u_iso_to_b_fac
 
-# TODO move to bin
-xit
-
-
 def run(params):
     """
     Run Exhaustive search twice at 0.05 and 0.01 spacing

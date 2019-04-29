@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 from mmtbx.command_line.mtz2map import run as mtz2map
 
-
 class OccBLoopCaller(object):
     """Class allowing unpickable objects to passed to loop.
 
@@ -174,6 +173,8 @@ class OccBLoopCaller(object):
 
     def generate_mtz(self, bound_occupancy, u_iso, fofc):
         """Generate mtz from fo_fc map at bound_occupancy and u_iso
+
+        # TODO move to utils, and seperate out params to specific mtz_prefix and out_dir
 
         Parameters
         -----------

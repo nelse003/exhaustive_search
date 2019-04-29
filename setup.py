@@ -1,6 +1,9 @@
 from setuptools import setup
+from setuptools import findall
 
 # Not yet working due to libtx.phil import not working?
+
+install_scripts = findall(dir='bin')
 
 setup(
     name="exhaustive_search",
@@ -14,12 +17,7 @@ setup(
         "validation",
     ],
     url="",
-    entry_points={
-        "console_scripts": [
-            "exhaustive=exhaustive.exhaustive.__main__:main",
-            "exhaustive_multiple_sample=exhaustive.exhaustive_multiple_sampling.__main__:main",
-        ]
-    },
+    scripts= install_scripts,
     license="",
     author="nelse003",
     author_email="nelse003@gmail.com",
