@@ -1,7 +1,7 @@
 # Exhaustive occupancy search
 
 This exhaustive search algorithm explores the crystallographic occupancy & B factor of  ligands. 
-The algorithm is designed to be used as a last stage step to confirm occupancy when 
+The algorithm is designed to be used as a last stage step to confirm crystallographic occupancy, when 
 the position of the ligand has been refined. 
 
 We consider the crystal with a ligand bound to be in a superposition of bound and ground states, specifically 
