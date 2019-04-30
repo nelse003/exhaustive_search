@@ -75,6 +75,7 @@ class TestValidation(unittest.TestCase):
                 if item.endswith(".mtz"):
                     os.remove(os.path.join(self.params.output.out_dir, item))
 
+    @unittest.skip("Validation is too slow")
     def test_validation(self):
 
         """ Run the validation script. Check the result and number of files output"""
