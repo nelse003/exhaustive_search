@@ -165,7 +165,22 @@ def colourbar_2d_scatter(atom_name):
 
 def connectpoints(x, y, x_1, y_1, p1, linestyle="k-"):
 
-    """ Draw lines between two lists of points"""
+    """
+    Draw lines between two lists of points
+
+    Parameters
+    ----------
+    x
+    y
+    x_1
+    y_1
+    p1
+    linestyle
+
+    Returns
+    -------
+
+    """
 
     x1, x2 = x[p1], x_1[p1]
     y1, y2 = y[p1], y_1[p1]
@@ -174,13 +189,44 @@ def connectpoints(x, y, x_1, y_1, p1, linestyle="k-"):
 
 def connectpoint(x, y, x_1, y_1, linestyle="k-"):
 
-    """ Draw line between two points """
+    """
+    Draw lines between two sets of points in 3d
+
+    Parameters
+    ----------
+    x
+    y
+    x_1
+    y_1
+    linestyle
+
+    Returns
+    -------
+
+    """
     plt.plot([x, x_1], [y, y_1], linestyle)
 
 
 def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle="k-"):
 
-    """ Draw lines between two sets od points in 3d"""
+    """
+    Draw lines between two sets od points in 3d
+
+    Parameters
+    ----------
+    x
+    y
+    z
+    x_1
+    y_1
+    z_1
+    p1
+    linestyle
+
+    Returns
+    -------
+
+    """
 
     x1, x2 = x[p1], x_1[p1]
     y1, y2 = y[p1], y_1[p1]
@@ -192,6 +238,22 @@ def connectpoints_3d(x, y, z, x_1, y_1, z_1, p1, linestyle="k-"):
 def plot_2d_occ_b_validation(
     start_occ, end_occ, step, set_b, dataset_prefix, out_dir, params
 ):
+    """
+
+    Parameters
+    ----------
+    start_occ
+    end_occ
+    step
+    set_b
+    dataset_prefix
+    out_dir
+    params
+
+    Returns
+    -------
+
+    """
 
     min_fofcs, min_occs, min_b_facs, fofcs, occs, b_facs = process_validation_csvs(
         start_occ, end_occ, step, set_b, out_dir, params
