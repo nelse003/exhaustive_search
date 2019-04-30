@@ -9,7 +9,7 @@ before_script:
   - docker build . -t exhaustive -f Dockerfile
 
 script:
-  - docker run -t /ccp4/bin/ccp4-python -m unittest discover test
+  - docker run -t exhaustive /ccp4/bin/ccp4-python -m unittest discover test
 after_script:
   - docker images
 
