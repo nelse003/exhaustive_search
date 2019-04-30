@@ -25,8 +25,6 @@ logger = logging.getLogger(__name__)
 
 def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
 
-    # TODO Split into multiple functions with base class
-
     """
     Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output
 
@@ -49,6 +47,7 @@ def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
     ------
     Saves png to same name as csv
     """
+    # TODO Split into multiple functions with base class
 
     # Load data from CSV
     if csv_name.endswith(".csv"):
@@ -97,19 +96,24 @@ def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
 def bounded_2d_scatter(atom_name, lower_bound, upper_bound):
 
     """
+    Plot Occupancy vs B_iso limited to Fo-Fc between bounds
 
     Parameters
     ----------
-    atom_name
-    lower_bound
-    upper_bound
+    atom_name: str
+        Name of input csv and output figure
+
+    lower_bound:
+
+    upper_bound:
 
     Returns
     -------
+    None
 
     Notes
-    -----
-
+    ------
+    Saves png to "{csv_name}_reduced_.png"
     """
 
     # Load data from CSV

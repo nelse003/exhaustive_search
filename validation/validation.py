@@ -2,21 +2,21 @@ import datetime
 import logging
 import os
 import sys
-
 import numpy as np
+
 from giant.jiffies.merge_conformations import master_phil as merge_phil
 from giant.jiffies.merge_conformations import run as merge_conformations
 from mmtbx.command_line.fmodel import run as fmodel
 from mmtbx.command_line.maps import run as generate_map
-from exhaustive.plotting import plot_2d_occ_b_validation
-from exhaustive.plotting import plot_3d_fofc_occ
-from exhaustive.plotting import scatter_plot
+from exhaustive.plotting.plot import plot_2d_occ_b_validation
+from exhaustive.plotting.plot import plot_3d_fofc_occ
+from exhaustive.plotting.plot import scatter_plot
 
 from exhaustive.exhaustive import run as exhaustive
-from exhaustive.utils import check_input_files
-from exhaustive.utils import master_phil
-from exhaustive.utils import prepare_validate_phil
-from exhaustive.utils import wait_for_file_existence
+from exhaustive.utils.phil import check_input_files
+from exhaustive.utils.phil import master_phil
+from exhaustive.utils.phil import prepare_validate_phil
+from exhaustive.utils.utils import wait_for_file_existence
 from exhaustive.utils.utils_ccp4 import get_csv_filepath
 from exhaustive.utils.utils_ccp4 import set_b_fac_all_atoms
 from exhaustive.utils.utils_ccp4 import set_b_fac_all_occupancy_groups

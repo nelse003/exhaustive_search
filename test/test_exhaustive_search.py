@@ -6,7 +6,6 @@ from exhaustive.exhaustive import run as exhaustive
 from exhaustive.utils.phil import master_phil
 from exhaustive.utils.utils import get_minimum_fofc
 
-
 # TODO Write TestComputeMaps
 class TestComputeMaps(unittest.TestCase):
     """
@@ -23,7 +22,7 @@ class TestComputeMaps(unittest.TestCase):
 
 class TestExhaustiveSearch(unittest.TestCase):
     """
-    Test the main loop of exhaustive search.
+    Test the main loop of exhaustive search
     """
 
     def setUp(self):

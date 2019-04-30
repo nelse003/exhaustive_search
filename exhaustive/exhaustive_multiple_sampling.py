@@ -2,10 +2,11 @@ import os
 import sys
 import time
 
-from exhaustive.exhaustive import master_phil
+from exhaustive.utils.phil import master_phil
 from exhaustive.exhaustive import run as exhaustive
-from exhaustive.exhaustive import get_minimum_fofc, append_csv
-from exhaustive.exhaustive import u_iso_to_b_fac
+from exhaustive.utils.utils_ccp4 import get_minimum_fofc
+from exhaustive.utils.utils import append_csv
+from exhaustive.utils.utils import u_iso_to_b_fac
 
 def run(params):
     """

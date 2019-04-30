@@ -1,7 +1,8 @@
 import os
 import logging
 
-from utils.utils_ccp4 import compute_maps, get_mean_fofc_over_cart_sites
+from utils.utils_ccp4 import compute_maps
+from utils.utils_ccp4 import get_mean_fofc_over_cart_sites
 
 logger = logging.getLogger(__name__)
 
