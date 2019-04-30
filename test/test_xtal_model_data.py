@@ -4,7 +4,7 @@ import cctbx
 import mmtbx
 
 from exhaustive.xtal_model_data import XtalModelData
-from exhaustive.utils import master_phil
+from exhaustive.utils.phil import master_phil
 
 
 class TestXtalModelData(unittest.TestCase):

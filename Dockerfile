@@ -22,7 +22,7 @@ WORKDIR ./exhaustive
 COPY . . 
 
 CMD ["ccp4/start"]
-CMD ["/ccp4/bin/ccp4-python setup.py install"]
+CMD ["/ccp4/bin/ccp4-python exhaustive/setup.py install"]
 
 
 

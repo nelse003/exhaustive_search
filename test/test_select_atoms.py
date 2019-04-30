@@ -4,7 +4,7 @@ import unittest
 import iotbx
 import scitbx.array_family.flex
 
-from exhaustive.utils import master_phil
+from exhaustive.utils.phil import master_phil
 from exhaustive.utils.select_atoms import get_bound_ground_states
 from exhaustive.utils.select_atoms import get_selection_altloc_resseq_chain
 

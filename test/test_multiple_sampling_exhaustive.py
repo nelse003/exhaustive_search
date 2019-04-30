@@ -2,7 +2,7 @@ import os
 
 from exhaustive.exhaustive_multiple_sampling import run as multiple_exhaustive
 from test_exhaustive_search import TestExhaustiveSearch
-from exhaustive.utils import get_minimum_fofc
+from exhaustive.utils.utils import get_minimum_fofc
 
 
 class TestMultipleSamplingExhaustiveSearch(TestExhaustiveSearch):

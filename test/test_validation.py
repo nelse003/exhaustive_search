@@ -3,10 +3,10 @@ import unittest
 
 import numpy as np
 
-from exhaustive.exhaustive import master_phil
-from exhaustive.utils import b_to_u_iso
-from exhaustive.utils import get_minimum_fofc
-from exhaustive.utils import u_iso_to_b_fac
+from exhaustive.utils.phil import master_phil
+from exhaustive.utils.utils import b_to_u_iso
+from exhaustive.utils.utils import get_minimum_fofc
+from exhaustive.utils.utils import u_iso_to_b_fac
 from validation.validation import run as validate
 
 
