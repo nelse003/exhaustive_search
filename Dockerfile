@@ -12,6 +12,8 @@
 #
 # <src> must be relative to the source directory 
 # that is being built (the context of the build).
+#
+# Pulling from reskyner/ccp4 as can't get pandda update working
 
 FROM reskyner/ccp4
 
