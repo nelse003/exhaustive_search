@@ -66,6 +66,7 @@ def write_pdb_HOH_site_cart(pdb, sites_cart):
 
 
 def process_validation_csvs(start_occ, end_occ, step, set_b, out_dir, params):
+
     min_fofcs = []
     min_occs = []
     min_b_facs = []

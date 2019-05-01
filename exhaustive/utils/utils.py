@@ -94,6 +94,9 @@ def sample_spherical(npoints, ndim=3):
 
     Parameters
     ----------
+    npoints:
+
+    ndim: int
 
     Returns
     -------
