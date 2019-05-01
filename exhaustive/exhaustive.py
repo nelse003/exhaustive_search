@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 def run(params):
     """ 
+    Minima of |Fo-Fc| of superposed model across Occupancy and B factor
 
     Load in pdb and mtz file.
     Process pdb and mtz to produce:
@@ -53,9 +54,9 @@ def run(params):
 
     Parameters
     ----------------
-    params: 
-        A extracted python object from the master phil file. 
-        This defines the settings of the settings and I/O. 
+    params: libtbx.phil.scope_extract
+        python object from phil file,
+        edited with any additional parameters
 
     Returns
     ----------------
@@ -98,7 +99,7 @@ def run(params):
     # Generate XtalModelData from pdb and mtz
     xtal_model_data = XtalModelData(params)
 
-    # Define a instance
+    # Define a instance of the loop
     occ_b_loop = OccBLoopCaller(xtal_model_data=xtal_model_data)
 
     # Use map() to loop over supplied list of occupancies and b factors
