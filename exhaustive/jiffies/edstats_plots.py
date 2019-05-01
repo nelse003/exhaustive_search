@@ -7,9 +7,11 @@ import pandas as pd
 matplotlib.use("agg")
 import seaborn as sns
 from matplotlib import pyplot as plt
-from exhaustive.utils import u_iso_to_b_fac, get_minimum_fofc
+
+from exhaustive.utils.utils import u_iso_to_b_fac
+from exhaustive.utils.utils import get_minimum_fofc
 from exhaustive.exhaustive import master_phil
-from exhaustive.plotting import occupancy_histogram_with_exhaustive_search
+from exhaustive.plotting.plot import occupancy_histogram_with_exhaustive_search
 
 
 def labelled_pairplot(df, hue_column=None):

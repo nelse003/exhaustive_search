@@ -3,13 +3,13 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from exhaustive.exhaustive import atom_points_from_sel_string
-from exhaustive.exhaustive import convex_hull_from_states
-from exhaustive.exhaustive import convex_hull_grid_points
-from exhaustive.exhaustive import convex_hull_per_residue
-from exhaustive.exhaustive import get_occupancy_group_grid_points
-from exhaustive.exhaustive import process_refined_pdb_bound_ground_states
-from exhaustive.utils import expand_array
+from exhaustive.utils.convex_hull import atom_points_from_sel_string
+from exhaustive.utils.convex_hull import convex_hull_from_states
+from exhaustive.utils.convex_hull import convex_hull_grid_points
+from exhaustive.utils.convex_hull import convex_hull_per_residue
+from exhaustive.utils.select_atoms import get_occupancy_group_grid_points
+from exhaustive.utils.select_atoms import get_bound_ground_states
+from exhaustive.utils.utils import expand_array
 
 
 def plot_protein_region(
@@ -21,7 +21,7 @@ def plot_protein_region(
     boxes=False,
     lig_atoms=False,
 ):
-    bound_states, ground_states = process_refined_pdb_bound_ground_states(
+    bound_states, ground_states = get_bound_ground_states(
         pdb=params.input.pdb, params=params
     )
 

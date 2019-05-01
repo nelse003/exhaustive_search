@@ -119,9 +119,7 @@ class XtalModelData(object):
         self.pdb = self.params.input.pdb
         self.mtz = self.params.input.mtz
 
-        self.inputs = mmtbx.utils.process_command_line_args(
-            args=[self.pdb, self.mtz]
-        )
+        self.inputs = mmtbx.utils.process_command_line_args(args=[self.pdb, self.mtz])
 
         self.xrs = self._get_xrs()
 

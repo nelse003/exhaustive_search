@@ -56,7 +56,7 @@ class TestExhaustiveSearch(unittest.TestCase):
         # OSError: [Errno 16] Device or resource busy:
         # '/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search/test/output/logs/.nfs00000000a0d05de80000319f'
 
-        shutil.rmtree(os.path.realpath("./test/output"))
+        # shutil.rmtree(os.path.realpath("./test/output"))
 
     def test_exhaustive_search(self):
         """ Test with minimal number of parameters changed from default."""

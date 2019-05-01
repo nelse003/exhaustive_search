@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 from mmtbx.command_line.mtz2map import run as mtz2map
 
+
 class OccBLoopCaller(object):
     """Class allowing unpickable objects to passed to loop.
 

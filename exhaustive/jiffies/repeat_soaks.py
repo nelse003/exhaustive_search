@@ -11,7 +11,7 @@ from giant.jiffies.score_model import run as score_model
 from giant.jiffies.split_conformations import master_phil as split_phil
 from giant.jiffies.split_conformations import run as split_conformations
 
-from exhaustive.exhaustive import check_input_files
+from exhaustive.utils.phil import check_input_files
 # from exhaustive.process.minima import write_minima_pdb
 from exhaustive.exhaustive import master_phil
 from exhaustive.exhaustive import run as exhaustive

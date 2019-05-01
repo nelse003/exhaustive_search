@@ -8,6 +8,7 @@ from utils.utils_ccp4 import get_minimum_fofc
 from utils.utils import append_csv
 from utils.utils import u_iso_to_b_fac
 
+
 def run(params):
     """
     Run Exhaustive search twice at 0.05 and 0.01 spacing
@@ -17,7 +18,10 @@ def run(params):
 
     Parameters
     ----------
-    params
+    params: libtbx.phil.scope_extract
+        python object from phil file,
+        edited with any additional parameters
+
 
     Returns
     -------

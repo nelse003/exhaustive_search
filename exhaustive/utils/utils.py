@@ -5,15 +5,37 @@ import pandas as pd
 
 
 def b_to_u_iso(b_fac):
-    """ Convert isotropic B factor to u iso"""
+    """
+    Convert isotropic displacement (u_iso) to isotropic B-factor
 
+    Parameters
+    ----------
+    b_fac: float
+        isotropic B-factor
+
+    Returns
+    -------
+    u_iso: float
+
+    """
     u_iso = b_fac / (8 * np.pi ** 2)
     return u_iso
 
 
 def u_iso_to_b_fac(u_iso):
-    """ Convert u_iso to isotropic B factor """
+    """
+    Convert isotropic B-factor to
 
+    Parameters
+    ----------
+    u_iso: float
+        isotropic displacement (u_iso)
+
+    Returns
+    -------
+    b_iso: float
+        isotropic B-factor
+    """
     b_iso = (8 * np.pi ** 2) * u_iso
     return b_iso
 
@@ -25,9 +47,11 @@ def get_minimum_fofc(csv_name, b_fac=None):
     B factor can be supplied to look at the minima across a
     single b factor value
 
-    :param csv_name:
-    :param b_fac:
-    :return:
+    Parameters
+    ----------
+
+    Returns
+    --------
     """
     print(os.getcwd())
     # TODO Remove this dual .csv by cleaning up csv name: issue 59
@@ -126,7 +150,9 @@ def wait_for_file_existence(file_path, wait_time):
 
 
 def chunks(l, n):
-    """ Divide a list l into chunks of length n. Yield with consecutive letters
+    """ Divide a list l into chunks of length n.
+
+    Yield with consecutive letters
 
     Used for splitting a list of atomic points into breaks of 9999 for
     display in a pdb file.
@@ -160,7 +186,7 @@ def chunks(l, n):
 
 def append_csv(in_csv1, in_csv2, out_csv):
     """
-    Append two csv to out_csv
+    Append two input csv files to out_csv
 
     Parameters
     ----------
@@ -174,6 +200,10 @@ def append_csv(in_csv1, in_csv2, out_csv):
     Returns
     -------
     None
+
+    Notes
+    -----
+    Writes csv to out_csv
     """
 
     df1 = pd.read_csv(in_csv1, header=None)
