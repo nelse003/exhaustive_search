@@ -45,7 +45,18 @@ def start_validate_logging(params):
 
 
 def check_validate_input_files(params):
-    """Check existence of input files, needed for validation"""
+    """Check existence of input files, needed for validation
+
+    Parameters
+    -----------
+    params: libtbx.phil.scope_extract
+        python object from phil file,
+        edited with any additional parameters
+
+    Returns
+    --------
+    None
+    """
 
     check_input_files(params)
 
@@ -118,6 +129,17 @@ def occ_loop_merge_confs_simulate(params):
 
      > Run phenix.maps (cctbx equivalent) to get viewable map
      from simluated mtz.
+
+     Parameters
+     -----------
+     params: libtbx.phil.scope_extract
+        python object from phil file,
+        edited with any additional parameters
+
+     Returns
+     --------
+     None
+
     """
 
     # TODO Remove requirement to be in output dir if possible #64

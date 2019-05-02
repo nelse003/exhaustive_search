@@ -11,11 +11,6 @@ from validation.validation import run as validate
 
 
 class TestValidation(unittest.TestCase):
-    """
-    Test the main loop of exhaustive search.
-
-    What mock objects does this need?
-    """
 
     def setUp(self):
 
@@ -132,9 +127,6 @@ class TestValidation(unittest.TestCase):
         """
         Check whether file output matches expected file output.
         All files expected exist, and no extra files generated
-    
-        :param params:
-        :return:
         """
 
         files = []
