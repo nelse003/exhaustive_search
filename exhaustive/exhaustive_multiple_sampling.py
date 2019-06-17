@@ -36,6 +36,9 @@ def run(params):
     params.exhaustive.options.step = 0.05
     params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, base_csv + "_coarse.csv")
 
+    modified_phil = master_phil.format(python_object=params)
+    modified_phil.show()
+
     t1 = time.time()
     exhaustive(params)
     t2 = time.time()
@@ -55,8 +58,10 @@ def run(params):
 
     params.exhaustive.options.lower_occ = occ_min
     params.exhaustive.options.upper_occ = occ_max
-    params.exhaustive.options.lower_u_iso = u_iso_min
-    params.exhaustive.options.upper_u_iso = u_iso_max
+
+    if params.exhaustive.options.vary_b:
+        params.exhaustive.options.lower_u_iso = u_iso_min
+        params.exhaustive.options.upper_u_iso = u_iso_max
 
     t3 = time.time()
     exhaustive(params)

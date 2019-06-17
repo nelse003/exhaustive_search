@@ -61,6 +61,8 @@ exhaustive{
             .type = float
         generate_mtz = False
             .type = bool
+        generate_pdb = False
+            .type = bool
         mtz_prefix = None
             .type = bool
             .help = prefix to name the mtz files, useful for validation, so they are not overwritten
@@ -93,6 +95,9 @@ exhaustive{
         per_residue = True
             .type = bool
             .help = 'Flag to run with per residue generation of convex hulls'
+        vary_b=True
+            .type = bool
+            .help = If False, this stops updating the xrs structure
     }
 }
 select{
@@ -172,6 +177,7 @@ validate{
             .type = str
         repeat_validate_qsub= False
             .type = bool
+
     }
 }
 repeat{

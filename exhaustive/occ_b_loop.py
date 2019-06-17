@@ -136,11 +136,16 @@ class OccBLoopCaller(object):
             states=self.ground_states,
             occupancy=ground_occupancy,
             u_iso=u_iso,
+            vary_b=self.params.exhaustive.options.vary_b,
         )
 
         # Update occupancy and U_iso in local copy of xrs for bound states
         xrs_dc = self.update_xrs_over_states(
-            xrs=xrs_dc, states=self.bound_states, occupancy=bound_occupancy, u_iso=u_iso
+            xrs=xrs_dc,
+            states=self.bound_states,
+            occupancy=bound_occupancy,
+            u_iso=u_iso,
+            vary_b=self.params.exhaustive.options.vary_b,
         )
 
         # update local f_model with
@@ -158,6 +163,17 @@ class OccBLoopCaller(object):
         mean_abs_fofc_value = get_mean_fofc_over_cart_sites(
             self.cart_points, fofc_map, self.inputs
         )
+
+        # Generate pdb file if needed
+        if self.params.exhaustive.options.generate_pdb:
+            name = "u_iso_{}_occ_{}.pdb".format(
+                str(u_iso).replace('.','_'),
+                str(bound_occupancy).replace('.','_'))
+
+            pdb_occ_u_iso_file = os.path.join(self.params.output.out_dir, name)
+
+            with open(pdb_occ_u_iso_file,'w') as f:
+                f.write(xrs_dc.as_pdb_file())
 
         # Generate optional output files
         if self.params.exhaustive.options.generate_mtz:
@@ -214,7 +230,7 @@ class OccBLoopCaller(object):
 
         return output_mtz
 
-    def update_xrs_over_states(self, xrs, states, occupancy, u_iso):
+    def update_xrs_over_states(self, xrs, states, occupancy, u_iso, vary_b=True):
         """ Update local copy of x ray structure with occupancy and u_iso
 
         Works for bound and ground states separately
@@ -236,6 +252,13 @@ class OccBLoopCaller(object):
         u_iso: float
                 U_iso at supplied occupancy
 
+        vary_b: bool
+
+        Returns
+        --------
+        xrs: cctbx.xray.structure.structure
+            X-ray structure of interest:
+            A class to describe and handle information related to a crystal structure.
 
         """
         for state in states:
@@ -251,6 +274,8 @@ class OccBLoopCaller(object):
                         )
                     )
                     xrs.scatterers()[i].occupancy = set_occupancy
-                    xrs.scatterers()[i].u_iso = u_iso
+
+                    if vary_b == True:
+                        xrs.scatterers()[i].u_iso = u_iso
 
         return xrs
