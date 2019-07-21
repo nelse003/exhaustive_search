@@ -13,7 +13,6 @@ from exhaustive.utils.utils import (
     get_minimum_fofc,
     round_step,
     b_to_u_iso,
-    u_iso_to_b_fac,
     expand_array,
 )
 from exhaustive.utils.utils_ccp4 import get_fofc_from_csv, process_validation_csvs
@@ -21,76 +20,6 @@ from exhaustive.utils.utils_ccp4 import get_fofc_from_csv, process_validation_cs
 from exhaustive.utils.convex_hull import atom_points_from_sel_string
 
 logger = logging.getLogger(__name__)
-
-
-def scatter_plot(csv_name, three_dim_plot=True, title_text=None):
-
-    """
-    Scatter plots of occupancy, U_iso and mean |fo_fc| from csv output
-
-    Parameters
-    ----------
-    csv_name: str
-        path to csv file
-
-    three_dim_plot: Bool
-        flag to determine whether a three dimensional plot is used
-
-    title_text:str
-        plot title text
-
-    Returns
-    -------
-    None
-
-    Notes
-    ------
-    Saves png to same name as csv
-    """
-    # TODO Split into multiple functions with base class
-
-    # Load data from CSV
-    if csv_name.endswith(".csv"):
-        data = np.genfromtxt(csv_name, delimiter=",", skip_header=0)
-    else:
-        data = np.genfromtxt("{}.csv".format(csv_name), delimiter=",", skip_header=0)
-
-    if len(data[0]) == 3:
-        logger.info("Using 3 column data to plot")
-        occ = data[:, 0]
-        u_iso = data[:, 1]
-        fo_fc = data[:, 2]
-
-    if len(data[0]) == 4:
-        logger.info("Using 4 column data to plot")
-        occ = data[:, 0]
-        u_iso = data[:, 2]
-        fo_fc = data[:, 3]
-
-    b_iso = u_iso_to_b_fac(u_iso)
-
-    fig = plt.figure()
-
-    if three_dim_plot:
-        logger.info("Plotting 3d plot")
-        ax = fig.add_subplot(111, projection="3d")
-        ax.scatter(occ, b_iso, fo_fc)
-        plt.xlabel("Occupancy")
-        plt.ylabel("B_iso")
-        ax.set_zlabel("Fo-Fc")
-    else:
-        ax = fig.add_subplot(111)
-        ax.scatter(occ, fo_fc)
-
-        plt.xlabel("Occupancy")
-        plt.ylabel("Fo-Fc")
-
-    if title_text is not None:
-        plt.title(title_text)
-
-    # TODO Plot name parameter #54, requires templating
-    plt.savefig(csv_name.rstrip(".csv"))
-    plt.close()
 
 
 def bounded_2d_scatter(atom_name, lower_bound, upper_bound):

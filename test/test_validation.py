@@ -11,7 +11,6 @@ from validation.validation import run as validate
 
 
 class TestValidation(unittest.TestCase):
-
     def setUp(self):
 
         """ Setup parameters
@@ -70,7 +69,7 @@ class TestValidation(unittest.TestCase):
                 if item.endswith(".mtz"):
                     os.remove(os.path.join(self.params.output.out_dir, item))
 
-    @unittest.skip("Validation is too slow")
+    # @unittest.skip("Validation is too slow")
     def test_validation(self):
 
         """ Run the validation script. Check the result and number of files output"""

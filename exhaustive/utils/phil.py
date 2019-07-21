@@ -2,7 +2,8 @@ import os
 
 import libtbx.phil
 
-master_phil = libtbx.phil.parse("""
+master_phil = libtbx.phil.parse(
+    """
 testing{
     testing = False
         .type = bool
@@ -186,7 +187,9 @@ repeat{
 }
 
 
-""", process_includes=True)
+""",
+    process_includes=True,
+)
 
 
 def prepare_validate_phil(master_phil):
@@ -195,24 +198,36 @@ def prepare_validate_phil(master_phil):
     params = master_phil.extract()
 
     if params.validate.input.bound_state_pdb_path is None:
-        print params.validate.input.bound_state_pdb_name
-        print params.input.in_path
-        params.validate.input.bound_state_pdb_path = os.path.join(params.input.in_path,
-                                                                  params.validate.input.bound_state_pdb_name)
+        print(params.validate.input.bound_state_pdb_name)
+        print(params.input.in_path)
+        params.validate.input.bound_state_pdb_path = os.path.join(
+            params.input.in_path, params.validate.input.bound_state_pdb_name
+        )
     if params.validate.input.ground_state_pdb_path is None:
-        params.validate.input.ground_state_pdb_path = os.path.join(params.input.in_path,
-                                                                   params.validate.input.ground_state_pdb_name)
+        params.validate.input.ground_state_pdb_path = os.path.join(
+            params.input.in_path, params.validate.input.ground_state_pdb_name
+        )
     if params.validate.output.set_all_b_name_extension is None:
-        params.validate.output.set_all_b_name_extension = str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        params.validate.output.set_all_b_name_extension = (
+            str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        )
     else:
-        params.validate.output.set_all_b_name_extension = params.validate.output.set_all_b_name_extension + \
-                                                          str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        params.validate.output.set_all_b_name_extension = (
+            params.validate.output.set_all_b_name_extension
+            + str(params.validate.options.set_b).replace(".", "_")
+            + ".pdb"
+        )
 
     if params.validate.output.set_b_name_extension is None:
-        params.validate.output.set_b_name_extension = str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        params.validate.output.set_b_name_extension = (
+            str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        )
     else:
-        params.validate.output.set_b_name_extension = params.validate.output.set_b_name_extension + \
-                                                      str(params.validate.options.set_b).replace(".", "_") + ".pdb"
+        params.validate.output.set_b_name_extension = (
+            params.validate.output.set_b_name_extension
+            + str(params.validate.options.set_b).replace(".", "_")
+            + ".pdb"
+        )
 
     modified_phil = master_phil.format(python_object=params)
 
@@ -224,10 +239,16 @@ def check_input_files(params):
         os.mkdir(params.output.out_dir)
 
     assert params.input.pdb is not None, "Input pdb not supplied"
-    assert os.path.exists(params.input.pdb), "Input pdb: \n{}\ndoes not exist".format(params.input.pdb)
+    assert os.path.exists(params.input.pdb), "Input pdb: \n{}\ndoes not exist".format(
+        params.input.pdb
+    )
 
     assert params.input.in_path is not None, "Input path not supplied"
-    assert os.path.exists(params.input.in_path), "Input path:\n{}\n does not exist".format(params.input.in_path)
+    assert os.path.exists(
+        params.input.in_path
+    ), "Input path:\n{}\n does not exist".format(params.input.in_path)
 
     assert params.input.mtz is not None, "Input mtz not supplied"
-    assert os.path.exists(params.input.mtz), "Input mtz: \n{}\ndoes not exist".format(params.input.mtz)
+    assert os.path.exists(params.input.mtz), "Input mtz: \n{}\ndoes not exist".format(
+        params.input.mtz
+    )

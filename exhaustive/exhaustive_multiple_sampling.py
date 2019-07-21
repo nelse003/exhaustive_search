@@ -34,7 +34,9 @@ def run(params):
     base_csv = params.exhaustive.output.csv_name.split(".csv")[0]
 
     params.exhaustive.options.step = 0.05
-    params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, base_csv + "_coarse.csv")
+    params.exhaustive.output.csv_name = os.path.join(
+        params.output.out_dir, base_csv + "_coarse.csv"
+    )
 
     t1 = time.time()
     exhaustive(params)
@@ -51,7 +53,9 @@ def run(params):
 
     params.exhaustive.options.step = 0.01
 
-    params.exhaustive.output.csv_name = os.path.join(params.output.out_dir, base_csv + "_fine.csv")
+    params.exhaustive.output.csv_name = os.path.join(
+        params.output.out_dir, base_csv + "_fine.csv"
+    )
 
     params.exhaustive.options.lower_occ = occ_min
     params.exhaustive.options.upper_occ = occ_max
