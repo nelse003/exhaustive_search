@@ -136,7 +136,7 @@ def wait_for_file_existence(file_path, wait_time):
 
     Used for waiting for qsub to finish
     """
-
+    print("GOT HERE")
     time_in_loop = 0
     while not os.path.exists(file_path):
         if time_in_loop < wait_time:

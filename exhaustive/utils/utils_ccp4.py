@@ -223,6 +223,42 @@ def read_ligand_occupancy_b(pdb_path, lig_chain):
     return occ_b_df
 
 
+def read_ligand(pdb_path, lig_chain=None):
+    """Extract occupancy and B factor of ligand of
+    interest from one PDB file into a dataframe"""
+
+    # Read in single PDB file
+    pdb_in = hierarchy.input(file_name=pdb_path)
+    sel_cache = pdb_in.hierarchy.atom_selection_cache()
+    if lig_chain is None:
+        lig_sel = sel_cache.selection("resname LIG")
+    else:
+        lig_sel = sel_cache.selection("chain {}".format(lig_chain))
+    lig_hierarchy = pdb_in.hierarchy.select(lig_sel)
+
+    lig_occ_b = []
+    # Get occupancy & B factor of ligand
+    for model in lig_hierarchy.models():
+        for chain in model.chains():
+            for rg in chain.residue_groups():
+                for ag in rg.atom_groups():
+                    for atom in ag.atoms():
+                        lig_occ_b.append([int(rg.resid()),
+                                          ag.altloc,
+                                          atom.name,
+                                          atom.occ,
+                                          atom.b,
+                                          ])
+
+    occ_b_df = pd.DataFrame(lig_occ_b,
+                            columns=["resid",
+                                     "altloc",
+                                     "Atom",
+                                     "Occupancy",
+                                     "B_factor"])
+
+    return occ_b_df
+
 def get_pdbs(refinement_dir, pdb_name="refine.pdb"):
     """ Given a folder get all pdb paths that match name"""
 
