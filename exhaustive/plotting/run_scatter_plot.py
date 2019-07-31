@@ -2,7 +2,8 @@ import argparse
 import numpy as np
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+import seaborn as sns
+import pandas as pd
 
 def u_iso_to_b_fac(u_iso):
     """
@@ -94,8 +95,7 @@ def scatter_plot(
         ax.spines["top"].set_visible(False)
         ax.scatter(b_iso, fo_fc)
 
-        plt.xlabel("B Factor")
-        plt.ylabel("Mean(|mFo-DFc|)")
+        cbar.ax.set_ylabel('# of contacts', rotation=270)
         type = "b"
 
     if title_text is not None:
@@ -104,6 +104,25 @@ def scatter_plot(
     plt.savefig("{}_{}".format(csv_name.rstrip(".csv"), type), dpi=300)
     plt.close()
 
+def color_occ_scatter_plot(csv_name):
+
+    df = pd.read_csv(csv_name,
+                     header=None,
+                     names=["bound_occupancy",
+                            "ground_occupancy",
+                            "u_iso",
+                            "fo_fc"])
+
+    plt.scatter(x=u_iso_to_b_fac(df.u_iso),
+                y=df.fo_fc,
+                c=df.bound_occupancy,
+                cmap="Blues")
+    cbar =plt.colorbar()
+    cbar.ax.set_ylabel('Occupancy', rotation=270)
+    cbar.ax.get_yaxis().labelpad = 15
+    plt.xlabel("B factor")
+    plt.ylabel("Mean(|mFo-DFc|)")
+    plt.savefig("occ_colour_DCP2B-x0146", dpi=300)
 
 if __name__ == "__main__":
     """Create plots from exhaustive csv file
@@ -122,6 +141,9 @@ if __name__ == "__main__":
 
     # resolve the parser
     args = parser.parse_args()
+
+    color_occ_scatter_plot(csv_name=args.csv)
+    exit()
 
     scatter_plot(csv_name=args.csv)
     scatter_plot(csv_name=args.csv, occ_plot=True, three_dim_plot=False)
