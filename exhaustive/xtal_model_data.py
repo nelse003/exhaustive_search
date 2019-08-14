@@ -119,9 +119,15 @@ class XtalModelData(object):
         self.pdb = self.params.input.pdb
         self.mtz = self.params.input.mtz
 
-        self.inputs = mmtbx.utils.process_command_line_args(args=[self.pdb, self.mtz])
+        # The suppress symmetry errors flag should allow
+        # vairation in cell size which seems to be
+        # occuring in parse_xchem_db runs
+        self.inputs = mmtbx.utils.process_command_line_args(args=[self.pdb, self.mtz],
+                                                            suppress_symmetry_related_errors=True)
 
         self.xrs = self._get_xrs()
+
+        print("After xrs")
 
         self._f_obs, self._r_free_flags = self._get_f_obs_r_free()
 
@@ -221,6 +227,8 @@ class XtalModelData(object):
         mask_params = mmtbx.masks.mask_master_params.extract()
         mask_params.ignore_hydrogens = False
         mask_params.ignore_zero_occupancy_atoms = False
+
+        print("before f model manager")
 
         fmodel = mmtbx.f_model.manager(
             f_obs=self._f_obs,

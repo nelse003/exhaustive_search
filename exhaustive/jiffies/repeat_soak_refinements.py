@@ -3,6 +3,7 @@ import sys
 import shutil
 
 sys.path.append("/dls/science/groups/i04-1/elliot-dev/parse_xchemdb")
+from utils.merge_cif import merge_cif
 from refinement.prepare_scripts import write_refmac_csh
 from refinement.prepare_scripts import write_exhaustive_csh
 from refinement.prepare_scripts import write_phenix_csh
@@ -19,12 +20,12 @@ if __name__ == "__main__":
     # What are these hits?
 
     # # DCP2B FMOPL000435a
-    # xtals_with_compound["DCP2B-x0146"] = 'FMOPL000435a'
-    # start_xtal_num = 993
-    # end_xtal_num = 1048
-    # for num in range(start_xtal_num, end_xtal_num + 1):
-    #     xtal_name = "DCP2B-x" + "{0:0>4}".format(num)
-    #     xtals_with_compound[xtal_name] = 'FMOPL000435a'
+    xtals_with_compound["DCP2B-x0146"] = 'FMOPL000435a'
+    start_xtal_num = 993
+    end_xtal_num = 1048
+    for num in range(start_xtal_num, end_xtal_num + 1):
+        xtal_name = "DCP2B-x" + "{0:0>4}".format(num)
+        xtals_with_compound[xtal_name] = 'FMOPL000435a'
     #
     # # NUDT7A OX210 1774-1810, 0299
     # xtals_with_compound['NUDT7A-x0299'] = 'OX210'
@@ -51,12 +52,12 @@ if __name__ == "__main__":
     #
     # # # NUDT22A FMOPL00622a
     # # from DSI poised library (x0938-x0976)
-    # xtals_with_compound['NUDT22A-x0182'] = 'FMOPL000622a_DSPL'
+    # xtals_with_compound['NUDT22A-x0182'] = 'FMOPL00622a_DSPL'
     # start_xtal_num = 909
     # end_xtal_num = 937
     # for num in range(start_xtal_num, end_xtal_num + 1):
     #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
-    #     xtals_with_compound[xtal_name] = 'FMOPL000622a_DSPL'
+    #     xtals_with_compound[xtal_name] = 'FMOPL00622a_DSPL'
     #
     # # # NUDT22A FMOPL00622a
     # # from DSI poised library (x0938-x0976)
@@ -67,12 +68,12 @@ if __name__ == "__main__":
     #     xtals_with_compound[xtal_name] = 'FMOPL000622a_DSI_poised'
     #
     # # NUDT22A 133725a x0421, x1040 - x1059
-    start_xtal_num = 1040
-    end_xtal_num = 1059
-    xtals_with_compound["NUDT22A-x0421"] = "N13725a"
-    for num in range(start_xtal_num, end_xtal_num + 1):
-        xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
-        xtals_with_compound[xtal_name] = "N13725a"
+    # start_xtal_num = 1040
+    # end_xtal_num = 1059
+    # xtals_with_compound["NUDT22A-x0421"] = "N13725a"
+    # for num in range(start_xtal_num, end_xtal_num + 1):
+    #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
+    #     xtals_with_compound[xtal_name] = "N13725a"
     #
     # # NUDT22A 13369a x0243, x977 to x1008
     #
@@ -85,11 +86,11 @@ if __name__ == "__main__":
 
     # NUDT22A 13663a x0391, x1009 to x1039
     # xtals_with_compound['NUDT22A-x0391'] = 'N13663a'
-    start_xtal_num = 1009
-    end_xtal_num = 1039
-    for num in range(start_xtal_num, end_xtal_num + 1):
-        xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
-        xtals_with_compound[xtal_name] = "N13663a"
+    # start_xtal_num = 1009
+    # end_xtal_num = 1039
+    # for num in range(start_xtal_num, end_xtal_num + 1):
+    #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
+    #     xtals_with_compound[xtal_name] = "N13663a"
 
     compound_codes = set()
     for compounds in xtals_with_compound.values():
@@ -110,6 +111,7 @@ if __name__ == "__main__":
             )
 
         elif "NUDT22" in xtal:
+            print(compound)
             data_folder_pre = (
                 "/dls/science/groups/i04-1/elliot-dev/Work/"
                 "exhaustive_search_data/NUDT22_repeat_soaks"
@@ -123,8 +125,8 @@ if __name__ == "__main__":
                     "FMOPL00622a_AlternateDiastereomer.cif"
                 )
 
-            elif compound == "FMOPL000622a_DSPL":
-                folder_ext = "FMOPL000622a"
+            elif compound == "FMOPL00622a_DSPL":
+                folder_ext = "FMOPL00622a"
                 input_cif = (
                     "/dls/labxchem/data/2018/lb18145-55/processing/"
                     "analysis/initial_model/NUDT22A-x0937/"
@@ -135,7 +137,7 @@ if __name__ == "__main__":
                 folder_ext = compound
                 input_cif = (
                     "/dls/labxchem/data/2018/lb18145-55/"
-                    "processing/analysis/initial_model/NUDT22A-x0421/N13725a"
+                    "processing/analysis/initial_model/NUDT22A-x0421/N13725a.cif"
                 )
 
             elif compound == "N13369a":
@@ -175,11 +177,18 @@ if __name__ == "__main__":
                     "/NUDT7A-x1739/NUOOA000181a.cif"
                 )
 
+        peg_issue_compounds =["FMOPL00622a_DSPL",
+                             "FMOPL000622a_DSI_poised",
+                             "FMOPL000435a",
+                             "N13369a"]
+
         input_pdb = os.path.join(data_folder, xtal, "refine.pdb")
         input_mtz = os.path.join(data_folder, xtal, "refine.mtz")
 
         if not os.path.isdir(os.path.join(data_folder, xtal)):
             continue
+
+        print("HERE")
 
         if not os.path.exists(input_pdb):
             for pdb_file in os.listdir(os.path.join(data_folder, xtal)):
@@ -199,11 +208,11 @@ if __name__ == "__main__":
                     continue
 
         out_root = (
-            "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/190709"
+            "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/110819"
         )
         refinement_script_dir = (
             "/dls/science/groups/i04-1/elliot-dev/Work/"
-            "exhaustive_search_data/190709/scripts"
+            "exhaustive_search_data/191108/scripts"
         )
 
         # Refmac
@@ -214,6 +223,8 @@ if __name__ == "__main__":
 
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
+
+        print("refmac")
 
         if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
 
@@ -237,7 +248,7 @@ if __name__ == "__main__":
             csh_file = os.path.join(
                 refinement_script_dir, "{}_{}.csh".format(xtal, "refmac")
             )
-            os.system("qsub {}".format(csh_file))
+            #os.system("qsub {}".format(csh_file))
 
         # Phenix
         out_dir = os.path.join(out_root, "phenix", xtal)
@@ -248,6 +259,8 @@ if __name__ == "__main__":
         out_mtz = os.path.join(out_dir, "refine_001.mtz")
         out_pdb = os.path.join(out_dir, "refine_001.pdb")
 
+        print("phenix")
+
         if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
 
             shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
@@ -255,20 +268,48 @@ if __name__ == "__main__":
             os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
             input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
 
+            if compound in peg_issue_compounds:
+                os.system(
+                    "module load phenix;"
+                    "mkdir {out_dir};"
+                    "cd {out_dir};"
+                    "mkdir ./ready_set;"
+                    "cd ready_set;"
+                    "phenix.ready_set {pdb}".format(
+                        out_dir=out_dir,
+                        pdb=input_split_pdb,
+                    ))
+
+                ready_set_dir = os.path.join(out_dir, "ready_set")
+
+                tmp_cif = os.path.join(out_dir, "tmp.cif")
+
+                merge_cif(cif1=input_cif,
+                          cif2=os.path.join(ready_set_dir,"PEG.cif"),
+                          cif_out=tmp_cif)
+
+            else:
+                tmp_cif = input_cif
+
+
+
             write_phenix_csh(
                 pdb=input_split_pdb,
                 mtz=input_mtz,
-                cif=input_cif,
+                cif=tmp_cif,
                 script_dir="/dls/science/groups/i04-1/elliot-dev/parse_xchemdb",
                 refinement_script_dir=refinement_script_dir,
                 out_dir=out_dir,
+                refinement_type="bound",
                 crystal=xtal,
                 ncyc=20,
             )
             csh_file = os.path.join(
-                refinement_script_dir, "{}_{}.csh".format(xtal, "phenix")
+                refinement_script_dir, "{}_{}_bound.csh".format(xtal, "phenix")
             )
+
             os.system("qsub {}".format(csh_file))
+            exit()
 
         # Buster
         out_dir = os.path.join(out_root, "buster", xtal)
@@ -278,6 +319,8 @@ if __name__ == "__main__":
 
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
+
+        print("buster")
 
         if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
 
@@ -293,10 +336,11 @@ if __name__ == "__main__":
                 out_dir=out_dir,
                 script_dir="/dls/science/groups/i04-1/elliot-dev/parse_xchemdb",
                 refinement_script_dir=refinement_script_dir,
+                refinement_type="bound",
                 crystal=xtal,
             )
             csh_file = os.path.join(
-                refinement_script_dir, "{}_{}.csh".format(xtal, "buster")
+                refinement_script_dir, "{}_{}_{}.csh".format(xtal, "buster", "bound")
             )
             os.system("qsub {}".format(csh_file))
 
@@ -376,7 +420,9 @@ if __name__ == "__main__":
 
             os.system("qsub {}".format(csh_file))
 
+
         # phenix superposed
+        print("---------------------------ps---------------------------------------")
         out_dir = os.path.join(out_root, "phenix_superposed", xtal)
 
         if not os.path.exists(out_dir):
@@ -426,6 +472,7 @@ if __name__ == "__main__":
 
             os.system("qsub {}".format(csh_file))
 
+
         # buster superposed
         out_dir = os.path.join(out_root, "buster_superposed", xtal)
 
@@ -459,3 +506,4 @@ if __name__ == "__main__":
                 csh_f.write(cmds)
 
             os.system("qsub {}".format(csh_file))
+
