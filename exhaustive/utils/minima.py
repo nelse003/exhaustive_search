@@ -1,14 +1,39 @@
+import sys
+# needed to call from ccp4 python
+sys.path.append("/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search")
+
+import argparse
 import iotbx
 from iotbx.pdb import hierarchy
-
 from exhaustive.utils.select_atoms import get_bound_ground_states
 from exhaustive.utils.utils import get_minimum_fofc
 from exhaustive.utils.utils import u_iso_to_b_fac
-
-logging = logging.getLogger(__name__)
+from phil import master_phil
 
 
 def write_minima_pdb(input_pdb, output_pdb, csv_name, params):
+    """
+    Write pdb from the minima in exhaustive search
+
+    Parameters
+    ----------
+    input_pdb: str
+        path to input pdb to take structure from
+
+    output_pdb: str
+        path to write strucutre to
+
+    csv_name: str
+        path to exhaustive search csv
+
+    params: str
+        parameter
+
+    Returns
+    -------
+
+    """
+
     min_occ, min_u_iso, _ = get_minimum_fofc(csv_name)
 
     bound_states, ground_states = get_bound_ground_states(input_pdb, params)
@@ -38,3 +63,19 @@ def write_minima_pdb(input_pdb, output_pdb, csv_name, params):
                 crystal_symmetry=hierarchy.input(input_pdb).crystal_symmetry()
             )
         )
+
+if __name__ == "__main__":
+
+    params = master_phil.extract()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input_pdb")
+    parser.add_argument("-o", "--output_pdb")
+    parser.add_argument("-c", "--csv_name")
+
+    args = parser.parse_args()
+
+    write_minima_pdb(input_pdb=args.input_pdb,
+                     output_pdb=args.output_pdb,
+                     csv_name=args.csv_name,
+                     params=params)
