@@ -45,10 +45,21 @@ def run(params):
     occ, u_iso, fo_fc = get_minimum_fofc(
         os.path.join(params.output.out_dir, params.exhaustive.output.csv_name)
     )
+    if occ >= 0.1:
+        occ_min = occ - 0.1
+    else:
+        occ_min = 0.0
 
-    occ_min = occ - 0.1
-    occ_max = occ + 0.1
-    u_iso_min = u_iso - 0.1
+    if occ <= 0.9:
+        occ_max = occ + 0.1
+    else:
+        occ_max = 1.0
+
+    if u_iso < 0.1:
+        u_iso_min = 0
+    else:
+        u_iso_min = u_iso - 0.1
+
     u_iso_max = u_iso + 0.1
 
     params.exhaustive.options.step = 0.01
