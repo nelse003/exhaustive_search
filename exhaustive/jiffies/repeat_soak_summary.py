@@ -13,7 +13,7 @@ if __name__ == "__main__":
     Uses ccp4-python
     """
 
-    out_root = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/190709"
+    out_root = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/150919"
 
     xtals_with_compound = {}
 
@@ -157,6 +157,6 @@ if __name__ == "__main__":
 
     occ_all_df = pd.concat(occ_df_list)
     occ_all_df.to_csv("/dls/science/groups/i04-1/elliot-dev/Work/"
-                        "repeat_soak_plots/occ_all.csv")
+                        "repeat_soak_plots/150919/occ_all.csv")
 
 

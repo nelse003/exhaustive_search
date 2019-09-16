@@ -9,7 +9,7 @@ if __name__ == "__main__":
     """plot from repeat soak csv"""
 
     occ_all_df = pd.read_csv( "/dls/science/groups/i04-1/elliot-dev/Work/"
-                              "repeat_soak_plots/occ_all.csv")
+                              "repeat_soak_plots/150919/occ_all.csv")
 
     compounds = occ_all_df['compound'].unique()
     ref_types = occ_all_df['refinement'].unique()
