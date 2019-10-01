@@ -190,7 +190,7 @@ def plot_2d_occ_b_validation(
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    min_plot = ax.plot(min_occs, min_b_facs, "k+")
+    min_plot, = ax.plot(min_occs, min_b_facs, "k+")
     occ_plot, = ax.plot(occs, b_facs, "ro")
 
     for i in np.arange(0, len(occs)):
@@ -199,23 +199,25 @@ def plot_2d_occ_b_validation(
     ax.set_xlabel("Occupancy")
     ax.set_ylabel("B factor")
 
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    plt.ylim(38,42)
+
     ax.legend(
         (min_plot, occ_plot),
         (
             "B factor & occupancy at Minima of mean |Fo-Fc|",
             "B factor & occupancy at Mean |Fo-Fc| at simulated occupancy",
         ),
-        prop={"size": 8},
+        prop={"size": 12},
         numpoints=1,
-        bbox_to_anchor=(1, 1),
-        bbox_transform=plt.gcf().transFigure,
+        # bbox_to_anchor=(1, 1),
+        # bbox_transform=plt.gcf().transFigure,
+        frameon=False,
     )
-
-    plt.title(
-        "{}: Delta Occupancy & B factor: Validation".format(dataset_prefix), fontsize=10
-    )
-
-    print(os.path.join(out_dir, "{}-2d-delta_fofc_occ.png".format(dataset_prefix)))
 
     plt.savefig(
         os.path.join(out_dir, "{}-2d-delta_fofc_occ.png".format(dataset_prefix))

@@ -53,7 +53,6 @@ def get_minimum_fofc(csv_name, b_fac=None):
     Returns
     --------
     """
-    print(os.getcwd())
     # TODO Remove this dual .csv by cleaning up csv name: issue 59
     if csv_name.endswith(".csv"):
         data = np.genfromtxt(csv_name, delimiter=",", skip_header=0)

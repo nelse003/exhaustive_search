@@ -113,6 +113,9 @@ if __name__ == "__main__":
             elif program_folder=="buster" or program_folder=="refmac":
                 pdb = os.path.join(out_root, program_folder, xtal, "refine.pdb")
 
+            # update split confs
+            elif program_folder=="phenix_superposed":
+                pdb = os.path.join(out_root, program_folder, xtal, "refine.pdb")
             else:
                 pdb = os.path.join(out_root, program_folder, xtal, "refine.split.bound-state.pdb")
 
@@ -153,6 +156,10 @@ if __name__ == "__main__":
             occ_df['compound'] = compound
 
             occ_df_list.append(occ_df)
+
+            if xtal=="NUDT22A-x1038" and program_folder == "phenix_superposed":
+                print(pdb)
+                print(occ_df)
 
 
     occ_all_df = pd.concat(occ_df_list)

@@ -4,6 +4,7 @@ import shutil
 from collections import Counter
 
 sys.path.append("/dls/science/groups/i04-1/elliot-dev/parse_xchemdb")
+
 from refinement.merge_cif import merge_cif
 from refinement.prepare_scripts import write_refmac_csh
 from refinement.prepare_scripts import write_exhaustive_csh
@@ -35,10 +36,10 @@ if __name__ == "__main__":
     # for num in range(start_xtal_num, end_xtal_num + 1):
     #     xtal_name = "NUDT7A-x" + "{0:0>4}".format(num)
     #     xtals_with_compound[xtal_name] = 'OX210'
-    #
-    # # NUDT7A NUOOA000181a
-    # # 1739 - 1773
-    # # 2006 - 2073
+
+    # NUDT7A NUOOA000181a
+    # 1739 - 1773
+    # 2006 - 2073
     # start_xtal_num = 1739
     # end_xtal_num = 1773
     # for num in range(start_xtal_num, end_xtal_num + 1):
@@ -49,8 +50,8 @@ if __name__ == "__main__":
     # for num in range(start_xtal_num, end_xtal_num + 1):
     #     xtal_name = "NUDT7A-x" + "{0:0>4}".format(num)
     #     xtals_with_compound[xtal_name] = 'NUOOA000181a'
-    #
-    #
+
+
     # # # NUDT22A FMOPL00622a
     # # from DSI poised library (x0938-x0976)
     # xtals_with_compound['NUDT22A-x0182'] = 'FMOPL00622a_DSPL'
@@ -67,14 +68,14 @@ if __name__ == "__main__":
     # for num in range(start_xtal_num, end_xtal_num + 1):
     #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
     #     xtals_with_compound[xtal_name] = 'FMOPL000622a_DSI_poised'
-    #
+
     # # NUDT22A 133725a x0421, x1040 - x1059
-    # start_xtal_num = 1040
-    # end_xtal_num = 1059
-    # xtals_with_compound["NUDT22A-x0421"] = "N13725a"
-    # for num in range(start_xtal_num, end_xtal_num + 1):
-    #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
-    #     xtals_with_compound[xtal_name] = "N13725a"
+    start_xtal_num = 1040
+    end_xtal_num = 1059
+    xtals_with_compound["NUDT22A-x0421"] = "N13725a"
+    for num in range(start_xtal_num, end_xtal_num + 1):
+        xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
+        xtals_with_compound[xtal_name] = "N13725a"
     #
     # # NUDT22A 13369a x0243, x977 to x1008
     #
@@ -84,18 +85,20 @@ if __name__ == "__main__":
     # for num in range(start_xtal_num, end_xtal_num + 1):
     #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
     #     xtals_with_compound[xtal_name] = 'N13369a'
-
-    #NUDT22A 13663a x0391, x1009 to x1039
-    xtals_with_compound['NUDT22A-x0391'] = 'N13663a'
-    start_xtal_num = 1009
-    end_xtal_num = 1039
-    for num in range(start_xtal_num, end_xtal_num + 1):
-        xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
-        xtals_with_compound[xtal_name] = "N13663a"
-
+    #
+    # #NUDT22A 13663a x0391, x1009 to x1039
+    # xtals_with_compound['NUDT22A-x0391'] = 'N13663a'
+    # start_xtal_num = 1009
+    # end_xtal_num = 1039
+    # for num in range(start_xtal_num, end_xtal_num + 1):
+    #     xtal_name = "NUDT22A-x" + "{0:0>4}".format(num)
+    #     xtals_with_compound[xtal_name] = "N13663a"
+    #
     compound_codes = set()
     for compounds in xtals_with_compound.values():
         compound_codes.add(compounds)
+
+    print(compound_codes)
 
     for xtal, compound in xtals_with_compound.items():
 
@@ -168,28 +171,60 @@ if __name__ == "__main__":
                     "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/"
                     "NUDT7_Copied_atoms/OX210/NUDT7A-x1787/OX-210.cif"
                 )
-            else:
-                # This isn't copied atoms. Can't find that...
-                data_folder = "/dls/labxchem/data/2017/lb18145-3/processing/analysis/initial_model"
+            elif compound == 'NUOOA000181a':
+                data_folder = "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
+
                 input_cif = (
                     "/dls/labxchem/data/2017/lb18145-49/processing/analysis/initial_model"
                     "/NUDT7A-x1739/NUOOA000181a.cif"
                 )
+
 
         # cif file issue management
         issue_compounds =["FMOPL00622a_DSPL",
                            "FMOPL000622a_DSI_poised",
                           "FMOPL000435a",
                           "N13369a",
-                          "N13663a"]
+                          "N13663a",
+                          "N133725a"]
 
         input_pdb = os.path.join(data_folder, xtal, "refine.pdb")
         input_mtz = os.path.join(data_folder, xtal, "refine.mtz")
 
-        if not os.path.isdir(os.path.join(data_folder, xtal)):
-            continue
+        if compound == "N13663a":
+            input_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/150919/refmac/NUDT22A-x0391/multi-state-model.pdb"
+            input_cif = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/150919/refmac/NUDT22A-x0391/input.cif"
 
-        print("HERE")
+        if compound == "N13725a":
+            input_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/150919/refmac/NUDT22A-x1040/multi-state-model.pdb"
+
+            input_split_pdb = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                        "exhaustive_search_data/150919/refmac/NUDT22A-x1040/input.split.bound-state.pdb"
+
+            input_cif = "/dls/science/groups/i04-1/elliot-dev/Work/exhaustive_search_data/" \
+                        "150919/refmac/NUDT22A-x1040/elbow.cif"
+
+
+
+            input_params_refmac = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                                  "exhaustive_search_data/150919/refmac/NUDT22A-x0421/" \
+                                  "multi-state-restraints.refmac.params"
+
+            input_params_phenix = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                                  "exhaustive_search_data/150919/refmac/NUDT22A-x0421/" \
+                                  "multi-state-restraints.phenix.params"
+
+            input_params_buster = "/dls/science/groups/i04-1/elliot-dev/Work/" \
+                                  "exhaustive_search_data/150919/buster_superposed/" \
+                                  "NUDT22A-x1058/params.gelly"
+
+        print(f"input {input_pdb}, {input_mtz}")
+
+        if not os.path.isdir(os.path.join(data_folder, xtal)):
+            os.mkdir(os.path.join(data_folder, xtal))
 
         if not os.path.exists(input_pdb):
             for pdb_file in os.listdir(os.path.join(data_folder, xtal)):
@@ -225,14 +260,28 @@ if __name__ == "__main__":
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
 
+        print(f"out {out_pdb} {out_mtz}")
         print("refmac")
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
+        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz) \
+           and os.path.exists(input_pdb)\
+           and os.path.exists(input_mtz):
 
-            shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+        # overwrite existing
+        #if os.path.exists(input_pdb) and os.path.exists(input_mtz):
+
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
-            os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
-            input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
+            try:
+                shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+                shutil.copy(src=input_cif, dst=os.path.join(out_dir, "input.cif"))
+            except shutil.SameFileError:
+                pass
+
+            if os.path.exists(os.path.join(out_dir, "input.cif")):
+                input_cif = os.path.join(out_dir, "input.cif")
+
+            # os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
+            # input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
 
             write_refmac_csh(
                 pdb=input_split_pdb,
@@ -247,9 +296,10 @@ if __name__ == "__main__":
                 ccp4_path="/dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh",
             )
             csh_file = os.path.join(
-                refinement_script_dir, "{}_{}.csh".format(xtal, "refmac")
+                refinement_script_dir, "{}_{}_{}.csh".format(xtal, "refmac", "refmac")
             )
             os.system("qsub {}".format(csh_file))
+
 
         # Phenix
         out_dir = os.path.join(out_root, "phenix", xtal)
@@ -265,26 +315,43 @@ if __name__ == "__main__":
         print(out_pdb)
         print(os.path.exists(out_pdb))
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
+        if not os.path.exists(out_pdb) \
+           and not os.path.exists(out_mtz)\
+           and os.path.exists(input_pdb)\
+           and os.path.exists(input_mtz):
 
             shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
-            os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
-            input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
+            # os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
+            # input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
 
-            if compound in issue_compounds:
-                cmds = "module load phenix\n"
-                cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
-                cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
-                cmds += "cd {}\n".format(out_dir)
-                cmds += "mkdir ./ready_set;\n"
-                cmds += "cd ready_set;\n"
-                cmds +=  "phenix.ready_set {pdb}\n".format(out_dir=out_dir, pdb=input_pdb)
-                cmds += "cd {}\n".format(out_dir)
-                input_cif = os.path.join(out_dir,
-                                         "ready_set",
-                                         "{pdb}.ligands.cif".format(pdb=os.path.basename(input_pdb).strip(".pdb")))
-                os.system(cmds)
+            # if compound in issue_compounds:
+            #
+            #     cif_N133725a = os.path.join(out_root,
+            #                  "NUDT22A-x0421",
+            #                  "ready_set",
+            #                  "{pdb}.ligands.cif".format(
+            #                      pdb=os.path.basename(
+            #                          input_pdb).strip(".pdb"))     )
+            #
+            #     if compound == 'N13725a' and os.path.exists(cif_N133725a):
+            #
+            #         input_cif = cif_N133725a
+            #
+            #
+            #     else:
+            #         cmds = "module load phenix\n"
+            #         cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
+            #         cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
+            #         cmds += "cd {}\n".format(out_dir)
+            #         cmds += "mkdir ./ready_set;\n"
+            #         cmds += "cd ready_set;\n"
+            #         cmds +=  "phenix.ready_set {pdb}\n".format(out_dir=out_dir, pdb=input_pdb)
+            #         cmds += "cd {}\n".format(out_dir)
+            #         input_cif = os.path.join(out_dir,
+            #                                  "ready_set",
+            #                                  "{pdb}.ligands.cif".format(pdb=os.path.basename(input_pdb).strip(".pdb")))
+            #         os.system(cmds)
 
             write_phenix_csh(
                 pdb=input_split_pdb,
@@ -303,7 +370,7 @@ if __name__ == "__main__":
             print(csh_file)
             os.system("qsub {}".format(csh_file))
 
-        continue
+
 
         # Buster
         out_dir = os.path.join(out_root, "buster", xtal)
@@ -316,12 +383,50 @@ if __name__ == "__main__":
 
         print("buster")
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
+        if not os.path.exists(out_pdb) \
+           and not os.path.exists(out_mtz)\
+           and os.path.exists(input_pdb)\
+           and os.path.exists(input_mtz):
 
             shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
-            os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
-            input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
+            # os.system("cd {}; giant.split_conformations input.pdb".format(out_dir))
+            # input_split_pdb = os.path.join(out_dir, "input.split.bound-state.pdb")
+
+            # Create new cif if old one fails
+            # if compound in issue_compounds:
+            #     cif_N133725a = os.path.join(out_root,
+            #                                 "NUDT22A-x0421",
+            #                                     "ready_set",
+            #                                     "{pdb}.ligands.cif".format(
+            #                                         pdb=os.path.basename(
+            #                                             input_pdb).strip(".pdb")))
+            #
+            #     if compound == N133725a and \
+            #         os.path.exists(cif_N133725a):
+            #         input_cif = cif_N133725a
+            #
+            #     else:
+            #         cmds = "module load phenix\n"
+            #     cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
+            #     cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
+            #     cmds += "cd {}\n".format(out_dir)
+            #     cmds += "mkdir ./ready_set;\n"
+            #     cmds += "cd ready_set;\n"
+            #     cmds += "phenix.ready_set {pdb}\n".format(out_dir=out_dir, pdb=input_pdb)
+            #     cmds += "cd {}\n".format(out_dir)
+            #     input_cif = os.path.join(out_dir,
+            #                              "ready_set",
+            #                              "{pdb}.ligands.cif".format(pdb=os.path.basename(input_pdb).strip(".pdb")))
+            #     os.system(cmds)
+            # Handle failed buster refinements
+            if os.path.exists(os.path.join(out_dir, "01-BUSTER_old")):
+                shutil.rmtree(os.path.join(out_dir, "01-BUSTER_old"))
+
+            if os.path.exists(os.path.join(out_dir, "01-BUSTER")):
+
+                shutil.move(os.path.join(out_dir, "01-BUSTER"),
+                            os.path.join(out_dir, "01-BUSTER_old"))
 
             write_buster_csh(
                 pdb=input_split_pdb,
@@ -374,9 +479,54 @@ if __name__ == "__main__":
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
-            shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+        if not os.path.exists(out_pdb) \
+           and not os.path.exists(out_mtz)\
+           and os.path.exists(input_pdb)\
+           and os.path.exists(input_mtz):
+
+        # overwrite existing
+        #if os.path.exists(input_pdb) and os.path.exists(input_mtz):
+
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
+            try:
+                shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+                shutil.copy(src=input_cif, dst=os.path.join(out_dir, "input.cif"))
+            except shutil.SameFileError:
+                pass
+
+            # Uses existing cif
+            # if compound == "N13663a":
+            #     input_cif = os.path.join(out_root,
+            #                              "buster",
+            #                              "NUDT22A-x1009",
+            #                              "ready_set",
+            #                              "refine.ligands.cif")
+
+            # Create new cif if old one fails
+            # if compound in issue_compounds:
+            #     cif_N133725a = os.path.join(out_root,
+            #                                 "NUDT22A-x0421",
+            #                                 "ready_set",
+            #                                 "{pdb}.ligands.cif".format(
+            #                                     pdb=os.path.basename(
+            #                                         input_pdb).strip(".pdb")))
+            #
+            # if compound == "N133725a" and os.path.exists(cif_N133725a):
+            #     input_cif = cif_N133725a
+
+            # else:
+            #     cmds = "module load phenix\n"
+            #     cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
+            #     cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
+            #     cmds += "cd {}\n".format(out_dir)
+            #     cmds += "mkdir ./ready_set;\n"
+            #     cmds += "cd ready_set;\n"
+            #     cmds += "phenix.ready_set {pdb}\n".format(out_dir=out_dir, pdb=input_pdb)
+            #     cmds += "cd {}\n".format(out_dir)
+            #     input_cif = os.path.join(out_dir,
+            #                              "ready_set",
+            #                              "{pdb}.ligands.cif".format(pdb=os.path.basename(input_pdb).strip(".pdb")))
+            #     os.system(cmds)
 
             os.system(
                 "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh;"
@@ -414,7 +564,6 @@ if __name__ == "__main__":
 
             os.system("qsub {}".format(csh_file))
 
-
         # phenix superposed
         print("---------------------------ps---------------------------------------")
         out_dir = os.path.join(out_root, "phenix_superposed", xtal)
@@ -425,9 +574,23 @@ if __name__ == "__main__":
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
-            shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+        if not os.path.exists(out_pdb) \
+           and not os.path.exists(out_mtz)\
+           and os.path.exists(input_pdb)\
+           and os.path.exists(input_mtz):
+
+        # overwrite existing
+        #if os.path.exists(input_pdb) and os.path.exists(input_mtz):
+
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
+            try:
+                shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+                shutil.copy(src=input_cif, dst=os.path.join(out_dir, "input.cif"))
+            except shutil.SameFileError:
+                pass
+
+            if os.path.exists(os.path.join(out_dir, "input.cif")):
+                input_cif = os.path.join(out_dir, "input.cif")
 
             os.system(
                 "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh;"
@@ -443,18 +606,35 @@ if __name__ == "__main__":
                 param_file.write("refinement.main.number_of_macro_cycles=20")
 
             cmds = "module load phenix\n"
-            cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
+            cmds += "source /dls/science/groups/i04-1/elliot-dev/" \
+                   "ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
             cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
             cmds += "cd {}\n".format(out_dir)
 
-            if compound in issue_compounds:
-                cmds += "mkdir ./ready_set;\n"
-                cmds += "cd ready_set;\n"
-                cmds +=  "phenix.ready_set {pdb}\n".format(out_dir=out_dir, pdb=input_pdb)
-                cmds += "cd {}\n".format(out_dir)
-                input_cif = os.path.join(out_dir,
-                                         "ready_set",
-                                         "{pdb}.ligands.cif".format(pdb=os.path.basename(input_pdb).strip(".pdb")))
+            # Create new cif if old one fails
+            # if compound in issue_compounds:
+            #     cif_N133725a = os.path.join(out_root,
+            #                                     "NUDT22A-x0421",
+            #                                     "ready_set",
+            #                                     "{pdb}.ligands.cif".format(
+            #                                         pdb=os.path.basename(
+            #                                             input_pdb).strip(".pdb")))
+            #
+            #     if compound == "N133725a" and os.path.exists(cif_N133725a):
+            #         input_cif = cif_N133725a
+            #
+            #
+            #     else:
+            #         pass
+                    # cmds += "mkdir ./ready_set;\n"
+                    # cmds += "cd ready_set;\n"
+                    # cmds += "phenix.ready_set {pdb}\n".format(out_dir=out_dir,
+                    #                                           pdb=input_pdb)
+                    # cmds += "cd {}\n".format(out_dir)
+                    # input_cif = os.path.join(out_dir,
+                    #                      "ready_set",
+                    #                      "{pdb}.ligands.cif".format(pdb=os.path.basename(
+                    #                          input_pdb).strip(".pdb")))
 
 
             cmds += "giant.quick_refine {} {} {} params={} program={}\n".format(
@@ -487,17 +667,56 @@ if __name__ == "__main__":
         out_mtz = os.path.join(out_dir, "refine.mtz")
         out_pdb = os.path.join(out_dir, "refine.pdb")
 
-        if not os.path.exists(out_pdb) and not os.path.exists(out_mtz):
-            shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+        # if not os.path.exists(out_pdb) \
+        #    and not os.path.exists(out_mtz)\
+        #    and os.path.exists(input_pdb)\
+        #    and os.path.exists(input_mtz):
+
+        # overwrite existing
+        if os.path.exists(input_pdb) and os.path.exists(input_mtz):
+
+            # if xtal == "NUDT22A-x0391":
+            #     continue
+
             shutil.copy(src=input_mtz, dst=os.path.join(out_dir, "input.mtz"))
+            try:
+                shutil.copy(src=input_pdb, dst=os.path.join(out_dir, "input.pdb"))
+                shutil.copy(src=input_cif, dst=os.path.join(out_dir, "input.cif"))
+            except shutil.SameFileError:
+                pass
 
             cmds = "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
             cmds += "cd {}\n".format(out_dir)
-            cmds += "giant.make_restraints {}\n".format(
-                os.path.join(out_dir, "input.pdb")
-            )
-            cmds += "giant.quick_refine {} {} {} params={} program={}\n".format(
-                input_pdb, input_mtz, input_cif, "params.gelly", "buster"
+            # cmds += "giant.make_restraints {}\n".format(
+            #     os.path.join(out_dir, "input.pdb")
+            # )
+
+            # Create new cif if old one fails
+            # if compound in issue_compounds:
+            #     cif_N133725a = os.path.join(out_root,
+            #                                 "NUDT22A-x0421",
+            #                                 "ready_set",
+            #                                 "{pdb}.ligands.cif".format(
+            #                                     pdb=os.path.basename(
+            #                                         input_pdb).strip(".pdb")))
+
+            # if compound == "N133725a" and os.path.exists(cif_N133725a):
+            #     input_cif = cif_N133725a
+
+            if os.path.exists(os.path.join(out_dir, "input.cif")):
+                input_cif = os.path.join(out_dir, "input.cif")
+                cmds = "module load phenix\n"
+                cmds += "source /dls/science/groups/i04-1/elliot-dev/ccp4/ccp4-7.0/bin/ccp4.setup-sh\n"
+                cmds += "mkdir {out_dir};\n".format(out_dir=out_dir)
+                cmds += "cd {}\n".format(out_dir)
+                # cmds += "giant.make_restraints input.pdb\n"
+
+                cmds += "giant.quick_refine {} {} {} params={} program={}\n".format(
+                input_pdb,
+                input_mtz,
+                input_cif,
+                input_params_buster,
+                "buster",
             )
             cmds += "giant.split_conformations refine.pdb"
 
@@ -511,4 +730,3 @@ if __name__ == "__main__":
                 csh_f.write(cmds)
 
             os.system("qsub {}".format(csh_file))
-

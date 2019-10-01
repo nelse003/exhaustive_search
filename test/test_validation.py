@@ -24,7 +24,7 @@ class TestValidation(unittest.TestCase):
         self.params = master_phil.extract()
         self.params.input.xtal_name = "FALZA-x0085"
         self.params.input.in_path = os.path.join(
-            os.path.realpath("./test/resources"), self.params.input.xtal_name
+            os.path.realpath("./resources"), self.params.input.xtal_name
         )
         self.params.validate.input.base_mtz = os.path.join(
             self.params.input.in_path, "FALZA-x0085.free.mtz"
