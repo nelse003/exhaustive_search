@@ -23,13 +23,13 @@ if __name__ == "__main__":
     max_b = np.max(occ_all_df['B_factor'].unique())
 
     # Colour map for plots
-    cols = {'refmac':'g',
-            'buster':'r',
-            'phenix':'b',
-            'refmac_superposed':'c',
-            'exhaustive':'m',
-            'phenix_superposed':'y',
-            'buster_superposed':'k',
+    cols = {'buster': 'darkgreen',
+            'buster_superposed': 'limegreen',
+            'exhaustive': 'gold',
+            'phenix': 'navy',
+            'phenix_superposed': 'cornflowerblue',
+            'refmac':'crimson',
+            'refmac_superposed':'lightcoral',
             }
 
     # col_ar = [(0.0, 0.5, 0.0, 1.0),
@@ -141,9 +141,6 @@ if __name__ == "__main__":
             "repeat_soak_plots/occ_scatter_{}_{}.png".format(compound, resid), dpi = 300)
             plt.close()
 
-
-    exit()
-
     mean_occ_df = occ_df.groupby('program').mean()
     std_occ_df = occ_df.groupby('program').std()
 
@@ -164,13 +161,37 @@ if __name__ == "__main__":
                     label=mean[0].replace('_',' ')
                     )
 
-    plt.plot([], [], ' ', label="Error bars show\n"
-                                "Standard deviation\n")
+    # Dashed joining lines
+    ax.plot([mean_occ_df.loc['buster', 'Occupancy'],
+             mean_occ_df.loc['buster_superposed', 'Occupancy']],
+            [mean_occ_df.loc['buster', 'B_factor'],
+             mean_occ_df.loc['buster_superposed', 'B_factor']],
+            linestyle='dashed',
+            color=to_rgba('forestgreen', 0.5))
+
+    ax.plot([mean_occ_df.loc['refmac', 'Occupancy'],
+             mean_occ_df.loc['refmac_superposed', 'Occupancy']],
+            [mean_occ_df.loc['refmac', 'B_factor'],
+             mean_occ_df.loc['refmac_superposed', 'B_factor']],
+            linestyle='dashed',
+            color=to_rgba('crimson', 0.5))
+
+    ax.plot([mean_occ_df.loc['phenix', 'Occupancy'],
+             mean_occ_df.loc['phenix_superposed', 'Occupancy']],
+            [mean_occ_df.loc['phenix', 'B_factor'],
+             mean_occ_df.loc['phenix_superposed', 'B_factor']],
+            linestyle='dashed',
+            color=to_rgba('navy', 0.5),
+            label="Relationship between\nsuperposed and\nnon-superposed\nrefinement methods\n ")
+
+    plt.plot([], [], '-', label="Error bars show\n"
+                                "standard deviation\n",
+             color=to_rgba('forestgreen',0.4))
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     ax.legend(loc='center left',
-              bbox_to_anchor=(1, 0.8),
+              bbox_to_anchor=(1, 0.5),
               fontsize=8,
               frameon=False)
 
@@ -208,20 +229,46 @@ if __name__ == "__main__":
                      markersize=8,
                      fmt='o')
 
-    plt.plot([], [], ' ', label="Error bars show\n"
-                                "Standard deviation\n"
+    # Dashed joining lines
+    ax.plot([width_df.loc['buster','Occupancy'],
+                width_df.loc['buster_superposed','Occupancy']],
+             [width_df.loc['buster','B_factor'],
+                width_df.loc['buster_superposed','B_factor']],
+             linestyle='dashed',
+             color=to_rgba('forestgreen',0.5))
+
+    ax.plot([width_df.loc['refmac','Occupancy'],
+                width_df.loc['refmac_superposed','Occupancy']],
+             [width_df.loc['refmac','B_factor'],
+                width_df.loc['refmac_superposed','B_factor']],
+             linestyle='dashed',
+             color=to_rgba('crimson',0.5))
+
+    ax.plot([width_df.loc['phenix','Occupancy'],
+                width_df.loc['phenix_superposed','Occupancy']],
+             [width_df.loc['phenix','B_factor'],
+                width_df.loc['phenix_superposed','B_factor']],
+             linestyle='dashed',
+             color=to_rgba('navy',0.5),
+            label="Relationship between\nsuperposed and\nnon-superposed\nrefinement methods\n ")
+
+    plt.plot([], [], '-', label="Error bars show\n"
+                                "varaiability\n"
                                 "of distribution width\n"
-                                "across 8 different\n "
-                                "protein-ligand \n"
-                                "repeated soaks\n")
+                                "(standard deviation)\n"
+                                "across 8\n"
+                                "protein-ligand\n"
+                                "repeated soaks\n",
+             color=to_rgba('forestgreen',0.4))
+
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     ax.legend(loc='center left',
-              bbox_to_anchor=(1, 0.8),
+              bbox_to_anchor=(1.0, 0.5),
               fontsize=8,
               frameon=False)
-    plt.xlabel("Mean (targets) of standard deviation (datasets)\nof Occupancy distributions")
-    plt.ylabel("Mean (targets) of\nstandard deviation (datasets)\nof B factor distributions")
+    plt.xlabel("Occupancy distribution width")
+    plt.ylabel("B factor distribution width")
 
     plt.savefig("/dls/science/groups/i04-1/elliot-dev/"
                 "Work/repeat_soak_plots/distribution_widths.png",dpi=300)
@@ -251,14 +298,14 @@ if __name__ == "__main__":
                 occ_cmpd_res_ref_df.plot(kind='scatter',
                                         x='Occupancy',
                                         y='B_factor',
-                                        label='{}'.format(ref_type),
+                                        label='{}'.format(ref_type.replace('_',' ')),
                                         ax=ax,
                                         color=cols[ref_type])
             plt.ylabel("B factor")
-            plt.legend(frameon=False, fontsize=10)
+            plt.legend(frameon=False, fontsize=12, loc='upper left')
             #plt.legend().set_visible(False)
             plt.savefig("/dls/science/groups/i04-1/elliot-dev/Work/"
-                        "repeat_soak_plots/large_leg_scatter_{}_{}.png".format(compound,resid), dpi=300)
+                        "repeat_soak_plots/large_leg_scatter_{}_{}.png".format(compound,resid.strip('.0')), dpi=300)
             plt.close()
 
     # distplots
@@ -276,21 +323,20 @@ if __name__ == "__main__":
                                                    'and program == @ref_type')
 
                 plt.xlim(0, 1.05)
-                plt.ylabel('Denisty')
+                plt.ylabel('Frequency density')
                 ax.spines["right"].set_visible(False)
                 ax.spines["top"].set_visible(False)
 
                 sns.distplot(occ_cmpd_res_ref_df['Occupancy'],
                              hist=False,
-                             label="{} resid {} for n ={}".format(ref_type,
-                                                                  resid,
-                                                                  len(occ_cmpd_res_ref_df )),
+                             label="{}".format(ref_type.replace('_',' ')),
                              color=cols[ref_type])
-                break
+
+                print(f"{compound} {len(occ_cmpd_res_ref_df)}")
 
             plt.legend(fontsize=10, loc='best', frameon=False)
-            #plt.legend().set_visible(False)
+            plt.legend().set_visible(False)
             plt.savefig("/dls/science/groups/i04-1/elliot-dev/Work/"
-                        "repeat_soak_plots/single_distplot_{}_{}.png".format(compound,resid), dpi=300)
+                        "repeat_soak_plots/no_leg_distplot_{}_{}.png".format(compound, resid.strip('.0')), dpi=300)
             plt.close()
 
