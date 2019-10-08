@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import to_rgba
 
 if __name__ == "__main__":
@@ -25,22 +24,12 @@ if __name__ == "__main__":
     # Colour map for plots
     cols = {'buster': 'darkgreen',
             'buster_superposed': 'limegreen',
-            'exhaustive': 'gold',
-            'phenix': 'navy',
+            'exhaustive': 'k',
+            'phenix': 'darkblue',
             'phenix_superposed': 'cornflowerblue',
             'refmac':'crimson',
             'refmac_superposed':'lightcoral',
             }
-
-    # col_ar = [(0.0, 0.5, 0.0, 1.0),
-    # (1.0, 0.0, 0.0, 1.0),
-    # (0.0, 0.0, 1.0, 1.0),
-    # (0.0, 0.75, 0.75, 1.0),
-    # (0.75, 0.0, 0.75, 1.0),
-    # (0.75, 0.75, 0, 1.0),
-    # (0.0, 0.0, 0.0, 1.0)]
-    #
-    # cm = LinearSegmentedColormap.from_list("ARGH", col_ar, N=7)
 
     occ_df_list = []
     keys = []
@@ -184,6 +173,8 @@ if __name__ == "__main__":
             color=to_rgba('navy', 0.5),
             label="Relationship between\nsuperposed and\nnon-superposed\nrefinement methods\n ")
 
+    #arrows
+
     plt.plot([], [], '-', label="Error bars show\n"
                                 "standard deviation\n",
              color=to_rgba('forestgreen',0.4))
@@ -303,9 +294,9 @@ if __name__ == "__main__":
                                         color=cols[ref_type])
             plt.ylabel("B factor")
             plt.legend(frameon=False, fontsize=12, loc='upper left')
-            #plt.legend().set_visible(False)
+            plt.legend().set_visible(False)
             plt.savefig("/dls/science/groups/i04-1/elliot-dev/Work/"
-                        "repeat_soak_plots/large_leg_scatter_{}_{}.png".format(compound,resid.strip('.0')), dpi=300)
+                        "repeat_soak_plots/no_leg_scatter_{}_{}.png".format(compound,resid.strip('.0')), dpi=300)
             plt.close()
 
     # distplots
